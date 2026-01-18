@@ -1,0 +1,90 @@
+import 'package:flutter/material.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_dimens.dart';
+import '../../core/utils/spacing.dart';
+import 'app_card.dart';
+
+/// Reusable feature card widget for grid layouts.
+/// Used in home screen and feature listing screens.
+///
+/// Example usage:
+/// ```dart
+/// FeatureCard(
+///   icon: Icons.mosque,
+///   title: 'Qibla',
+///   color: AppColors.primary,
+///   onTap: () => Navigator.push(...),
+/// )
+/// ```
+class FeatureCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final Color color;
+  final VoidCallback onTap;
+  final double? size;
+
+  const FeatureCard({
+    super.key,
+    required this.icon,
+    required this.title,
+    this.subtitle,
+    required this.color,
+    required this.onTap,
+    this.size,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return AppCard(
+      padding: const EdgeInsets.all(AppDimens.paddingSmall),
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppDimens.paddingMedium),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? color.withValues(alpha: 0.2)
+                  : color.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              size: size ?? AppDimens.iconSizeLarge,
+              color: isDark ? color.withValues(alpha: 0.8) : color,
+            ),
+          ),
+          VSpace.medium,
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.textPrimary,
+                ),
+          ),
+          if (subtitle != null) ...[
+            VSpace.small,
+            Text(
+              subtitle!,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.textSecondary,
+                  ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
