@@ -15,11 +15,15 @@ dependencies:
   # State Management
   provider: ^6.1.1
 
-  # Firebase (commented out - enable after adding google-services.json)
-  # firebase_core: ^2.25.4
-  # firebase_auth: ^4.17.4
-  # cloud_firestore: ^4.15.4
-  # firebase_analytics: ^10.8.5
+  # Firebase
+  firebase_core: ^3.6.0
+  firebase_auth: ^5.3.1
+  cloud_firestore: ^5.4.4
+
+  # Social Authentication
+  google_sign_in: ^6.2.1
+  sign_in_with_apple: ^6.1.0
+  intl_phone_field: ^3.2.0
 
   # Location & Maps
   geolocator: ^11.0.0

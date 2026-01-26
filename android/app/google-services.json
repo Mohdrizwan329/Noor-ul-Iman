@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "464672195306",
-    "project_id": "noor-ul-huda-7ddd6",
-    "storage_bucket": "noor-ul-huda-7ddd6.firebasestorage.app"
+    "project_number": "1071040159024",
+    "project_id": "noor-ul-iman",
+    "storage_bucket": "noor-ul-iman.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:464672195306:android:1688601a29101635e74d93",
+        "mobilesdk_app_id": "1:1071040159024:android:a11eeb13085a17edd1fcf5",
         "android_client_info": {
           "package_name": "com.example.nooruliman"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCbOkPUH1szk8ZZ7VfsFvhQ7ZSCJ5cPhPM"
+          "current_key": "AIzaSyAWnS_XNqOxlssFW8yxRmHB2duJhO8gQgI"
         }
       ],
       "services": {

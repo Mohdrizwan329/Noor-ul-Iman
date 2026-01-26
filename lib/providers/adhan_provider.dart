@@ -74,9 +74,9 @@ class AdhanProvider with ChangeNotifier {
       '@mipmap/ic_launcher',
     );
     const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
     );
 
     const initSettings = InitializationSettings(
@@ -89,19 +89,8 @@ class AdhanProvider with ChangeNotifier {
       onDidReceiveNotificationResponse: _onNotificationTap,
     );
 
-    // Request permissions for Android 13+
-    await _notifications
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.requestNotificationsPermission();
-
-    // Request exact alarm permission for Android 12+
-    await _notifications
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.requestExactAlarmsPermission();
+    // Don't automatically request permissions - let PermissionsScreen handle it
+    // Permissions will be requested when user explicitly enables them
   }
 
   void _onNotificationTap(NotificationResponse response) {
@@ -164,6 +153,23 @@ class AdhanProvider with ChangeNotifier {
     _prayerNotifications[prayer] = enabled;
     await _savePreferences();
     notifyListeners();
+  }
+
+  /// Request notification permissions (call this after user grants permission)
+  Future<void> requestNotificationPermissions() async {
+    // Request permissions for Android 13+
+    await _notifications
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.requestNotificationsPermission();
+
+    // Request exact alarm permission for Android 12+
+    await _notifications
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.requestExactAlarmsPermission();
   }
 
   Future<void> schedulePrayerNotifications(PrayerTimeModel prayerTimes) async {
