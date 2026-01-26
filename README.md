@@ -1,4 +1,4 @@
-# Noor-ul-Huda
+# Noor-ul-Iman
 
 A comprehensive Islamic mobile application built with Flutter, providing essential Islamic resources and tools for Muslims worldwide.
 
@@ -53,8 +53,8 @@ A comprehensive Islamic mobile application built with Flutter, providing essenti
 
 1. Clone the repository
 ```bash
-git clone https://github.com/Mohdrizwan329/noorulhuda.git
-cd noorulhuda
+git clone https://github.com/Mohdrizwan329/nooruliman.git
+cd nooruliman
 ```
 
 2. Install dependencies

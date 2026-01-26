@@ -2,7 +2,7 @@ class AppStrings {
   AppStrings._();
 
   // App Info
-  static const String appName = 'Noor-ul-Huda';
+  static const String appName = 'Noor-ul-Iman';
   static const String appTagline = 'Your Complete Islamic Companion';
 
   // Navigation

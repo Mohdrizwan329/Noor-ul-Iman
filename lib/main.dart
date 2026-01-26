@@ -70,7 +70,7 @@ class MyApp extends StatelessWidget {
       child: Consumer2<SettingsProvider, LanguageProvider>(
         builder: (context, settings, language, child) {
           return MaterialApp(
-            title: 'Noor-ul-Huda',
+            title: 'Noor-ul-Iman',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
@@ -87,6 +87,13 @@ class MyApp extends StatelessWidget {
               Locale('ar'),
               Locale('hi'),
             ],
+            // Force LTR layout for all languages (text will still translate)
+            builder: (context, child) {
+              return Directionality(
+                textDirection: TextDirection.ltr,
+                child: child ?? const SizedBox(),
+              );
+            },
             home: const SplashScreen(),
           );
         },

@@ -484,7 +484,7 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _openPrivacyPolicy() async {
-    final url = Uri.parse('https://noorulhuda.com/privacy');
+    final url = Uri.parse('https://nooruliman.com/privacy');
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     }

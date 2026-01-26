@@ -707,7 +707,7 @@ ${section['contentHindi']}''';
 
 ${section['contentEnglish']}
 
-- Shared from Jiyan Islamic Academy App''';
+- Shared from Noor-ul-Iman App''';
         break;
       case ZakatGuideLanguage.urdu:
         content =
@@ -715,7 +715,7 @@ ${section['contentEnglish']}
 
 ${section['contentUrdu']}
 
-- Shared from Jiyan Islamic Academy App''';
+- Shared from Noor-ul-Iman App''';
         break;
       case ZakatGuideLanguage.arabic:
         content =
@@ -723,7 +723,7 @@ ${section['contentUrdu']}
 
 ${section['contentArabic'] ?? section['contentUrdu']}
 
-- Shared from Jiyan Islamic Academy App''';
+- Shared from Noor-ul-Iman App''';
         break;
       case ZakatGuideLanguage.hindi:
         content =
@@ -731,7 +731,7 @@ ${section['contentArabic'] ?? section['contentUrdu']}
 
 ${section['contentHindi']}
 
-- Shared from Jiyan Islamic Academy App''';
+- Shared from Noor-ul-Iman App''';
         break;
     }
 

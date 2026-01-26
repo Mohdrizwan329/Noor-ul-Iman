@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:noorulhuda/core/constants/app_colors.dart';
+import 'package:nooruliman/core/constants/app_colors.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:gal/gal.dart';
 import 'dart:io';
 import '../../providers/language_provider.dart';
 
@@ -36,15 +37,23 @@ class GreetingCardsScreen extends StatelessWidget {
     final language = _getGreetingLanguage(languageProvider.languageCode);
 
     return Scaffold(
+      backgroundColor: AppColors.background,
+
       appBar: AppBar(
-        title: const Text(
-          'Greeting Cards',
-          style: TextStyle(
+        title: Text(
+          language == GreetingLanguage.urdu
+              ? 'تہوار کے کارڈز'
+              : language == GreetingLanguage.hindi
+              ? 'ग्रीटिंग कار्ड्स'
+              : language == GreetingLanguage.arabic
+              ? 'بطاقات التهنئة'
+              : 'Greeting Cards',
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Color(0xFFFFFFFF), // White
           ),
         ),
-        backgroundColor: const Color(0xFF0A5C36), // Dark Islamic Green
+        backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Color(0xFFFFFFFF)), // White icons
       ),
       body: Container(
@@ -73,7 +82,6 @@ class _MonthCard extends StatelessWidget {
     // Islamic Color Scheme Constants
     const darkGreen = Color(0xFF0A5C36);
     const emeraldGreen = Color(0xFF1E8F5A);
-    const arabicTextColor = Color(0xFF1F3D2B);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -143,7 +151,7 @@ class _MonthCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // English Name - Dark Green Bold
+                      // Month Name - Dark Green Bold
                       Text(
                         month.getName(language),
                         style: const TextStyle(
@@ -151,16 +159,6 @@ class _MonthCard extends StatelessWidget {
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.3,
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      // Arabic Name - Muted Green
-                      Text(
-                        month.arabicName,
-                        style: const TextStyle(
-                          color: arabicTextColor, // Arabic Text Color
-                          fontSize: 15,
-                          fontFamily: 'Amiri',
                         ),
                       ),
                       if (month.getSpecialOccasion(language) != null) ...[
@@ -561,7 +559,7 @@ class StatusCardScreen extends StatefulWidget {
 
 class _StatusCardScreenState extends State<StatusCardScreen> {
   final ScreenshotController _screenshotController = ScreenshotController();
-  int _selectedThemeIndex = 0;
+  int _selectedThemeIndex = -1; // -1 means None (original colors)
   int _selectedTemplateIndex = 0; // Default to original premium Islamic card
   String _customTitle = '';
   String _customMessage = '';
@@ -576,269 +574,309 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Get current theme colors
-    final currentTheme = _colorThemes[_selectedThemeIndex];
-    final emeraldGreen = currentTheme.footerColor;
-
-    // Premium Islamic Color Palette
-    const darkTealBg = Color(0xFF0E2A2A); // Dark Teal / Navy Background
-    const deepGreen = Color(0xFF123838); // Deep Green Shade (Card Inner Area)
-    const goldenBorder = Color(0xFFD4AF37); // Golden Border / Frame
-    const softGoldText = Color(0xFFE6C87A); // Soft Gold (Text – "HAPPY")
-    const warmGold = Color(0xFFBFA24A); // Warm Gold (Main Title)
-    const creamText = Color(0xFFF5F1E6); // Off-White / Light Cream Text
-    const lanternGlow = Color(0xFFFFD36A); // Lantern Light Glow
-    const lanternBody = Color(
-      0xFF8A6A3E,
-    ); // Muted Bronze / Brown (Lantern Body)
-    const mandalaGold = Color(0xFF9C8355); // Decorative Mandala Outline
-    const shadowGreen = Color(0xFF081C1C); // Shadow / Depth Dark Green
-
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(_customTitle, style: const TextStyle(color: creamText)),
+        title: Text(_customTitle),
         backgroundColor: AppColors.primary,
-        iconTheme: const IconThemeData(color: goldenBorder),
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [darkTealBg, shadowGreen],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // Main Card Display (wrapped with Screenshot) - Uses Selected Template
-                Screenshot(
-                  controller: _screenshotController,
-                  child: Container(
-                    height: 600,
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    child: _buildCardVariation(_selectedTemplateIndex),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              // Main Card Display (wrapped with Screenshot) - Uses Selected Template
+              Screenshot(
+                controller: _screenshotController,
+                child: Container(
+                  height: 570,
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  child: _buildCardVariation(
+                    _selectedTemplateIndex,
+                    isPreview: false,
                   ),
-                ), // Screenshot widget
-                const SizedBox(height: 24),
+                ),
+              ), // Screenshot widget
+              const SizedBox(height: 10),
 
-                // 9 Different Card Design Templates
-                Container(
-                  height: 80,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 9,
-                    itemBuilder: (context, index) {
-                      final isSelected = _selectedTemplateIndex == index;
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedTemplateIndex = index;
-                          });
-                        },
-                        child: Container(
-                          width: 80,
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: isSelected
-                                  ? const Color(0xFFD4AF37)
-                                  : Colors.transparent,
-                              width: 3,
-                            ),
-                            boxShadow: isSelected
-                                ? [
-                                    BoxShadow(
-                                      color: const Color(
-                                        0xFFD4AF37,
-                                      ).withValues(alpha: 0.5),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ]
-                                : [],
+              // 9 Different Card Design Templates
+              Container(
+                height: 80,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 9,
+                  itemBuilder: (context, index) {
+                    final isSelected = _selectedTemplateIndex == index;
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedTemplateIndex = index;
+                        });
+                      },
+                      child: Container(
+                        width: 80,
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isSelected
+                                ? const Color(0xFFD4AF37)
+                                : Colors.transparent,
+                            width: 3,
                           ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: FittedBox(
-                              child: SizedBox(
-                                width: 300,
-                                height: 400,
-                                child: _buildCardVariation(index),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFFD4AF37,
+                                    ).withValues(alpha: 0.5),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ]
+                              : [],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: FittedBox(
+                            child: SizedBox(
+                              width: 300,
+                              height: 400,
+                              child: _buildCardVariation(
+                                index,
+                                isPreview: true,
                               ),
                             ),
                           ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
-                const SizedBox(height: 24),
+              ),
+              const SizedBox(height: 10),
 
-                // Color Theme Selector
-                Container(
-                  height: 60,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _colorThemes.length,
-                    itemBuilder: (context, index) {
-                      final theme = _colorThemes[index];
-                      final isSelected = _selectedThemeIndex == index;
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedThemeIndex = index;
-                          });
-                        },
-                        child: Container(
-                          width: 60,
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [theme.headerColor, theme.footerColor],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: isSelected
-                                  ? theme.accentColor
-                                  : Colors.transparent,
-                              width: 3,
-                            ),
-                            boxShadow: isSelected
-                                ? [
-                                    BoxShadow(
-                                      color: theme.accentColor.withValues(
-                                        alpha: 0.5,
-                                      ),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ]
-                                : [],
-                          ),
-                          child: Center(
-                            child: Text(
-                              theme.getName(widget.language),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 8,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Action Buttons Row - Edit, Share, Download
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              // Color Theme Selector with None button
+              Container(
+                height: 60,
+                child: Row(
                   children: [
-                    // Edit Button
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: ElevatedButton.icon(
-                          onPressed: _showEditDialog,
-                          icon: const Icon(Icons.edit, size: 18),
-                          label: Text(
-                            widget.language == GreetingLanguage.urdu
-                                ? 'ترمیم'
-                                : widget.language == GreetingLanguage.hindi
-                                ? 'संपादित'
-                                : widget.language == GreetingLanguage.arabic
-                                ? 'تعديل'
-                                : 'Edit',
-                            style: const TextStyle(fontSize: 13),
+                    // None Button
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedThemeIndex = -1;
+                        });
+                      },
+                      child: Container(
+                        width: 70,
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0E2A2A),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: _selectedThemeIndex == -1
+                                ? const Color(0xFFD4AF37)
+                                : Colors.transparent,
+                            width: 3,
                           ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                _colorThemes[_selectedThemeIndex].headerColor,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
+                          boxShadow: _selectedThemeIndex == -1
+                              ? [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFFD4AF37,
+                                    ).withValues(alpha: 0.5),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ]
+                              : [],
+                        ),
+                        child: Center(
+                          child: Text(
+                            widget.language == GreetingLanguage.urdu
+                                ? 'اصل'
+                                : widget.language == GreetingLanguage.hindi
+                                ? 'मूल'
+                                : widget.language == GreetingLanguage.arabic
+                                ? 'أصلي'
+                                : 'None',
+                            style: const TextStyle(
+                              color: Color(0xFFD4AF37),
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
                             ),
+                            textAlign: TextAlign.center,
                           ),
                         ),
                       ),
                     ),
-                    // Share Button
+                    // Color themes list
                     Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: ElevatedButton.icon(
-                          onPressed: () => _shareCard(context),
-                          icon: const Icon(Icons.share, size: 18),
-                          label: Text(
-                            widget.language == GreetingLanguage.urdu
-                                ? 'شیئر'
-                                : widget.language == GreetingLanguage.hindi
-                                ? 'शेयर'
-                                : widget.language == GreetingLanguage.arabic
-                                ? 'مشاركة'
-                                : 'Share',
-                            style: const TextStyle(fontSize: 13),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: emeraldGreen,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _colorThemes.length,
+                        itemBuilder: (context, index) {
+                          final theme = _colorThemes[index];
+                          final isSelected = _selectedThemeIndex == index;
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _selectedThemeIndex = index;
+                              });
+                            },
+                            child: Container(
+                              width: 60,
+                              margin: const EdgeInsets.symmetric(horizontal: 4),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    theme.headerColor,
+                                    theme.footerColor,
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? theme.accentColor
+                                      : Colors.transparent,
+                                  width: 3,
+                                ),
+                                boxShadow: isSelected
+                                    ? [
+                                        BoxShadow(
+                                          color: theme.accentColor.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                    : [],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  theme.getName(widget.language),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    // Download Button
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: ElevatedButton.icon(
-                          onPressed: _downloadCard,
-                          icon: const Icon(Icons.download, size: 18),
-                          label: Text(
-                            widget.language == GreetingLanguage.urdu
-                                ? 'ڈاؤن لوڈ'
-                                : widget.language == GreetingLanguage.hindi
-                                ? 'डाउनलोड'
-                                : widget.language == GreetingLanguage.arabic
-                                ? 'تحميل'
-                                : 'Download',
-                            style: const TextStyle(fontSize: 13),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                _colorThemes[_selectedThemeIndex].footerColor,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
-              ],
-            ),
+              ),
+              const SizedBox(height: 10),
+
+              // Action Buttons Row - Edit, Share, Download
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // Edit Button
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ElevatedButton.icon(
+                        onPressed: _showEditDialog,
+                        icon: const Icon(Icons.edit, size: 18),
+                        label: Text(
+                          widget.language == GreetingLanguage.urdu
+                              ? 'ترمیم'
+                              : widget.language == GreetingLanguage.hindi
+                              ? 'संपादित'
+                              : widget.language == GreetingLanguage.arabic
+                              ? 'تعديل'
+                              : 'Edit',
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                            0xFF0A5C36,
+                          ), // Fixed Islamic Green
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Share Button
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ElevatedButton.icon(
+                        onPressed: () => _shareCard(context),
+                        icon: const Icon(Icons.share, size: 18),
+                        label: Text(
+                          widget.language == GreetingLanguage.urdu
+                              ? 'شیئر'
+                              : widget.language == GreetingLanguage.hindi
+                              ? 'शेयर'
+                              : widget.language == GreetingLanguage.arabic
+                              ? 'مشاركة'
+                              : 'Share',
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                            0xFF1E8F5A,
+                          ), // Fixed Emerald Green
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Download Button
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ElevatedButton.icon(
+                        onPressed: _downloadCard,
+                        icon: const Icon(Icons.download, size: 18),
+                        label: Text(
+                          widget.language == GreetingLanguage.urdu
+                              ? 'ڈاؤن لوڈ'
+                              : widget.language == GreetingLanguage.hindi
+                              ? 'डाउनलोड'
+                              : widget.language == GreetingLanguage.arabic
+                              ? 'تحميل'
+                              : 'Download',
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                            0xFF1E8F5A,
+                          ), // Fixed Emerald Green
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+            ],
           ),
         ),
       ),
@@ -972,19 +1010,43 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
   }
 
   // Build 9 Different Card Design Variations
-  Widget _buildCardVariation(int index) {
+  Widget _buildCardVariation(int index, {bool isPreview = false}) {
     // Remap indices: Original premium card (was index 8) is now at index 0
     const indexMap = [8, 0, 1, 2, 3, 4, 5, 6, 7];
     index = indexMap[index];
 
-    const darkTealBg = Color(0xFF0E2A2A);
-    const deepGreen = Color(0xFF123838);
-    const goldenBorder = Color(0xFFD4AF37);
-    const softGoldText = Color(0xFFE6C87A);
-    const warmGold = Color(0xFFBFA24A);
+    final Color darkTealBg;
+    final Color deepGreen;
+    final Color goldenBorder;
+    final Color softGoldText;
+    final Color warmGold;
     const creamText = Color(0xFFF5F1E6);
-    const lanternGlow = Color(0xFFFFD36A);
-    const shadowGreen = Color(0xFF081C1C);
+    final Color lanternGlow;
+    final Color shadowGreen;
+
+    // If it's a preview card (small thumbnail), always use original colors
+    // If None is selected (_selectedThemeIndex == -1), use original colors
+    // Otherwise, use selected theme colors
+    if (isPreview || _selectedThemeIndex == -1) {
+      // Original hardcoded colors for preview thumbnails or when None is selected
+      darkTealBg = const Color(0xFF0E2A2A);
+      deepGreen = const Color(0xFF123838);
+      goldenBorder = const Color(0xFFD4AF37);
+      softGoldText = const Color(0xFFE6C87A);
+      warmGold = const Color(0xFFBFA24A);
+      lanternGlow = const Color(0xFFFFD36A);
+      shadowGreen = const Color(0xFF081C1C);
+    } else {
+      // Use selected theme colors for main top card
+      final currentTheme = _colorThemes[_selectedThemeIndex];
+      darkTealBg = currentTheme.headerColor;
+      deepGreen = currentTheme.footerColor;
+      goldenBorder = currentTheme.accentColor;
+      softGoldText = currentTheme.accentColor.withValues(alpha: 0.8);
+      warmGold = currentTheme.accentColor;
+      lanternGlow = currentTheme.accentColor;
+      shadowGreen = currentTheme.headerColor.withValues(alpha: 0.5);
+    }
 
     switch (index) {
       case 0:
@@ -1023,7 +1085,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                   const SizedBox(height: 16),
                   Text(
                     _customTitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: warmGold,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -1058,7 +1120,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [const Color(0xFF0B4F3C), darkTealBg],
+              colors: [deepGreen, darkTealBg],
             ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: goldenBorder, width: 4),
@@ -1248,10 +1310,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [
-                          const Color(0xFF1A5C78),
-                          const Color(0xFF0E3A4A),
-                        ],
+                        colors: [deepGreen, darkTealBg],
                       ),
                     ),
                     child: CustomPaint(
@@ -1394,13 +1453,10 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
         // Design 4: Islamic New Year Blue Elegance
         return Container(
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF1A4D7A), // Deep Royal Blue
-                Color(0xFF2E6BA8), // Medium Blue
-              ],
+              colors: [darkTealBg, deepGreen],
             ),
             borderRadius: BorderRadius.circular(22),
             border: Border.all(color: goldenBorder, width: 3.5),
@@ -1570,13 +1626,10 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
         // Design 5: Eid Al-Fitr with Hanging Lanterns
         return Container(
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFF0C5C4A), // Dark Teal
-                Color(0xFF0A4438), // Darker Teal
-              ],
+              colors: [deepGreen, darkTealBg],
             ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: goldenBorder, width: 3),
@@ -1718,13 +1771,10 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
         // Design 6: Iftar Invitation Elegant Frame
         return Container(
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF0F4C3A), // Deep Green
-                Color(0xFF1A6B52), // Medium Green
-              ],
+              colors: [darkTealBg, deepGreen],
             ),
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
@@ -1740,13 +1790,10 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
             decoration: BoxDecoration(
               border: Border.all(color: goldenBorder, width: 3),
               borderRadius: BorderRadius.circular(16),
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFF0A3A2E),
-                  Color(0xFF123838),
-                ],
+                colors: [darkTealBg, deepGreen],
               ),
             ),
             child: Container(
@@ -1766,11 +1813,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        width: 40,
-                        height: 1.5,
-                        color: goldenBorder,
-                      ),
+                      Container(width: 40, height: 1.5, color: goldenBorder),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: Icon(
@@ -1779,11 +1822,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                           size: 22,
                         ),
                       ),
-                      Container(
-                        width: 40,
-                        height: 1.5,
-                        color: goldenBorder,
-                      ),
+                      Container(width: 40, height: 1.5, color: goldenBorder),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -1838,11 +1877,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                     children: [
                       _buildStar(goldenBorder, 8),
                       const SizedBox(width: 10),
-                      Container(
-                        width: 50,
-                        height: 1.5,
-                        color: goldenBorder,
-                      ),
+                      Container(width: 50, height: 1.5, color: goldenBorder),
                       const SizedBox(width: 10),
                       _buildStar(goldenBorder, 8),
                     ],
@@ -1922,16 +1957,18 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               ),
               // Main content area
               Padding(
-                padding: const EdgeInsets.only(top: 50, bottom: 50, left: 20, right: 20),
+                padding: const EdgeInsets.only(
+                  top: 50,
+                  bottom: 50,
+                  left: 20,
+                  right: 20,
+                ),
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [
-                        const Color(0xFF0F5C48),
-                        deepGreen,
-                      ],
+                      colors: [darkTealBg, deepGreen],
                     ),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: goldenBorder, width: 2),
@@ -2015,21 +2052,17 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
         // Design 8: Turquoise Celebration Elegance
         return Container(
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF0C8E8E), // Turquoise
-                Color(0xFF1AABAD), // Light Turquoise
-                Color(0xFF0C8E8E), // Turquoise
-              ],
-              stops: [0.0, 0.5, 1.0],
+              colors: [darkTealBg, deepGreen, darkTealBg],
+              stops: const [0.0, 0.5, 1.0],
             ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: goldenBorder, width: 3),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF0C8E8E).withValues(alpha: 0.5),
+                color: darkTealBg.withValues(alpha: 0.5),
                 blurRadius: 20,
                 offset: const Offset(0, 6),
               ),
@@ -2057,11 +2090,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                       children: [
                         _buildStar(const Color(0xFFFFE5A0), 12),
                         const SizedBox(width: 15),
-                        Icon(
-                          Icons.brightness_2,
-                          color: goldenBorder,
-                          size: 28,
-                        ),
+                        Icon(Icons.brightness_2, color: goldenBorder, size: 28),
                         const SizedBox(width: 15),
                         _buildStar(const Color(0xFFFFE5A0), 12),
                       ],
@@ -2253,7 +2282,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                                 : widget.language == GreetingLanguage.arabic
                                 ? 'مبارك'
                                 : 'HAPPY',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: softGoldText,
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
@@ -2358,11 +2387,11 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                                           languageProvider.languageCode == 'ar'
                                           ? 'Amiri'
                                           : null,
-                                      shadows: const [
+                                      shadows: [
                                         Shadow(
                                           color: shadowGreen,
                                           blurRadius: 4,
-                                          offset: Offset(2, 2),
+                                          offset: const Offset(2, 2),
                                         ),
                                       ],
                                     ),
@@ -2404,7 +2433,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                             Flexible(
                               child: Text(
                                 _customTitle,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: warmGold,
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -2413,7 +2442,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                                     Shadow(
                                       color: shadowGreen,
                                       blurRadius: 4,
-                                      offset: Offset(2, 2),
+                                      offset: const Offset(2, 2),
                                     ),
                                   ],
                                 ),
@@ -2461,7 +2490,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                             // Message text
                             Text(
                               _customMessage,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: creamText,
                                 fontSize: 16,
                                 height: 1.8,
@@ -2471,7 +2500,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                                   Shadow(
                                     color: shadowGreen,
                                     blurRadius: 2,
-                                    offset: Offset(1, 1),
+                                    offset: const Offset(1, 1),
                                   ),
                                 ],
                               ),
@@ -2518,7 +2547,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                           _buildStar(lanternGlow, 6),
                           const SizedBox(width: 10),
                           const Text(
-                            'Jiyan Islamic Academy',
+                            'Noor-ul-Iman',
                             style: TextStyle(
                               color: creamText,
                               fontSize: 12,
@@ -2548,6 +2577,23 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
 
   Future<void> _downloadCard() async {
     try {
+      // Show loading message
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            widget.language == GreetingLanguage.urdu
+                ? 'کارڈ محفوظ ہو رہا ہے...'
+                : widget.language == GreetingLanguage.hindi
+                ? 'कार्ड सहेजा जा रहा है...'
+                : widget.language == GreetingLanguage.arabic
+                ? 'جاري حفظ البطاقة...'
+                : 'Saving card...',
+          ),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+
       // Capture the card as image
       final image = await _screenshotController.capture();
 
@@ -2564,45 +2610,41 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                   ? 'خطأ في إنشاء الصورة'
                   : 'Error creating image',
             ),
+            backgroundColor: Colors.red,
           ),
         );
         return;
       }
 
-      // Get directory to save the image
-      final directory = await getApplicationDocumentsDirectory();
+      // Save to temporary directory first
+      final directory = await getTemporaryDirectory();
       final imagePath =
           '${directory.path}/greeting_card_${DateTime.now().millisecondsSinceEpoch}.png';
       final imageFile = File(imagePath);
       await imageFile.writeAsBytes(image);
 
+      // Save to gallery using Gal package
+      await Gal.putImage(imagePath, album: 'Noor-ul-Iman');
+
+      // Delete temporary file
+      await imageFile.delete();
+
       if (!mounted) return;
 
-      // Show success message with share option
+      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             widget.language == GreetingLanguage.urdu
-                ? 'کارڈ محفوظ ہو گیا: $imagePath'
+                ? 'کارڈ گیلری میں محفوظ ہو گیا!'
                 : widget.language == GreetingLanguage.hindi
-                ? 'कार्ड सहेजा गया: $imagePath'
+                ? 'कार्ड गैलरी में सहेजा गया!'
                 : widget.language == GreetingLanguage.arabic
-                ? 'تم حفظ البطاقة: $imagePath'
-                : 'Card saved: $imagePath',
+                ? 'تم حفظ البطاقة في المعرض!'
+                : 'Card saved to gallery!',
           ),
-          action: SnackBarAction(
-            label: widget.language == GreetingLanguage.urdu
-                ? 'شیئر کریں'
-                : widget.language == GreetingLanguage.hindi
-                ? 'शेयर करें'
-                : widget.language == GreetingLanguage.arabic
-                ? 'مشاركة'
-                : 'Share',
-            onPressed: () {
-              Share.shareXFiles([XFile(imagePath)]);
-            },
-          ),
-          duration: const Duration(seconds: 5),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 3),
         ),
       );
     } catch (e) {
@@ -2618,6 +2660,8 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                 ? 'خطأ: $e'
                 : 'Error: $e',
           ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
         ),
       );
     }
@@ -2630,14 +2674,33 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-          widget.language == GreetingLanguage.urdu
-              ? 'کارڈ میں ترمیم کریں'
-              : widget.language == GreetingLanguage.hindi
-              ? 'कार्ड संपादित करें'
-              : widget.language == GreetingLanguage.arabic
-              ? 'تعديل البطاقة'
-              : 'Edit Card',
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(
+            color: Color(0xFF0A5C36), // Islamic Green border
+            width: 3,
+          ),
+        ),
+        title: Row(
+          children: [
+            const Icon(Icons.edit, color: Color(0xFF0A5C36), size: 28),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                widget.language == GreetingLanguage.urdu
+                    ? 'کارڈ میں ترمیم کریں'
+                    : widget.language == GreetingLanguage.hindi
+                    ? 'कार्ड संपादित करें'
+                    : widget.language == GreetingLanguage.arabic
+                    ? 'تعديل البطاقة'
+                    : 'Edit Card',
+                style: const TextStyle(
+                  color: Color(0xFF0A5C36),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
         ),
         content: SingleChildScrollView(
           child: Column(
@@ -2653,7 +2716,28 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                       : widget.language == GreetingLanguage.arabic
                       ? 'العنوان'
                       : 'Title',
-                  border: const OutlineInputBorder(),
+                  labelStyle: const TextStyle(color: Color(0xFF0A5C36)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF0A5C36),
+                      width: 2,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF8AAF9A),
+                      width: 1.5,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF0A5C36),
+                      width: 2,
+                    ),
+                  ),
                 ),
                 maxLines: 1,
               ),
@@ -2668,64 +2752,142 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                       : widget.language == GreetingLanguage.arabic
                       ? 'الرسالة'
                       : 'Message',
-                  border: const OutlineInputBorder(),
+                  labelStyle: const TextStyle(color: Color(0xFF0A5C36)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF0A5C36),
+                      width: 2,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF8AAF9A),
+                      width: 1.5,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF0A5C36),
+                      width: 2,
+                    ),
+                  ),
                 ),
                 maxLines: 5,
               ),
             ],
           ),
         ),
+        actionsAlignment: MainAxisAlignment.center,
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         actions: [
-          TextButton(
-            onPressed: () {
-              // Reset to original
-              setState(() {
-                _customTitle = widget.card.getTitle(widget.language);
-                _customMessage = widget.card.getMessage(widget.language);
-                _isEdited = false;
-              });
-              Navigator.pop(context);
-            },
-            child: Text(
-              widget.language == GreetingLanguage.urdu
-                  ? 'دوبارہ ترتیب دیں'
-                  : widget.language == GreetingLanguage.hindi
-                  ? 'रीसेट करें'
-                  : widget.language == GreetingLanguage.arabic
-                  ? 'إعادة تعيين'
-                  : 'Reset',
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              widget.language == GreetingLanguage.urdu
-                  ? 'منسوخ کریں'
-                  : widget.language == GreetingLanguage.hindi
-                  ? 'रद्द करें'
-                  : widget.language == GreetingLanguage.arabic
-                  ? 'إلغاء'
-                  : 'Cancel',
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _customTitle = titleController.text;
-                _customMessage = messageController.text;
-                _isEdited = true;
-              });
-              Navigator.pop(context);
-            },
-            child: Text(
-              widget.language == GreetingLanguage.urdu
-                  ? 'محفوظ کریں'
-                  : widget.language == GreetingLanguage.hindi
-                  ? 'सहेजें'
-                  : widget.language == GreetingLanguage.arabic
-                  ? 'حفظ'
-                  : 'Save',
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // Reset Button
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      // Reset to original
+                      setState(() {
+                        _customTitle = widget.card.getTitle(widget.language);
+                        _customMessage = widget.card.getMessage(
+                          widget.language,
+                        );
+                        _isEdited = false;
+                      });
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.refresh, size: 16),
+                    label: Text(
+                      widget.language == GreetingLanguage.urdu
+                          ? 'ری سیٹ'
+                          : widget.language == GreetingLanguage.hindi
+                          ? 'रीसेट'
+                          : widget.language == GreetingLanguage.arabic
+                          ? 'إعادة'
+                          : 'Reset',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF9800), // Orange
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // Cancel Button
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: ElevatedButton.icon(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close, size: 16),
+                    label: Text(
+                      widget.language == GreetingLanguage.urdu
+                          ? 'منسوخ'
+                          : widget.language == GreetingLanguage.hindi
+                          ? 'रद्द'
+                          : widget.language == GreetingLanguage.arabic
+                          ? 'إلغاء'
+                          : 'Cancel',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD32F2F), // Red
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // Save Button
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _customTitle = titleController.text;
+                        _customMessage = messageController.text;
+                        _isEdited = true;
+                      });
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.check, size: 16),
+                    label: Text(
+                      widget.language == GreetingLanguage.urdu
+                          ? 'محفوظ'
+                          : widget.language == GreetingLanguage.hindi
+                          ? 'सहेजें'
+                          : widget.language == GreetingLanguage.arabic
+                          ? 'حفظ'
+                          : 'Save',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0A5C36), // Islamic Green
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -2743,7 +2905,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
       '$_customMessage\n\n'
       '🌙 $hijriDate\n'
       '📅 $gregorianDate\n\n'
-      '~ Jiyan Islamic Academy ~',
+      '~ Noor-ul-Iman ~',
     );
   }
 
