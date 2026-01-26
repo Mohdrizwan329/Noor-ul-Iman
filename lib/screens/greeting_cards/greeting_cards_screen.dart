@@ -744,7 +744,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Action Buttons Row
+                // Action Buttons Row - Edit, Share, Download
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -754,19 +754,48 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: ElevatedButton.icon(
                           onPressed: _showEditDialog,
-                          icon: const Icon(Icons.edit, size: 20),
+                          icon: const Icon(Icons.edit, size: 18),
                           label: Text(
                             widget.language == GreetingLanguage.urdu
                                 ? 'ترمیم'
                                 : widget.language == GreetingLanguage.hindi
-                                ? 'संपादित करें'
+                                ? 'संपादित'
                                 : widget.language == GreetingLanguage.arabic
                                 ? 'تعديل'
                                 : 'Edit',
+                            style: const TextStyle(fontSize: 13),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
                                 _colorThemes[_selectedThemeIndex].headerColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Share Button
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: ElevatedButton.icon(
+                          onPressed: () => _shareCard(context),
+                          icon: const Icon(Icons.share, size: 18),
+                          label: Text(
+                            widget.language == GreetingLanguage.urdu
+                                ? 'شیئر'
+                                : widget.language == GreetingLanguage.hindi
+                                ? 'शेयर'
+                                : widget.language == GreetingLanguage.arabic
+                                ? 'مشاركة'
+                                : 'Share',
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: emeraldGreen,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             shape: RoundedRectangleBorder(
@@ -782,15 +811,16 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: ElevatedButton.icon(
                           onPressed: _downloadCard,
-                          icon: const Icon(Icons.download, size: 20),
+                          icon: const Icon(Icons.download, size: 18),
                           label: Text(
                             widget.language == GreetingLanguage.urdu
                                 ? 'ڈاؤن لوڈ'
                                 : widget.language == GreetingLanguage.hindi
-                                ? 'डाउनलोड करें'
+                                ? 'डाउनलोड'
                                 : widget.language == GreetingLanguage.arabic
                                 ? 'تحميل'
                                 : 'Download',
+                            style: const TextStyle(fontSize: 13),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
@@ -805,34 +835,6 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 12),
-
-                // Share Button
-                ElevatedButton.icon(
-                  onPressed: () => _shareCard(context),
-                  icon: const Icon(Icons.share),
-                  label: Text(
-                    widget.language == GreetingLanguage.urdu
-                        ? 'اسٹیٹس پر شیئر کریں'
-                        : widget.language == GreetingLanguage.hindi
-                        ? 'स्टेटस पर शेयर करें'
-                        : widget.language == GreetingLanguage.arabic
-                        ? 'مشاركة على الحالة'
-                        : 'Share on Status',
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: emeraldGreen, // Emerald Green button
-                    foregroundColor: const Color(0xFFFFFFFF), // White text
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 16,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    elevation: 5,
-                  ),
                 ),
                 const SizedBox(height: 6),
               ],
