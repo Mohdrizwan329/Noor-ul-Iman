@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:geocoding/geocoding.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_assets.dart';
 import '../../core/utils/responsive_utils.dart';
 import '../../core/utils/localization_helper.dart';
 import '../../providers/language_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../core/services/geo_restriction_service.dart';
+import '../../core/services/location_service.dart';
 import '../language_selection/language_selection_screen.dart';
 import '../permissions/permissions_screen.dart';
+import '../auth/login_screen.dart';
+import '../main/main_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -46,7 +53,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    // Navigate after checking language selection
+    // Navigate after checking language and permissions
     Future.delayed(const Duration(seconds: 3), () async {
       if (!mounted) return;
 
@@ -56,18 +63,100 @@ class _SplashScreenState extends State<SplashScreen>
 
       if (!mounted) return;
 
-      if (hasSelectedLanguage) {
-        // Language already selected, go to permissions
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const PermissionsScreen()),
-        );
-      } else {
+      if (!hasSelectedLanguage) {
         // First time, show language selection
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const LanguageSelectionScreen()),
         );
+        return;
+      }
+
+      // Language selected, check all permissions
+      final locationStatus = await Permission.location.status;
+      final notificationStatus = await Permission.notification.status;
+      final alarmStatus = await Permission.scheduleExactAlarm.status;
+      final galleryStatus = await Permission.photos.status;
+      final contactsStatus = await Permission.contacts.status;
+
+      final allPermissionsGranted = locationStatus.isGranted &&
+          notificationStatus.isGranted &&
+          alarmStatus.isGranted &&
+          (galleryStatus.isGranted || galleryStatus.isLimited) &&
+          contactsStatus.isGranted;
+
+      if (!mounted) return;
+
+      if (allPermissionsGranted) {
+        // All permissions granted, fetch location if not already fetched
+        if (locationStatus.isGranted) {
+          await _fetchAndSaveLocation();
+        }
+
+        // Check geo restriction and auth
+        final isRestricted = await GeoRestrictionService.checkCurrentLocation();
+
+        if (isRestricted) {
+          if (mounted) {
+            GeoRestrictionService.showRestrictionDialog(context);
+          }
+          return;
+        }
+
+        if (!mounted) return;
+
+        // Check authentication status
+        final authProvider = context.read<AuthProvider>();
+
+        if (authProvider.isAuthenticated) {
+          // User is authenticated, go to main screen
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const MainScreen()),
+          );
+        } else {
+          // User is not authenticated, go to login screen
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          );
+        }
+      } else {
+        // Permissions not granted, go to permissions screen
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const PermissionsScreen()),
+        );
       }
     });
+  }
+
+  Future<void> _fetchAndSaveLocation() async {
+    try {
+      final locationService = LocationService();
+      final position = await locationService.getCurrentLocation();
+
+      if (position != null) {
+        // Get city and country from coordinates using geocoding
+        try {
+          final placemarks = await placemarkFromCoordinates(
+            position.latitude,
+            position.longitude,
+          );
+
+          if (placemarks.isNotEmpty) {
+            final placemark = placemarks.first;
+            final city = placemark.locality ?? placemark.subAdministrativeArea ?? 'Unknown';
+            final country = placemark.country ?? '';
+
+            // Update location service with city and country
+            locationService.updateCity(city, country);
+
+            debugPrint('📍 Location fetched on splash: $city, $country');
+          }
+        } catch (e) {
+          debugPrint('Geocoding error: $e');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching location: $e');
+    }
   }
 
   @override

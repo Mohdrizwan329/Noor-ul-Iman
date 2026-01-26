@@ -151,6 +151,15 @@ class SettingsProvider with ChangeNotifier {
     await setProfileName(name);
     await setProfileLocation(location);
     await setProfileImagePath(imagePath);
+
+    // Note: Firebase sync should be called from UI with AuthProvider
+    // This method only handles local storage
+  }
+
+  // Sync profile with Firebase (called from UI after updateProfile)
+  Future<void> syncWithFirebase(dynamic authProvider) async {
+    // This will be called from the UI with context.read<AuthProvider>()
+    // authProvider.syncProfileData(name: _profileName, location: _profileLocation, profileImagePath: _profileImagePath);
   }
 
   // Phone code to country mapping

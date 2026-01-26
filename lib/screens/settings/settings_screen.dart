@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:geocoding/geocoding.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/responsive_utils.dart';
 import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/language_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../core/services/location_service.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -24,8 +26,8 @@ class SettingsScreen extends StatelessWidget {
           style: TextStyle(fontSize: responsive.textLarge),
         ),
       ),
-      body: Consumer<SettingsProvider>(
-        builder: (context, settings, child) {
+      body: Consumer2<SettingsProvider, LanguageProvider>(
+        builder: (context, settings, languageProvider, child) {
           return ListView(
             padding: responsive.paddingRegular,
             children: [
@@ -107,18 +109,359 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
+  // Helper function to translate city names
+  String _translateCityName(String city, BuildContext context) {
+    final cityTranslations = {
+      'Bengaluru': {
+        'en': 'Bengaluru',
+        'ur': 'بنگلور',
+        'ar': 'بنغالور',
+        'hi': 'बेंगलुरु',
+      },
+      'Mumbai': {
+        'en': 'Mumbai',
+        'ur': 'ممبئی',
+        'ar': 'مومباي',
+        'hi': 'मुंबई',
+      },
+      'Delhi': {
+        'en': 'Delhi',
+        'ur': 'دہلی',
+        'ar': 'دلهي',
+        'hi': 'दिल्ली',
+      },
+      'New Delhi': {
+        'en': 'New Delhi',
+        'ur': 'نئی دہلی',
+        'ar': 'نيودلهي',
+        'hi': 'नई दिल्ली',
+      },
+      'Kolkata': {
+        'en': 'Kolkata',
+        'ur': 'کولکاتا',
+        'ar': 'كولكاتا',
+        'hi': 'कोलकाता',
+      },
+      'Chennai': {
+        'en': 'Chennai',
+        'ur': 'چنئی',
+        'ar': 'تشيناي',
+        'hi': 'चेन्नई',
+      },
+      'Hyderabad': {
+        'en': 'Hyderabad',
+        'ur': 'حیدرآباد',
+        'ar': 'حيدر أباد',
+        'hi': 'हैदराबाद',
+      },
+      'Pune': {
+        'en': 'Pune',
+        'ur': 'پونے',
+        'ar': 'بونا',
+        'hi': 'पुणे',
+      },
+      'Ahmedabad': {
+        'en': 'Ahmedabad',
+        'ur': 'احمد آباد',
+        'ar': 'أحمد آباد',
+        'hi': 'अहमदाबाद',
+      },
+      'Jaipur': {
+        'en': 'Jaipur',
+        'ur': 'جے پور',
+        'ar': 'جايبور',
+        'hi': 'जयपुर',
+      },
+      'Lucknow': {
+        'en': 'Lucknow',
+        'ur': 'لکھنؤ',
+        'ar': 'لكناو',
+        'hi': 'लखनऊ',
+      },
+      'Karachi': {
+        'en': 'Karachi',
+        'ur': 'کراچی',
+        'ar': 'كراتشي',
+        'hi': 'कराची',
+      },
+      'Lahore': {
+        'en': 'Lahore',
+        'ur': 'لاہور',
+        'ar': 'لاهور',
+        'hi': 'लाहौर',
+      },
+      'Islamabad': {
+        'en': 'Islamabad',
+        'ur': 'اسلام آباد',
+        'ar': 'إسلام آباد',
+        'hi': 'इस्लामाबाद',
+      },
+      'Dhaka': {
+        'en': 'Dhaka',
+        'ur': 'ڈھاکہ',
+        'ar': 'دكا',
+        'hi': 'ढाका',
+      },
+      'Mecca': {
+        'en': 'Mecca',
+        'ur': 'مکہ',
+        'ar': 'مكة',
+        'hi': 'मक्का',
+      },
+      'Medina': {
+        'en': 'Medina',
+        'ur': 'مدینہ',
+        'ar': 'المدينة',
+        'hi': 'मदीना',
+      },
+      'Riyadh': {
+        'en': 'Riyadh',
+        'ur': 'ریاض',
+        'ar': 'الرياض',
+        'hi': 'रियाद',
+      },
+      'Dubai': {
+        'en': 'Dubai',
+        'ur': 'دبئی',
+        'ar': 'دبي',
+        'hi': 'दुबई',
+      },
+      'Abu Dhabi': {
+        'en': 'Abu Dhabi',
+        'ur': 'ابوظبی',
+        'ar': 'أبو ظبي',
+        'hi': 'अबू धाबी',
+      },
+    };
+
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final currentLanguage = languageProvider.languageCode;
+
+    if (cityTranslations.containsKey(city)) {
+      return cityTranslations[city]![currentLanguage] ?? city;
+    }
+
+    return city;
+  }
+
+  // Helper function to translate country names
+  String _translateCountryName(String country, BuildContext context) {
+    final countryTranslations = {
+      'India': {
+        'en': 'India',
+        'ur': 'بھارت',
+        'ar': 'الهند',
+        'hi': 'भारत',
+      },
+      'Pakistan': {
+        'en': 'Pakistan',
+        'ur': 'پاکستان',
+        'ar': 'باكستان',
+        'hi': 'पाकिस्तान',
+      },
+      'Bangladesh': {
+        'en': 'Bangladesh',
+        'ur': 'بنگلہ دیش',
+        'ar': 'بنغلاديش',
+        'hi': 'बांग्लादेश',
+      },
+      'Saudi Arabia': {
+        'en': 'Saudi Arabia',
+        'ur': 'سعودی عرب',
+        'ar': 'المملكة العربية السعودية',
+        'hi': 'सऊदी अरब',
+      },
+      'United Arab Emirates': {
+        'en': 'United Arab Emirates',
+        'ur': 'متحدہ عرب امارات',
+        'ar': 'الإمارات العربية المتحدة',
+        'hi': 'संयुक्त अरब अमीरात',
+      },
+    };
+
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final currentLanguage = languageProvider.languageCode;
+
+    if (countryTranslations.containsKey(country)) {
+      return countryTranslations[country]![currentLanguage] ?? country;
+    }
+
+    return country;
+  }
+
+  // Helper function to transliterate names to different scripts
+  String _transliterateName(String name, BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final currentLanguage = languageProvider.languageCode;
+
+    // If English, return as is
+    if (currentLanguage == 'en') {
+      return name;
+    }
+
+    // Create transliteration map for common name components
+    final transliterations = {
+      'Mohd': {
+        'ur': 'محمد',
+        'ar': 'محمد',
+        'hi': 'मोहम्मद',
+      },
+      'Mohammad': {
+        'ur': 'محمد',
+        'ar': 'محمد',
+        'hi': 'मोहम्मद',
+      },
+      'Muhammad': {
+        'ur': 'محمد',
+        'ar': 'محمد',
+        'hi': 'मुहम्मद',
+      },
+      'Ahmed': {
+        'ur': 'احمد',
+        'ar': 'أحمد',
+        'hi': 'अहमद',
+      },
+      'Ali': {
+        'ur': 'علی',
+        'ar': 'علي',
+        'hi': 'अली',
+      },
+      'Hassan': {
+        'ur': 'حسن',
+        'ar': 'حسن',
+        'hi': 'हसन',
+      },
+      'Hussain': {
+        'ur': 'حسین',
+        'ar': 'حسين',
+        'hi': 'हुसैन',
+      },
+      'Fatima': {
+        'ur': 'فاطمہ',
+        'ar': 'فاطمة',
+        'hi': 'फातिमा',
+      },
+      'Ayesha': {
+        'ur': 'عائشہ',
+        'ar': 'عائشة',
+        'hi': 'आयशा',
+      },
+      'Reyan': {
+        'ur': 'ریان',
+        'ar': 'ريان',
+        'hi': 'रेयान',
+      },
+      'Rizwan': {
+        'ur': 'رضوان',
+        'ar': 'رضوان',
+        'hi': 'रिज़वान',
+      },
+      'Khan': {
+        'ur': 'خان',
+        'ar': 'خان',
+        'hi': 'खान',
+      },
+      'Sheikh': {
+        'ur': 'شیخ',
+        'ar': 'شيخ',
+        'hi': 'शेख',
+      },
+    };
+
+    // Split name into parts and transliterate each part
+    List<String> nameParts = name.split(' ');
+    List<String> transliteratedParts = [];
+
+    for (String part in nameParts) {
+      if (transliterations.containsKey(part)) {
+        transliteratedParts.add(transliterations[part]![currentLanguage] ?? part);
+      } else {
+        // If no mapping found, keep the original
+        transliteratedParts.add(part);
+      }
+    }
+
+    return transliteratedParts.join(' ');
+  }
+
   Widget _buildProfileCard(BuildContext context, {required ResponsiveUtils responsive}) {
     final settings = Provider.of<SettingsProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
     final locationService = LocationService();
-    final city = locationService.currentCity ?? context.tr('unknown');
-    final country = locationService.currentCountry ?? '';
-    final defaultLocation = country.isNotEmpty ? '$city, $country' : city;
+
+    // Build default location from LocationService if available
+    String defaultLocation = '';
+    if (locationService.currentCity != null && locationService.currentCity!.isNotEmpty) {
+      final city = locationService.currentCity!;
+      final translatedCity = _translateCityName(city, context);
+      debugPrint('📍 Location Translation Debug:');
+      debugPrint('  - Original city: $city');
+      debugPrint('  - Translated city: $translatedCity');
+      if (locationService.currentCountry != null && locationService.currentCountry!.isNotEmpty) {
+        final country = locationService.currentCountry!;
+        final translatedCountry = _translateCountryName(country, context);
+        debugPrint('  - Original country: $country');
+        debugPrint('  - Translated country: $translatedCountry');
+        defaultLocation = '$translatedCity, $translatedCountry';
+      } else {
+        defaultLocation = translatedCity;
+      }
+      debugPrint('  - Final location: $defaultLocation');
+    }
+
+    // List of all translated default user names to detect
+    final defaultUserNames = ['User', 'صارف', 'المستخدم', 'उपयोगकर्ता'];
 
     // Use saved profile data or defaults
-    final profileName = settings.profileName;
-    final profileLocation = settings.profileLocation.isNotEmpty
-        ? settings.profileLocation
-        : defaultLocation;
+    // Priority: AuthProvider (from Firebase) > SettingsProvider (manually edited)
+    String displayName = authProvider.displayName;
+
+    // Debug logging
+    debugPrint('🔍 Profile Name Debug:');
+    debugPrint('  - AuthProvider displayName: $displayName');
+    debugPrint('  - SettingsProvider profileName: ${settings.profileName}');
+    debugPrint('  - Is default name: ${defaultUserNames.contains(displayName)}');
+
+    // Translate if it's any default name (in any language)
+    if (defaultUserNames.contains(displayName)) {
+      displayName = context.tr('user');
+      debugPrint('  - Translated to: $displayName');
+    } else {
+      // Apply transliteration to custom names from auth provider
+      displayName = _transliterateName(displayName, context);
+      debugPrint('  - Transliterated displayName: $displayName');
+    }
+
+    // Check if saved profile name is a translated default, if so re-translate it
+    String profileName;
+    if (settings.profileName.isEmpty || defaultUserNames.contains(settings.profileName)) {
+      // It's a default value or empty, use translated version
+      profileName = displayName;
+      debugPrint('  - Using displayName: $profileName');
+    } else {
+      // It's a custom name, use as is
+      profileName = settings.profileName;
+      debugPrint('  - Using custom name: $profileName');
+    }
+
+    // Apply transliteration to custom names based on language
+    if (!defaultUserNames.contains(profileName)) {
+      profileName = _transliterateName(profileName, context);
+      debugPrint('  - Transliterated name: $profileName');
+    }
+
+    final profileEmail = authProvider.userEmail ?? 'user@example.com';
+
+    // Always use current GPS location, not saved static location
+    String profileLocation;
+    if (defaultLocation.isNotEmpty) {
+      // Use current GPS location with translated city and country names
+      profileLocation = defaultLocation;
+    } else {
+      // No GPS location available, show "Location not set"
+      profileLocation = context.tr('location_not_set');
+    }
+
     final profileImagePath = settings.profileImagePath;
 
     return Container(
@@ -189,11 +532,14 @@ class SettingsScreen extends StatelessWidget {
                       color: Colors.grey[600],
                     ),
                     SizedBox(width: responsive.spaceXSmall),
-                    Text(
-                      'user@example.com',
-                      style: TextStyle(
-                        fontSize: responsive.textSmall,
-                        color: Colors.grey[600],
+                    Expanded(
+                      child: Text(
+                        profileEmail,
+                        style: TextStyle(
+                          fontSize: responsive.textSmall,
+                          color: Colors.grey[600],
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -221,22 +567,6 @@ class SettingsScreen extends StatelessWidget {
                   ],
                 ),
               ],
-            ),
-          ),
-          // Edit button
-          GestureDetector(
-            onTap: () => _showEditProfileDialog(context),
-            child: Container(
-              padding: responsive.paddingSmall,
-              decoration: BoxDecoration(
-                color: AppColors.lightGreenChip,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.edit,
-                size: responsive.iconSmall,
-                color: AppColors.primary,
-              ),
             ),
           ),
         ],
@@ -544,29 +874,63 @@ class SettingsScreen extends StatelessWidget {
 
   void _showEditProfileDialog(BuildContext context) {
     // Get all translations before showing dialog to avoid Provider context issues
-    final languageProvider = context.languageProvider;
-    final editProfileText = languageProvider.translate('edit_profile');
-    final nameText = languageProvider.translate('name');
-    final locationText = languageProvider.translate('location');
-    final cancelText = languageProvider.translate('cancel');
-    final saveText = languageProvider.translate('save');
-    final profileUpdatedText = languageProvider.translate('profile_updated');
-    final changePhotoText = languageProvider.translate('change_photo');
-    final cameraText = languageProvider.translate('camera');
-    final galleryText = languageProvider.translate('gallery');
+    final editProfileText = context.tr('edit_profile');
+    final nameText = context.tr('name');
+    final locationText = context.tr('location');
+    final cancelText = context.tr('cancel');
+    final saveText = context.tr('save');
+    final profileUpdatedText = context.tr('profile_updated');
+    final changePhotoText = context.tr('change_photo');
+    final cameraText = context.tr('camera');
+    final galleryText = context.tr('gallery');
 
     // Get saved profile data from SettingsProvider
     final settings = Provider.of<SettingsProvider>(context, listen: false);
-    final savedName = settings.profileName;
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final savedLocation = settings.profileLocation;
     final savedImagePath = settings.profileImagePath;
 
+    // Handle name translation - check if saved name is a translated default
+    final defaultUserNames = ['User', 'صارف', 'المستخدم', 'उपयोगकर्ता'];
+    String savedName;
+    if (settings.profileName.isEmpty || defaultUserNames.contains(settings.profileName)) {
+      // It's a default value, use translated version or Firebase name
+      final firebaseName = authProvider.displayName;
+      savedName = defaultUserNames.contains(firebaseName) ? context.tr('user') : firebaseName;
+    } else {
+      // It's a custom name, use as is
+      savedName = settings.profileName;
+    }
+
     // Get default location if no saved location
     final locationService = LocationService();
-    final city = locationService.currentCity ?? languageProvider.translate('unknown');
+    final city = locationService.currentCity ?? context.tr('unknown');
+    final translatedCity = _translateCityName(city, context);
     final country = locationService.currentCountry ?? '';
-    final defaultLocation = country.isNotEmpty ? '$city, $country' : city;
-    final currentLocation = savedLocation.isNotEmpty ? savedLocation : defaultLocation;
+    final translatedCountry = country.isNotEmpty ? _translateCountryName(country, context) : '';
+    final defaultLocation = translatedCountry.isNotEmpty ? '$translatedCity, $translatedCountry' : translatedCity;
+
+    // Parse saved location and translate both city and country names if present
+    String currentLocation;
+    if (savedLocation.isEmpty) {
+      currentLocation = defaultLocation;
+    } else if (savedLocation.contains(',')) {
+      // Format is "City, Country" - translate both parts
+      final parts = savedLocation.split(',').map((s) => s.trim()).toList();
+      if (parts.length == 2) {
+        final savedCity = parts[0];
+        final savedCountry = parts[1];
+        final translatedSavedCity = _translateCityName(savedCity, context);
+        final translatedSavedCountry = _translateCountryName(savedCountry, context);
+        currentLocation = '$translatedSavedCity, $translatedSavedCountry';
+      } else {
+        currentLocation = savedLocation;
+      }
+    } else {
+      // No comma, try to translate as city name
+      final translatedLocation = _translateCityName(savedLocation, context);
+      currentLocation = translatedLocation;
+    }
 
     showDialog(
       context: context,
@@ -719,6 +1083,13 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
     final responsive = widget.parentContext.responsive;
 
     return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        side: const BorderSide(
+          color: AppColors.primary,
+          width: 2,
+        ),
+      ),
       title: Row(
         children: [
           Container(
@@ -745,54 +1116,33 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
             // Profile Image Picker
             GestureDetector(
               onTap: _showImageSourceDialog,
-              child: Stack(
-                children: [
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      shape: BoxShape.circle,
-                      image: _selectedImage != null
-                          ? DecorationImage(
-                              image: FileImage(_selectedImage!),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.3),
-                          blurRadius: 10,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                  image: _selectedImage != null
+                      ? DecorationImage(
+                          image: FileImage(_selectedImage!),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
                     ),
-                    child: _selectedImage == null
-                        ? const Icon(
-                            Icons.person,
-                            color: Colors.white,
-                            size: 50,
-                          )
-                        : null,
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: AppColors.secondary,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                      ),
-                      child: const Icon(
-                        Icons.camera_alt,
+                  ],
+                ),
+                child: _selectedImage == null
+                    ? const Icon(
+                        Icons.person,
                         color: Colors.white,
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                ],
+                        size: 50,
+                      )
+                    : null,
               ),
             ),
             const SizedBox(height: 20),
@@ -813,12 +1163,55 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
               ),
             ),
             const SizedBox(height: 16),
-            // Location field
+            // Location field (editable with search and GPS)
             TextField(
               controller: locationController,
               decoration: InputDecoration(
                 labelText: widget.locationText,
+                hintText: 'Search city, country or use GPS',
                 prefixIcon: const Icon(Icons.location_on, color: AppColors.primary),
+                suffixIcon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.gps_fixed, color: AppColors.primary, size: 20),
+                      onPressed: () async {
+                        // Fetch current GPS location
+                        final locationService = LocationService();
+                        final position = await locationService.getCurrentLocation();
+
+                        if (position != null && mounted) {
+                          try {
+                            final placemarks = await placemarkFromCoordinates(
+                              position.latitude,
+                              position.longitude,
+                            );
+
+                            if (placemarks.isNotEmpty && mounted) {
+                              final placemark = placemarks.first;
+                              final city = placemark.locality ?? placemark.subAdministrativeArea ?? 'Unknown';
+                              final country = placemark.country ?? '';
+
+                              locationService.updateCity(city, country);
+
+                              // Update the text field with location (no translation in dialog)
+                              setState(() {
+                                locationController.text = '$city, $country';
+                              });
+
+                              debugPrint('📍 GPS Location fetched: $city, $country');
+                            }
+                          } catch (e) {
+                            debugPrint('Geocoding error: $e');
+                          }
+                        }
+                      },
+                      tooltip: 'Use current GPS location',
+                    ),
+                    const Icon(Icons.search, color: AppColors.primary, size: 20),
+                    const SizedBox(width: 8),
+                  ],
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(responsive.radiusMedium),
                   borderSide: const BorderSide(color: AppColors.lightGreenBorder),
@@ -827,15 +1220,33 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
                   borderRadius: BorderRadius.circular(responsive.radiusMedium),
                   borderSide: const BorderSide(color: AppColors.primary, width: 2),
                 ),
+                helperText: 'Type to search or tap GPS icon for current location',
+                helperStyle: TextStyle(
+                  fontSize: responsive.textXSmall,
+                  color: Colors.grey.shade600,
+                ),
               ),
             ),
           ],
         ),
       ),
       actions: [
-        TextButton(
+        OutlinedButton(
           onPressed: () => Navigator.pop(context),
-          child: Text(widget.cancelText),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.primary,
+            side: const BorderSide(color: AppColors.primary, width: 1.5),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(responsive.radiusMedium),
+            ),
+          ),
+          child: Text(
+            widget.cancelText,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
         ElevatedButton(
           onPressed: () async {
@@ -864,8 +1275,20 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(responsive.radiusMedium),
+            ),
+            elevation: 2,
           ),
-          child: Text(widget.saveText, style: const TextStyle(color: Colors.white)),
+          child: Text(
+            widget.saveText,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
         ),
       ],
     );

@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
+import 'package:geocoding/geocoding.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/responsive_utils.dart';
 import '../../core/utils/localization_helper.dart';
 import '../../core/services/geo_restriction_service.dart';
+import '../../core/services/location_service.dart';
+import '../../providers/auth_provider.dart';
 import '../main/main_screen.dart';
+import '../auth/login_screen.dart';
 
 class PermissionsScreen extends StatefulWidget {
   const PermissionsScreen({super.key});
@@ -63,6 +68,12 @@ class _PermissionsScreenState extends State<PermissionsScreen>
           _isChecking = false;
         });
 
+        // Fetch location if permission is already granted
+        if (locationStatus.isGranted) {
+          debugPrint('📍 Location permission already granted, fetching location...');
+          _fetchAndSaveLocation();
+        }
+
         // If all permissions are granted, proceed to next screen
         if (_allPermissionsGranted) {
           _navigateToNextScreen();
@@ -115,6 +126,11 @@ class _PermissionsScreenState extends State<PermissionsScreen>
           }
         });
 
+        // Fetch location if location permission was just granted
+        if (permission == Permission.location && status.isGranted) {
+          _fetchAndSaveLocation();
+        }
+
         if (status.isPermanentlyDenied) {
           _showSettingsDialog(permission);
         }
@@ -125,6 +141,38 @@ class _PermissionsScreenState extends State<PermissionsScreen>
       }
     } catch (e) {
       debugPrint('Permission request error: $e');
+    }
+  }
+
+  Future<void> _fetchAndSaveLocation() async {
+    try {
+      final locationService = LocationService();
+      final position = await locationService.getCurrentLocation();
+
+      if (position != null) {
+        // Get city and country from coordinates using geocoding
+        try {
+          final placemarks = await placemarkFromCoordinates(
+            position.latitude,
+            position.longitude,
+          );
+
+          if (placemarks.isNotEmpty) {
+            final placemark = placemarks.first;
+            final city = placemark.locality ?? placemark.subAdministrativeArea ?? 'Unknown';
+            final country = placemark.country ?? '';
+
+            // Update location service with city and country
+            locationService.updateCity(city, country);
+
+            debugPrint('📍 Location fetched: $city, $country');
+          }
+        } catch (e) {
+          debugPrint('Geocoding error: $e');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching location: $e');
     }
   }
 
@@ -241,11 +289,21 @@ class _PermissionsScreenState extends State<PermissionsScreen>
       return;
     }
 
-    // Location is allowed, proceed to main screen
+    // Check authentication status
     if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const MainScreen()),
-      );
+      final authProvider = context.read<AuthProvider>();
+
+      if (authProvider.isAuthenticated) {
+        // User is authenticated, go to main screen
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+        );
+      } else {
+        // User is not authenticated, go to login screen
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
     }
   }
 

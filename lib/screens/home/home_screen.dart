@@ -7,6 +7,8 @@ import '../../core/constants/app_assets.dart';
 import '../../core/utils/theme_extensions.dart';
 import '../../core/utils/localization_helper.dart';
 import '../../providers/prayer_provider.dart';
+import '../../core/services/weather_service.dart';
+import '../../core/services/location_service.dart';
 import '../../widgets/common/common_widgets.dart';
 import '../quran/quran_screen.dart';
 import '../quran/surah_list_screen.dart';
@@ -68,6 +70,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final stt.SpeechToText _speech = stt.SpeechToText();
   String _searchQuery = '';
   bool _isListening = false;
+  WeatherData? _weatherData;
+  bool _isLoadingWeather = true;
 
   @override
   void initState() {
@@ -76,6 +80,48 @@ class _HomeScreenState extends State<HomeScreen> {
       context.read<PrayerProvider>().initialize();
     });
     _initSpeech();
+    _fetchWeather();
+  }
+
+  Future<void> _fetchWeather() async {
+    try {
+      debugPrint('🌤️ Starting weather fetch...');
+      final locationService = LocationService();
+      final position = await locationService.getCurrentLocation();
+
+      if (position != null && mounted) {
+        debugPrint('🌤️ Location found: ${position.latitude}, ${position.longitude}');
+        final weather = await WeatherService.getWeather(
+          lat: position.latitude,
+          lon: position.longitude,
+        );
+
+        debugPrint('🌤️ Weather data received: ${weather != null ? "Success" : "Failed"}');
+        if (weather != null) {
+          debugPrint('🌤️ Temperature: ${weather.temperature}°C');
+          debugPrint('🌤️ AQI: ${weather.aqi} - ${weather.aqiLevel}');
+        }
+
+        if (mounted) {
+          setState(() {
+            _weatherData = weather;
+            _isLoadingWeather = false;
+          });
+        }
+      } else {
+        debugPrint('🌤️ Location is null or widget not mounted');
+        setState(() {
+          _isLoadingWeather = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('🌤️ Error fetching weather: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingWeather = false;
+        });
+      }
+    }
   }
 
   Future<void> _initSpeech() async {
@@ -1021,6 +1067,198 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
+          // Weather and Air Quality Section
+          if (_weatherData != null) ...[
+            const SizedBox(height: 16),
+            const Divider(height: 1),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                // Weather Info
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.grey.shade800
+                          : AppColors.primary.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isDark
+                            ? Colors.grey.shade700
+                            : AppColors.lightGreenBorder,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              WeatherService.getWeatherIcon(_weatherData!.icon),
+                              color: AppColors.primary,
+                              size: 28,
+                            ),
+                            const SizedBox(width: 8),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${_weatherData!.temperature.round()}°C',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark
+                                        ? AppColors.darkTextPrimary
+                                        : AppColors.textPrimary,
+                                  ),
+                                ),
+                                Text(
+                                  _weatherData!.description
+                                      .split(' ')
+                                      .map((word) =>
+                                          word[0].toUpperCase() + word.substring(1))
+                                      .join(' '),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: isDark
+                                        ? AppColors.darkTextSecondary
+                                        : AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.water_drop,
+                                  size: 14,
+                                  color: isDark
+                                      ? AppColors.darkTextSecondary
+                                      : AppColors.textSecondary,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${_weatherData!.humidity}%',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: isDark
+                                        ? AppColors.darkTextSecondary
+                                        : AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.air,
+                                  size: 14,
+                                  color: isDark
+                                      ? AppColors.darkTextSecondary
+                                      : AppColors.textSecondary,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${_weatherData!.windSpeed.toStringAsFixed(1)} m/s',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: isDark
+                                        ? AppColors.darkTextSecondary
+                                        : AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Air Quality Info
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.grey.shade800
+                          : WeatherService.getAQIColor(_weatherData!.aqi)
+                              .withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isDark
+                            ? Colors.grey.shade700
+                            : WeatherService.getAQIColor(_weatherData!.aqi)
+                                .withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.air_outlined,
+                              color: WeatherService.getAQIColor(_weatherData!.aqi),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Air Quality',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: isDark
+                                    ? AppColors.darkTextPrimary
+                                    : AppColors.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _weatherData!.aqiLevel,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: WeatherService.getAQIColor(_weatherData!.aqi),
+                          ),
+                        ),
+                        Text(
+                          'AQI: ${_weatherData!.aqi}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ] else if (_isLoadingWeather) ...[
+            const SizedBox(height: 16),
+            const Center(
+              child: SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
