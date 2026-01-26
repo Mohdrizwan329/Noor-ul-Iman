@@ -1050,472 +1050,508 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
         );
 
       case 1:
-        // Design 2: Modern Minimalist with Gradient Border
+        // Design 2: Eid Al-Adha Golden Frame Style
         return Container(
           decoration: BoxDecoration(
-            color: darkTealBg,
-            borderRadius: BorderRadius.circular(25),
-            border: Border.all(width: 0),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [const Color(0xFF0B4F3C), darkTealBg],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: goldenBorder, width: 4),
             boxShadow: [
               BoxShadow(
-                color: lanternGlow.withValues(alpha: 0.3),
-                blurRadius: 20,
-                spreadRadius: 2,
+                color: shadowGreen.withValues(alpha: 0.7),
+                blurRadius: 25,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
-          child: Container(
-            margin: const EdgeInsets.all(3),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [shadowGreen, deepGreen]),
-              borderRadius: BorderRadius.circular(22),
-            ),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+          child: Stack(
+            children: [
+              // Geometric Islamic Pattern Background
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: GeometricPatternPainter(
+                    color: goldenBorder.withValues(alpha: 0.08),
+                  ),
+                ),
+              ),
+              // Top Golden Stars
+              Positioned(
+                top: 15,
+                left: 30,
+                child: _buildStar(goldenBorder, 10),
+              ),
+              Positioned(top: 20, left: 50, child: _buildStar(goldenBorder, 6)),
+              Positioned(
+                top: 15,
+                right: 30,
+                child: _buildStar(goldenBorder, 10),
+              ),
+              Positioned(
+                top: 20,
+                right: 50,
+                child: _buildStar(goldenBorder, 6),
+              ),
+              // Main Content
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Top ornament
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [goldenBorder, warmGold],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: goldenBorder.withValues(alpha: 0.4),
+                          blurRadius: 15,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.brightness_2,
+                      color: Color(0xFF0A2A1A),
+                      size: 32,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Golden decorative line
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 50,
+                        height: 2,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.transparent, goldenBorder],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 10),
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: goldenBorder,
+                        ),
+                      ),
+                      Container(
+                        width: 50,
+                        height: 2,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [goldenBorder, Colors.transparent],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  // Title
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    child: Text(
+                      _customTitle,
+                      style: const TextStyle(
+                        color: Color(0xFFFFE5A0),
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                        shadows: [
+                          Shadow(
+                            color: Color(0xFF000000),
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Message
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 35),
+                    child: Text(
+                      _customMessage,
+                      style: const TextStyle(
+                        color: creamText,
+                        fontSize: 14,
+                        height: 1.6,
+                        letterSpacing: 0.5,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 4,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Bottom ornamental line
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(width: 40, height: 1.5, color: goldenBorder),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Icon(
+                          Icons.auto_awesome,
+                          color: goldenBorder,
+                          size: 16,
+                        ),
+                      ),
+                      Container(width: 40, height: 1.5, color: goldenBorder),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+
+      case 2:
+        // Design 3: Ramadan Kareem with Arabic Calligraphy Style
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: shadowGreen.withValues(alpha: 0.5),
+                blurRadius: 20,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Stack(
               children: [
+                // Left side with geometric Islamic pattern
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: 140,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          const Color(0xFF1A5C78),
+                          const Color(0xFF0E3A4A),
+                        ],
+                      ),
+                    ),
+                    child: CustomPaint(
+                      painter: IslamicPatternPainter(
+                        color: goldenBorder.withValues(alpha: 0.15),
+                      ),
+                    ),
+                  ),
+                ),
+                // Right side content area
                 Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(colors: [warmGold, goldenBorder]),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [Colors.transparent, Color(0xFFF5F5F0)],
+                      stops: [0.0, 0.35],
+                    ),
                   ),
-                  child: const Icon(Icons.star, color: darkTealBg, size: 30),
+                  child: Row(
+                    children: [
+                      // Left pattern section
+                      const SizedBox(width: 140),
+                      // Main content
+                      Expanded(
+                        child: Container(
+                          color: const Color(0xFFF5F5F0),
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Hanging lanterns decorations
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Transform.scale(
+                                    scale: 0.4,
+                                    child: _buildLantern(
+                                      const Color(0xFF8B4513),
+                                      goldenBorder,
+                                      1.0,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.brightness_2,
+                                    color: goldenBorder,
+                                    size: 18,
+                                  ),
+                                  _buildStar(goldenBorder, 10),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              // Title
+                              Text(
+                                _customTitle,
+                                style: const TextStyle(
+                                  color: Color(0xFF1A3A4A),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Amiri',
+                                  letterSpacing: 0.5,
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                              const SizedBox(height: 12),
+                              // Decorative line
+                              Container(
+                                height: 2,
+                                width: 80,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [goldenBorder, Colors.transparent],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              // Message
+                              Text(
+                                _customMessage,
+                                style: const TextStyle(
+                                  color: Color(0xFF4A5A5A),
+                                  fontSize: 13,
+                                  height: 1.6,
+                                  letterSpacing: 0.3,
+                                ),
+                                maxLines: 5,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 12),
+                              // Bottom decoration
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: goldenBorder,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    width: 30,
+                                    height: 1.5,
+                                    color: goldenBorder,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 20),
-                Text(
-                  _customTitle,
-                  style: const TextStyle(
-                    color: softGoldText,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 1,
+                // Golden ornamental frame on left edge
+                Positioned(
+                  left: 135,
+                  top: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: 5,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [goldenBorder, warmGold, goldenBorder],
+                      ),
+                    ),
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  _customMessage,
-                  style: const TextStyle(
-                    color: creamText,
-                    fontSize: 13,
-                    height: 1.6,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 4,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
         );
 
-      case 2:
-        // Design 3: Elegant with Side Accent
-        return Container(
-          decoration: BoxDecoration(
-            color: deepGreen,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: shadowGreen.withValues(alpha: 0.6),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              // Left accent bar
-              Container(
-                width: 8,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [warmGold, goldenBorder, warmGold],
-                  ),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(18),
-                    bottomLeft: Radius.circular(18),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.auto_awesome,
-                            color: goldenBorder,
-                            size: 24,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              _customTitle,
-                              style: const TextStyle(
-                                color: warmGold,
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        _customMessage,
-                        style: const TextStyle(
-                          color: creamText,
-                          fontSize: 13,
-                          height: 1.5,
-                        ),
-                        maxLines: 5,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-
       case 3:
-        // Design 4: Layered Card with Shadow Effect
-        return Stack(
-          children: [
-            // Shadow layers
-            Positioned(
-              top: 8,
-              left: 8,
-              right: 8,
-              bottom: 0,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: shadowGreen.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [deepGreen, darkTealBg],
-                ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: goldenBorder, width: 2),
-              ),
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: warmGold.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: goldenBorder),
-                    ),
-                    child: Consumer<LanguageProvider>(
-                      builder: (context, languageProvider, child) {
-                        String monthName;
-                        switch (languageProvider.languageCode) {
-                          case 'en':
-                            monthName = widget.month.name;
-                            break;
-                          case 'ur':
-                            monthName = widget.month.nameUrdu;
-                            break;
-                          case 'hi':
-                            monthName = widget.month.nameHindi;
-                            break;
-                          case 'ar':
-                            monthName = widget.month.arabicName;
-                            break;
-                          default:
-                            monthName = widget.month.name;
-                        }
-                        return Text(
-                          monthName,
-                          style: const TextStyle(
-                            color: softGoldText,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    _customTitle,
-                    style: const TextStyle(
-                      color: warmGold,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    _customMessage,
-                    style: const TextStyle(
-                      color: creamText,
-                      fontSize: 13,
-                      height: 1.5,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 4,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
-
-      case 4:
-        // Design 5: Arch Style Islamic Card
+        // Design 4: Islamic New Year Blue Elegance
         return Container(
           decoration: BoxDecoration(
-            color: darkTealBg,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: goldenBorder.withValues(alpha: 0.2),
-                blurRadius: 15,
-                spreadRadius: 1,
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              // Arch header
-              Container(
-                height: 80,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [warmGold, goldenBorder]),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-                child: CustomPaint(
-                  painter: ArchPatternPainter(
-                    color: Colors.white.withValues(alpha: 0.3),
-                  ),
-                  child: Center(
-                    child: Icon(Icons.mosque, color: darkTealBg, size: 40),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        _customTitle,
-                        style: const TextStyle(
-                          color: softGoldText,
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        _customMessage,
-                        style: const TextStyle(
-                          color: creamText,
-                          fontSize: 13,
-                          height: 1.5,
-                        ),
-                        textAlign: TextAlign.center,
-                        maxLines: 4,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-
-      case 5:
-        // Design 6: Geometric Pattern Card
-        return Container(
-          decoration: BoxDecoration(
-            color: deepGreen,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: goldenBorder, width: 2),
-          ),
-          child: Stack(
-            children: [
-              // Geometric background
-              Positioned.fill(
-                child: CustomPaint(
-                  painter: GeometricPatternPainter(
-                    color: goldenBorder.withValues(alpha: 0.15),
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.star, color: goldenBorder, size: 16),
-                        const SizedBox(width: 8),
-                        Icon(Icons.star, color: goldenBorder, size: 20),
-                        const SizedBox(width: 8),
-                        Icon(Icons.star, color: goldenBorder, size: 16),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      _customTitle,
-                      style: const TextStyle(
-                        color: warmGold,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: shadowGreen.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        _customMessage,
-                        style: const TextStyle(
-                          color: creamText,
-                          fontSize: 13,
-                          height: 1.6,
-                          fontStyle: FontStyle.italic,
-                        ),
-                        textAlign: TextAlign.center,
-                        maxLines: 4,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-
-      case 6:
-        // Design 7: Corner Ornament Style
-        return Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [darkTealBg, shadowGreen],
+              colors: [
+                Color(0xFF1A4D7A), // Deep Royal Blue
+                Color(0xFF2E6BA8), // Medium Blue
+              ],
             ),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: goldenBorder, width: 3),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: goldenBorder, width: 3.5),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF000000).withValues(alpha: 0.4),
+                blurRadius: 18,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
           child: Stack(
             children: [
               // Corner ornaments
               Positioned(
-                top: 0,
-                left: 0,
+                top: 15,
+                left: 15,
                 child: CustomPaint(
-                  size: const Size(60, 60),
-                  painter: CornerOrnamentDetailPainter(
+                  size: const Size(30, 30),
+                  painter: CornerOrnamentPainter(
                     color: goldenBorder.withValues(alpha: 0.4),
                   ),
                 ),
               ),
               Positioned(
-                top: 0,
-                right: 0,
-                child: Transform.flip(
-                  flipX: true,
+                top: 15,
+                right: 15,
+                child: Transform.rotate(
+                  angle: 1.5708,
                   child: CustomPaint(
-                    size: const Size(60, 60),
-                    painter: CornerOrnamentDetailPainter(
+                    size: const Size(30, 30),
+                    painter: CornerOrnamentPainter(
                       color: goldenBorder.withValues(alpha: 0.4),
                     ),
                   ),
                 ),
               ),
               Positioned(
-                bottom: 0,
-                left: 0,
-                child: Transform.flip(
-                  flipY: true,
+                bottom: 15,
+                left: 15,
+                child: Transform.rotate(
+                  angle: -1.5708,
                   child: CustomPaint(
-                    size: const Size(60, 60),
-                    painter: CornerOrnamentDetailPainter(
+                    size: const Size(30, 30),
+                    painter: CornerOrnamentPainter(
                       color: goldenBorder.withValues(alpha: 0.4),
                     ),
                   ),
                 ),
               ),
               Positioned(
-                bottom: 0,
-                right: 0,
-                child: Transform.scale(
-                  scaleX: -1.0,
-                  scaleY: -1.0,
+                bottom: 15,
+                right: 15,
+                child: Transform.rotate(
+                  angle: 3.14159,
                   child: CustomPaint(
-                    size: const Size(60, 60),
-                    painter: CornerOrnamentDetailPainter(
+                    size: const Size(30, 30),
+                    painter: CornerOrnamentPainter(
                       color: goldenBorder.withValues(alpha: 0.4),
                     ),
                   ),
                 ),
               ),
-              // Content
+              // Main content
               Padding(
-                padding: const EdgeInsets.all(30),
+                padding: const EdgeInsets.all(28),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.auto_awesome, color: softGoldText, size: 36),
-                    const SizedBox(height: 16),
+                    // Top ornament
+                    Container(
+                      width: 55,
+                      height: 55,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [goldenBorder, warmGold],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: goldenBorder.withValues(alpha: 0.6),
+                            blurRadius: 12,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.star,
+                        color: Color(0xFF1A4D7A),
+                        size: 30,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Title
                     Text(
                       _customTitle,
                       style: const TextStyle(
-                        color: warmGold,
-                        fontSize: 17,
+                        color: Color(0xFFFFE5A0),
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                        shadows: [
+                          Shadow(
+                            color: Color(0xFF000000),
+                            blurRadius: 8,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 14),
+                    // Decorative line
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 2,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Colors.transparent, goldenBorder],
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Icon(
+                            Icons.auto_awesome,
+                            color: goldenBorder,
+                            size: 16,
+                          ),
+                        ),
+                        Container(
+                          width: 60,
+                          height: 2,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [goldenBorder, Colors.transparent],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    // Message
                     Text(
                       _customMessage,
                       style: const TextStyle(
-                        color: creamText,
+                        color: Color(0xFFE8E8E8),
                         fontSize: 13,
-                        height: 1.5,
+                        height: 1.6,
+                        letterSpacing: 0.4,
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 4,
@@ -1528,69 +1564,608 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
           ),
         );
 
-      case 7:
-        // Design 8: Circular Frame with Glow
+      case 4:
+        // Design 5: Eid Al-Fitr with Hanging Lanterns
         return Container(
           decoration: BoxDecoration(
-            color: deepGreen,
-            borderRadius: BorderRadius.circular(24),
+            gradient: const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF0C5C4A), // Dark Teal
+                Color(0xFF0A4438), // Darker Teal
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: goldenBorder, width: 3),
             boxShadow: [
               BoxShadow(
-                color: lanternGlow.withValues(alpha: 0.4),
+                color: shadowGreen.withValues(alpha: 0.6),
                 blurRadius: 20,
-                spreadRadius: 3,
+                offset: const Offset(0, 6),
               ),
             ],
           ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Stack(
             children: [
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(colors: [warmGold, goldenBorder]),
-                  boxShadow: [
-                    BoxShadow(
-                      color: goldenBorder.withValues(alpha: 0.5),
-                      blurRadius: 15,
-                      spreadRadius: 2,
+              // Background mandala pattern
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: MandalaPatternPainter(
+                    color: goldenBorder.withValues(alpha: 0.08),
+                  ),
+                ),
+              ),
+              // Hanging lanterns at top
+              Positioned(
+                top: 10,
+                left: 30,
+                child: Transform.scale(
+                  scale: 0.5,
+                  child: _buildLantern(
+                    const Color(0xFF8B4513),
+                    lanternGlow,
+                    1.0,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 10,
+                right: 30,
+                child: Transform.scale(
+                  scale: 0.5,
+                  child: _buildLantern(
+                    const Color(0xFF8B4513),
+                    lanternGlow,
+                    1.0,
+                  ),
+                ),
+              ),
+              // Palm leaves decoration
+              Positioned(
+                top: 0,
+                left: 10,
+                child: Icon(
+                  Icons.eco,
+                  color: const Color(0xFF2D5F3F).withValues(alpha: 0.5),
+                  size: 50,
+                ),
+              ),
+              Positioned(
+                top: 0,
+                right: 10,
+                child: Transform.flip(
+                  flipX: true,
+                  child: Icon(
+                    Icons.eco,
+                    color: const Color(0xFF2D5F3F).withValues(alpha: 0.5),
+                    size: 50,
+                  ),
+                ),
+              ),
+              // Main content
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 25,
+                  vertical: 30,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Happy text
+                    const Text(
+                      'HAPPY',
+                      style: TextStyle(
+                        color: Color(0xFFD4AF37),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 3,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Title
+                    Text(
+                      _customTitle,
+                      style: const TextStyle(
+                        color: Color(0xFFFFE5A0),
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.8,
+                        shadows: [
+                          Shadow(
+                            color: Color(0xFF000000),
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    // Message
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0A3A2E).withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: goldenBorder.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Text(
+                        _customMessage,
+                        style: const TextStyle(
+                          color: creamText,
+                          fontSize: 13,
+                          height: 1.6,
+                          letterSpacing: 0.3,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
-                child: Center(
-                  child: Icon(Icons.brightness_2, color: darkTealBg, size: 50),
-                ),
               ),
-              const SizedBox(height: 20),
-              Text(
-                _customTitle,
-                style: const TextStyle(
-                  color: softGoldText,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
+            ],
+          ),
+        );
+
+      case 5:
+        // Design 6: Iftar Invitation Elegant Frame
+        return Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF0F4C3A), // Deep Green
+                Color(0xFF1A6B52), // Medium Green
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: shadowGreen.withValues(alpha: 0.7),
+                blurRadius: 25,
+                offset: const Offset(0, 8),
               ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: shadowGreen.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(10),
+            ],
+          ),
+          child: Container(
+            margin: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              border: Border.all(color: goldenBorder, width: 3),
+              borderRadius: BorderRadius.circular(16),
+              gradient: const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFF0A3A2E),
+                  Color(0xFF123838),
+                ],
+              ),
+            ),
+            child: Container(
+              margin: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: goldenBorder.withValues(alpha: 0.4),
+                  width: 1.5,
                 ),
-                child: Text(
-                  _customMessage,
-                  style: const TextStyle(
-                    color: creamText,
-                    fontSize: 12,
-                    height: 1.5,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Top decoration
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 1.5,
+                        color: goldenBorder,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Icon(
+                          Icons.mosque,
+                          color: goldenBorder,
+                          size: 22,
+                        ),
+                      ),
+                      Container(
+                        width: 40,
+                        height: 1.5,
+                        color: goldenBorder,
+                      ),
+                    ],
                   ),
-                  textAlign: TextAlign.center,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
+                  const SizedBox(height: 16),
+                  // Invitation text
+                  const Text(
+                    'Invitation',
+                    style: TextStyle(
+                      color: Color(0xFFD4AF37),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // Title
+                  Text(
+                    _customTitle,
+                    style: const TextStyle(
+                      color: Color(0xFFFFE5A0),
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Amiri',
+                      letterSpacing: 0.8,
+                      shadows: [
+                        Shadow(
+                          color: Color(0xFF000000),
+                          blurRadius: 6,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 14),
+                  // Message
+                  Text(
+                    _customMessage,
+                    style: const TextStyle(
+                      color: Color(0xFFE8E8E8),
+                      fontSize: 12,
+                      height: 1.7,
+                      letterSpacing: 0.4,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 14),
+                  // Bottom decoration
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildStar(goldenBorder, 8),
+                      const SizedBox(width: 10),
+                      Container(
+                        width: 50,
+                        height: 1.5,
+                        color: goldenBorder,
+                      ),
+                      const SizedBox(width: 10),
+                      _buildStar(goldenBorder, 8),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+
+      case 6:
+        // Design 7: Premium Wedding/Celebration Invitation
+        return Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF0C4C3C),
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: shadowGreen.withValues(alpha: 0.8),
+                blurRadius: 30,
+                offset: const Offset(0, 10),
+              ),
+              BoxShadow(
+                color: goldenBorder.withValues(alpha: 0.2),
+                blurRadius: 40,
+                offset: const Offset(0, 0),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // Top golden decorative border pattern
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 45,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [goldenBorder, warmGold, goldenBorder],
+                    ),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(22),
+                      topRight: Radius.circular(22),
+                    ),
+                  ),
+                  child: CustomPaint(
+                    painter: GeometricPatternPainter(
+                      color: const Color(0xFF0C4C3C).withValues(alpha: 0.3),
+                    ),
+                  ),
+                ),
+              ),
+              // Bottom golden decorative border pattern
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 45,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [goldenBorder, warmGold, goldenBorder],
+                    ),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(22),
+                      bottomRight: Radius.circular(22),
+                    ),
+                  ),
+                  child: CustomPaint(
+                    painter: GeometricPatternPainter(
+                      color: const Color(0xFF0C4C3C).withValues(alpha: 0.3),
+                    ),
+                  ),
+                ),
+              ),
+              // Main content area
+              Padding(
+                padding: const EdgeInsets.only(top: 50, bottom: 50, left: 20, right: 20),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        const Color(0xFF0F5C48),
+                        deepGreen,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: goldenBorder, width: 2),
+                  ),
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Top ornament
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [warmGold, goldenBorder],
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.brightness_2,
+                          color: Color(0xFF0F5C48),
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Title
+                      Text(
+                        _customTitle,
+                        style: const TextStyle(
+                          color: Color(0xFFFFE5A0),
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                          shadows: [
+                            Shadow(
+                              color: Color(0xFF000000),
+                              blurRadius: 8,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 14),
+                      // Decorative divider
+                      Container(
+                        width: 100,
+                        height: 2,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.transparent,
+                              goldenBorder,
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      // Message
+                      Text(
+                        _customMessage,
+                        style: const TextStyle(
+                          color: creamText,
+                          fontSize: 13,
+                          height: 1.6,
+                          letterSpacing: 0.4,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+
+      case 7:
+        // Design 8: Turquoise Celebration Elegance
+        return Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF0C8E8E), // Turquoise
+                Color(0xFF1AABAD), // Light Turquoise
+                Color(0xFF0C8E8E), // Turquoise
+              ],
+              stops: [0.0, 0.5, 1.0],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: goldenBorder, width: 3),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0C8E8E).withValues(alpha: 0.5),
+                blurRadius: 20,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // Background pattern
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: IslamicPatternPainter(
+                    color: Colors.white.withValues(alpha: 0.1),
+                  ),
+                ),
+              ),
+              // Content
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Top star decoration
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildStar(const Color(0xFFFFE5A0), 12),
+                        const SizedBox(width: 15),
+                        Icon(
+                          Icons.brightness_2,
+                          color: goldenBorder,
+                          size: 28,
+                        ),
+                        const SizedBox(width: 15),
+                        _buildStar(const Color(0xFFFFE5A0), 12),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    // Wishing you text
+                    const Text(
+                      'Wishing you all a very',
+                      style: TextStyle(
+                        color: Color(0xFFFFFFFF),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Title
+                    Text(
+                      _customTitle,
+                      style: const TextStyle(
+                        color: Color(0xFFFFE5A0),
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Amiri',
+                        letterSpacing: 0.8,
+                        shadows: [
+                          Shadow(
+                            color: Color(0xFF000000),
+                            blurRadius: 10,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    // Message in frame
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0A6666).withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: goldenBorder.withValues(alpha: 0.5),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Text(
+                        _customMessage,
+                        style: const TextStyle(
+                          color: Color(0xFFF5F5F5),
+                          fontSize: 12,
+                          height: 1.7,
+                          letterSpacing: 0.3,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Bottom decoration
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Transform.scale(
+                          scale: 0.4,
+                          child: _buildLantern(
+                            const Color(0xFF8B4513),
+                            const Color(0xFFFFD700),
+                            1.0,
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        Transform.scale(
+                          scale: 0.4,
+                          child: _buildLantern(
+                            const Color(0xFF8B4513),
+                            const Color(0xFFFFD700),
+                            1.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // Corner mandalas
+              Positioned(
+                top: 10,
+                left: 10,
+                child: CustomPaint(
+                  size: const Size(40, 40),
+                  painter: MandalaPatternPainter(
+                    color: goldenBorder.withValues(alpha: 0.3),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 10,
+                right: 10,
+                child: CustomPaint(
+                  size: const Size(40, 40),
+                  painter: MandalaPatternPainter(
+                    color: goldenBorder.withValues(alpha: 0.3),
+                  ),
                 ),
               ),
             ],
