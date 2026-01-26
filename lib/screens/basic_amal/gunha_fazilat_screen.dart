@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,18 +16,14 @@ class GunhaFazilatScreen extends StatefulWidget {
 class _GunhaFazilatScreenState extends State<GunhaFazilatScreen> {
   String _selectedLanguage = 'english';
 
-  final Map<String, String> _titles = {
-    'english': 'Gunha (Sins) - Understanding & Repentance',
-    'urdu': 'گناہ - سمجھ اور توبہ',
-    'hindi': 'गुनाह - समझ और तौबा',
-  };
-
   final List<Map<String, dynamic>> _gunhaTopics = [
     {
       'number': 1,
+      'titleKey': 'gunha_fazilat_1_understanding_sins',
       'title': 'Understanding Sins',
       'titleUrdu': 'گناہوں کی سمجھ',
       'titleHindi': 'गुनाहों की समझ',
+      'titleArabic': 'فهم الذنوب',
       'icon': Icons.warning,
       'color': Colors.red,
       'details': {
@@ -161,13 +159,58 @@ The Prophet's Warning:
 • "छोटे गुनाहों से बचो, क्योंकि वो जमा होकर इंसान को तबाह कर देते हैं।" (अहमद)
 • छोटे गुनाह भी जमा होते हैं
 • छोटे गुनाहों पर इसरार बड़े गुनाहों की तरफ़ ले जा सकता है''',
+        'arabic': '''فهم الذنوب
+
+الذنوب هي المعاصي والخطايا التي نهى الله عنها.
+
+تعريف الذنب:
+• كل ما نهى الله عنه أو أمر باجتنابه
+• مخالفة أوامر الله ورسوله ﷺ
+• ترك الواجبات أو فعل المحرمات
+• "وَمَن يَعْصِ اللَّهَ وَرَسُولَهُ فَقَدْ ضَلَّ ضَلَالًا مُّبِينًا" (سورة الأحزاب: 36)
+
+أنواع الذنوب:
+• الكبائر: الذنوب العظيمة التي توعد الله عليها بالنار
+• الصغائر: الذنوب الصغيرة التي تكفرها الصلوات والأعمال الصالحة
+• ذنوب القلب: كالكبر والحسد والرياء
+• ذنوب اللسان: كالكذب والغيبة والنميمة
+• ذنوب الجوارح: كالزنا والسرقة والقتل
+
+خطورة الذنوب:
+• تبعد العبد عن الله
+• تظلم القلب وتقسيه
+• تمحق البركة من الرزق والعمر
+• تجلب المصائب والبلاء
+• قال النبي ﷺ: "إن العبد إذا أخطأ خطيئة نكتت في قلبه نكتة سوداء" (الترمذي)
+
+الفرق بين الكبائر والصغائر:
+• الكبيرة: ما فيها حد في الدنيا أو وعيد في الآخرة
+• قال النبي ﷺ: "اجتنبوا السبع الموبقات" (البخاري)
+• الصغيرة: ما دون ذلك من المعاصي
+• الإصرار على الصغائر يجعلها كبائر
+
+أثر الذنوب على المجتمع:
+• انتشار الفساد
+• زوال الأمن والاستقرار
+• ضعف المسلمين وذلهم
+• قلة البركة في الأرض
+• "ظَهَرَ الْفَسَادُ فِي الْبَرِّ وَالْبَحْرِ بِمَا كَسَبَتْ أَيْدِي النَّاسِ" (سورة الروم: 41)
+
+الحذر من الذنوب:
+• استشعار مراقبة الله
+• تذكر الموت والحساب
+• الخوف من عذاب الله
+• الرجاء في رحمة الله
+• المسارعة إلى التوبة'''
       },
     },
     {
       'number': 2,
+      'titleKey': 'gunha_fazilat_2_major_sins_to_avoid',
       'title': 'Major Sins to Avoid',
       'titleUrdu': 'بچنے کے کبیرہ گناہ',
       'titleHindi': 'बचने के कबीरा गुनाह',
+      'titleArabic': 'الكبائر التي يجب اجتنابها',
       'icon': Icons.block,
       'color': Colors.orange,
       'details': {
@@ -324,13 +367,65 @@ Consequences:
 • क़ब्र में सज़ा
 • क़यामत के दिन सज़ा
 • तौबा न करने पर जहन्नम का बाइस बन सकते हैं''',
+        'arabic': '''الكبائر التي يجب اجتنابها
+
+السبع الموبقات والذنوب العظيمة.
+
+السبع الموبقات:
+• قال النبي ﷺ: "اجتنبوا السبع الموبقات" قالوا: يا رسول الله وما هن؟
+• الشرك بالله
+• السحر
+• قتل النفس التي حرم الله إلا بالحق
+• أكل الربا
+• أكل مال اليتيم
+• التولي يوم الزحف
+• قذف المحصنات الغافلات المؤمنات
+
+الشرك بالله:
+• أعظم الذنوب على الإطلاق
+• "إِنَّ اللَّهَ لَا يَغْفِرُ أَن يُشْرَكَ بِهِ وَيَغْفِرُ مَا دُونَ ذَٰلِكَ لِمَن يَشَاءُ" (سورة النساء: 48)
+• الشرك الأكبر: صرف العبادة لغير الله
+• الشرك الأصغر: الرياء والحلف بغير الله
+
+عقوق الوالدين:
+• من أكبر الكبائر
+• قال النبي ﷺ: "ألا أنبئكم بأكبر الكبائر؟ الشرك بالله، وعقوق الوالدين" (البخاري)
+• عدم برهما والإحسان إليهما
+• قول "أف" لهما أو التضجر منهما
+• التسبب في أذاهما
+
+الزنا واللواط:
+• من أعظم الفواحش
+• "وَلَا تَقْرَبُوا الزِّنَا إِنَّهُ كَانَ فَاحِشَةً وَسَاءَ سَبِيلًا" (سورة الإسراء: 32)
+• حد الزنا في الإسلام رجم المحصن وجلد غير المحصن
+• اللواط أشد من الزنا
+
+أكل الربا:
+• "الَّذِينَ يَأْكُلُونَ الرِّبَا لَا يَقُومُونَ إِلَّا كَمَا يَقُومُ الَّذِي يَتَخَبَّطُهُ الشَّيْطَانُ" (سورة البقرة: 275)
+• محاربة لله ورسوله
+• محق البركة من المال
+• التعامل بالربا كبيرة عظيمة
+
+شرب الخمر:
+• أم الخبائث
+• تذهب العقل وتجلب الفواحش
+• قال النبي ﷺ: "كل مسكر خمر، وكل خمر حرام" (مسلم)
+• شارب الخمر كعابد وثن
+
+الغيبة والنميمة:
+• الغيبة: ذكر أخاك بما يكره
+• النميمة: نقل الكلام بين الناس للإفساد
+• قال الله: "وَلَا يَغْتَب بَّعْضُكُم بَعْضًا" (سورة الحجرات: 12)
+• النمام لا يدخل الجنة'''
       },
     },
     {
       'number': 3,
+      'titleKey': 'gunha_fazilat_3_true_repentance_tawbah',
       'title': 'True Repentance (Tawbah)',
       'titleUrdu': 'سچی توبہ',
       'titleHindi': 'सच्ची तौबा',
+      'titleArabic': 'التوبة النصوح',
       'icon': Icons.favorite,
       'color': Colors.pink,
       'details': {
@@ -451,13 +546,63 @@ After Repentance:
 • बुरी आदतों को अच्छी आदतों से बदलें
 • अल्लाह के साथ अपना ताल्लुक़ मज़बूत करें
 • अल्लाह की माफ़ी पर शुक्र अदा करें''',
+        'arabic': '''التوبة النصوح
+
+كيفية التوبة الصادقة من الذنوب.
+
+معنى التوبة:
+• الرجوع إلى الله من المعصية
+• الندم على ما فات والعزم على عدم العودة
+• "وَتُوبُوا إِلَى اللَّهِ جَمِيعًا أَيُّهَ الْمُؤْمِنُونَ لَعَلَّكُمْ تُفْلِحُونَ" (سورة النور: 31)
+• باب الرجوع إلى الله مفتوح دائماً
+
+شروط التوبة الصحيحة:
+• الإقلاع عن الذنب فوراً
+• الندم على ما فات من المعصية
+• العزم الصادق على عدم العودة
+• رد الحقوق إلى أصحابها (في حقوق العباد)
+• أن تكون في وقت قبول التوبة
+
+وقت قبول التوبة:
+• قبل طلوع الشمس من مغربها
+• قبل الغرغرة (سكرات الموت)
+• قال النبي ﷺ: "إن الله يقبل توبة العبد ما لم يغرغر" (الترمذي)
+• التوبة قبل معاينة الموت
+
+فضل التوبة:
+• "إِنَّ اللَّهَ يُحِبُّ التَّوَّابِينَ وَيُحِبُّ الْمُتَطَهِّرِينَ" (سورة البقرة: 222)
+• التائب من الذنب كمن لا ذنب له
+• الله يفرح بتوبة عبده
+• تمحو الذنوب والسيئات
+• تحول السيئات إلى حسنات
+
+التوبة من حقوق العباد:
+• لا بد من رد الحقوق أولاً
+• الاستحلال من صاحب الحق
+• إن لم يمكن فالاستغفار له
+• التصدق عنه إن كان ميتاً
+
+الإصرار على التوبة:
+• عدم اليأس من رحمة الله
+• "قُلْ يَا عِبَادِيَ الَّذِينَ أَسْرَفُوا عَلَىٰ أَنفُسِهِمْ لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ" (سورة الزمر: 53)
+• المداومة على الاستغفار
+• إذا عاد للذنب يتوب مرة أخرى
+
+علامات قبول التوبة:
+• انشراح الصدر وطمأنينة القلب
+• حب الطاعات وكره المعاصي
+• الإقبال على الله بالعبادة
+• الإحسان إلى الخلق
+• الشعور بالخوف من الله والرجاء في رحمته'''
       },
     },
     {
       'number': 4,
+      'titleKey': 'gunha_fazilat_4_protection_from_sins',
       'title': 'Protection from Sins',
       'titleUrdu': 'گناہوں سے بچاؤ',
       'titleHindi': 'गुनाहों से बचाव',
+      'titleArabic': 'الحماية من الذنوب',
       'icon': Icons.security,
       'color': Colors.blue,
       'details': {
@@ -590,13 +735,62 @@ Accountability:
 • अच्छे दोस्त रखना जो अल्लाह की याद दिलाएं
 • उस्ताद या रहनुमा रखना
 • याद रखना कि अल्लाह सब कुछ देखता है''',
+        'arabic': '''الحماية من الذنوب
+
+كيفية الوقاية من الوقوع في المعاصي.
+
+تقوى الله:
+• "يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ حَقَّ تُقَاتِهِ" (سورة آل عمران: 102)
+• استشعار مراقبة الله في السر والعلن
+• الخوف من عقاب الله
+• الرجاء في ثواب الله
+• التقوى درع يحمي من المعاصي
+
+ذكر الله:
+• "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ" (سورة الرعد: 28)
+• المداومة على الأذكار الصباحية والمسائية
+• قراءة القرآن يومياً
+• التسبيح والتحميد والتهليل
+• الذكر يطرد الشيطان
+
+الصحبة الصالحة:
+• قال النبي ﷺ: "المرء على دين خليله، فلينظر أحدكم من يخالل" (أبو داود)
+• مجالسة الصالحين تعين على الطاعة
+• البعد عن رفقاء السوء
+• الصاحب الصالح ينصح ويذكر بالله
+
+غض البصر:
+• "قُل لِّلْمُؤْمِنِينَ يَغُضُّوا مِنْ أَبْصَارِهِمْ" (سورة النور: 30)
+• النظر سهم مسموم من سهام إبليس
+• غض البصر يحفظ القلب من الشهوات
+• ينور القلب والبصيرة
+
+حفظ اللسان:
+• قال النبي ﷺ: "من كان يؤمن بالله واليوم الآخر فليقل خيراً أو ليصمت" (البخاري)
+• الصمت عن الباطل
+• عدم الخوض في ما لا يعني
+• ذكر الله بدل الغيبة والنميمة
+
+الدعاء والاستعاذة:
+• "رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا" (سورة آل عمران: 8)
+• الاستعاذة بالله من الشيطان
+• دعاء: "اللهم إني أعوذ بك من شر نفسي"
+• طلب العصمة من الله
+
+تذكر الموت:
+• قال النبي ﷺ: "أكثروا ذكر هاذم اللذات" (الترمذي)
+• تذكر الموت يزهد في الدنيا
+• استحضار القبر والحساب
+• تذكر الجنة والنار'''
       },
     },
     {
       'number': 5,
+      'titleKey': 'gunha_fazilat_5_sins_of_the_tongue',
       'title': 'Sins of the Tongue',
       'titleUrdu': 'زبان کے گناہ',
       'titleHindi': 'ज़बान के गुनाह',
+      'titleArabic': 'ذنوب اللسان',
       'icon': Icons.speaker_notes_off,
       'color': Colors.deepOrange,
       'details': {
@@ -738,13 +932,60 @@ How to Guard Your Tongue:
 • सिर्फ़ अच्छा बोलें या ख़ामोश रहें
 • याद रखें अल्लाह सब कुछ लिख रहा है
 • अपने आप से पूछें: क्या यह सच है? क्या ज़रूरी है? क्या मेहरबान है?''',
+        'arabic': '''ذنوب اللسان
+
+خطورة اللسان وآفاته.
+
+خطورة اللسان:
+• قال النبي ﷺ: "إن العبد ليتكلم بالكلمة ما يتبين فيها يزل بها في النار أبعد مما بين المشرق والمغرب" (مسلم)
+• اللسان أخطر الجوارح
+• معظم خطايا ابن آدم من لسانه
+• سبب دخول أكثر الناس النار
+
+الكذب:
+• من أقبح الذنوب
+• قال النبي ﷺ: "إن الكذب يهدي إلى الفجور، وإن الفجور يهدي إلى النار" (البخاري)
+• الكذب على الله ورسوله من أعظم الكبائر
+• شهادة الزور من أكبر الكبائر
+
+الغيبة:
+• ذكر أخاك بما يكره في غيابه
+• "أَيُحِبُّ أَحَدُكُمْ أَن يَأْكُلَ لَحْمَ أَخِيهِ مَيْتًا فَكَرِهْتُمُوهُ" (سورة الحجرات: 12)
+• تأكل الحسنات كما تأكل النار الحطب
+• كفارتها: الاستغفار للمغتاب والاستحلال منه
+
+النميمة:
+• نقل الكلام بين الناس للإفساد
+• قال النبي ﷺ: "لا يدخل الجنة نمام" (البخاري)
+• تفرق بين الأحبة
+• تزرع العداوة والبغضاء
+
+السب والشتم:
+• "سِبَابُ الْمُسْلِمِ فُسُوقٌ وَقِتَالُهُ كُفْرٌ" (البخاري)
+• سب المسلم معصية كبيرة
+• لعن المؤمن كقتله
+• السخرية والاستهزاء من الكبائر
+
+اللغو والباطل:
+• الكلام فيما لا يفيد
+• "وَإِذَا مَرُّوا بِاللَّغْوِ مَرُّوا كِرَامًا" (سورة الفرقان: 72)
+• الخوض في الباطل
+• كثرة الكلام بغير ذكر الله تقسي القلب
+
+حفظ اللسان:
+• الصمت إلا من خير
+• التفكر قبل الكلام
+• ذكر الله كثيراً
+• قال النبي ﷺ: "من صمت نجا" (الترمذي)'''
       },
     },
     {
       'number': 6,
+      'titleKey': 'gunha_fazilat_6_consequences_of_sins',
       'title': 'Consequences of Sins',
       'titleUrdu': 'گناہوں کے نتائج',
       'titleHindi': 'गुनाहों के नताइज',
+      'titleArabic': 'عواقب الذنوب',
       'icon': Icons.error,
       'color': Colors.deepPurple,
       'details': {
@@ -889,6 +1130,61 @@ The Way Out:
 • मुसलसल माफ़ी मांगें
 • जिनका हक़ मारा है उनसे माफ़ी मांगें
 • अल्लाह की लामहदूद रहमत याद रखें''',
+        'arabic': '''عواقب الذنوب
+
+آثار المعاصي في الدنيا والآخرة.
+
+العواقب في الدنيا:
+• محق البركة من الرزق والعمر
+• قسوة القلب وظلمته
+• ضيق الصدر والهم والغم
+• "وَمَنْ أَعْرَضَ عَن ذِكْرِي فَإِنَّ لَهُ مَعِيشَةً ضَنكًا" (سورة طه: 124)
+• الوحشة بين العبد وربه
+
+قسوة القلب:
+• قال النبي ﷺ: "إن العبد إذا أخطأ خطيئة نكتت في قلبه نكتة سوداء" (الترمذي)
+• الذنوب تطفئ نور القلب
+• تمنع من فهم القرآن
+• تبعد عن الطاعات
+• تجعل القلب ميتاً لا يتأثر بالمواعظ
+
+الفقر والحرمان:
+• قال النبي ﷺ: "إن الرجل ليحرم الرزق بالذنب يصيبه" (أحمد)
+• الذنوب تمنع الرزق
+• تذهب البركة من المال
+• تجلب الفقر والحاجة
+
+ضعف الإرادة:
+• عدم القدرة على ترك المعاصي
+• الوقوع في ذنب يقود إلى ذنب آخر
+• صعوبة التوبة والرجوع
+• سهولة الانقياد للشيطان
+
+المصائب والبلايا:
+• "وَمَا أَصَابَكُم مِّن مُّصِيبَةٍ فَبِمَا كَسَبَتْ أَيْدِيكُمْ" (سورة الشورى: 30)
+• الذنوب سبب المصائب
+• قلة الأمن والاستقرار
+• انتشار الأمراض والأوبئة
+
+العواقب في الآخرة:
+• عذاب القبر
+• الحساب العسير يوم القيامة
+• عذاب النار
+• الحرمان من رؤية الله
+• الندم الشديد
+
+البعد عن الله:
+• "كَلَّا إِنَّهُمْ عَن رَّبِّهِمْ يَوْمَئِذٍ لَّمَحْجُوبُونَ" (سورة المطففين: 15)
+• حجاب بين العبد وربه
+• عدم إجابة الدعاء
+• الخذلان وعدم التوفيق
+
+العلاج:
+• التوبة النصوحة
+• كثرة الاستغفار
+• الإكثار من الأعمال الصالحة
+• الصدقة تطفئ الخطيئة
+• المداومة على الطاعات'''
       },
     },
   ];
@@ -907,45 +1203,16 @@ The Way Out:
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _titles[_selectedLanguage]!,
-          style: const TextStyle(
+          context.tr('gunha'),
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: context.responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _selectedLanguage == 'urdu'
-                    ? 'اردو'
-                    : _selectedLanguage == 'hindi'
-                    ? 'हिंदी'
-                    : 'EN',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-            onSelected: (value) => setState(() => _selectedLanguage = value),
-            itemBuilder: (context) => [
-              _buildLanguageMenuItem('english', 'English'),
-              _buildLanguageMenuItem('urdu', 'اردو'),
-              _buildLanguageMenuItem('hindi', 'हिंदी'),
-            ],
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: context.responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -964,122 +1231,127 @@ The Way Out:
     );
   }
 
-  PopupMenuItem<String> _buildLanguageMenuItem(String value, String label) {
-    return PopupMenuItem(
-      value: value,
-      child: Row(
-        children: [
-          if (_selectedLanguage == value)
-            Icon(Icons.check, color: AppColors.primary, size: 18)
-          else
-            const SizedBox(width: 18),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: _selectedLanguage == value
-                  ? FontWeight.bold
-                  : FontWeight.normal,
-              color: _selectedLanguage == value ? AppColors.primary : null,
-            ),
+
+  Widget _buildTopicCard(Map<String, dynamic> topic, bool isDark) {
+    final langCode = context.languageProvider.languageCode;
+    final title = context.tr(topic['titleKey'] ?? 'gunha_fazilat');
+    final responsive = context.responsive;
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
+return Container(
+      margin: responsive.paddingOnly(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTopicCard(Map<String, dynamic> topic, bool isDark) {
-    final title = _selectedLanguage == 'english'
-        ? topic['title']
-        : _selectedLanguage == 'urdu'
-        ? topic['titleUrdu']
-        : topic['titleHindi'];
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showTopicDetails(topic),
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.lightGreenBorder.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+      child: InkWell(
+        onTap: () => _showTopicDetails(topic),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        child: Padding(
+          padding: responsive.paddingAll(14),
+          child: Row(
+            children: [
+              // Number Badge
+              Container(
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
+                decoration: BoxDecoration(
+                  color: darkGreen,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+                child: Center(
+                  child: Text(
+                    '${topic['number']}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsive.textLarge,
+                    ),
                   ),
-                  child: Center(
-                    child: Text(
-                      '${topic['number']}',
+                ),
+              ),
+              SizedBox(width: responsive.spacing(14)),
+
+              // Title and Icon chip
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      title,
                       style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 18,
+                        fontSize: responsive.textLarge,
                         fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                      ),
+                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                    ),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Icon chip
+                    Container(
+                      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            topic['icon'] as IconData,
+                            size: responsive.textXSmall + 2,
+                            color: emeraldGreen,
+                          ),
+                          SizedBox(width: responsive.spacing(4)),
+                          Text(
+                            context.tr('gunha_fazilat'),
+                            style: TextStyle(
+                              fontSize: responsive.textXSmall,
+                              fontWeight: FontWeight.w600,
+                              color: emeraldGreen,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: (topic['color'] as Color).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    topic['icon'] as IconData,
-                    color: topic['color'] as Color,
-                    size: 24,
-                  ),
+              ),
+
+              // Arrow Icon
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: isDark ? Colors.white : AppColors.primary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textDirection: _selectedLanguage == 'urdu'
-                        ? TextDirection.rtl
-                        : TextDirection.ltr,
-                  ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.textXSmall + 2,
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E8F5A),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.white,
-                    size: 14,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1088,19 +1360,22 @@ The Way Out:
 
   void _showTopicDetails(Map<String, dynamic> topic) {
     final details = topic['details'] as Map<String, String>;
+    final titleKey = topic['titleKey'] ?? 'gunha_fazilat';
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => BasicAmalDetailScreen(
-          title: topic['title'],
+          title: topic['title'] ?? '',
           titleUrdu: topic['titleUrdu'] ?? '',
           titleHindi: topic['titleHindi'] ?? '',
+          titleArabic: topic['titleArabic'] ?? '',
           contentEnglish: details['english'] ?? '',
           contentUrdu: details['urdu'] ?? '',
           contentHindi: details['hindi'] ?? '',
+          contentArabic: details['arabic'] ?? '',
           color: topic['color'] as Color,
           icon: topic['icon'] as IconData,
-          category: 'Gunha - Fazilat',
+          categoryKey: 'category_gunha_fazilat',
           number: topic['number'] as int?,
         ),
       ),

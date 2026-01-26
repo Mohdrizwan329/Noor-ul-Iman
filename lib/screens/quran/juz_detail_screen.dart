@@ -4,9 +4,12 @@ import 'package:provider/provider.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/quran_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../data/models/surah_model.dart';
+import '../../widgets/common/search_bar_widget.dart';
 
 class JuzDetailScreen extends StatefulWidget {
   final int juzNumber;
@@ -21,6 +24,8 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
   int? _playingAyah;
   late QuranProvider _quranProvider;
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
   // Track which cards have translation visible
   final Set<int> _cardsWithTranslation = {};
   // Number of ayahs per card (4 ayahs = ~35 cards for 141 ayahs)
@@ -63,6 +68,7 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
   void dispose() {
     _audioPlayer.dispose();
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -128,7 +134,7 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
       }
       shareText.writeln();
     }
-    shareText.writeln('- پارہ ${widget.juzNumber}');
+    shareText.writeln('- ${context.tr('para_label')} ${widget.juzNumber}');
     Share.share(shareText.toString());
   }
 
@@ -142,10 +148,10 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
       }
       copyText.writeln();
     }
-    copyText.writeln('- پارہ ${widget.juzNumber}');
+    copyText.writeln('- ${context.tr('para_label')} ${widget.juzNumber}');
     Clipboard.setData(ClipboardData(text: copyText.toString()));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Copied to clipboard')),
+      SnackBar(content: Text(context.tr('copied'))),
     );
   }
 
@@ -156,71 +162,43 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
     return List.generate(endIndex - startIndex, (i) => startIndex + i);
   }
 
+  // Filter ayahs based on search query
+  List<AyahModel> _getFilteredAyahs(List<AyahModel> ayahs, List<AyahModel> translations) {
+    if (_searchQuery.isEmpty) {
+      return ayahs;
+    }
+    final query = _searchQuery.toLowerCase();
+    final filteredIndices = <int>[];
+
+    for (int i = 0; i < ayahs.length; i++) {
+      final ayah = ayahs[i];
+      final translation = i < translations.length ? translations[i].text : '';
+
+      if (ayah.text.contains(query) ||
+          translation.toLowerCase().contains(query) ||
+          ayah.numberInSurah.toString().contains(query)) {
+        filteredIndices.add(i);
+      }
+    }
+
+    return filteredIndices.map((i) => ayahs[i]).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     final settings = context.watch<SettingsProvider>();
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         title: Text(
-          'Para ${widget.juzNumber}',
-          style: const TextStyle(
-            fontSize: 18,
+          '${context.tr('para_label')} ${widget.juzNumber}',
+          style: TextStyle(
+            fontSize: responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          // Language Selector
-          Consumer<QuranProvider>(
-            builder: (context, provider, child) {
-              return PopupMenuButton<QuranLanguage>(
-                icon: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    QuranProvider.languageNames[provider.selectedLanguage]!,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-                onSelected: (QuranLanguage language) {
-                  provider.setLanguage(language).then((_) {
-                    provider.fetchJuz(widget.juzNumber);
-                  });
-                },
-                itemBuilder: (context) => QuranLanguage.values.map((language) {
-                  final isSelected = provider.selectedLanguage == language;
-                  return PopupMenuItem<QuranLanguage>(
-                    value: language,
-                    child: Row(
-                      children: [
-                        if (isSelected)
-                          Icon(Icons.check, color: AppColors.primary, size: 18)
-                        else
-                          const SizedBox(width: 18),
-                        const SizedBox(width: 8),
-                        Text(
-                          QuranProvider.languageNames[language]!,
-                          style: TextStyle(
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            color: isSelected ? AppColors.primary : null,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              );
-            },
-          ),
-        ],
       ),
       body: Consumer<QuranProvider>(
         builder: (context, provider, child) {
@@ -235,45 +213,90 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 48, color: Colors.grey.shade400),
-                  const SizedBox(height: 16),
-                  const Text('Failed to load Para'),
-                  const SizedBox(height: 8),
+                  Icon(Icons.error_outline, size: responsive.iconXLarge * 1.5, color: Colors.grey.shade400),
+                  responsive.vSpaceRegular,
+                  Text(context.tr('error')),
+                  responsive.vSpaceSmall,
                   ElevatedButton(
                     onPressed: () => provider.fetchJuz(widget.juzNumber),
-                    child: const Text('Retry'),
+                    child: Text(context.tr('retry')),
                   ),
                 ],
               ),
             );
           }
 
-          // Calculate number of cards (grouped ayahs)
-          final totalAyahs = provider.currentJuzAyahs.length;
+          // Filter ayahs based on search query
+          final filteredAyahs = _getFilteredAyahs(
+            provider.currentJuzAyahs,
+            provider.currentJuzTranslation,
+          );
+
+          // Calculate number of cards (grouped ayahs) from filtered results
+          final totalAyahs = filteredAyahs.length;
           final cardCount = (totalAyahs / _ayahsPerCard).ceil();
 
-          return ListView.builder(
-            controller: _scrollController,
-            padding: const EdgeInsets.all(12),
-            itemCount: cardCount,
-            itemBuilder: (context, cardIndex) {
-              final ayahIndices = _getAyahIndicesForCard(cardIndex, totalAyahs);
-              final ayahs = ayahIndices.map((i) => provider.currentJuzAyahs[i]).toList();
-              final translations = ayahIndices.map((i) {
-                return i < provider.currentJuzTranslation.length
-                    ? provider.currentJuzTranslation[i].text
-                    : null;
-              }).toList();
+          return Column(
+            children: [
+              Padding(
+                padding: responsive.paddingOnly(left: 12, top: 12, right: 12),
+                child: SearchBarWidget(
+                  controller: _searchController,
+                  hintText: context.tr('search_ayahs'),
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value;
+                    });
+                  },
+                  onClear: () {
+                    setState(() {
+                      _searchQuery = '';
+                    });
+                  },
+                  enableVoiceSearch: true,
+                ),
+              ),
+              Expanded(
+                child: filteredAyahs.isEmpty
+                    ? Center(
+                        child: Text(
+                          context.tr('no_ayahs_found'),
+                          style: TextStyle(
+                            fontSize: responsive.textMedium,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        controller: _scrollController,
+                        padding: responsive.paddingAll(12),
+                        itemCount: cardCount,
+                        itemBuilder: (context, cardIndex) {
+                          final ayahIndices = _getAyahIndicesForCard(cardIndex, totalAyahs);
+                          final ayahs = ayahIndices.map((i) => filteredAyahs[i]).toList();
 
-              return _buildGroupedAyahCard(
-                ayahs,
-                translations,
-                provider,
-                settings.arabicFontSize,
-                settings.translationFontSize,
-                cardIndex,
-              );
-            },
+                          // Get translations for filtered ayahs by matching ayah numbers
+                          final translations = ayahs.map((ayah) {
+                            final originalIndex = provider.currentJuzAyahs.indexWhere(
+                              (a) => a.number == ayah.number,
+                            );
+                            return originalIndex >= 0 && originalIndex < provider.currentJuzTranslation.length
+                                ? provider.currentJuzTranslation[originalIndex].text
+                                : null;
+                          }).toList();
+
+                          return _buildGroupedAyahCard(
+                            ayahs,
+                            translations,
+                            provider,
+                            settings.arabicFontSize,
+                            settings.translationFontSize,
+                            cardIndex,
+                          );
+                        },
+                      ),
+              ),
+            ],
           );
         },
       ),
@@ -288,16 +311,17 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
     double translationFontSize,
     int cardIndex,
   ) {
+    final responsive = context.responsive;
     final isAnyPlaying = _playingCardIndex == cardIndex || ayahs.any((a) => _playingAyah == a.number);
     final showTranslation = _cardsWithTranslation.contains(cardIndex);
     // Card serial number (1-based)
     final cardNumber = cardIndex + 1;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: responsive.paddingOnly(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         border: Border.all(
           color: isAnyPlaying ? AppColors.primaryLight : AppColors.lightGreenBorder,
           width: isAnyPlaying ? 2 : 1.5,
@@ -305,8 +329,8 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
           ),
         ],
       ),
@@ -315,14 +339,14 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
         children: [
           // Card header with serial number and action buttons
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: responsive.paddingSymmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: isAnyPlaying
                   ? AppColors.primaryLight.withValues(alpha: 0.1)
                   : AppColors.lightGreenChip,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(responsive.radiusLarge),
+                topRight: Radius.circular(responsive.radiusLarge),
               ),
             ),
             child: Column(
@@ -332,63 +356,51 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
                   children: [
                     // Card serial number badge
                     Container(
-                      width: 40,
-                      height: 40,
+                      width: responsive.spacing(40),
+                      height: responsive.spacing(40),
                       decoration: BoxDecoration(
                         color: isAnyPlaying ? AppColors.primaryLight : AppColors.primary,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
                             color: AppColors.primary.withValues(alpha: 0.3),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
+                            blurRadius: responsive.spacing(6),
+                            offset: Offset(0, responsive.spacing(2)),
                           ),
                         ],
                       ),
                       child: Center(
                         child: Text(
                           '$cardNumber',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                            fontSize: responsive.textMedium,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    responsive.hSpaceMedium,
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Ayah ${ayahs.first.numberInSurah} - ${ayahs.last.numberInSurah}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                          Text(
-                            '${ayahs.length} Ayahs',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: AppColors.primaryLight,
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        '${context.tr('ayah')} ${ayahs.first.numberInSurah} - ${ayahs.last.numberInSurah}',
+                        style: TextStyle(
+                          fontSize: responsive.textSmall,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                responsive.vSpaceSmall,
                 // Second row: Action buttons with labels
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildHeaderActionButton(
                       icon: isAnyPlaying ? Icons.stop : Icons.volume_up,
-                      label: isAnyPlaying ? 'Stop' : 'Audio',
+                      label: isAnyPlaying ? context.tr('stop') : context.tr('audio'),
                       onTap: isAnyPlaying
                           ? _stopPlaying
                           : () => _playCardAyahs(ayahs, cardIndex),
@@ -396,19 +408,19 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
                     ),
                     _buildHeaderActionButton(
                       icon: Icons.translate,
-                      label: 'Translate',
+                      label: context.tr('translate'),
                       onTap: () => _toggleCardTranslation(cardIndex),
                       isActive: showTranslation,
                     ),
                     _buildHeaderActionButton(
                       icon: Icons.copy,
-                      label: 'Copy',
+                      label: context.tr('copy'),
                       onTap: () => _copyAyahs(ayahs, translations),
                       isActive: false,
                     ),
                     _buildHeaderActionButton(
                       icon: Icons.share,
-                      label: 'Share',
+                      label: context.tr('share'),
                       onTap: () => _shareAyahs(ayahs, translations),
                       isActive: false,
                     ),
@@ -419,7 +431,7 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
           ),
           // Arabic texts for all ayahs in this card
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: responsive.paddingRegular,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: ayahs.asMap().entries.map((entry) {
@@ -429,15 +441,15 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
                   onTap: isPlaying ? _stopPlaying : () => _playAyah(ayah),
                   child: Container(
                     margin: entry.key < ayahs.length - 1
-                        ? const EdgeInsets.only(bottom: 12)
+                        ? responsive.paddingOnly(bottom: 12)
                         : EdgeInsets.zero,
                     padding: isPlaying
-                        ? const EdgeInsets.all(8)
+                        ? responsive.paddingAll(8)
                         : EdgeInsets.zero,
                     decoration: isPlaying
                         ? BoxDecoration(
                             color: AppColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(responsive.radiusMedium),
                           )
                         : null,
                     child: Row(
@@ -445,11 +457,11 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
                       children: [
                         // Play indicator
                         if (isPlaying)
-                          const Padding(
-                            padding: EdgeInsets.only(right: 8, top: 8),
+                          Padding(
+                            padding: responsive.paddingOnly(right: 8, top: 8),
                             child: Icon(
                               Icons.volume_up,
-                              size: 18,
+                              size: responsive.iconSmall,
                               color: AppColors.primary,
                             ),
                           ),
@@ -477,12 +489,12 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
           // Translations (if visible)
           if (showTranslation)
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: responsive.paddingRegular,
               decoration: BoxDecoration(
                 color: AppColors.lightGreenChip.withValues(alpha: 0.5),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(responsive.radiusLarge),
+                  bottomRight: Radius.circular(responsive.radiusLarge),
                 ),
               ),
               child: Column(
@@ -494,28 +506,28 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
 
                   return Container(
                     margin: index < translations.length - 1
-                        ? const EdgeInsets.only(bottom: 12)
+                        ? responsive.paddingOnly(bottom: 12)
                         : EdgeInsets.zero,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Ayah number indicator
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
                             color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(responsive.radiusMedium),
                           ),
                           child: Text(
                             '${ayahs[index].numberInSurah}',
-                            style: const TextStyle(
-                              fontSize: 11,
+                            style: TextStyle(
+                              fontSize: responsive.fontSize(11),
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        responsive.vSpaceSmall,
                         Text(
                           translation,
                           style: TextStyle(
@@ -543,30 +555,31 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
     required VoidCallback onTap,
     required bool isActive,
   }) {
+    final responsive = context.responsive;
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(responsive.radiusMedium),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          padding: responsive.paddingSymmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
             color: isActive ? AppColors.primaryLight : AppColors.lightGreenChip,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(responsive.radiusMedium),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 icon,
-                size: 22,
+                size: responsive.iconSmall,
                 color: isActive ? Colors.white : AppColors.primary,
               ),
-              const SizedBox(height: 2),
+              responsive.vSpaceXSmall,
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: responsive.textXSmall,
                   color: isActive ? Colors.white : AppColors.primary,
                   fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
                 ),

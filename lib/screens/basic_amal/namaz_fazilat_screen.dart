@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,18 +16,15 @@ class NamazFazilatScreen extends StatefulWidget {
 class _NamazFazilatScreenState extends State<NamazFazilatScreen> {
   String _selectedLanguage = 'english';
 
-  final Map<String, String> _titles = {
-    'english': 'Namaz (Prayer) - Virtues & Rewards',
-    'urdu': 'نماز - فضائل اور اجر',
-    'hindi': 'नमाज़ - फ़ज़ीलत और अज्र',
-  };
 
   final List<Map<String, dynamic>> _namazTopics = [
     {
       'number': 1,
+      'titleKey': 'namaz_fazilat_1_importance_of_salah',
       'title': 'Importance of Salah',
       'titleUrdu': 'نماز کی اہمیت',
       'titleHindi': 'नमाज़ की अहमियत',
+      'titleArabic': 'أهمية الصلاة',
       'icon': Icons.mosque,
       'color': Colors.green,
       'details': {
@@ -116,13 +115,47 @@ Consequences of Abandoning:
 • इस्लाम में बड़ा गुनाह
 • बाज़ उलमा कहते हैं यह इस्लाम से निकाल देता है
 • फ़िरऔन, क़ारून और हामान के साथ उठाया जाएगा''',
+        'arabic': '''أهمية الصلاة
+
+الصلاة عماد الدين وأعظم أركان الإسلام بعد الشهادتين.
+
+مكانة الصلاة:
+• "إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا" (سورة النساء: 103)
+• عماد الدين الذي لا يقوم إلا به
+• أول ما يحاسب عليه العبد يوم القيامة
+• قال النبي ﷺ: "العهد الذي بيننا وبينهم الصلاة فمن تركها فقد كفر" (الترمذي)
+
+فرضية الصلاة:
+• فرضت في ليلة الإسراء والمعراج
+• فرضت خمسين صلاة فخففت إلى خمس
+• أجرها كخمسين صلاة
+• "وَأَقِيمُوا الصَّلَاةَ وَآتُوا الزَّكَاةَ" (سورة البقرة: 43)
+
+الصلاة نور:
+• قال النبي ﷺ: "الصلاة نور" (مسلم)
+• تنور القلب والوجه
+• تنور الطريق يوم القيامة
+• تفتح أبواب الرحمة
+
+الصلاة تنهى عن الفحشاء:
+• "إِنَّ الصَّلَاةَ تَنْهَىٰ عَنِ الْفَحْشَاءِ وَالْمُنكَرِ" (سورة العنكبوت: 45)
+• تحجز عن المعاصي
+• تزكي النفس وتطهرها
+• تقوي الإيمان
+
+أول ما يحاسب عليه العبد:
+• قال النبي ﷺ: "أول ما يحاسب به العبد يوم القيامة الصلاة" (النسائي)
+• إذا صلحت صلح سائر عمله
+• وإذا فسدت فسد سائر عمله'''
       },
     },
     {
       'number': 2,
+      'titleKey': 'namaz_fazilat_2_five_daily_prayers',
       'title': 'Five Daily Prayers',
       'titleUrdu': 'پانچ وقت کی نمازیں',
       'titleHindi': 'पांच वक़्त की नमाज़ें',
+      'titleArabic': 'الصلوات الخمس',
       'icon': Icons.access_time,
       'color': Colors.blue,
       'details': {
@@ -231,13 +264,48 @@ Total Daily: 17 Fard Rakats + Various Sunnah''',
 • वित्र पर बहुत ज़ोर दिया गया है
 
 रोज़ाना कुल: 17 फ़र्ज़ रकअत + मुख़्तलिफ़ सुन्नतें''',
+        'arabic': '''الصلوات الخمس
+
+فضائل الصلوات الخمس المفروضة.
+
+صلاة الفجر:
+• "أَقِمِ الصَّلَاةَ لِدُلُوكِ الشَّمْسِ إِلَىٰ غَسَقِ اللَّيْلِ وَقُرْآنَ الْفَجْرِ" (سورة الإسراء: 78)
+• ركعتا الفجر خير من الدنيا وما فيها
+• من صلى الفجر في جماعة فهو في ذمة الله
+• "إِنَّ قُرْآنَ الْفَجْرِ كَانَ مَشْهُودًا" تشهده ملائكة الليل والنهار
+
+صلاة الظهر:
+• أول صلاة صلاها جبريل بالنبي ﷺ
+• فيها تفتح أبواب السماء
+• يستحب فيها إطالة القراءة
+• أول صلاة أظهرها المسلمون بمكة
+
+صلاة العصر:
+• "حَافِظُوا عَلَى الصَّلَوَاتِ وَالصَّلَاةِ الْوُسْطَىٰ" (سورة البقرة: 238)
+• الصلاة الوسطى على الأرجح
+• قال النبي ﷺ: "من ترك صلاة العصر فقد حبط عمله" (البخاري)
+• صلاة الملائكة
+
+صلاة المغرب:
+• وتر النهار
+• ثلاث ركعات
+• من صلاها في جماعة كأنما قام نصف الليل
+• يستحب تعجيلها
+
+صلاة العشاء:
+• آخر الصلوات الخمس
+• من صلاها في جماعة فكأنما قام نصف الليل
+• من صلى العشاء والفجر في جماعة فكأنما قام الليل كله
+• يجوز تأخيرها إلى نصف الليل'''
       },
     },
     {
       'number': 3,
+      'titleKey': 'namaz_fazilat_3_rewards_of_prayer',
       'title': 'Rewards of Prayer',
       'titleUrdu': 'نماز کا ثواب',
       'titleHindi': 'नमाज़ का सवाब',
+      'titleArabic': 'ثواب الصلاة',
       'icon': Icons.star,
       'color': Colors.amber,
       'details': {
@@ -331,13 +399,47 @@ Protection from Hellfire:
 जहन्नम से हिफ़ाज़त:
 • बाक़ायदा नमाज़ जहन्नम से बचाती है
 • सज्दा करने वाले चेहरे को आग नहीं छुएगी (उलमा के मुताबिक़)''',
+        'arabic': '''ثواب الصلاة
+
+الأجر العظيم للصلاة.
+
+تكفير الذنوب:
+• قال النبي ﷺ: "الصلوات الخمس والجمعة إلى الجمعة كفارات لما بينهن ما لم تغش الكبائر" (مسلم)
+• كل صلاة تكفر ما قبلها من الذنوب
+• الوضوء يكفر الخطايا
+• السجود يحط الذنوب
+
+رفع الدرجات:
+• بكل خطوة إلى المسجد درجة ومحو سيئة
+• "يَرْفَعِ اللَّهُ الَّذِينَ آمَنُوا مِنكُمْ وَالَّذِينَ أُوتُوا الْعِلْمَ دَرَجَاتٍ" (سورة المجادلة: 11)
+• الصلاة في الصف الأول أفضل
+• المحافظة على الصلاة سبب لدخول الجنة
+
+دخول الجنة:
+• قال النبي ﷺ: "من صلى البردين دخل الجنة" (البخاري)
+• من صلى اثنتي عشرة ركعة بنى الله له بيتاً في الجنة
+• الصلاة طريق إلى الفردوس الأعلى
+
+مضاعفة الأجر:
+• الصلاة في المسجد بسبع وعشرين درجة
+• الصلاة في المسجد الحرام بمائة ألف صلاة
+• الصلاة في المسجد النبوي بألف صلاة
+• الصلاة في المسجد الأقصى بخمسمائة صلاة
+
+القرب من الله:
+• "وَاسْجُدْ وَاقْتَرِب" (سورة العلق: 19)
+• أقرب ما يكون العبد من ربه وهو ساجد
+• الصلاة مناجاة مع الله
+• سبب لمحبة الله ورضاه'''
       },
     },
     {
       'number': 4,
+      'titleKey': 'namaz_fazilat_4_congregation_prayer',
       'title': 'Congregation Prayer',
       'titleUrdu': 'نماز باجماعت',
       'titleHindi': 'नमाज़ बा-जमाअत',
+      'titleArabic': 'صلاة الجماعة',
       'icon': Icons.groups,
       'color': Colors.purple,
       'details': {
@@ -440,13 +542,49 @@ Jumu'ah (Friday) Prayer:
 • "जो तीन जुमे ग़फ़लत से छोड़े, अल्लाह उसके दिल पर मुहर लगा देगा।" (तिर्मिज़ी)
 • हफ़्ते का बेहतरीन दिन
 • ख़ास घड़ी जब दुआ क़बूल होती है''',
+        'arabic': '''صلاة الجماعة
+
+فضل الصلاة جماعة في المسجد.
+
+فضل صلاة الجماعة:
+• قال النبي ﷺ: "صلاة الجماعة تفضل صلاة الفذ بسبع وعشرين درجة" (البخاري)
+• واجبة على الرجال
+• سنة مؤكدة للنساء في بيوتهن
+• من أعظم شعائر الإسلام
+
+الأجر العظيم:
+• من توضأ فأحسن الوضوء ثم مشى إلى المسجد غفر له ما تقدم من ذنبه
+• بكل خطوة درجة ومحو سيئة
+• "فِي بُيُوتٍ أَذِنَ اللَّهُ أَن تُرْفَعَ" (سورة النور: 36)
+• انتظار الصلاة في المسجد عبادة
+
+الصف الأول:
+• قال النبي ﷺ: "لو يعلم الناس ما في النداء والصف الأول ثم لم يجدوا إلا أن يستهموا عليه لاستهموا" (البخاري)
+• أفضل الصفوف
+• التبكير إليه من السنن
+• القرب من الإمام أفضل
+
+حكم ترك الجماعة:
+• هم النبي ﷺ بتحريق بيوت من تخلف عن الجماعة
+• إثم عظيم لمن تركها بلا عذر
+• علامة من علامات النفاق
+• استحقاق العقوبة في الدنيا والآخرة
+
+آداب صلاة الجماعة:
+• التبكير إلى المسجد
+• الطهارة والنظافة
+• المشي بسكينة ووقار
+• سد الفرج واعتدال الصفوف
+• متابعة الإمام وعدم مسابقته'''
       },
     },
     {
       'number': 5,
+      'titleKey': 'namaz_fazilat_5_sunnah_nafl_prayers',
       'title': 'Sunnah & Nafl Prayers',
       'titleUrdu': 'سنت اور نفل نمازیں',
       'titleHindi': 'सुन्नत और नफ़्ल नमाज़ें',
+      'titleArabic': 'صلاة السنة والنافلة',
       'icon': Icons.volunteer_activism,
       'color': Colors.teal,
       'details': {
@@ -561,13 +699,49 @@ Benefits of Voluntary Prayers:
 • फ़र्ज़ नमाज़ों की कमियों की तलाफ़ी
 • अल्लाह से क़ुर्बत
 • इज़ाफ़ी हिफ़ाज़त और बरकात''',
+        'arabic': '''صلاة السنة والنافلة
+
+فضل صلاة النوافل والرواتب.
+
+السنن الرواتب:
+• قال النبي ﷺ: "من صلى في يوم وليلة اثنتي عشرة ركعة بنى الله له بيتاً في الجنة" (مسلم)
+• ركعتان قبل الفجر
+• أربع قبل الظهر وركعتان بعدها
+• ركعتان بعد المغرب
+• ركعتان بعد العشاء
+
+صلاة الضحى:
+• "يُصْبِحُ عَلَىٰ كُلِّ سُلَامَىٰ مِنْ أَحَدِكُمْ صَدَقَةٌ" (البخاري)
+• من 2 إلى 12 ركعة
+• تجزئ عن صدقة عن كل مفصل
+• وقتها من ارتفاع الشمس إلى قبل الزوال
+
+قيام الليل:
+• "وَمِنَ اللَّيْلِ فَتَهَجَّدْ بِهِ نَافِلَةً لَّكَ" (سورة الإسراء: 79)
+• أفضل الصلاة بعد الفريضة
+• قال النبي ﷺ: "أفضل الصلاة بعد الفريضة صلاة الليل" (مسلم)
+• الثلث الأخير من الليل أفضل
+
+صلاة الوتر:
+• آكد النوافل
+• "أَوْتِرُوا يَا أَهْلَ الْقُرْآنِ" (أبو داود)
+• من ركعة إلى إحدى عشرة ركعة
+• آخر صلاة الليل
+
+تحية المسجد:
+• ركعتان عند دخول المسجد
+• لا تجلس حتى تصلي ركعتين
+• حتى في أوقات النهي
+• سنة مؤكدة'''
       },
     },
     {
       'number': 6,
+      'titleKey': 'namaz_fazilat_6_prayer_character',
       'title': 'Prayer & Character',
       'titleUrdu': 'نماز اور اخلاق',
       'titleHindi': 'नमाज़ और अख़्लाक़',
+      'titleArabic': 'الصلاة والأخلاق',
       'icon': Icons.favorite,
       'color': Colors.red,
       'details': {
@@ -706,6 +880,45 @@ Signs of Proper Prayer:
 • ज़्यादा सब्र
 • बेहतर रिश्ते
 • बढ़ा हुआ तक़वा''',
+        'arabic': '''الصلاة والأخلاق
+
+أثر الصلاة على الأخلاق والسلوك.
+
+الخشوع في الصلاة:
+• "قَدْ أَفْلَحَ الْمُؤْمِنُونَ * الَّذِينَ هُمْ فِي صَلَاتِهِمْ خَاشِعُونَ" (سورة المؤمنون: 1-2)
+• حضور القلب
+• الخوف والرجاء
+• تدبر القراءة والأذكار
+
+الصلاة تربي على الصدق:
+• "إِنَّ الصَّلَاةَ تَنْهَىٰ عَنِ الْفَحْشَاءِ وَالْمُنكَرِ" (سورة العنكبوت: 45)
+• تعلم الأمانة والاستقامة
+• الوقوف بين يدي الله بصدق
+• الإخلاص في العبادة
+
+النظام والانضباط:
+• المحافظة على أوقات الصلاة
+• الالتزام بشروط الصلاة وأركانها
+• الانتظام في صفوف الجماعة
+• "وَأَقِمِ الصَّلَاةَ طَرَفَيِ النَّهَارِ" (سورة هود: 114)
+
+التواضع والخضوع:
+• السجود أعلى مراتب التواضع
+• الخضوع لله في القيام والركوع
+• ترك الكبر والعجب
+• الشعور بالعبودية الكاملة لله
+
+الرحمة والإحسان:
+• المصلي يتعلم الرحمة
+• الصلاة تزكي النفس
+• تعلم الإحسان إلى الخلق
+• "وَأَقِمِ الصَّلَاةَ لِذِكْرِي" (سورة طه: 14)
+
+الصبر والثبات:
+• "وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ" (سورة البقرة: 45)
+• الصلاة تعين على الشدائد
+• تقوي العزيمة
+• تثبت القلب'''
       },
     },
   ];
@@ -724,45 +937,16 @@ Signs of Proper Prayer:
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _titles[_selectedLanguage]!,
-          style: const TextStyle(
+          context.tr('namaz_fazilat'),
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: context.responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _selectedLanguage == 'urdu'
-                    ? 'اردو'
-                    : _selectedLanguage == 'hindi'
-                    ? 'हिंदी'
-                    : 'EN',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-            onSelected: (value) => setState(() => _selectedLanguage = value),
-            itemBuilder: (context) => [
-              _buildLanguageMenuItem('english', 'English'),
-              _buildLanguageMenuItem('urdu', 'اردو'),
-              _buildLanguageMenuItem('hindi', 'हिंदी'),
-            ],
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: context.responsive.paddingRegular,
         child: ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -776,114 +960,127 @@ Signs of Proper Prayer:
     );
   }
 
-  PopupMenuItem<String> _buildLanguageMenuItem(String value, String label) {
-    return PopupMenuItem(
-      value: value,
-      child: Row(
-        children: [
-          if (_selectedLanguage == value)
-            Icon(Icons.check, color: AppColors.primary, size: 18)
-          else
-            const SizedBox(width: 18),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: _selectedLanguage == value ? FontWeight.bold : FontWeight.normal,
-              color: _selectedLanguage == value ? AppColors.primary : null,
-            ),
+
+  Widget _buildTopicCard(Map<String, dynamic> topic, bool isDark) {
+    final langCode = context.languageProvider.languageCode;
+    final title = context.tr(topic['titleKey'] ?? 'namaz_fazilat');
+    final responsive = context.responsive;
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
+return Container(
+      margin: responsive.paddingOnly(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTopicCard(Map<String, dynamic> topic, bool isDark) {
-    final title = _selectedLanguage == 'english'
-        ? topic['title']
-        : _selectedLanguage == 'urdu'
-        ? topic['titleUrdu']
-        : topic['titleHindi'];
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showTopicDetails(topic),
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.lightGreenBorder.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+      child: InkWell(
+        onTap: () => _showTopicDetails(topic),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        child: Padding(
+          padding: responsive.paddingAll(14),
+          child: Row(
+            children: [
+              // Number Badge
+              Container(
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
+                decoration: BoxDecoration(
+                  color: darkGreen,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+                child: Center(
+                  child: Text(
+                    '${topic['number']}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsive.textLarge,
+                    ),
                   ),
-                  child: Center(
-                    child: Text(
-                      '${topic['number']}',
+                ),
+              ),
+              SizedBox(width: responsive.spacing(14)),
+
+              // Title and Icon chip
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      title,
                       style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 18,
+                        fontSize: responsive.textLarge,
                         fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                      ),
+                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                    ),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Icon chip
+                    Container(
+                      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            topic['icon'] as IconData,
+                            size: responsive.textXSmall + 2,
+                            color: emeraldGreen,
+                          ),
+                          SizedBox(width: responsive.spacing(4)),
+                          Text(
+                            context.tr('namaz_fazilat'),
+                            style: TextStyle(
+                              fontSize: responsive.textXSmall,
+                              fontWeight: FontWeight.w600,
+                              color: emeraldGreen,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: (topic['color'] as Color).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    topic['icon'] as IconData,
-                    color: topic['color'] as Color,
-                    size: 24,
-                  ),
+              ),
+
+              // Arrow Icon
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: isDark ? Colors.white : AppColors.primary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textDirection: _selectedLanguage == 'urdu' ? TextDirection.rtl : TextDirection.ltr,
-                  ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.textXSmall + 2,
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E8F5A),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 14),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -892,19 +1089,22 @@ Signs of Proper Prayer:
 
   void _showTopicDetails(Map<String, dynamic> topic) {
     final details = topic['details'] as Map<String, String>;
+    final titleKey = topic['titleKey'] ?? 'namaz_fazilat';
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => BasicAmalDetailScreen(
-          title: topic['title'],
+          title: topic['title'] ?? '',
           titleUrdu: topic['titleUrdu'] ?? '',
           titleHindi: topic['titleHindi'] ?? '',
+          titleArabic: topic['titleArabic'] ?? '',
           contentEnglish: details['english'] ?? '',
           contentUrdu: details['urdu'] ?? '',
           contentHindi: details['hindi'] ?? '',
+          contentArabic: details['arabic'] ?? '',
           color: topic['color'] as Color,
           icon: topic['icon'] as IconData,
-          category: 'Namaz - Fazilat',
+          categoryKey: 'category_namaz_fazilat',
           number: topic['number'] as int?,
         ),
       ),

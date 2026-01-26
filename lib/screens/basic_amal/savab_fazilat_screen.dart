@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,18 +16,14 @@ class SavabFazilatScreen extends StatefulWidget {
 class _SavabFazilatScreenState extends State<SavabFazilatScreen> {
   String _selectedLanguage = 'english';
 
-  final Map<String, String> _titles = {
-    'english': 'Savab (Reward) - Good Deeds & Returns',
-    'urdu': 'ثواب - نیک اعمال اور بدلے',
-    'hindi': 'सवाब - नेक आमाल और बदले',
-  };
-
   final List<Map<String, dynamic>> _savabTopics = [
     {
       'number': 1,
+      'titleKey': 'savab_fazilat_1_understanding_savab',
       'title': 'Understanding Savab',
       'titleUrdu': 'ثواب کی تفہیم',
       'titleHindi': 'सवाब की तफ़हीम',
+      'titleArabic': 'فهم الثواب',
       'icon': Icons.star,
       'color': Colors.amber,
       'details': {
@@ -116,13 +114,58 @@ Small Deeds, Great Rewards:
 • मुसलमान भाई को देखकर मुस्कुराना - सदक़ा
 • मस्जिद की तरफ़ हर क़दम - सवाब और गुनाह मिटना
 • खाने से पहले "बिस्मिल्लाह" कहना - बरकत और सवाब''',
+        'arabic': '''فهم الثواب
+
+الثواب هو الجزاء الحسن من الله على الأعمال الصالحة.
+
+تعريف الثواب:
+• الجزاء والأجر من الله على الطاعات
+• "مَن جَاءَ بِالْحَسَنَةِ فَلَهُ عَشْرُ أَمْثَالِهَا" (سورة الأنعام: 160)
+• مضاعفة الحسنات من فضل الله
+• الثواب في الدنيا والآخرة
+
+أنواع الثواب:
+• ثواب عاجل في الدنيا: كالسعادة وانشراح الصدر
+• ثواب آجل في الآخرة: كدخول الجنة
+• ثواب القلب: كالطمأنينة والسكينة
+• ثواب البدن: كالصحة والعافية
+• ثواب المال: كالبركة والزيادة
+
+مضاعفة الحسنات:
+• الحسنة بعشر أمثالها إلى سبعمائة ضعف
+• قال الله في الحديث القدسي: "من تقرب إلي شبراً تقربت إليه ذراعاً" (البخاري)
+• الصدقة تضاعف في رمضان
+• العمرة في رمضان كحجة
+• الصلاة في المسجد الحرام بمائة ألف صلاة
+
+فضل الأعمال الصالحة:
+• "فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَرَهُ" (سورة الزلزلة: 7)
+• لا يضيع عمل صالح مهما صغر
+• الأعمال بالنيات
+• الإخلاص شرط قبول العمل
+
+أفضل الأعمال:
+• الإيمان بالله ورسوله
+• الصلاة في وقتها
+• بر الوالدين
+• الجهاد في سبيل الله
+• قال النبي ﷺ: "أحب الأعمال إلى الله أدومها وإن قل" (البخاري)
+
+الحفاظ على الثواب:
+• الإخلاص لله في العمل
+• عدم المن والأذى
+• البعد عن الرياء
+• الاستمرار على الطاعات
+• الحذر من المحبطات'''
       },
     },
     {
       'number': 2,
+      'titleKey': 'savab_fazilat_2_daily_acts_of_savab',
       'title': 'Daily Acts of Savab',
       'titleUrdu': 'روزمرہ ثواب کے کام',
       'titleHindi': 'रोज़मर्रा सवाब के काम',
+      'titleArabic': 'أعمال الثواب اليومية',
       'icon': Icons.today,
       'color': Colors.blue,
       'details': {
@@ -240,13 +283,67 @@ Financial Worship:
 • प्यासों को पानी पिलाना
 • मक़रूज़ के क़र्ज़ में मदद करना
 • यतीमों और बेवाओं की मदद करना''',
+        'arabic': '''أعمال الثواب اليومية
+
+الأعمال الصالحة التي يمكن فعلها كل يوم.
+
+الصلوات الخمس:
+• أعظم الأعمال بعد الشهادتين
+• "إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا" (سورة النساء: 103)
+• الصلاة في وقتها من أحب الأعمال إلى الله
+• صلاة الجماعة تفضل صلاة الفذ بسبع وعشرين درجة
+
+قراءة القرآن:
+• "إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ" (سورة الإسراء: 9)
+• كل حرف بعشر حسنات
+• قراءة سورة الإخلاص تعدل ثلث القرآن
+• المواظبة على قراءة صفحة يومياً
+
+الأذكار اليومية:
+• أذكار الصباح والمساء
+• "الَّذِينَ يَذْكُرُونَ اللَّهَ قِيَامًا وَقُعُودًا" (سورة آل عمران: 191)
+• سبحان الله وبحمده مائة مرة: تحط الخطايا
+• لا إله إلا الله وحده لا شريك له: أجر عظيم
+• الاستغفار سبعين مرة
+
+الصدقة:
+• ولو بشق تمرة
+• "مَّن ذَا الَّذِي يُقْرِضُ اللَّهَ قَرْضًا حَسَنًا" (سورة البقرة: 245)
+• الصدقة تطفئ الخطيئة
+• تزيد المال ولا تنقصه
+• الكلمة الطيبة صدقة
+
+بر الوالدين:
+• من أعظم القربات
+• الإحسان إليهما بالقول والفعل
+• الدعاء لهما
+• طاعتهما في المعروف
+• قضاء حوائجهما
+
+صلة الرحم:
+• زيارة الأقارب والسؤال عنهم
+• مساعدتهم في حاجاتهم
+• قال النبي ﷺ: "من سره أن يبسط له في رزقه فليصل رحمه" (البخاري)
+
+إفشاء السلام:
+• السلام على من عرفت ومن لم تعرف
+• رد السلام واجب
+• قال النبي ﷺ: "أفشوا السلام بينكم" (مسلم)
+
+الأمر بالمعروف:
+• النصيحة للمسلمين
+• إرشاد الضال
+• تعليم الجاهل
+• إعانة المحتاج'''
       },
     },
     {
       'number': 3,
+      'titleKey': 'savab_fazilat_3_excellence_in_worship',
       'title': 'Excellence in Worship',
       'titleUrdu': 'عبادت میں احسان',
       'titleHindi': 'इबादत में एहसान',
+      'titleArabic': 'الإحسان في العبادة',
       'icon': Icons.volunteer_activism,
       'color': Colors.green,
       'details': {
@@ -376,13 +473,62 @@ The Reward:
 सवाब:
 • "क्या एहसान का बदला एहसान के सिवा कुछ और है?" (क़ुरआन 55:60)
 • जो एहसान करते हैं उन्हें अल्लाह की तरफ़ से बेहतरीन सुलूक मिलेगा''',
+        'arabic': '''الإحسان في العبادة
+
+كيفية تحسين العبادات لنيل الثواب العظيم.
+
+معنى الإحسان:
+• "أَن تَعْبُدَ اللَّهَ كَأَنَّكَ تَرَاهُ فَإِن لَّمْ تَكُن تَرَاهُ فَإِنَّهُ يَرَاكَ" (حديث جبريل)
+• استحضار عظمة الله
+• مراقبة الله في كل عمل
+• الإتقان في العبادة
+
+الإخلاص في العبادة:
+• "وَمَا أُمِرُوا إِلَّا لِيَعْبُدُوا اللَّهَ مُخْلِصِينَ لَهُ الدِّينَ" (سورة البينة: 5)
+• النية الخالصة لله
+• البعد عن الرياء والسمعة
+• طلب الأجر من الله وحده
+
+الخشوع في الصلاة:
+• "قَدْ أَفْلَحَ الْمُؤْمِنُونَ * الَّذِينَ هُمْ فِي صَلَاتِهِمْ خَاشِعُونَ" (سورة المؤمنون: 1-2)
+• حضور القلب
+• التدبر في القراءة
+• الطمأنينة في الركوع والسجود
+• الخوف والرجاء
+
+إتقان الوضوء:
+• إسباغ الوضوء على المكاره
+• غسل الأعضاء ثلاثاً
+• التسمية والدعاء
+• قال النبي ﷺ: "من توضأ فأحسن الوضوء خرجت خطاياه من جسده" (مسلم)
+
+التدبر في القرآن:
+• "أَفَلَا يَتَدَبَّرُونَ الْقُرْآنَ" (سورة النساء: 82)
+• فهم معاني الآيات
+• التأثر بالمواعظ
+• العمل بما في القرآن
+• الترتيل في القراءة
+
+الإحسان في الصدقة:
+• "الَّذِينَ يُنفِقُونَ أَمْوَالَهُم بِاللَّيْلِ وَالنَّهَارِ سِرًّا وَعَلَانِيَةً" (سورة البقرة: 274)
+• الإنفاق من أحب المال
+• السرية أفضل إلا إذا كان فيها قدوة
+• عدم المن والأذى
+
+المداومة على العمل الصالح:
+• قال النبي ﷺ: "أحب الأعمال إلى الله أدومها وإن قل" (البخاري)
+• الاستمرار على الطاعة
+• عدم الملل والفتور
+• المحافظة على النوافل'''
       },
     },
     {
       'number': 4,
+      'titleKey': 'savab_fazilat_4_savab_in_special_times',
       'title': 'Savab in Special Times',
       'titleUrdu': 'خاص اوقات میں ثواب',
       'titleHindi': 'ख़ास औक़ात में सवाब',
+      'titleArabic': 'الثواب في الأوقات الخاصة',
       'icon': Icons.access_time,
       'color': Colors.purple,
       'details': {
@@ -518,13 +664,68 @@ After Obligatory Prayers:
 • दुआ फ़ौरन क़बूल होती है
 • अज़कार हिफ़ाज़त और सवाब लाते हैं
 • अगली नमाज़ तक जगह पर रहना - जारी सवाब''',
+        'arabic': '''الثواب في الأوقات الخاصة
+
+الأوقات الفاضلة التي يضاعف فيها الأجر.
+
+شهر رمضان:
+• "شَهْرُ رَمَضَانَ الَّذِي أُنزِلَ فِيهِ الْقُرْآنُ" (سورة البقرة: 185)
+• العمرة في رمضان كحجة
+• ليلة القدر خير من ألف شهر
+• الصدقة فيه مضاعفة
+• قيام رمضان يكفر الذنوب
+
+عشر ذي الحجة:
+• أفضل أيام الدنيا
+• قال النبي ﷺ: "ما من أيام العمل الصالح فيهن أحب إلى الله من هذه الأيام" (البخاري)
+• يوم عرفة: صيامه يكفر سنتين
+• يوم النحر: أعظم الأيام عند الله
+
+يوم الجمعة:
+• سيد الأيام
+• فيه ساعة إجابة
+• قراءة سورة الكهف فيه نور
+• كثرة الصلاة على النبي ﷺ
+• الغسل والتطيب والتبكير
+
+الثلث الأخير من الليل:
+• "يَنزِلُ رَبُّنَا تَبَارَكَ وَتَعَالَىٰ كُلَّ لَيْلَةٍ" (البخاري)
+• وقت إجابة الدعاء
+• قيام الليل من أفضل النوافل
+• التهجد والاستغفار بالأسحار
+
+بين الأذان والإقامة:
+• الدعاء لا يرد
+• انتظار الصلاة في المسجد
+• الذكر والاستغفار
+• الصلاة على النبي ﷺ
+
+في السجود:
+• أقرب ما يكون العبد من ربه
+• قال النبي ﷺ: "أقرب ما يكون العبد من ربه وهو ساجد" (مسلم)
+• الدعاء في السجود مستجاب
+• الإكثار من الدعاء
+
+عند نزول المطر:
+• وقت إجابة الدعاء
+• رحمة من الله
+• الاستغفار والذكر
+• طلب الخير والبركة
+
+في السفر:
+• دعوة المسافر مستجابة
+• قصر الصلاة رخصة
+• الذكر في السفر
+• التقرب إلى الله بالطاعات'''
       },
     },
     {
       'number': 5,
+      'titleKey': 'savab_fazilat_5_words_that_earn_savab',
       'title': 'Words That Earn Savab',
       'titleUrdu': 'ثواب لانے والے الفاظ',
       'titleHindi': 'सवाब लाने वाले अल्फ़ाज़',
+      'titleArabic': 'كلمات تكسب الثواب',
       'icon': Icons.record_voice_over,
       'color': Colors.teal,
       'details': {
@@ -639,13 +840,60 @@ Morning & Evening Adhkar:
 • जामेअ हिफ़ाज़त और सवाब
 • "जो तीन बार 'बिस्मिल्लाहिल्लज़ी ला यज़ुर्रु...' कहे, कुछ नुक़सान नहीं पहुंचाएगा" (अबू दाऊद)
 • बाक़ायदा पढ़ने से बरकत आती है''',
+        'arabic': '''كلمات تكسب الثواب
+
+الأذكار والكلمات الجامعة للخير.
+
+التسبيح:
+• سبحان الله وبحمده: تحط الخطايا
+• سبحان الله العظيم وبحمده: غرس نخلة في الجنة
+• سبحان الله والحمد لله: تملأ ما بين السماء والأرض
+• ثلاث وثلاثون بعد كل صلاة
+
+التهليل:
+• لا إله إلا الله وحده لا شريك له: أفضل الذكر
+• "لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير" مائة مرة
+• كعتق عشر رقاب
+• تحرز من الشيطان
+
+الحمد:
+• الحمد لله: تملأ الميزان
+• الحمد لله على كل حال
+• الحمد لله رب العالمين
+• شكر النعم يزيدها
+
+الصلاة على النبي:
+• "إِنَّ اللَّهَ وَمَلَائِكَتَهُ يُصَلُّونَ عَلَى النَّبِيِّ" (سورة الأحزاب: 56)
+• من صلى عليه مرة صلى الله عليه عشراً
+• يوم الجمعة أفضل الأوقات
+• اللهم صل على محمد وعلى آل محمد
+
+الاستغفار:
+• أستغفر الله العظيم
+• سيد الاستغفار: "اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك"
+• من قاله موقناً به حين يمسي فمات دخل الجنة
+• الاستغفار سبعين مرة في اليوم
+
+الباقيات الصالحات:
+• سبحان الله والحمد لله ولا إله إلا الله والله أكبر
+• خير ما تركه النبي ﷺ
+• "خَيْرٌ وَأَبْقَىٰ" (سورة مريم: 76)
+• ثقيلة في الميزان
+
+كلمات جامعة:
+• لا حول ولا قوة إلا بالله: كنز من كنوز الجنة
+• حسبي الله ونعم الوكيل
+• رضيت بالله رباً وبالإسلام ديناً وبمحمد نبياً
+• اللهم إني أسألك الجنة وأعوذ بك من النار'''
       },
     },
     {
       'number': 6,
+      'titleKey': 'savab_fazilat_6_preserving_your_savab',
       'title': 'Preserving Your Savab',
       'titleUrdu': 'اپنے ثواب کی حفاظت',
       'titleHindi': 'अपने सवाब की हिफ़ाज़त',
+      'titleArabic': 'حفظ الثواب',
       'icon': Icons.shield,
       'color': Colors.orange,
       'details': {
@@ -766,6 +1014,58 @@ Protecting Through Dua:
 • अल्लाह से दुआ करें कि आपके आमाल ज़ाया न हों
 • दिखावे से पनाह मांगें
 • हर नेक काम को इस्तिग़फ़ार के साथ ख़त्म करें किसी कमी के लिए''',
+        'arabic': '''حفظ الثواب
+
+كيفية المحافظة على الحسنات وعدم إحباطها.
+
+محبطات الأعمال:
+• الشرك بالله: يحبط جميع الأعمال
+• "لَئِنْ أَشْرَكْتَ لَيَحْبَطَنَّ عَمَلُكَ" (سورة الزمر: 65)
+• الرياء والسمعة
+• المن والأذى في الصدقة
+• الردة عن الإسلام - والعياذ بالله
+
+الرياء:
+• الشرك الأصغر
+• يحبط العمل
+• قال النبي ﷺ: "أخوف ما أخاف عليكم الشرك الأصغر: الرياء" (أحمد)
+• الإخلاص لله في كل عمل
+
+المن والأذى:
+• "لَا تُبْطِلُوا صَدَقَاتِكُم بِالْمَنِّ وَالْأَذَىٰ" (سورة البقرة: 264)
+• المن على المتصدق عليه يبطل الصدقة
+• إيذاء الفقير بالكلام
+• التفاخر بالعطاء
+
+الغيبة والنميمة:
+• تأكل الحسنات كما تأكل النار الحطب
+• تنقل حسنات المغتاب للمغتاب
+• قال النبي ﷺ: "أتدرون ما الغيبة؟ ذكرك أخاك بما يكره" (مسلم)
+
+الظلم:
+• "إِنَّ الظُّلْمَ ظُلُمَاتٌ يَوْمَ الْقِيَامَةِ" (مسلم)
+• ظلم العباد يوجب القصاص
+• تؤخذ حسنات الظالم وتعطى للمظلوم
+• رد الحقوق قبل يوم القيامة
+
+الكبر والعجب:
+• احتقار الناس واستصغارهم
+• الإعجاب بالنفس والعمل
+• قال النبي ﷺ: "لا يدخل الجنة من كان في قلبه مثقال ذرة من كبر" (مسلم)
+
+طرق الحفاظ على الحسنات:
+• الإخلاص لله في كل عمل
+• إخفاء الأعمال الصالحة
+• الاستمرار على الطاعات
+• الحذر من المعاصي
+• التوبة عند الوقوع في الذنب
+• كثرة الاستغفار
+
+الدعاء بحفظ الأعمال:
+• اللهم تقبل مني واجعله خالصاً لوجهك
+• اللهم لا تجعل الدنيا أكبر همنا
+• اللهم احفظ علينا ديننا
+• ربنا تقبل منا إنك أنت السميع العليم'''
       },
     },
   ];
@@ -784,45 +1084,16 @@ Protecting Through Dua:
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _titles[_selectedLanguage]!,
-          style: const TextStyle(
+          context.tr('savab'),
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: context.responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _selectedLanguage == 'urdu'
-                    ? 'اردو'
-                    : _selectedLanguage == 'hindi'
-                    ? 'हिंदी'
-                    : 'EN',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-            onSelected: (value) => setState(() => _selectedLanguage = value),
-            itemBuilder: (context) => [
-              _buildLanguageMenuItem('english', 'English'),
-              _buildLanguageMenuItem('urdu', 'اردو'),
-              _buildLanguageMenuItem('hindi', 'हिंदी'),
-            ],
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: context.responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -846,11 +1117,12 @@ Protecting Through Dua:
       value: value,
       child: Row(
         children: [
-          if (_selectedLanguage == value)
-            Icon(Icons.check, color: AppColors.primary, size: 18)
-          else
-            const SizedBox(width: 18),
-          const SizedBox(width: 8),
+          Icon(
+            _selectedLanguage == value ? Icons.check_circle : Icons.circle_outlined,
+            color: _selectedLanguage == value ? AppColors.primary : Colors.grey,
+            size: context.responsive.iconSmall,
+          ),
+          SizedBox(width: context.responsive.spaceSmall),
           Text(
             label,
             style: TextStyle(
@@ -866,97 +1138,125 @@ Protecting Through Dua:
   }
 
   Widget _buildTopicCard(Map<String, dynamic> topic, bool isDark) {
-    final title = _selectedLanguage == 'english'
-        ? topic['title']
-        : _selectedLanguage == 'urdu'
-        ? topic['titleUrdu']
-        : topic['titleHindi'];
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showTopicDetails(topic),
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.lightGreenBorder.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+    final langCode = context.languageProvider.languageCode;
+    final title = context.tr(topic['titleKey'] ?? 'savab_fazilat');
+    final responsive = context.responsive;
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
+return Container(
+      margin: responsive.paddingOnly(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () => _showTopicDetails(topic),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        child: Padding(
+          padding: responsive.paddingAll(14),
+          child: Row(
+            children: [
+              // Number Badge
+              Container(
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
+                decoration: BoxDecoration(
+                  color: darkGreen,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+                child: Center(
+                  child: Text(
+                    '${topic['number']}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsive.textLarge,
+                    ),
                   ),
-                  child: Center(
-                    child: Text(
-                      '${topic['number']}',
+                ),
+              ),
+              SizedBox(width: responsive.spacing(14)),
+
+              // Title and Icon chip
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      title,
                       style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 18,
+                        fontSize: responsive.textLarge,
                         fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                      ),
+                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                    ),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Icon chip
+                    Container(
+                      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            topic['icon'] as IconData,
+                            size: responsive.textXSmall + 2,
+                            color: emeraldGreen,
+                          ),
+                          SizedBox(width: responsive.spacing(4)),
+                          Text(
+                            context.tr('savab_fazilat'),
+                            style: TextStyle(
+                              fontSize: responsive.textXSmall,
+                              fontWeight: FontWeight.w600,
+                              color: emeraldGreen,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: (topic['color'] as Color).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    topic['icon'] as IconData,
-                    color: topic['color'] as Color,
-                    size: 24,
-                  ),
+              ),
+
+              // Arrow Icon
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: isDark ? Colors.white : AppColors.primary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textDirection: _selectedLanguage == 'urdu'
-                        ? TextDirection.rtl
-                        : TextDirection.ltr,
-                  ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.textXSmall + 2,
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E8F5A),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.white,
-                    size: 14,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -965,19 +1265,22 @@ Protecting Through Dua:
 
   void _showTopicDetails(Map<String, dynamic> topic) {
     final details = topic['details'] as Map<String, String>;
+    final titleKey = topic['titleKey'] ?? 'savab_fazilat';
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => BasicAmalDetailScreen(
-          title: topic['title'],
+          title: topic['title'] ?? '',
           titleUrdu: topic['titleUrdu'] ?? '',
           titleHindi: topic['titleHindi'] ?? '',
+          titleArabic: topic['titleArabic'] ?? '',
           contentEnglish: details['english'] ?? '',
           contentUrdu: details['urdu'] ?? '',
           contentHindi: details['hindi'] ?? '',
+          contentArabic: details['arabic'] ?? '',
           color: topic['color'] as Color,
           icon: topic['icon'] as IconData,
-          category: 'Savab - Fazilat',
+          categoryKey: 'category_savab_fazilat',
           number: topic['number'] as int?,
         ),
       ),

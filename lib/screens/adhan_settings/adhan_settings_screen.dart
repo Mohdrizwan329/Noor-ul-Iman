@@ -1,31 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
 import '../../providers/adhan_provider.dart';
+import '../../core/utils/localization_helper.dart';
 
 class AdhanSettingsScreen extends StatelessWidget {
   const AdhanSettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final responsive = ResponsiveUtils(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Adhan Settings'),
+        title: Text(
+          context.tr('adhan_settings'),
+          style: TextStyle(fontSize: responsive.textLarge),
+        ),
       ),
       body: Consumer<AdhanProvider>(
         builder: (context, adhanProvider, child) {
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: responsive.paddingRegular,
             children: [
               // Notifications Toggle
               _buildSectionCard(
                 context,
-                title: 'Prayer Notifications',
+                title: context.tr('prayer_notifications'),
                 child: Column(
                   children: [
                     SwitchListTile(
-                      title: const Text('Enable Notifications'),
-                      subtitle: const Text('Get notified at prayer times'),
+                      title: Text(context.tr('enable_notifications')),
+                      subtitle: Text(context.tr('get_notified_prayer_times')),
                       value: adhanProvider.notificationsEnabled,
                       onChanged: (value) {
                         adhanProvider.setNotificationsEnabled(value);
@@ -34,8 +41,8 @@ class AdhanSettingsScreen extends StatelessWidget {
                     if (adhanProvider.notificationsEnabled) ...[
                       const Divider(),
                       SwitchListTile(
-                        title: const Text('Play Adhan Sound'),
-                        subtitle: const Text('Play adhan when notification arrives'),
+                        title: Text(context.tr('play_adhan_sound')),
+                        subtitle: Text(context.tr('play_adhan_notification')),
                         value: adhanProvider.adhanSoundEnabled,
                         onChanged: (value) {
                           adhanProvider.setAdhanSoundEnabled(value);
@@ -45,17 +52,20 @@ class AdhanSettingsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: responsive.spaceRegular),
 
               // Individual Prayer Notifications
               if (adhanProvider.notificationsEnabled)
                 _buildSectionCard(
                   context,
-                  title: 'Prayer Alerts',
+                  title: context.tr('prayer_alerts'),
                   child: Column(
                     children: adhanProvider.prayerNotifications.entries.map((entry) {
                       return SwitchListTile(
-                        title: Text(entry.key),
+                        title: Text(
+                          entry.key,
+                          style: TextStyle(fontSize: responsive.textRegular),
+                        ),
                         value: entry.value,
                         onChanged: (value) {
                           adhanProvider.setPrayerNotification(entry.key, value);
@@ -67,11 +77,11 @@ class AdhanSettingsScreen extends StatelessWidget {
 
               if (adhanProvider.notificationsEnabled &&
                   adhanProvider.adhanSoundEnabled) ...[
-                const SizedBox(height: 16),
+                SizedBox(height: responsive.spaceRegular),
                 // Adhan Selection
                 _buildSectionCard(
                   context,
-                  title: 'Select Adhan',
+                  title: context.tr('select_adhan'),
                   child: Column(
                     children: AdhanProvider.adhanOptions.entries.map((entry) {
                       final isSelected = adhanProvider.selectedAdhan == entry.key;
@@ -98,7 +108,7 @@ class AdhanSettingsScreen extends StatelessWidget {
                 ),
               ],
 
-              const SizedBox(height: 24),
+              SizedBox(height: responsive.spaceLarge),
 
               // Test Adhan Button
               if (adhanProvider.adhanSoundEnabled)
@@ -107,9 +117,12 @@ class AdhanSettingsScreen extends StatelessWidget {
                     adhanProvider.playAdhan();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: const Text('Playing Adhan...'),
+                        content: Text(
+                          context.tr('playing_adhan'),
+                          style: TextStyle(fontSize: responsive.textMedium),
+                        ),
                         action: SnackBarAction(
-                          label: 'Stop',
+                          label: context.tr('stop'),
                           onPressed: () {
                             adhanProvider.stopAdhan();
                           },
@@ -117,12 +130,15 @@ class AdhanSettingsScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.volume_up),
-                  label: const Text('Test Adhan'),
+                  icon: Icon(Icons.volume_up, size: responsive.iconMedium),
+                  label: Text(
+                    context.tr('test_adhan'),
+                    style: TextStyle(fontSize: responsive.textRegular),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.all(16),
+                    padding: responsive.paddingRegular,
                   ),
                 ),
             ],
@@ -137,15 +153,18 @@ class AdhanSettingsScreen extends StatelessWidget {
     required String title,
     required Widget child,
   }) {
+    final responsive = ResponsiveUtils(context);
+
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: responsive.paddingRegular,
             child: Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontSize: responsive.textLarge,
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary,
                   ),

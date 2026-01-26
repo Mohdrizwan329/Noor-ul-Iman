@@ -4,7 +4,9 @@ import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/qibla_calculator.dart';
+import '../../core/utils/responsive_utils.dart';
 import '../../core/services/location_service.dart';
+import '../../core/utils/localization_helper.dart';
 
 class QiblaScreen extends StatefulWidget {
   const QiblaScreen({super.key});
@@ -27,7 +29,14 @@ class _QiblaScreenState extends State<QiblaScreen> {
   void initState() {
     super.initState();
     _checkCompassAvailability();
-    _initializeQibla();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isLoading) {
+      _initializeQibla();
+    }
   }
 
   Future<void> _checkCompassAvailability() async {
@@ -47,12 +56,57 @@ class _QiblaScreenState extends State<QiblaScreen> {
   }
 
   Future<void> _initializeQibla() async {
+    // Get translations before async operations
+    final locationDisabled = context.tr('location_services_disabled');
+    final permissionDenied = context.tr('location_permission_denied');
+    final permissionDeniedForever = context.tr('location_permission_denied_forever');
+    final unableToGetLocation = context.tr('unable_to_get_location');
+    final locationError = context.tr('location_error');
+
     setState(() {
       _isLoading = true;
       _error = null;
     });
 
     try {
+      // First check if location service is enabled
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (mounted) {
+          setState(() {
+            _error = locationDisabled;
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+
+      // Check permission status
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          if (mounted) {
+            setState(() {
+              _error = permissionDenied;
+              _isLoading = false;
+            });
+          }
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          setState(() {
+            _error = permissionDeniedForever;
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+
+      // Get location
       _currentPosition = await _locationService.getCurrentLocation();
 
       if (_currentPosition != null) {
@@ -65,15 +119,17 @@ class _QiblaScreenState extends State<QiblaScreen> {
           _currentPosition!.longitude,
         );
       } else {
-        _error = 'Unable to get location. Please enable location services and grant permission.';
+        _error = unableToGetLocation;
       }
     } catch (e) {
-      _error = 'Location error: ${e.toString()}';
+      _error = '$locationError: ${e.toString()}';
     }
 
-    setState(() {
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -82,7 +138,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text('Qibla Direction'),
+        title: Text(context.tr('qibla')),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -95,107 +151,109 @@ class _QiblaScreenState extends State<QiblaScreen> {
   }
 
   Widget _buildNoCompassWidget() {
+    final responsive = context.responsive;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: responsive.paddingXLarge,
       child: Column(
         children: [
           // Info Card with Qibla direction
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(20),
+            padding: responsive.paddingLarge,
             decoration: BoxDecoration(
               gradient: AppColors.headerGradient,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(responsive.radiusXXLarge),
             ),
             child: Column(
               children: [
-                const Icon(
+                Icon(
                   Icons.mosque,
                   color: Colors.white,
-                  size: 48,
+                  size: responsive.iconXXLarge,
                 ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Qibla Direction',
+                responsive.vSpaceMedium,
+                Text(
+                  context.tr('qibla'),
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 24,
+                    fontSize: responsive.textXXLarge,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 if (_distanceToKaaba != null) ...[
-                  const SizedBox(height: 8),
+                  responsive.vSpaceSmall,
                   Text(
-                    'Distance to Kaaba: ${QiblaCalculator.formatDistance(_distanceToKaaba!)}',
-                    style: const TextStyle(
+                    '${context.tr('distance_to_kaaba')}: ${QiblaCalculator.formatDistance(_distanceToKaaba!)}',
+                    style: TextStyle(
                       color: Colors.white70,
-                      fontSize: 14,
+                      fontSize: responsive.textMedium,
                     ),
                   ),
                 ],
               ],
             ),
           ),
-          const SizedBox(height: 32),
+          responsive.vSpaceXXLarge,
 
           // Direction display without compass
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: responsive.paddingXLarge,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(responsive.radiusXXLarge),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 20,
-                  spreadRadius: 5,
+                  blurRadius: responsive.spacing(20),
+                  spreadRadius: responsive.spacing(5),
                 ),
               ],
             ),
             child: Column(
               children: [
-                const Icon(
+                Icon(
                   Icons.explore,
-                  size: 80,
+                  size: responsive.iconHuge,
                   color: AppColors.primary,
                 ),
-                const SizedBox(height: 16),
+                responsive.vSpaceRegular,
                 Text(
                   '${(_qiblaDirection ?? 0).toStringAsFixed(1)}°',
-                  style: const TextStyle(
-                    fontSize: 48,
+                  style: TextStyle(
+                    fontSize: responsive.textHero,
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary,
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'from North',
+                responsive.vSpaceSmall,
+                Text(
+                  context.tr('from_north'),
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: responsive.textRegular,
                     color: Colors.grey,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          responsive.vSpaceXLarge,
 
           // No compass warning
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: responsive.paddingRegular,
             decoration: BoxDecoration(
               color: Colors.orange.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(responsive.radiusMedium),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.warning_amber_rounded, color: Colors.orange),
-                SizedBox(width: 12),
+                Icon(Icons.warning_amber_rounded, color: Colors.orange, size: responsive.iconMedium),
+                SizedBox(width: responsive.spaceMedium),
                 Expanded(
                   child: Text(
-                    'Compass not available on this device. Use the degree value above with an external compass or map.',
-                    style: TextStyle(fontSize: 12),
+                    context.tr('compass_not_available'),
+                    style: TextStyle(fontSize: responsive.textSmall),
                   ),
                 ),
               ],
@@ -207,36 +265,99 @@ class _QiblaScreenState extends State<QiblaScreen> {
   }
 
   Widget _buildErrorWidget() {
+    final responsive = context.responsive;
+    final bool isPermissionError = _error?.contains('permission') ?? false;
+
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: responsive.paddingAll(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.location_off,
-              size: 80,
+            Icon(
+              isPermissionError ? Icons.location_disabled : Icons.location_off,
+              size: responsive.iconHuge,
               color: Colors.grey,
             ),
-            const SizedBox(height: 24),
+            responsive.vSpaceXLarge,
             Text(
               _error!,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
+              style: TextStyle(
+                fontSize: responsive.textRegular,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: _initializeQibla,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-            ),
-            const SizedBox(height: 16),
-            TextButton.icon(
-              onPressed: () async {
-                await Geolocator.openLocationSettings();
-              },
-              icon: const Icon(Icons.settings),
-              label: const Text('Open Location Settings'),
+            responsive.vSpaceXLarge,
+
+            // Show different buttons based on error type
+            if (isPermissionError) ...[
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await Geolocator.openAppSettings();
+                },
+                icon: const Icon(Icons.settings),
+                label: Text(context.tr('open_app_settings')),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: responsive.paddingSymmetric(horizontal: 24, vertical: 12),
+                ),
+              ),
+              responsive.vSpaceRegular,
+              TextButton.icon(
+                onPressed: _initializeQibla,
+                icon: const Icon(Icons.refresh),
+                label: Text(context.tr('try_again')),
+              ),
+            ] else ...[
+              ElevatedButton.icon(
+                onPressed: _initializeQibla,
+                icon: const Icon(Icons.refresh),
+                label: Text(context.tr('retry')),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: responsive.paddingSymmetric(horizontal: 24, vertical: 12),
+                ),
+              ),
+              responsive.vSpaceRegular,
+              TextButton.icon(
+                onPressed: () async {
+                  await Geolocator.openLocationSettings();
+                },
+                icon: const Icon(Icons.settings),
+                label: Text(context.tr('open_location_settings')),
+              ),
+            ],
+
+            // Help text
+            responsive.vSpaceXXLarge,
+            Container(
+              padding: responsive.paddingRegular,
+              decoration: BoxDecoration(
+                color: Colors.blue.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(responsive.radiusMedium),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: Colors.blue,
+                    size: responsive.iconMedium,
+                  ),
+                  SizedBox(width: responsive.spaceMedium),
+                  Expanded(
+                    child: Text(
+                      context.tr('qibla_requires_location'),
+                      style: TextStyle(
+                        fontSize: responsive.textSmall,
+                        color: Colors.blue.shade700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -248,19 +369,21 @@ class _QiblaScreenState extends State<QiblaScreen> {
     return StreamBuilder<CompassEvent>(
       stream: FlutterCompass.events,
       builder: (context, snapshot) {
+        final responsive = context.responsive;
+
         if (snapshot.hasError) {
           // Compass error - show fallback with degree only
           return _buildNoCompassWidget();
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
+          return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Initializing compass...'),
+                const CircularProgressIndicator(),
+                responsive.vSpaceRegular,
+                Text(context.tr('initializing_compass')),
               ],
             ),
           );
@@ -272,21 +395,21 @@ class _QiblaScreenState extends State<QiblaScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const CircularProgressIndicator(),
-                const SizedBox(height: 16),
-                const Text('Calibrating compass...'),
-                const SizedBox(height: 8),
-                const Text(
-                  'Move your phone in a figure-8 pattern',
-                  style: TextStyle(color: Colors.grey),
+                responsive.vSpaceRegular,
+                Text(context.tr('calibrating_compass')),
+                responsive.vSpaceSmall,
+                Text(
+                  context.tr('calibrate_instruction'),
+                  style: const TextStyle(color: Colors.grey),
                 ),
-                const SizedBox(height: 24),
+                responsive.vSpaceXLarge,
                 TextButton(
                   onPressed: () {
                     setState(() {
                       _hasCompass = false;
                     });
                   },
-                  child: const Text('Show direction without compass'),
+                  child: Text(context.tr('show_direction_without_compass')),
                 ),
               ],
             ),
@@ -299,21 +422,42 @@ class _QiblaScreenState extends State<QiblaScreen> {
         final qiblaRotation = (qiblaFromNorth - (_compassHeading ?? 0)) * (math.pi / 180);
 
         // Check if facing Qibla (within 5 degrees)
-        final difference = ((qiblaFromNorth - (_compassHeading ?? 0)) % 360).abs();
-        final isFacingQibla = difference < 5 || difference > 355;
+        // Properly handle circular angle difference
+        double rawDifference = qiblaFromNorth - (_compassHeading ?? 0);
+        // Normalize to -180 to 180 range
+        while (rawDifference > 180) {
+          rawDifference -= 360;
+        }
+        while (rawDifference < -180) {
+          rawDifference += 360;
+        }
+        final difference = rawDifference.abs();
+        final isFacingQibla = difference < 5;
+
+        // Responsive compass size
+        final compassSize = responsive.widthPercent(80).clamp(250.0, 350.0);
+        final compassInnerSize = compassSize - responsive.spacing(20);
+
+        // Get direction translations
+        final directions = [
+          context.tr('north'),
+          context.tr('east'),
+          context.tr('south'),
+          context.tr('west'),
+        ];
 
         return SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: responsive.paddingXLarge,
           child: Column(
             children: [
               // Info Card
               _buildInfoCard(isFacingQibla),
-              const SizedBox(height: 32),
+              responsive.vSpaceXXLarge,
 
               // Compass
               SizedBox(
-                width: 300,
-                height: 300,
+                width: compassSize,
+                height: compassSize,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
@@ -321,21 +465,24 @@ class _QiblaScreenState extends State<QiblaScreen> {
                     Transform.rotate(
                       angle: compassRotation,
                       child: Container(
-                        width: 280,
-                        height: 280,
+                        width: compassInnerSize,
+                        height: compassInnerSize,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.white,
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.1),
-                              blurRadius: 20,
-                              spreadRadius: 5,
+                              blurRadius: responsive.spacing(20),
+                              spreadRadius: responsive.spacing(5),
                             ),
                           ],
                         ),
                         child: CustomPaint(
-                          painter: CompassPainter(),
+                          painter: CompassPainter(
+                            responsive: responsive,
+                            directions: directions,
+                          ),
                         ),
                       ),
                     ),
@@ -346,22 +493,22 @@ class _QiblaScreenState extends State<QiblaScreen> {
                       child: Column(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(8),
+                            padding: responsive.paddingSmall,
                             decoration: BoxDecoration(
                               color: isFacingQibla
                                   ? AppColors.success
                                   : AppColors.primary,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.mosque,
                               color: Colors.white,
-                              size: 24,
+                              size: responsive.iconMedium,
                             ),
                           ),
                           Container(
-                            width: 4,
-                            height: 100,
+                            width: responsive.spacing(4),
+                            height: responsive.spacing(100),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
@@ -381,8 +528,8 @@ class _QiblaScreenState extends State<QiblaScreen> {
 
                     // Center indicator
                     Container(
-                      width: 20,
-                      height: 20,
+                      width: responsive.spacing(20),
+                      height: responsive.spacing(20),
                       decoration: BoxDecoration(
                         color: AppColors.primary,
                         shape: BoxShape.circle,
@@ -392,27 +539,27 @@ class _QiblaScreenState extends State<QiblaScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
+              responsive.vSpaceXXLarge,
 
               // Direction info
               _buildDirectionInfo(qiblaFromNorth),
-              const SizedBox(height: 24),
+              responsive.vSpaceXLarge,
 
               // Calibration hint
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: responsive.paddingRegular,
                 decoration: BoxDecoration(
                   color: Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(responsive.radiusMedium),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.info_outline, color: Colors.orange),
-                    SizedBox(width: 12),
+                    Icon(Icons.info_outline, color: Colors.orange, size: responsive.iconMedium),
+                    SizedBox(width: responsive.spaceMedium),
                     Expanded(
                       child: Text(
-                        'For accurate readings, keep your phone flat and away from magnetic objects.',
-                        style: TextStyle(fontSize: 12),
+                        context.tr('accurate_reading_tip'),
+                        style: TextStyle(fontSize: responsive.textSmall),
                       ),
                     ),
                   ],
@@ -426,40 +573,42 @@ class _QiblaScreenState extends State<QiblaScreen> {
   }
 
   Widget _buildInfoCard(bool isFacingQibla) {
+    final responsive = context.responsive;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: responsive.paddingLarge,
       decoration: BoxDecoration(
         gradient: isFacingQibla
             ? const LinearGradient(
                 colors: [AppColors.success, Color(0xFF81C784)],
               )
             : AppColors.headerGradient,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(responsive.radiusXXLarge),
       ),
       child: Column(
         children: [
           Icon(
             isFacingQibla ? Icons.check_circle : Icons.explore,
             color: Colors.white,
-            size: 48,
+            size: responsive.iconXXLarge,
           ),
-          const SizedBox(height: 12),
+          responsive.vSpaceMedium,
           Text(
-            isFacingQibla ? 'Facing Qibla' : 'Turn to Face Qibla',
-            style: const TextStyle(
+            isFacingQibla ? context.tr('facing_qibla') : context.tr('turn_to_face_qibla'),
+            style: TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: responsive.textXXLarge,
               fontWeight: FontWeight.bold,
             ),
           ),
           if (_distanceToKaaba != null) ...[
-            const SizedBox(height: 8),
+            responsive.vSpaceSmall,
             Text(
-              'Distance to Kaaba: ${QiblaCalculator.formatDistance(_distanceToKaaba!)}',
-              style: const TextStyle(
+              '${context.tr('distance_to_kaaba')}: ${QiblaCalculator.formatDistance(_distanceToKaaba!)}',
+              style: TextStyle(
                 color: Colors.white70,
-                fontSize: 14,
+                fontSize: responsive.textMedium,
               ),
             ),
           ],
@@ -473,12 +622,12 @@ class _QiblaScreenState extends State<QiblaScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _buildInfoItem(
-          'Qibla',
+          context.tr('qibla'),
           '${qiblaDirection.toStringAsFixed(1)}°',
           Icons.mosque,
         ),
         _buildInfoItem(
-          'Compass',
+          context.tr('compass'),
           '${(_compassHeading ?? 0).toStringAsFixed(1)}°',
           Icons.explore,
         ),
@@ -487,14 +636,16 @@ class _QiblaScreenState extends State<QiblaScreen> {
   }
 
   Widget _buildInfoItem(String label, String value, IconData icon) {
+    final responsive = context.responsive;
+
     return Column(
       children: [
-        Icon(icon, color: AppColors.primary, size: 28),
-        const SizedBox(height: 8),
+        Icon(icon, color: AppColors.primary, size: responsive.iconLarge),
+        responsive.vSpaceSmall,
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 20,
+          style: TextStyle(
+            fontSize: responsive.textXLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -502,7 +653,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
           label,
           style: TextStyle(
             color: AppColors.textSecondary,
-            fontSize: 12,
+            fontSize: responsive.textSmall,
           ),
         ),
       ],
@@ -511,6 +662,11 @@ class _QiblaScreenState extends State<QiblaScreen> {
 }
 
 class CompassPainter extends CustomPainter {
+  final ResponsiveUtils responsive;
+  final List<String> directions;
+
+  CompassPainter({required this.responsive, required this.directions});
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
@@ -522,27 +678,26 @@ class CompassPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
 
-    canvas.drawCircle(center, radius - 20, circlePaint);
-    canvas.drawCircle(center, radius - 50, circlePaint);
+    canvas.drawCircle(center, radius - responsive.spacing(20), circlePaint);
+    canvas.drawCircle(center, radius - responsive.spacing(50), circlePaint);
 
     // Draw direction markers
     final textPainter = TextPainter(
       textDirection: TextDirection.ltr,
     );
 
-    final directions = ['N', 'E', 'S', 'W'];
     final colors = [Colors.red, Colors.grey, Colors.grey, Colors.grey];
 
     for (int i = 0; i < 4; i++) {
       final angle = i * math.pi / 2 - math.pi / 2;
-      final x = center.dx + (radius - 35) * math.cos(angle);
-      final y = center.dy + (radius - 35) * math.sin(angle);
+      final x = center.dx + (radius - responsive.spacing(35)) * math.cos(angle);
+      final y = center.dy + (radius - responsive.spacing(35)) * math.sin(angle);
 
       textPainter.text = TextSpan(
         text: directions[i],
         style: TextStyle(
           color: colors[i],
-          fontSize: 18,
+          fontSize: responsive.textLarge,
           fontWeight: FontWeight.bold,
         ),
       );
@@ -559,8 +714,8 @@ class CompassPainter extends CustomPainter {
       final isMain = i % 90 == 0;
       final isMedium = i % 30 == 0;
 
-      final innerRadius = radius - (isMain ? 60 : (isMedium ? 55 : 50));
-      final outerRadius = radius - 45;
+      final innerRadius = radius - (isMain ? responsive.spacing(60) : (isMedium ? responsive.spacing(55) : responsive.spacing(50)));
+      final outerRadius = radius - responsive.spacing(45);
 
       final startX = center.dx + innerRadius * math.cos(angle);
       final startY = center.dy + innerRadius * math.sin(angle);

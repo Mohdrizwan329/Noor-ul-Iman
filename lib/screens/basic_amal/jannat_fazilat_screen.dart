@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,18 +16,14 @@ class JannatFazilatScreen extends StatefulWidget {
 class _JannatFazilatScreenState extends State<JannatFazilatScreen> {
   String _selectedLanguage = 'english';
 
-  final Map<String, String> _titles = {
-    'english': 'Jannat (Paradise) - Description & Path',
-    'urdu': 'جنت - وصف اور راستہ',
-    'hindi': 'जन्नत - वस्फ़ और रास्ता',
-  };
-
   final List<Map<String, dynamic>> _jannatTopics = [
     {
       'number': 1,
+      'titleKey': 'jannat_fazilat_1_description_of_paradise',
       'title': 'Description of Paradise',
       'titleUrdu': 'جنت کا وصف',
       'titleHindi': 'जन्नत का वस्फ़',
+      'titleArabic': 'وصف الجنة',
       'icon': Icons.landscape,
       'color': Colors.green,
       'details': {
@@ -119,13 +117,58 @@ Width and Expanse:
 • "अपने रब की मग़फ़िरत और जन्नत की तरफ़ दौड़ो जिसकी चौड़ाई आसमानों और ज़मीन जितनी है।" (क़ुरआन 57:21)
 • यह आसमानों और ज़मीन को चौड़ाई में घेरती है
 • नेक मोमिनीन के लिए तैयार की गई है''',
+        'arabic': '''وصف الجنة
+
+الجنة دار النعيم الأبدي التي أعدها الله للمتقين.
+
+عظمة الجنة:
+• "فَلَا تَعْلَمُ نَفْسٌ مَّا أُخْفِيَ لَهُم مِّن قُرَّةِ أَعْيُنٍ" (سورة السجدة: 17)
+• عرضها السموات والأرض
+• لا عين رأت ولا أذن سمعت ولا خطر على قلب بشر
+• نعيم دائم لا ينفد ولا يزول
+• "وَفِيهَا مَا تَشْتَهِيهِ الْأَنفُسُ وَتَلَذُّ الْأَعْيُنُ" (سورة الزخرف: 71)
+
+بناء الجنة:
+• لبنة من ذهب ولبنة من فضة
+• ملاطها المسك الأذفر
+• حصباؤها اللؤلؤ والياقوت
+• ترابها الزعفران
+• قصور من الذهب والفضة
+
+أنهار الجنة:
+• أنهار من ماء غير آسن
+• أنهار من لبن لم يتغير طعمه
+• أنهار من خمر لذة للشاربين
+• أنهار من عسل مصفى
+• "مَّثَلُ الْجَنَّةِ الَّتِي وُعِدَ الْمُتَّقُونَ" (سورة محمد: 15)
+
+أشجار الجنة:
+• شجرة طوبى: يسير الراكب في ظلها مائة عام
+• سدرة المنتهى: في السماء السابعة
+• ثمارها دانية قريبة
+• لا شوك فيها ولا ضر
+
+نعيم لا ينقطع:
+• "أُكُلُهَا دَائِمٌ وَظِلُّهَا" (سورة الرعد: 35)
+• لا مرض ولا موت
+• لا حزن ولا هم
+• لا نصب ولا تعب
+• "وَمَا هُم مِّنْهَا بِمُخْرَجِينَ" (سورة الحجر: 48)
+
+الخلود الأبدي:
+• "خَالِدِينَ فِيهَا أَبَدًا" (سورة التوبة: 100)
+• لا يخرج منها أحد
+• لا يموت أهلها
+• نعيم دائم إلى الأبد'''
       },
     },
     {
       'number': 2,
+      'titleKey': 'jannat_fazilat_2_levels_of_paradise',
       'title': 'Levels of Paradise',
       'titleUrdu': 'جنت کے درجات',
       'titleHindi': 'जन्नत के दर्जात',
+      'titleArabic': 'درجات الجنة',
       'icon': Icons.stairs,
       'color': Colors.blue,
       'details': {
@@ -249,13 +292,62 @@ Increasing in Levels:
 • आज़माइशों में सब्र से
 • अच्छे अख़्लाक़ से
 • नफ़ाबख़्श इल्म से''',
+        'arabic': '''درجات الجنة
+
+للجنة درجات ومنازل متفاوتة.
+
+عدد درجات الجنة:
+• مائة درجة
+• ما بين كل درجتين كما بين السماء والأرض
+• "وَلِكُلٍّ دَرَجَاتٌ مِّمَّا عَمِلُوا" (سورة الأنعام: 132)
+• أعدها الله للمجاهدين في سبيله
+
+الفردوس الأعلى:
+• أعلى درجات الجنة
+• "أُولَٰئِكَ هُمُ الْوَارِثُونَ * الَّذِينَ يَرِثُونَ الْفِرْدَوْسَ" (سورة المؤمنون: 10-11)
+• سقفها عرش الرحمن
+• منها تفجر أنهار الجنة الأربعة
+• قال النبي ﷺ: "إذا سألتم الله فسألوه الفردوس" (البخاري)
+
+درجة الوسيلة:
+• أعلى منزلة في الجنة
+• لا تنبغي إلا لعبد واحد
+• هي للنبي محمد ﷺ
+• من سأل له الوسيلة حلت له الشفاعة
+
+جنات عدن:
+• "جَنَّاتُ عَدْنٍ يَدْخُلُونَهَا" (سورة فاطر: 33)
+• جنات الإقامة الدائمة
+• تفتح لهم أبوابها
+• يحلون فيها من أساور من ذهب
+
+الغرف العالية:
+• "لَٰكِنِ الَّذِينَ اتَّقَوْا رَبَّهُمْ لَهُمْ غُرَفٌ" (سورة الزمر: 20)
+• غرف مبنية فوق غرف
+• تجري من تحتها الأنهار
+• للذين اتقوا ربهم
+
+التفاضل في الجنة:
+• يتفاضل أهل الجنة بحسب أعمالهم
+• "وَلِكُلٍّ دَرَجَاتٌ مِّمَّا عَمِلُوا" (سورة الأحقاف: 19)
+• الأنبياء في أعلى الدرجات
+• ثم الصديقون والشهداء والصالحون
+
+طريق الوصول للدرجات العليا:
+• الإيمان الكامل والعمل الصالح
+• الجهاد في سبيل الله
+• بر الوالدين وصلة الرحم
+• كثرة الصلاة والصيام
+• الصدقة والإحسان إلى الخلق'''
       },
     },
     {
       'number': 3,
+      'titleKey': 'jannat_fazilat_3_deeds_leading_to_jannat',
       'title': 'Deeds Leading to Jannat',
       'titleUrdu': 'جنت میں لے جانے والے اعمال',
       'titleHindi': 'जन्नत में ले जाने वाले आमाल',
+      'titleArabic': 'أعمال توصل للجنة',
       'icon': Icons.checklist,
       'color': Colors.amber,
       'details': {
@@ -388,13 +480,66 @@ Small Deeds with Great Rewards:
 • रास्ते से तकलीफ़द��ह चीज़ हटाना
 • अच्छा बोल सदक़ा है
 • आधी खजूर का सदक़ा भी''',
+        'arabic': '''أعمال توصل للجنة
+
+الأعمال الصالحة التي تدخل الجنة.
+
+الإيمان والتوحيد:
+• "مَن كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الْآخِرِ" (البخاري)
+• لا إله إلا الله محمد رسول الله
+• قال النبي ﷺ: "من قال لا إله إلا الله دخل الجنة" (مسلم)
+• الإخلاص في التوحيد
+
+الصلوات الخمس:
+• "مَا مِنْ مُسْلِمٍ يُصَلِّي لِلَّهِ كُلَّ يَوْمٍ" (مسلم)
+• المحافظة عليها في أوقاتها
+• صلاة الجماعة في المسجد
+• الخشوع فيها
+
+الصيام:
+• "الصِّيَامُ جُنَّةٌ" (البخاري)
+• صيام رمضان إيماناً واحتساباً
+• صيام التطوع: الاثنين والخميس
+• صيام ستة من شوال
+
+الزكاة والصدقة:
+• "وَأَقِيمُوا الصَّلَاةَ وَآتُوا الزَّكَاةَ" (سورة البقرة: 43)
+• إخراج الزكاة من المال
+• الصدقة على الفقراء والمساكين
+• الإنفاق في سبيل الله
+
+الحج والعمرة:
+• "الْحَجُّ الْمَبْرُورُ لَيْسَ لَهُ جَزَاءٌ إِلَّا الْجَنَّةُ" (البخاري)
+• أداء فريضة الحج
+• كثرة العمرة
+• الطواف والسعي
+
+بر الوالدين:
+• "رِضَا الرَّبِّ فِي رِضَا الْوَالِدِ" (الترمذي)
+• الإحسان إليهما
+• طاعتهما في المعروف
+• الدعاء لهما
+
+الجهاد في سبيل الله:
+• "إِنَّ اللَّهَ اشْتَرَىٰ مِنَ الْمُؤْمِنِينَ أَنفُسَهُمْ" (سورة التوبة: 111)
+• القتال لتكون كلمة الله هي العليا
+• الشهادة في سبيل الله
+• حراسة الثغور
+
+حسن الخلق:
+• قال النبي ﷺ: "أنا زعيم ببيت في ربض الجنة لمن حسن خلقه" (أبو داود)
+• الصدق والأمانة
+• الحلم والصبر
+• العفو والمسامحة'''
       },
     },
     {
       'number': 4,
+      'titleKey': 'jannat_fazilat_4_people_of_paradise',
       'title': 'People of Paradise',
       'titleUrdu': 'جنتی لوگ',
       'titleHindi': 'जन्नती लोग',
+      'titleArabic': 'أهل الجنة',
       'icon': Icons.groups,
       'color': Colors.purple,
       'details': {
@@ -520,13 +665,64 @@ Children:
 • हूरों से भी अफ़ज़ल
 • अपने नेक शौहरों से मिलेंगी
 • ख़दीजा, फ़ातिमा, मरयम, आसिया - जन्नत में औरतों की सरदार''',
+        'arabic': '''أهل الجنة
+
+صفات أهل الجنة ومن يدخلونها.
+
+المؤمنون الموحدون:
+• "إِنَّ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ" (سورة البقرة: 82)
+• الذين وحدوا الله ولم يشركوا به شيئاً
+• آمنوا بالله ورسله واليوم الآخر
+• عملوا الصالحات
+
+المتقون:
+• "تِلْكَ الْجَنَّةُ الَّتِي نُورِثُ مِنْ عِبَادِنَا مَن كَانَ تَقِيًّا" (سورة مريم: 63)
+• الذين اتقوا الله في السر والعلن
+• حافظوا على الصلوات
+• اجتنبوا الكبائر
+
+السبعون ألفاً:
+• يدخلون الجنة بغير حساب ولا عذاب
+• "هُمُ الَّذِينَ لَا يَسْتَرْقُونَ وَلَا يَتَطَيَّرُونَ" (البخاري)
+• على ربهم يتوكلون
+• مع كل واحد سبعون ألفاً
+
+الصديقون والشهداء:
+• "مَعَ الَّذِينَ أَنْعَمَ اللَّهُ عَلَيْهِم مِّنَ النَّبِيِّينَ وَالصِّدِّيقِينَ" (سورة النساء: 69)
+• أبو بكر الصديق رضي الله عنه
+• الشهداء في سبيل الله
+• في أعلى الدرجات
+
+الفقراء المهاجرون:
+• يدخلون الجنة قبل الأغنياء بخمسمائة عام
+• الفقراء الصابرون المحتسبون
+• "فُقَرَاءُ الْمُهَاجِرِينَ" (سورة الحشر: 8)
+
+المحسنون:
+• "لِّلَّذِينَ أَحْسَنُوا الْحُسْنَىٰ وَزِيَادَةٌ" (سورة يونس: 26)
+• الذين أحسنوا العبادة
+• أحسنوا إلى الخلق
+• الحسنى: الجنة، الزيادة: النظر إلى وجه الله
+
+النساء الصالحات:
+• "وَمَن يَعْمَلْ مِنَ الصَّالِحَاتِ مِن ذَكَرٍ أَوْ أُنثَىٰ" (سورة النحل: 97)
+• المؤمنات القانتات
+• الحافظات للغيب
+• المطيعات لأزواجهن
+
+الأطفال:
+• أطفال المؤمنين في الجنة
+• يكونون مع آبائهم
+• "وَالَّذِينَ آمَنُوا وَاتَّبَعَتْهُمْ ذُرِّيَّتُهُم" (سورة الطور: 21)'''
       },
     },
     {
       'number': 5,
+      'titleKey': 'jannat_fazilat_5_blessings_in_paradise',
       'title': 'Blessings in Paradise',
       'titleUrdu': 'جنت کی نعمتیں',
       'titleHindi': 'जन्नत की नेमतें',
+      'titleArabic': 'نعيم الجنة',
       'icon': Icons.card_giftcard,
       'color': Colors.teal,
       'details': {
@@ -668,13 +864,60 @@ Ultimate Satisfaction:
 • अल्लाह पूछेगा: "क्या तुम राज़ी हो?" वो कहेंगे: "हम कैसे राज़ी न हों?"
 • अल्लाह फ़रमाएगा: "मैं तुम्हें अपनी रज़ा देता हूं और इसके बाद कभी नाराज़ नहीं होऊंगा।"
 • यह क़ुरआन में ज़िक्र करदा आख़ि��ी कामयाबी है''',
+        'arabic': '''نعيم الجنة
+
+النعم والملذات في الجنة.
+
+الطعام في الجنة:
+• "وَفَاكِهَةٍ مِّمَّا يَتَخَيَّرُونَ * وَلَحْمِ طَيْرٍ مِّمَّا يَشْتَهُونَ" (سورة الواقعة: 20-21)
+• فواكه كثيرة لا تنقطع ولا تمنع
+• لحوم الطير وما يشتهون
+• طعام لذيذ لا يشبع منه
+
+الشراب في الجنة:
+• أنهار من خمر لذة للشاربين
+• لا فيها غول ولا هم عنها ينزفون
+• "يُسْقَوْنَ مِن رَّحِيقٍ مَّخْتُومٍ" (سورة المطففين: 25)
+• ماء من تسنيم ومن كافور
+• ماء من زنجبيل
+
+اللباس والزينة:
+• "يُحَلَّوْنَ فِيهَا مِنْ أَسَاوِرَ مِن ذَهَبٍ وَلُؤْلُؤًا" (سورة الحج: 23)
+• ثياب من سندس وإستبرق
+• أساور من ذهب وفضة
+• لباسهم فيها حرير
+
+الحور العين:
+• "كَأَنَّهُنَّ الْيَاقُوتُ وَالْمَرْجَانُ" (سورة الرحمن: 58)
+• واسعات العيون
+• "حُورٌ مَّقْصُورَاتٌ فِي الْخِيَامِ" (سورة الرحمن: 72)
+• لم يطمثهن إنس قبلهم ولا جان
+
+القصور والخيام:
+• قصور من ذهب وفضة
+• خيمة من لؤلؤة مجوفة
+• "لَهُم مَّا يَشَاءُونَ فِيهَا" (سورة النحل: 31)
+• غرف يجري من تحتها الأنهار
+
+الخدم والولدان:
+• "يَطُوفُ عَلَيْهِمْ وِلْدَانٌ مُّخَلَّدُونَ" (سورة الواقعة: 17)
+• كأنهم لؤلؤ منثور
+• يخدمون أهل الجنة
+
+الأمن والسلام:
+• "لَا يَمَسُّهُمْ فِيهَا نَصَبٌ" (سورة الحجر: 48)
+• لا مرض ولا موت
+• لا حزن ولا هم
+• "سَلَامٌ قَوْلًا مِّن رَّبٍّ رَّحِيمٍ" (سورة يس: 58)'''
       },
     },
     {
       'number': 6,
+      'titleKey': 'jannat_fazilat_6_highest_paradise_firdaus',
       'title': 'Highest Paradise - Firdaus',
       'titleUrdu': 'جنت الفردوس',
       'titleHindi': 'जन्नत अल-फ़िरदौस',
+      'titleArabic': 'أعلى الجنة: الفردوس',
       'icon': Icons.stars,
       'color': Colors.orange,
       'details': {
@@ -813,6 +1056,54 @@ The Ultimate Goal:
 • मुसलसल इबादत से इसके लिए काम करें
 • अल्लाह की रहमत से कभी मायूस न हों
 • रास्ता वाज़ेह है - क़ुरआन और सुन्नत की पैरवी करें''',
+        'arabic': '''أعلى الجنة: الفردوس
+
+جنة الفردوس أعلى منازل الجنة.
+
+فضل الفردوس:
+• أعلى الجنة وأوسطها
+• "أُولَٰئِكَ هُمُ الْوَارِثُونَ * الَّذِينَ يَرِثُونَ الْفِرْدَوْسَ" (سورة المؤمنون: 10-11)
+• قال النبي ﷺ: "إذا سألتم الله فسألوه الفردوس، فإنه أوسط الجنة وأعلى الجنة" (البخاري)
+• سقفها عرش الرحمن
+
+مميزات الفردوس:
+• منها تفجر أنهار الجنة الأربعة
+• فوقها عرش الرحمن
+• أهلها يرون ربهم أكثر من غيرهم
+• نعيمها أعظم من سائر الجنة
+
+من يدخل الفردوس:
+• المؤمنون الكاملون
+• أصحاب الأعمال العظيمة
+• "الَّذِينَ هُمْ لِأَمَانَاتِهِمْ وَعَهْدِهِمْ رَاعُونَ" (سورة المؤمنون: 8)
+• المحافظون على الصلوات
+
+صفات أهل الفردوس:
+• الخاشعون في صلاتهم
+• المعرضون عن اللغو
+• المؤدون للزكاة
+• الحافظون لفروجهم
+• الراعون للأمانات والعهود
+
+النظر إلى وجه الله:
+• أعظم نعيم في الفردوس
+• "وُجُوهٌ يَوْمَئِذٍ نَّاضِرَةٌ * إِلَىٰ رَبِّهَا نَاظِرَةٌ" (سورة القيامة: 22-23)
+• يرون ربهم كما يرون القمر ليلة البدر
+• لا يضامون في رؤيته
+
+الدعاء لدخول الفردوس:
+• اللهم إني أسألك الفردوس الأعلى
+• ربنا آتنا في الدنيا حسنة وفي الآخرة حسنة
+• اللهم اجعلني من أهل الفردوس الأعلى
+• الإكثار من الأعمال الصالحة
+
+طريق الفردوس:
+• الإيمان الكامل واليقين
+• العمل الصالح والإخلاص
+• المحافظة على الصلوات
+• بر الوالدين وصلة الرحم
+• الجهاد في سبيل الله
+• حسن الخلق والإحسان إلى الخلق'''
       },
     },
   ];
@@ -831,45 +1122,16 @@ The Ultimate Goal:
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _titles[_selectedLanguage]!,
-          style: const TextStyle(
+          context.tr('jannat'),
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: context.responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _selectedLanguage == 'urdu'
-                    ? 'اردو'
-                    : _selectedLanguage == 'hindi'
-                    ? 'हिंदी'
-                    : 'EN',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-            onSelected: (value) => setState(() => _selectedLanguage = value),
-            itemBuilder: (context) => [
-              _buildLanguageMenuItem('english', 'English'),
-              _buildLanguageMenuItem('urdu', 'اردو'),
-              _buildLanguageMenuItem('hindi', 'हिंदी'),
-            ],
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: context.responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -888,122 +1150,127 @@ The Ultimate Goal:
     );
   }
 
-  PopupMenuItem<String> _buildLanguageMenuItem(String value, String label) {
-    return PopupMenuItem(
-      value: value,
-      child: Row(
-        children: [
-          if (_selectedLanguage == value)
-            Icon(Icons.check, color: AppColors.primary, size: 18)
-          else
-            const SizedBox(width: 18),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: _selectedLanguage == value
-                  ? FontWeight.bold
-                  : FontWeight.normal,
-              color: _selectedLanguage == value ? AppColors.primary : null,
-            ),
+
+  Widget _buildTopicCard(Map<String, dynamic> topic, bool isDark) {
+    final langCode = context.languageProvider.languageCode;
+    final title = context.tr(topic['titleKey'] ?? 'jannat_fazilat');
+    final responsive = context.responsive;
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
+return Container(
+      margin: responsive.paddingOnly(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTopicCard(Map<String, dynamic> topic, bool isDark) {
-    final title = _selectedLanguage == 'english'
-        ? topic['title']
-        : _selectedLanguage == 'urdu'
-        ? topic['titleUrdu']
-        : topic['titleHindi'];
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showTopicDetails(topic),
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.lightGreenBorder.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+      child: InkWell(
+        onTap: () => _showTopicDetails(topic),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        child: Padding(
+          padding: responsive.paddingAll(14),
+          child: Row(
+            children: [
+              // Number Badge
+              Container(
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
+                decoration: BoxDecoration(
+                  color: darkGreen,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+                child: Center(
+                  child: Text(
+                    '${topic['number']}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsive.textLarge,
+                    ),
                   ),
-                  child: Center(
-                    child: Text(
-                      '${topic['number']}',
+                ),
+              ),
+              SizedBox(width: responsive.spacing(14)),
+
+              // Title and Icon chip
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      title,
                       style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 18,
+                        fontSize: responsive.textLarge,
                         fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                      ),
+                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                    ),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Icon chip
+                    Container(
+                      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            topic['icon'] as IconData,
+                            size: responsive.textXSmall + 2,
+                            color: emeraldGreen,
+                          ),
+                          SizedBox(width: responsive.spacing(4)),
+                          Text(
+                            context.tr('jannat_fazilat'),
+                            style: TextStyle(
+                              fontSize: responsive.textXSmall,
+                              fontWeight: FontWeight.w600,
+                              color: emeraldGreen,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: (topic['color'] as Color).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    topic['icon'] as IconData,
-                    color: topic['color'] as Color,
-                    size: 24,
-                  ),
+              ),
+
+              // Arrow Icon
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: isDark ? Colors.white : AppColors.primary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textDirection: _selectedLanguage == 'urdu'
-                        ? TextDirection.rtl
-                        : TextDirection.ltr,
-                  ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.textXSmall + 2,
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E8F5A),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.white,
-                    size: 14,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1012,19 +1279,22 @@ The Ultimate Goal:
 
   void _showTopicDetails(Map<String, dynamic> topic) {
     final details = topic['details'] as Map<String, String>;
+    final titleKey = topic['titleKey'] ?? 'jannat_fazilat';
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => BasicAmalDetailScreen(
-          title: topic['title'],
+          title: topic['title'] ?? '',
           titleUrdu: topic['titleUrdu'] ?? '',
           titleHindi: topic['titleHindi'] ?? '',
+          titleArabic: topic['titleArabic'] ?? '',
           contentEnglish: details['english'] ?? '',
           contentUrdu: details['urdu'] ?? '',
           contentHindi: details['hindi'] ?? '',
+          contentArabic: details['arabic'] ?? '',
           color: topic['color'] as Color,
           icon: topic['icon'] as IconData,
-          category: 'Jannat - Fazilat',
+          categoryKey: 'category_jannat_fazilat',
           number: topic['number'] as int?,
         ),
       ),

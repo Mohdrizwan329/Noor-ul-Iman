@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/language_provider.dart';
 import 'islamic_name_detail_screen.dart';
 
 class PanjatanScreen extends StatefulWidget {
@@ -12,6 +15,7 @@ class PanjatanScreen extends StatefulWidget {
 }
 
 class _PanjatanScreenState extends State<PanjatanScreen> {
+
   final List<Map<String, dynamic>> _panjatanNames = [
     {
       'name': 'محمد ﷺ',
@@ -137,23 +141,102 @@ class _PanjatanScreenState extends State<PanjatanScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+
+    // Listen to language changes to force rebuild
+  }
+
+  @override
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  String _transliterateToHindi(String text) {
+    final Map<String, String> map = {
+      'Muhammad ﷺ': 'मुहम्मद ﷺ',
+      'Ali ibn Abi Talib': 'अली बिन अबी तालिब',
+      'Fatimah Az-Zahra': 'फ़ातिमा ज़हरा',
+      'Hasan ibn Ali': 'हसन बिन अली',
+      'Husayn ibn Ali': 'हुसैन बिन अली',
+    };
+    return map[text] ?? text;
+  }
+
+  String _transliterateToUrdu(String text) {
+    final Map<String, String> map = {
+      'Muhammad ﷺ': 'محمد ﷺ',
+      'Ali ibn Abi Talib': 'علی بن ابی طالب',
+      'Fatimah Az-Zahra': 'فاطمہ زہرا',
+      'Hasan ibn Ali': 'حسن بن علی',
+      'Husayn ibn Ali': 'حسین بن علی',
+    };
+    return map[text] ?? text;
+  }
+
+  String _getDisplayName(Map<String, dynamic> name, String languageCode) {
+    final transliteration = name['transliteration']!;
+
+    switch (languageCode) {
+      case 'ar':
+        return name['name']!;
+      case 'ur':
+        return _transliterateToUrdu(transliteration);
+      case 'hi':
+        return _transliterateToHindi(transliteration);
+      case 'en':
+      default:
+        return transliteration;
+    }
+  }
+
+  String _getDisplayTitle(Map<String, dynamic> name, String languageCode) {
+    switch (languageCode) {
+      case 'ar':
+        return name['titleUrdu'] ?? name['title']!;
+      case 'ur':
+        return name['titleUrdu'] ?? name['title']!;
+      case 'hi':
+        return name['titleHindi'] ?? name['title']!;
+      case 'en':
+      default:
+        return name['title']!;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isDark = context.watch<SettingsProvider>().isDarkMode;
+    final langProvider = context.watch<LanguageProvider>();
+    final responsive = context.responsive;
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text('Panjatan Pak'),
+        title: Text(context.tr('panjatan')),
       ),
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.all(16),
+              key: ValueKey(langProvider.languageCode), // Force rebuild when language changes
+              padding: responsive.paddingRegular,
               itemCount: _panjatanNames.length,
               itemBuilder: (context, index) {
-                return _buildNameCard(_panjatanNames[index], index + 1, isDark);
+                final name = _panjatanNames[index];
+                final displayName = _getDisplayName(name, langProvider.languageCode);
+                final displayTitle = _getDisplayTitle(name, langProvider.languageCode);
+                return _buildNameCard(
+                  name: name,
+                  index: index + 1,
+                  isDark: isDark,
+                  displayName: displayName,
+                  displayTitle: displayTitle,
+                  languageCode: langProvider.languageCode,
+                );
               },
             ),
           ),
@@ -162,183 +245,133 @@ class _PanjatanScreenState extends State<PanjatanScreen> {
     );
   }
 
-  Widget _buildNameCard(Map<String, dynamic> name, int index, bool isDark) {
+  Widget _buildNameCard({
+    required Map<String, dynamic> name,
+    required int index,
+    required bool isDark,
+    required String displayName,
+    required String displayTitle,
+    required String languageCode,
+  }) {
     const darkGreen = Color(0xFF0A5C36);
     const emeraldGreen = Color(0xFF1E8F5A);
     const lightGreenBorder = Color(0xFF8AAF9A);
-    const softGold = Color(0xFFC9A24D);
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => IslamicNameDetailScreen(
-              arabicName: name['name'],
-              transliteration: name['transliteration'],
-              meaning: name['title'],
-              meaningUrdu: name['titleUrdu'] ?? '',
-              meaningHindi: name['titleHindi'] ?? '',
-              description: name['description'],
-              descriptionUrdu: name['descriptionUrdu'] ?? '',
-              descriptionHindi: name['descriptionHindi'] ?? '',
-              category: 'Panjatan Pak',
-              number: index,
-              icon: Icons.favorite,
-              color: Colors.red,
-              fatherName: name['fatherName'],
-              motherName: name['motherName'],
-              birthDate: name['birthDate'],
-              birthPlace: name['birthPlace'],
-              deathDate: name['deathDate'],
-              deathPlace: name['deathPlace'],
-              spouse: name['spouse'],
-              children: name['children'],
-              tribe: name['tribe'],
-              knownFor: name['knownFor'],
+    return Builder(
+      builder: (context) {
+        final responsive = context.responsive;
+
+        return Container(
+          margin: responsive.paddingOnly(bottom: 10),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkCard : Colors.white,
+            borderRadius: BorderRadius.circular(responsive.radiusLarge),
+            border: Border.all(
+              color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+              width: 1.5,
             ),
+            boxShadow: isDark
+                ? null
+                : [
+                    BoxShadow(
+                      color: darkGreen.withValues(alpha: 0.08),
+                      blurRadius: responsive.spacing(10),
+                      offset: Offset(0, responsive.spacing(2)),
+                    ),
+                  ],
           ),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.darkCard : Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: isDark ? Colors.grey.shade700 : lightGreenBorder,
-            width: 1.5,
-          ),
-          boxShadow: isDark
-              ? null
-              : [
-                  BoxShadow(
-                    color: darkGreen.withValues(alpha: 0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => IslamicNameDetailScreen(
+                    arabicName: name['name'],
+                    transliteration: name['transliteration'],
+                    meaning: name['title'],
+                    meaningUrdu: name['titleUrdu'] ?? '',
+                    meaningHindi: name['titleHindi'] ?? '',
+                    description: name['description'],
+                    descriptionUrdu: name['descriptionUrdu'] ?? '',
+                    descriptionHindi: name['descriptionHindi'] ?? '',
+                    category: 'Panjatan Pak',
+                    number: index,
+                    icon: Icons.favorite,
+                    color: Colors.red,
+                    fatherName: name['fatherName'],
+                    motherName: name['motherName'],
+                    birthDate: name['birthDate'],
+                    birthPlace: name['birthPlace'],
+                    deathDate: name['deathDate'],
+                    deathPlace: name['deathPlace'],
+                    spouse: name['spouse'],
+                    children: name['children'],
+                    tribe: name['tribe'],
+                    knownFor: name['knownFor'],
                   ),
-                ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+                ),
+              );
+            },
+            borderRadius: BorderRadius.circular(responsive.radiusLarge),
+            child: Padding(
+              padding: responsive.paddingAll(14),
+              child: Row(
                 children: [
+                  // Circular badge
                   Container(
-                    width: 56,
-                    height: 56,
+                    width: responsive.spacing(50),
+                    height: responsive.spacing(50),
                     decoration: BoxDecoration(
                       color: isDark ? emeraldGreen : darkGreen,
                       shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: (isDark ? emeraldGreen : darkGreen).withValues(
-                            alpha: 0.3,
-                          ),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
                     ),
                     child: Center(
                       child: Text(
                         '$index',
-                        style: const TextStyle(
-                          fontSize: 22,
+                        style: TextStyle(
+                          fontSize: responsive.textLarge,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: responsive.spacing(14)),
+                  // Name
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          name['transliteration']!,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: isDark
-                                ? AppColors.darkTextPrimary
-                                : darkGreen,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          name['title']!,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? AppColors.secondary : softGold,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      displayName,
+                      style: TextStyle(
+                        fontSize: responsive.textRegular,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                        fontFamily: languageCode == 'ar' ? 'Amiri' : (languageCode == 'ur' ? 'NotoNastaliq' : null),
+                      ),
+                      textDirection: (languageCode == 'ar' || languageCode == 'ur') ? TextDirection.rtl : TextDirection.ltr,
                     ),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        name['name']!,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontFamily: 'Amiri',
-                          color: isDark ? AppColors.secondary : softGold,
-                        ),
-                        textDirection: TextDirection.rtl,
-                      ),
-                      const SizedBox(height: 4),
-                      Icon(
+                  // Circular forward arrow
+                  Container(
+                    width: responsive.spacing(32),
+                    height: responsive.spacing(32),
+                    decoration: BoxDecoration(
+                      color: isDark ? emeraldGreen.withValues(alpha: 0.2) : const Color(0xFFE8F3ED),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Icon(
                         Icons.arrow_forward_ios,
-                        size: 16,
-                        color: isDark
-                            ? AppColors.darkTextSecondary
-                            : emeraldGreen,
+                        size: responsive.iconXSmall,
+                        color: isDark ? AppColors.darkTextSecondary : emeraldGreen,
                       ),
-                    ],
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? Colors.grey.shade800
-                      : const Color(0xFFE8F3ED),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.touch_app,
-                      size: 16,
-                      color: isDark
-                          ? AppColors.darkTextSecondary
-                          : emeraldGreen,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Tap to read full biography',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark
-                            ? AppColors.darkTextSecondary
-                            : emeraldGreen,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

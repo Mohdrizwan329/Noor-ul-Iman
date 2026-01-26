@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/quran_provider.dart';
 import 'surah_detail_screen.dart';
 
@@ -9,9 +11,11 @@ class BookmarksScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bookmarked Ayahs'),
+        title: Text(context.tr('bookmarked_ayahs')),
       ),
       body: Consumer<QuranProvider>(
         builder: (context, provider, child) {
@@ -24,21 +28,21 @@ class BookmarksScreen extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.bookmark_border,
-                    size: 80,
+                    size: responsive.iconHuge,
                     color: Colors.grey[400],
                   ),
-                  const SizedBox(height: 16),
+                  responsive.vSpaceRegular,
                   Text(
-                    'No Bookmarks Yet',
+                    context.tr('no_bookmarks'),
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: responsive.textXLarge,
                       fontWeight: FontWeight.bold,
                       color: Colors.grey[600],
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  responsive.vSpaceSmall,
                   Text(
-                    'Tap the bookmark icon on any ayah\nto save it here',
+                    context.tr('bookmark_hint'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.grey[500],
@@ -59,7 +63,7 @@ class BookmarksScreen extends StatelessWidget {
           });
 
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: responsive.paddingRegular,
             itemCount: bookmarks.length,
             itemBuilder: (context, index) {
               final bookmark = bookmarks[index];
@@ -96,10 +100,12 @@ class BookmarksScreen extends StatelessWidget {
     String arabicName,
     QuranProvider provider,
   ) {
+    final responsive = context.responsive;
+
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: responsive.paddingOnly(bottom: 12),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(responsive.radiusMedium),
       ),
       child: InkWell(
         onTap: () {
@@ -110,18 +116,18 @@ class BookmarksScreen extends StatelessWidget {
             ),
           );
         },
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(responsive.radiusMedium),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: responsive.paddingRegular,
           child: Row(
             children: [
               // Bookmark icon with surah number
               Container(
-                width: 50,
-                height: 50,
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
                 decoration: BoxDecoration(
                   color: AppColors.secondary.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(responsive.radiusMedium),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -129,12 +135,12 @@ class BookmarksScreen extends StatelessWidget {
                     Icon(
                       Icons.bookmark,
                       color: AppColors.secondary,
-                      size: 20,
+                      size: responsive.iconSmall,
                     ),
                     Text(
                       '$surahNumber:$ayahNumber',
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: responsive.textXSmall,
                         fontWeight: FontWeight.bold,
                         color: AppColors.secondaryDark,
                       ),
@@ -142,7 +148,7 @@ class BookmarksScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 16),
+              responsive.hSpaceRegular,
 
               // Surah info
               Expanded(
@@ -151,16 +157,16 @@ class BookmarksScreen extends StatelessWidget {
                   children: [
                     Text(
                       surahName,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: responsive.textRegular,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    responsive.vSpaceXSmall,
                     Text(
-                      'Ayah $ayahNumber',
+                      '${context.tr('ayah')} $ayahNumber',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: responsive.textMedium,
                         color: Colors.grey[600],
                       ),
                     ),
@@ -171,18 +177,18 @@ class BookmarksScreen extends StatelessWidget {
               // Arabic name
               Text(
                 arabicName,
-                style: const TextStyle(
-                  fontSize: 20,
+                style: TextStyle(
+                  fontSize: responsive.textXLarge,
                   fontFamily: 'Amiri',
                   color: AppColors.primary,
                 ),
               ),
 
-              const SizedBox(width: 8),
+              responsive.hSpaceSmall,
 
               // Delete button
               IconButton(
-                icon: Icon(Icons.delete_outline, color: Colors.red[400]),
+                icon: Icon(Icons.delete_outline, color: Colors.red[400], size: responsive.iconMedium),
                 onPressed: () {
                   _showDeleteConfirmation(
                     context,
@@ -209,29 +215,29 @@ class BookmarksScreen extends StatelessWidget {
   ) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Remove Bookmark'),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(dialogContext.tr('remove_bookmark')),
         content: Text(
-          'Remove bookmark for $surahName, Ayah $ayahNumber?',
+          dialogContext.tr('remove_bookmark_confirmation').replaceAll('{surah}', surahName).replaceAll('{ayah}', ayahNumber.toString()),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(dialogContext.tr('cancel')),
           ),
           TextButton(
             onPressed: () {
               provider.toggleBookmark(surahNumber, ayahNumber);
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Bookmark removed'),
-                  duration: Duration(seconds: 2),
+                SnackBar(
+                  content: Text(context.tr('bookmark_removed')),
+                  duration: const Duration(seconds: 2),
                 ),
               );
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Remove'),
+            child: Text(dialogContext.tr('remove')),
           ),
         ],
       ),

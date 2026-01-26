@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../data/models/surah_model.dart';
 
 // Language enum for Quran display
-enum QuranLanguage { english, hindi, urdu }
+enum QuranLanguage { english, hindi, urdu, arabic }
 
 class QuranProvider with ChangeNotifier {
   static const String _baseUrl = 'https://api.alquran.cloud/v1';
@@ -54,6 +54,7 @@ class QuranProvider with ChangeNotifier {
     QuranLanguage.english: 'en.sahih',
     QuranLanguage.hindi: 'hi.hindi',
     QuranLanguage.urdu: 'ur.jalandhry',
+    QuranLanguage.arabic: 'ar.jalalayn',
   };
 
   // Language display names
@@ -61,6 +62,7 @@ class QuranProvider with ChangeNotifier {
     QuranLanguage.english: 'English',
     QuranLanguage.hindi: 'हिंदी',
     QuranLanguage.urdu: 'اردو',
+    QuranLanguage.arabic: 'العربية',
   };
 
   // Available translations
@@ -72,6 +74,7 @@ class QuranProvider with ChangeNotifier {
     'ur.jalandhry': 'Fateh Muhammad Jalandhry',
     'ur.ahmedali': 'Ahmed Ali',
     'hi.hindi': 'Hindi',
+    'ar.jalalayn': 'Tafsir al-Jalalayn',
   };
 
   // Available reciters

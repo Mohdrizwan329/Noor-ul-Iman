@@ -1,4 +1,4 @@
-// Common reusable widgets for the Jiyan Islamic Academy app.
+// Common reusable widgets for the Noor-ul-Huda app.
 // Import this file to access all common widgets at once.
 
 // Card widgets

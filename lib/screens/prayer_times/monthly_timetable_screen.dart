@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
 import '../../providers/prayer_provider.dart';
 import '../../data/models/prayer_time_model.dart';
+import '../../core/utils/localization_helper.dart';
 
 class MonthlyTimetableScreen extends StatefulWidget {
   const MonthlyTimetableScreen({super.key});
@@ -61,15 +63,20 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = ResponsiveUtils(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Monthly Timetable'),
+        title: Text(
+          context.tr('monthly_timetable'),
+          style: TextStyle(fontSize: responsive.textLarge),
+        ),
       ),
       body: Column(
         children: [
           // Month Navigation Header
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: responsive.paddingRegular,
             decoration: BoxDecoration(
               gradient: AppColors.headerGradient,
             ),
@@ -78,30 +85,38 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
               children: [
                 IconButton(
                   onPressed: _previousMonth,
-                  icon: const Icon(Icons.chevron_left, color: Colors.white),
+                  icon: Icon(
+                    Icons.chevron_left,
+                    color: Colors.white,
+                    size: responsive.iconLarge,
+                  ),
                 ),
                 Column(
                   children: [
                     Text(
                       DateFormat('MMMM').format(DateTime(_selectedYear, _selectedMonth)),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 24,
+                        fontSize: responsive.textXXLarge,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
                       '$_selectedYear',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white70,
-                        fontSize: 16,
+                        fontSize: responsive.textRegular,
                       ),
                     ),
                   ],
                 ),
                 IconButton(
                   onPressed: _nextMonth,
-                  icon: const Icon(Icons.chevron_right, color: Colors.white),
+                  icon: Icon(
+                    Icons.chevron_right,
+                    color: Colors.white,
+                    size: responsive.iconLarge,
+                  ),
                 ),
               ],
             ),
@@ -110,16 +125,16 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
           // Table Header
           Container(
             color: AppColors.primary.withValues(alpha: 0.1),
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            padding: responsive.paddingSymmetric(vertical: 12, horizontal: 8),
             child: Row(
               children: [
-                _buildHeaderCell('Date', flex: 2),
-                _buildHeaderCell('Fajr'),
-                _buildHeaderCell('Sunrise'),
-                _buildHeaderCell('Dhuhr'),
-                _buildHeaderCell('Asr'),
-                _buildHeaderCell('Maghrib'),
-                _buildHeaderCell('Isha'),
+                _buildHeaderCell(context, context.tr('date'), flex: 2),
+                _buildHeaderCell(context, context.tr('fajr')),
+                _buildHeaderCell(context, context.tr('sunrise')),
+                _buildHeaderCell(context, context.tr('dhuhr')),
+                _buildHeaderCell(context, context.tr('asr')),
+                _buildHeaderCell(context, context.tr('maghrib')),
+                _buildHeaderCell(context, context.tr('isha')),
               ],
             ),
           ),
@@ -137,20 +152,26 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.calendar_today,
-                                size: 64,
+                                size: responsive.iconSize(64),
                                 color: Colors.grey,
                               ),
-                              const SizedBox(height: 16),
-                              const Text(
-                                'No prayer times available',
-                                style: TextStyle(color: Colors.grey),
+                              SizedBox(height: responsive.spaceRegular),
+                              Text(
+                                context.tr('no_prayer_times'),
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: responsive.textRegular,
+                                ),
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: responsive.spaceRegular),
                               ElevatedButton(
                                 onPressed: _loadMonthlyData,
-                                child: const Text('Retry'),
+                                child: Text(
+                                  context.tr('retry'),
+                                  style: TextStyle(fontSize: responsive.textMedium),
+                                ),
                               ),
                             ],
                           ),
@@ -160,7 +181,7 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
                       return ListView.builder(
                         itemCount: prayerTimes.length,
                         itemBuilder: (context, index) {
-                          return _buildDayRow(prayerTimes[index], index);
+                          return _buildDayRow(context, prayerTimes[index], index);
                         },
                       );
                     },
@@ -171,22 +192,25 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
     );
   }
 
-  Widget _buildHeaderCell(String text, {int flex = 1}) {
+  Widget _buildHeaderCell(BuildContext context, String text, {int flex = 1}) {
+    final responsive = ResponsiveUtils(context);
+
     return Expanded(
       flex: flex,
       child: Text(
         text,
         textAlign: TextAlign.center,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.bold,
-          fontSize: 11,
+          fontSize: responsive.textSmall,
           color: AppColors.primary,
         ),
       ),
     );
   }
 
-  Widget _buildDayRow(PrayerTimeModel prayerTime, int index) {
+  Widget _buildDayRow(BuildContext context, PrayerTimeModel prayerTime, int index) {
+    final responsive = ResponsiveUtils(context);
     final today = DateTime.now();
     final dayNumber = index + 1;
     final isToday = today.day == dayNumber &&
@@ -199,7 +223,7 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
     final isFriday = date.weekday == DateTime.friday;
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      padding: responsive.paddingSymmetric(vertical: 10, horizontal: 8),
       decoration: BoxDecoration(
         color: isToday
             ? AppColors.primary.withValues(alpha: 0.15)
@@ -218,14 +242,14 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
                   '$dayNumber',
                   style: TextStyle(
                     fontWeight: isToday ? FontWeight.bold : FontWeight.w600,
-                    fontSize: 14,
+                    fontSize: responsive.textMedium,
                     color: isToday ? AppColors.primary : null,
                   ),
                 ),
                 Text(
                   dayName,
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: responsive.textXSmall,
                     color: isFriday
                         ? AppColors.primary
                         : (isToday ? AppColors.primary : Colors.grey),
@@ -235,24 +259,24 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
               ],
             ),
           ),
-          _buildTimeCell(prayerTime.fajr, isToday),
-          _buildTimeCell(prayerTime.sunrise, isToday),
-          _buildTimeCell(prayerTime.dhuhr, isToday),
-          _buildTimeCell(prayerTime.asr, isToday),
-          _buildTimeCell(prayerTime.maghrib, isToday),
-          _buildTimeCell(prayerTime.isha, isToday),
+          _buildTimeCell(prayerTime.fajr, isToday, responsive),
+          _buildTimeCell(prayerTime.sunrise, isToday, responsive),
+          _buildTimeCell(prayerTime.dhuhr, isToday, responsive),
+          _buildTimeCell(prayerTime.asr, isToday, responsive),
+          _buildTimeCell(prayerTime.maghrib, isToday, responsive),
+          _buildTimeCell(prayerTime.isha, isToday, responsive),
         ],
       ),
     );
   }
 
-  Widget _buildTimeCell(String time, bool isToday) {
+  Widget _buildTimeCell(String time, bool isToday, ResponsiveUtils responsive) {
     return Expanded(
       child: Text(
         time,
         textAlign: TextAlign.center,
         style: TextStyle(
-          fontSize: 11,
+          fontSize: responsive.textSmall,
           fontWeight: isToday ? FontWeight.w600 : null,
           color: isToday ? AppColors.primary : null,
         ),

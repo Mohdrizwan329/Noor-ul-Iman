@@ -2,9 +2,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/location_service.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
+import '../../providers/language_provider.dart';
 
 class HalalFinderScreen extends StatefulWidget {
   const HalalFinderScreen({super.key});
@@ -13,30 +17,62 @@ class HalalFinderScreen extends StatefulWidget {
   State<HalalFinderScreen> createState() => _HalalFinderScreenState();
 }
 
-class _HalalFinderScreenState extends State<HalalFinderScreen>
-    with SingleTickerProviderStateMixin {
+class _HalalFinderScreenState extends State<HalalFinderScreen> {
   final LocationService _locationService = LocationService();
-  late TabController _tabController;
-  List<HalalPlaceModel> _restaurants = [];
-  List<HalalPlaceModel> _groceries = [];
+  List<HalalPlaceModel> _allPlaces = [];
   bool _isLoading = true;
   String? _error;
   Position? _currentPosition;
+  String? _currentLanguage;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
     _loadPlaces();
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final newLanguage = languageProvider.languageCode;
+
+    // If language changed, reload places with new translations
+    if (_currentLanguage != null &&
+        _currentLanguage != newLanguage &&
+        _currentPosition != null) {
+      _currentLanguage = newLanguage;
+      _refreshData();
+    } else if (_currentLanguage == null) {
+      _currentLanguage = newLanguage;
+    }
+  }
+
+  @override
   void dispose() {
-    _tabController.dispose();
     super.dispose();
   }
 
+  Future<void> _refreshData() async {
+    await _loadPlaces();
+  }
+
   Future<void> _loadPlaces() async {
+    if (!mounted) return;
+
+    // Get all translations before any async operations using listen: false
+    final languageProvider = context.languageProvider;
+    final enableLocationMsg = languageProvider.translate(
+      'enable_location_services',
+    );
+    final defaultRestaurantName = languageProvider.translate(
+      'halal_restaurant',
+    );
+    final defaultStoreName = languageProvider.translate('halal_store');
+    final defaultAddress = languageProvider.translate('address_not_available');
+    final defaultCuisine = languageProvider.translate('halal');
+    final errorText = languageProvider.translate('error');
+
     setState(() {
       _isLoading = true;
       _error = null;
@@ -45,98 +81,63 @@ class _HalalFinderScreenState extends State<HalalFinderScreen>
     try {
       _currentPosition = await _locationService.getCurrentLocation();
       if (_currentPosition == null) {
+        if (!mounted) return;
         setState(() {
-          _error = 'Unable to get your location. Please enable location services.';
+          _error = enableLocationMsg;
           _isLoading = false;
         });
         return;
       }
 
-      await Future.wait([
-        _searchHalalRestaurants(),
-        _searchHalalGroceries(),
-      ]);
+      await _searchHalalPlaces(
+        defaultRestaurantName,
+        defaultStoreName,
+        defaultAddress,
+        defaultCuisine,
+      );
     } catch (e) {
+      if (!mounted) return;
       setState(() {
-        _error = 'Error: $e';
+        _error = '$errorText: $e';
         _isLoading = false;
       });
     }
   }
 
-  Future<void> _searchHalalRestaurants() async {
+  Future<void> _searchHalalPlaces(
+    String defaultRestaurantName,
+    String defaultStoreName,
+    String defaultAddress,
+    String defaultCuisine,
+  ) async {
     if (_currentPosition == null) return;
 
     try {
-      final query = '''
+      // Get current language code for fetching localized names
+      final languageProvider = context.languageProvider;
+      final currentLang = languageProvider.languageCode;
+
+      // Map language codes to OpenStreetMap language tags
+      String osmLangTag = 'name';
+      if (currentLang == 'ur') {
+        osmLangTag = 'name:ur';
+      } else if (currentLang == 'ar') {
+        osmLangTag = 'name:ar';
+      } else if (currentLang == 'hi') {
+        osmLangTag = 'name:hi';
+      } else if (currentLang == 'en') {
+        osmLangTag = 'name:en';
+      }
+
+      // Combined query for both restaurants and groceries
+      final query =
+          '''
         [out:json][timeout:25];
         (
           node["amenity"="restaurant"]["cuisine"~"halal|muslim|arabic|turkish|pakistani|indian|middle_eastern"](around:10000,${_currentPosition!.latitude},${_currentPosition!.longitude});
           node["amenity"="fast_food"]["cuisine"~"halal|muslim|arabic|turkish|pakistani|indian|middle_eastern"](around:10000,${_currentPosition!.latitude},${_currentPosition!.longitude});
           node["diet:halal"="yes"](around:10000,${_currentPosition!.latitude},${_currentPosition!.longitude});
           node["halal"="yes"](around:10000,${_currentPosition!.latitude},${_currentPosition!.longitude});
-        );
-        out body;
-      ''';
-
-      final response = await http.post(
-        Uri.parse('https://overpass-api.de/api/interpreter'),
-        body: query,
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final elements = data['elements'] as List? ?? [];
-
-        final restaurants = <HalalPlaceModel>[];
-        for (final element in elements) {
-          if (element['lat'] != null && element['lon'] != null) {
-            final tags = element['tags'] ?? {};
-            final name = tags['name'] ?? tags['name:en'] ?? 'Halal Restaurant';
-
-            final distanceInMeters = _locationService.calculateDistance(
-              _currentPosition!.latitude,
-              _currentPosition!.longitude,
-              element['lat'].toDouble(),
-              element['lon'].toDouble(),
-            );
-            final distance = distanceInMeters / 1000;
-
-            restaurants.add(HalalPlaceModel(
-              id: element['id'].toString(),
-              name: name,
-              type: HalalPlaceType.restaurant,
-              cuisine: tags['cuisine'] ?? 'Halal',
-              address: _buildAddress(tags),
-              latitude: element['lat'].toDouble(),
-              longitude: element['lon'].toDouble(),
-              distance: distance,
-              phone: tags['phone'] ?? tags['contact:phone'],
-              website: tags['website'],
-              openingHours: tags['opening_hours'],
-              isHalalCertified: tags['diet:halal'] == 'yes' || tags['halal'] == 'yes',
-            ));
-          }
-        }
-
-        restaurants.sort((a, b) => a.distance.compareTo(b.distance));
-
-        setState(() {
-          _restaurants = restaurants;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error searching restaurants: $e');
-    }
-  }
-
-  Future<void> _searchHalalGroceries() async {
-    if (_currentPosition == null) return;
-
-    try {
-      final query = '''
-        [out:json][timeout:25];
-        (
           node["shop"="butcher"]["halal"="yes"](around:10000,${_currentPosition!.latitude},${_currentPosition!.longitude});
           node["shop"="supermarket"]["halal"="yes"](around:10000,${_currentPosition!.latitude},${_currentPosition!.longitude});
           node["shop"="convenience"]["halal"="yes"](around:10000,${_currentPosition!.latitude},${_currentPosition!.longitude});
@@ -154,11 +155,29 @@ class _HalalFinderScreenState extends State<HalalFinderScreen>
         final data = json.decode(response.body);
         final elements = data['elements'] as List? ?? [];
 
-        final groceries = <HalalPlaceModel>[];
+        final places = <HalalPlaceModel>[];
         for (final element in elements) {
           if (element['lat'] != null && element['lon'] != null) {
             final tags = element['tags'] ?? {};
-            final name = tags['name'] ?? tags['name:en'] ?? 'Halal Store';
+
+            // Determine if it's a restaurant or grocery
+            final isRestaurant =
+                tags['amenity'] == 'restaurant' ||
+                tags['amenity'] == 'fast_food';
+            final isGrocery = tags['shop'] != null;
+
+            // Try to get name in current language, fallback to default languages
+            final rawName =
+                tags[osmLangTag] ??
+                tags['name:$currentLang'] ??
+                tags['name'] ??
+                tags['name:en'] ??
+                (isRestaurant ? defaultRestaurantName : defaultStoreName);
+
+            // Transliterate name if not in English
+            final name = currentLang == 'en'
+                ? rawName
+                : _transliterateName(rawName, currentLang);
 
             final distanceInMeters = _locationService.calculateDistance(
               _currentPosition!.latitude,
@@ -168,44 +187,258 @@ class _HalalFinderScreenState extends State<HalalFinderScreen>
             );
             final distance = distanceInMeters / 1000;
 
-            groceries.add(HalalPlaceModel(
-              id: element['id'].toString(),
-              name: name,
-              type: HalalPlaceType.grocery,
-              cuisine: tags['shop'] ?? 'Grocery',
-              address: _buildAddress(tags),
-              latitude: element['lat'].toDouble(),
-              longitude: element['lon'].toDouble(),
-              distance: distance,
-              phone: tags['phone'] ?? tags['contact:phone'],
-              website: tags['website'],
-              openingHours: tags['opening_hours'],
-              isHalalCertified: true,
-            ));
+            places.add(
+              HalalPlaceModel(
+                id: element['id'].toString(),
+                name: name,
+                type: isRestaurant
+                    ? HalalPlaceType.restaurant
+                    : HalalPlaceType.grocery,
+                cuisine: tags['cuisine'] ?? tags['shop'] ?? defaultCuisine,
+                address: _buildAddress(tags, defaultAddress, currentLang),
+                latitude: element['lat'].toDouble(),
+                longitude: element['lon'].toDouble(),
+                distance: distance,
+                phone: tags['phone'] ?? tags['contact:phone'],
+                website: tags['website'],
+                openingHours: tags['opening_hours'],
+                isHalalCertified:
+                    tags['diet:halal'] == 'yes' ||
+                    tags['halal'] == 'yes' ||
+                    isGrocery,
+              ),
+            );
           }
         }
 
-        groceries.sort((a, b) => a.distance.compareTo(b.distance));
+        places.sort((a, b) => a.distance.compareTo(b.distance));
 
+        if (!mounted) return;
         setState(() {
-          _groceries = groceries;
+          _allPlaces = places;
+          _isLoading = false;
+        });
+      } else {
+        debugPrint('API returned status code: ${response.statusCode}');
+        if (!mounted) return;
+        setState(() {
           _isLoading = false;
         });
       }
     } catch (e) {
-      debugPrint('Error searching groceries: $e');
+      debugPrint('Error searching halal places: $e');
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
     }
   }
 
-  String _buildAddress(Map<dynamic, dynamic> tags) {
+  String _translateCuisine(String cuisine) {
+    // Split by semicolon or comma to handle multiple cuisines
+    final parts = cuisine.split(RegExp(r'[;,]'));
+    final translatedParts = <String>[];
+
+    for (final part in parts) {
+      final trimmed = part.trim().toLowerCase();
+      // Try to translate known cuisine types
+      if (trimmed == 'indian' ||
+          trimmed == 'pakistani' ||
+          trimmed == 'turkish' ||
+          trimmed == 'muslim' ||
+          trimmed == 'middle_eastern' ||
+          trimmed == 'butcher' ||
+          trimmed == 'supermarket' ||
+          trimmed == 'convenience' ||
+          trimmed == 'halal' ||
+          trimmed == 'arabic') {
+        translatedParts.add(context.tr(trimmed));
+      } else {
+        // If not a known type, keep original
+        translatedParts.add(part.trim());
+      }
+    }
+
+    return translatedParts.join(';');
+  }
+
+  String _translateOpeningHours(String hours) {
+    // Translate day abbreviations in opening hours
+    String translated = hours;
+
+    // Map of day abbreviations to translation keys
+    final dayMap = {
+      'Su': 'day_su',
+      'Mo': 'day_mo',
+      'Tu': 'day_tu',
+      'We': 'day_we',
+      'Th': 'day_th',
+      'Fr': 'day_fr',
+      'Sa': 'day_sa',
+    };
+
+    // Replace each day abbreviation with its translation
+    dayMap.forEach((abbr, key) {
+      translated = translated.replaceAll(abbr, context.tr(key));
+    });
+
+    return translated;
+  }
+
+  String _transliterateName(String name, String currentLang) {
+    // If already in target language or is default placeholder, return as is
+    if (name.contains('रेस्टोरेंट') ||
+        name.contains('ریستوراں') ||
+        name.contains('مطعم') ||
+        name.contains('स्टोर') ||
+        name.contains('اسٹور') ||
+        name.contains('متجر')) {
+      return name;
+    }
+
+    // Simple transliteration maps for common letters
+    if (currentLang == 'hi') {
+      return name
+          .replaceAll('A', 'ए')
+          .replaceAll('B', 'बी')
+          .replaceAll('C', 'सी')
+          .replaceAll('D', 'डी')
+          .replaceAll('E', 'ई')
+          .replaceAll('F', 'एफ')
+          .replaceAll('G', 'जी')
+          .replaceAll('H', 'एच')
+          .replaceAll('I', 'आई')
+          .replaceAll('J', 'जे')
+          .replaceAll('K', 'के')
+          .replaceAll('L', 'एल')
+          .replaceAll('M', 'एम')
+          .replaceAll('N', 'एन')
+          .replaceAll('O', 'ओ')
+          .replaceAll('P', 'पी')
+          .replaceAll('Q', 'क्यू')
+          .replaceAll('R', 'आर')
+          .replaceAll('S', 'एस')
+          .replaceAll('T', 'टी')
+          .replaceAll('U', 'यू')
+          .replaceAll('V', 'वी')
+          .replaceAll('W', 'डब्ल्यू')
+          .replaceAll('X', 'एक्स')
+          .replaceAll('Y', 'वाई')
+          .replaceAll('Z', 'जेड')
+          .replaceAll('a', 'अ')
+          .replaceAll('b', 'ब')
+          .replaceAll('c', 'क')
+          .replaceAll('d', 'ड')
+          .replaceAll('e', 'ई')
+          .replaceAll('f', 'फ')
+          .replaceAll('g', 'ग')
+          .replaceAll('h', 'ह')
+          .replaceAll('i', 'इ')
+          .replaceAll('j', 'ज')
+          .replaceAll('k', 'क')
+          .replaceAll('l', 'ल')
+          .replaceAll('m', 'म')
+          .replaceAll('n', 'न')
+          .replaceAll('o', 'ओ')
+          .replaceAll('p', 'प')
+          .replaceAll('q', 'क')
+          .replaceAll('r', 'र')
+          .replaceAll('s', 'स')
+          .replaceAll('t', 'त')
+          .replaceAll('u', 'उ')
+          .replaceAll('v', 'व')
+          .replaceAll('w', 'व')
+          .replaceAll('x', 'क्स')
+          .replaceAll('y', 'य')
+          .replaceAll('z', 'ज');
+    } else if (currentLang == 'ur') {
+      return name
+          .replaceAll('A', 'اے')
+          .replaceAll('B', 'بی')
+          .replaceAll('C', 'سی')
+          .replaceAll('D', 'ڈی')
+          .replaceAll('E', 'ای')
+          .replaceAll('F', 'ایف')
+          .replaceAll('G', 'جی')
+          .replaceAll('H', 'ایچ')
+          .replaceAll('I', 'آئی')
+          .replaceAll('J', 'جے')
+          .replaceAll('K', 'کے')
+          .replaceAll('L', 'ایل')
+          .replaceAll('M', 'ایم')
+          .replaceAll('N', 'این')
+          .replaceAll('O', 'او')
+          .replaceAll('P', 'پی')
+          .replaceAll('Q', 'کیو')
+          .replaceAll('R', 'آر')
+          .replaceAll('S', 'ایس')
+          .replaceAll('T', 'ٹی')
+          .replaceAll('U', 'یو')
+          .replaceAll('V', 'وی')
+          .replaceAll('W', 'ڈبلیو')
+          .replaceAll('X', 'ایکس')
+          .replaceAll('Y', 'وائی')
+          .replaceAll('Z', 'زیڈ');
+    } else if (currentLang == 'ar') {
+      return name
+          .replaceAll('A', 'ا')
+          .replaceAll('B', 'ب')
+          .replaceAll('C', 'س')
+          .replaceAll('D', 'د')
+          .replaceAll('E', 'ي')
+          .replaceAll('F', 'ف')
+          .replaceAll('G', 'ج')
+          .replaceAll('H', 'ه')
+          .replaceAll('I', 'ي')
+          .replaceAll('J', 'ج')
+          .replaceAll('K', 'ك')
+          .replaceAll('L', 'ل')
+          .replaceAll('M', 'م')
+          .replaceAll('N', 'ن')
+          .replaceAll('O', 'و')
+          .replaceAll('P', 'ب')
+          .replaceAll('Q', 'ق')
+          .replaceAll('R', 'ر')
+          .replaceAll('S', 'س')
+          .replaceAll('T', 'ت')
+          .replaceAll('U', 'و')
+          .replaceAll('V', 'ف')
+          .replaceAll('W', 'و')
+          .replaceAll('X', 'كس')
+          .replaceAll('Y', 'ي')
+          .replaceAll('Z', 'ز');
+    }
+
+    return name; // Return original for English
+  }
+
+  String _buildAddress(
+    Map<dynamic, dynamic> tags,
+    String defaultAddress,
+    String currentLang,
+  ) {
     final parts = <String>[];
-    if (tags['addr:street'] != null) parts.add(tags['addr:street']);
-    if (tags['addr:city'] != null) parts.add(tags['addr:city']);
+
+    // Try to get street name in current language
+    final street = tags['addr:street:$currentLang'] ?? tags['addr:street'];
+    if (street != null) {
+      parts.add(
+        currentLang == 'en' ? street : _transliterateName(street, currentLang),
+      );
+    }
+
+    // Try to get city name in current language
+    final city = tags['addr:city:$currentLang'] ?? tags['addr:city'];
+    if (city != null) {
+      parts.add(
+        currentLang == 'en' ? city : _transliterateName(city, currentLang),
+      );
+    }
+
+    // Postcode doesn't need translation
     if (tags['addr:postcode'] != null) parts.add(tags['addr:postcode']);
-    return parts.isEmpty ? 'Address not available' : parts.join(', ');
+
+    return parts.isEmpty ? defaultAddress : parts.join(', ');
   }
 
   Future<void> _openInMaps(HalalPlaceModel place) async {
@@ -226,188 +459,245 @@ class _HalalFinderScreenState extends State<HalalFinderScreen>
 
   String _formatDistance(double distance) {
     if (distance < 1) {
-      return '${(distance * 1000).toInt()} m';
+      return '${(distance * 1000).toInt()} ${context.tr('unit_m')}';
     }
-    return '${distance.toStringAsFixed(1)} km';
+    return '${distance.toStringAsFixed(1)} ${context.tr('unit_km')}';
   }
 
   void _showPlaceDetails(HalalPlaceModel place) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(context.responsive.radiusLarge),
+        ),
       ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
+      builder: (context) {
+        final responsive = context.responsive;
+        return Container(
+          padding: responsive.paddingLarge,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: responsive.spacing(40),
+                  height: responsive.spacing(4),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
+              responsive.vSpaceLarge,
+              Row(
+                children: [
+                  Container(
+                    padding: responsive.paddingMedium,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(
+                        responsive.radiusMedium,
+                      ),
+                    ),
+                    child: Icon(
+                      place.type == HalalPlaceType.restaurant
+                          ? Icons.restaurant
+                          : Icons.store,
+                      color: AppColors.primary,
+                      size: responsive.iconLarge,
+                    ),
                   ),
-                  child: Icon(
-                    place.type == HalalPlaceType.restaurant
-                        ? Icons.restaurant
-                        : Icons.store,
-                    color: AppColors.primary,
-                    size: 32,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              place.name,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                  SizedBox(width: responsive.spaceRegular),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: context.tr(
+                                        place.type == HalalPlaceType.restaurant
+                                            ? 'restaurant'
+                                            : 'grocery',
+                                      ),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: responsive.textSmall,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: ' • ',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: responsive.textLarge,
+                                        color: Colors.grey[400],
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: place.name,
+                                      style: TextStyle(
+                                        fontSize: responsive.textLarge,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          if (place.isHalalCertified)
+                            if (place.isHalalCertified)
+                              Container(
+                                padding: responsive.paddingSymmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(
+                                    responsive.radiusSmall,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.verified,
+                                      color: Colors.green,
+                                      size: responsive.iconSize(16),
+                                    ),
+                                    SizedBox(width: responsive.spaceXSmall),
+                                    Text(
+                                      context.tr('halal'),
+                                      style: TextStyle(
+                                        color: Colors.green,
+                                        fontSize: responsive.textSmall,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                        SizedBox(height: responsive.spaceXSmall),
+                        Row(
+                          children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(
+                              padding: responsive.paddingSymmetric(
                                 horizontal: 8,
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.green.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(8),
+                                color: AppColors.secondary.withValues(
+                                  alpha: 0.2,
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  responsive.radiusMedium,
+                                ),
                               ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.verified, color: Colors.green, size: 16),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    'HALAL',
-                                    style: TextStyle(
-                                      color: Colors.green,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
+                              child: Text(
+                                _translateCuisine(place.cuisine),
+                                style: TextStyle(
+                                  color: AppColors.secondaryDark,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: responsive.textSmall,
+                                ),
                               ),
                             ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: AppColors.secondary.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              place.cuisine,
+                            SizedBox(width: responsive.spaceSmall),
+                            Text(
+                              '${_formatDistance(place.distance)} ${context.tr('away')}',
                               style: TextStyle(
-                                color: AppColors.secondaryDark,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 12,
+                                color: Colors.grey[600],
+                                fontSize: responsive.textSmall,
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${_formatDistance(place.distance)} away',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            _buildDetailRow(Icons.location_on, place.address),
-            if (place.openingHours != null)
-              _buildDetailRow(Icons.access_time, place.openingHours!),
-            if (place.phone != null)
-              _buildDetailRow(Icons.phone, place.phone!),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _openInMaps(place);
-                    },
-                    icon: const Icon(Icons.directions),
-                    label: const Text('Directions'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.all(14),
-                    ),
-                  ),
-                ),
-                if (place.phone != null) ...[
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        _callPlace(place.phone!);
-                      },
-                      icon: const Icon(Icons.phone),
-                      label: const Text('Call'),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.all(14),
-                      ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ],
-              ],
-            ),
-            const SizedBox(height: 10),
-          ],
-        ),
-      ),
+              ),
+              responsive.vSpaceLarge,
+              _buildDetailRow(Icons.location_on, place.address),
+              if (place.openingHours != null)
+                _buildDetailRow(Icons.access_time, _translateOpeningHours(place.openingHours!)),
+              if (place.phone != null)
+                _buildDetailRow(Icons.phone, place.phone!),
+              responsive.vSpaceLarge,
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _openInMaps(place);
+                      },
+                      icon: const Icon(Icons.directions),
+                      label: Text(context.tr('directions')),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: responsive.paddingSymmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (place.phone != null) ...[
+                    SizedBox(width: responsive.spaceMedium),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _callPlace(place.phone!);
+                        },
+                        icon: const Icon(Icons.phone),
+                        label: Text(context.tr('call')),
+                        style: OutlinedButton.styleFrom(
+                          padding: responsive.paddingSymmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              responsive.vSpaceSmall,
+            ],
+          ),
+        );
+      },
     );
   }
 
   Widget _buildDetailRow(IconData icon, String text) {
+    final responsive = context.responsive;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: responsive.paddingOnly(bottom: 12),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: Colors.grey[600]),
-          const SizedBox(width: 12),
+          Icon(icon, size: responsive.iconSmall, color: Colors.grey[600]),
+          SizedBox(width: responsive.spaceMedium),
           Expanded(
             child: Text(
               text,
-              style: TextStyle(color: Colors.grey[700], fontSize: 14),
+              style: TextStyle(
+                color: Colors.grey[700],
+                fontSize: responsive.textMedium,
+              ),
             ),
           ),
         ],
@@ -417,35 +707,34 @@ class _HalalFinderScreenState extends State<HalalFinderScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Listen to language changes to rebuild UI
+    context.watch<LanguageProvider>();
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         toolbarHeight: 50,
-        title: const Text('Halal Finder'),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          tabs: const [
-            Tab(text: 'Restaurants'),
-            Tab(text: 'Grocery'),
-          ],
-        ),
+        title: Text(context.tr('halal_finder')),
       ),
       body: _buildBody(),
     );
   }
 
   Widget _buildBody() {
+    final responsive = context.responsive;
+
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Finding halal places near you...'),
+            const CircularProgressIndicator(),
+            responsive.vSpaceRegular,
+            Text(
+              context.tr('finding_halal_places'),
+              style: TextStyle(fontSize: responsive.textMedium),
+            ),
           ],
         ),
       );
@@ -454,22 +743,29 @@ class _HalalFinderScreenState extends State<HalalFinderScreen>
     if (_error != null) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: responsive.paddingXLarge,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.location_off, size: 64, color: Colors.grey),
-              const SizedBox(height: 16),
+              Icon(
+                Icons.location_off,
+                size: responsive.iconHuge,
+                color: Colors.grey,
+              ),
+              responsive.vSpaceRegular,
               Text(
                 _error!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.grey),
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: responsive.textMedium,
+                ),
               ),
-              const SizedBox(height: 24),
+              responsive.vSpaceXLarge,
               ElevatedButton.icon(
                 onPressed: _loadPlaces,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Try Again'),
+                label: Text(context.tr('try_again')),
               ),
             ],
           ),
@@ -477,16 +773,12 @@ class _HalalFinderScreenState extends State<HalalFinderScreen>
       );
     }
 
-    return TabBarView(
-      controller: _tabController,
-      children: [
-        _buildPlacesList(_restaurants, 'restaurants'),
-        _buildPlacesList(_groceries, 'grocery stores'),
-      ],
-    );
+    return _buildPlacesList(_allPlaces, context.tr('halal_places'));
   }
 
   Widget _buildPlacesList(List<HalalPlaceModel> places, String type) {
+    final responsive = context.responsive;
+
     if (places.isEmpty) {
       return Center(
         child: Column(
@@ -494,18 +786,24 @@ class _HalalFinderScreenState extends State<HalalFinderScreen>
           children: [
             Icon(
               type == 'restaurants' ? Icons.restaurant : Icons.store,
-              size: 64,
+              size: responsive.iconHuge,
               color: Colors.grey,
             ),
-            const SizedBox(height: 16),
+            responsive.vSpaceRegular,
             Text(
-              'No halal $type found nearby',
-              style: const TextStyle(color: Colors.grey),
+              context.tr('no_halal_found').replaceAll('{type}', type),
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: responsive.textMedium,
+              ),
             ),
-            const SizedBox(height: 8),
+            responsive.vSpaceSmall,
             Text(
-              'Try expanding your search area',
-              style: TextStyle(color: Colors.grey[500], fontSize: 14),
+              context.tr('try_expanding_search'),
+              style: TextStyle(
+                color: Colors.grey[500],
+                fontSize: responsive.textMedium,
+              ),
             ),
           ],
         ),
@@ -515,16 +813,23 @@ class _HalalFinderScreenState extends State<HalalFinderScreen>
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: responsive.paddingMedium,
           child: Row(
             children: [
-              Icon(Icons.location_on, color: AppColors.primary, size: 18),
-              const SizedBox(width: 8),
+              Icon(
+                Icons.location_on,
+                color: AppColors.primary,
+                size: responsive.iconSize(18),
+              ),
+              SizedBox(width: responsive.spaceSmall),
               Text(
-                '${places.length} halal $type found',
-                style: const TextStyle(
+                context
+                    .tr('halal_places_found')
+                    .replaceAll('{count}', '${places.length}')
+                    .replaceAll('{type}', type),
+                style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: 13,
+                  fontSize: responsive.textSmall,
                 ),
               ),
             ],
@@ -532,9 +837,9 @@ class _HalalFinderScreenState extends State<HalalFinderScreen>
         ),
         Expanded(
           child: RefreshIndicator(
-            onRefresh: _loadPlaces,
+            onRefresh: _refreshData,
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: responsive.paddingSymmetric(horizontal: 16),
               itemCount: places.length,
               itemBuilder: (context, index) {
                 return _buildPlaceCard(places[index], index + 1);
@@ -550,57 +855,41 @@ class _HalalFinderScreenState extends State<HalalFinderScreen>
     const lightGreenBorder = Color(0xFF8AAF9A);
     const darkGreen = Color(0xFF0A5C36);
     const lightGreenChip = Color(0xFFE8F3ED);
+    final responsive = context.responsive;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: responsive.paddingOnly(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         border: Border.all(color: lightGreenBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: 10,
+            blurRadius: responsive.spacing(10),
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: InkWell(
         onTap: () => _showPlaceDetails(place),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: responsive.paddingSymmetric(horizontal: 6, vertical: 10),
           child: Row(
             children: [
+              SizedBox(width: responsive.spacing(10)),
               Container(
-                width: 28,
-                height: 28,
-                decoration: const BoxDecoration(
-                  color: lightGreenChip,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    '$rank',
-                    style: const TextStyle(
-                      color: darkGreen,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.all(10),
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
                 decoration: BoxDecoration(
                   color: darkGreen,
-                  borderRadius: BorderRadius.circular(12),
+                  shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
                       color: darkGreen.withValues(alpha: 0.3),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
                     ),
                   ],
                 ),
@@ -609,10 +898,10 @@ class _HalalFinderScreenState extends State<HalalFinderScreen>
                       ? Icons.restaurant
                       : Icons.store,
                   color: Colors.white,
-                  size: 22,
+                  size: responsive.iconSize(22),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: responsive.spaceMedium),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -620,43 +909,72 @@ class _HalalFinderScreenState extends State<HalalFinderScreen>
                     Row(
                       children: [
                         Expanded(
-                          child: Text(
-                            place.name,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
+                          child: RichText(
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: context.tr(
+                                    place.type == HalalPlaceType.restaurant
+                                        ? 'restaurant'
+                                        : 'grocery',
+                                  ),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: responsive.fontSize(11),
+                                    color: darkGreen,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: ' • ',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: responsive.textMedium,
+                                    color: Colors.grey[400],
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: place.name,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: responsive.textMedium,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         if (place.isHalalCertified)
                           Container(
-                            padding: const EdgeInsets.symmetric(
+                            padding: responsive.paddingSymmetric(
                               horizontal: 6,
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
                               color: Colors.green.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(
+                                responsive.radiusSmall,
+                              ),
                             ),
-                            child: const Text(
-                              'HALAL',
+                            child: Text(
+                              context.tr('halal'),
                               style: TextStyle(
                                 color: Colors.green,
-                                fontSize: 9,
+                                fontSize: responsive.fontSize(9),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                       ],
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: responsive.spacing(2)),
                     Text(
                       place.address,
                       style: TextStyle(
                         color: Colors.grey[600],
-                        fontSize: 12,
+                        fontSize: responsive.textSmall,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -664,41 +982,27 @@ class _HalalFinderScreenState extends State<HalalFinderScreen>
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: responsive.spaceSmall),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(
+                    padding: responsive.paddingSymmetric(
                       horizontal: 8,
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
                       color: lightGreenChip,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(
+                        responsive.radiusMedium,
+                      ),
                     ),
                     child: Text(
                       _formatDistance(place.distance),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: darkGreen,
                         fontWeight: FontWeight.w600,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  GestureDetector(
-                    onTap: () => _openInMaps(place),
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E8F5A),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.directions,
-                        color: Colors.white,
-                        size: 16,
+                        fontSize: responsive.fontSize(11),
                       ),
                     ),
                   ),

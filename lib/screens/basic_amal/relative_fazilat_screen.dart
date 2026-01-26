@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,18 +16,14 @@ class RelativeFazilatScreen extends StatefulWidget {
 class _RelativeFazilatScreenState extends State<RelativeFazilatScreen> {
   String _selectedLanguage = 'english';
 
-  final Map<String, String> _titles = {
-    'english': 'Relatives - Maintaining Family Ties',
-    'urdu': 'رشتہ دار - صلہ رحمی',
-    'hindi': 'रिश्तेदार - सिला रहमी',
-  };
-
   final List<Map<String, dynamic>> _relativeTopics = [
     {
       'number': 1,
+      'titleKey': 'relative_fazilat_1_importance_of_silat_arrahm',
       'title': 'Importance of Silat ar-Rahm',
       'titleUrdu': 'صلہ رحمی کی اہمیت',
       'titleHindi': 'सिला रहमी की अहमियत',
+      'titleArabic': 'أهمية صلة الرحم',
       'icon': Icons.connect_without_contact,
       'color': Colors.green,
       'details': {
@@ -170,13 +168,50 @@ How to Maintain Ties:
 • ख़ानदानी इजतिमाआत में शिरकत करें
 • उनके लिए दुआ करें
 • उनकी ग़लतियों को माफ़ करें''',
+        'arabic': '''أهمية صلة الرحم
+
+صلة الرحم من أعظم القربات إلى الله.
+
+فضل صلة الرحم:
+• "وَاتَّقُوا اللَّهَ الَّذِي تَسَاءَلُونَ بِهِ وَالْأَرْحَامَ" (سورة النساء: 1)
+• قال النبي ﷺ: "من سره أن يبسط له في رزقه، وينسأ له في أثره، فليصل رحمه" (البخاري)
+• سبب في زيادة الرزق والعمر
+• سبب في دخول الجنة
+
+أجر صلة الرحم:
+• البركة في المال والعمر
+• محبة الله ورضاه
+• القرب من الله يوم القيامة
+• دخول الجنة بسلام
+• "فَهَلْ عَسَيْتُمْ إِن تَوَلَّيْتُمْ أَن تُفْسِدُوا فِي الْأَرْضِ" (سورة محمد: 22)
+
+كيفية صلة الرحم:
+• الزيارة والتواصل
+• السؤال عن الأحوال
+• المساعدة المالية والمعنوية
+• الهدايا والصدقات
+• الدعاء للأقارب
+
+الواصل الحقيقي:
+• قال النبي ﷺ: "ليس الواصل بالمكافئ، ولكن الواصل الذي إذا قطعت رحمه وصلها" (البخاري)
+• يصل من قطعه
+• يعفو عمن أساء إليه
+• يحسن إلى من أساء
+
+درجات صلة الرحم:
+• الواجب: عدم القطيعة
+• المستحب: الزيارة والتواصل
+• الأكمل: الإحسان والمساعدة
+• الأفضل: الصلة مع القطيعة'''
       },
     },
     {
       'number': 2,
+      'titleKey': 'relative_fazilat_2_dealing_with_difficult_relatives',
       'title': 'Dealing with Difficult Relatives',
       'titleUrdu': 'مشکل رشتہ داروں سے نمٹنا',
       'titleHindi': 'मुश्किल रिश्तेदारों से निपटना',
+      'titleArabic': 'التعامل مع الأقارب الصعبين',
       'icon': Icons.handshake,
       'color': Colors.orange,
       'details': {
@@ -336,13 +371,48 @@ Remember:
 • नाक़िस इंसानों से कमाल की तवक़्क़ो न रखें
 • अल्लाह को ख़ुश करने पर तवज्जोह दें, उन्हें नहीं
 • जितना मुश्किल होगा, सवाब उतना ज़्यादा होगा''',
+        'arabic': '''التعامل مع الأقارب الصعبين
+
+كيفية الصبر على أذى الأقارب.
+
+الصبر على الأذى:
+• قال النبي ﷺ: "ليس الواصل بالمكافئ" (البخاري)
+• الصبر على أذى الأقارب عبادة
+• العفو والصفح من علامات الإيمان
+• "وَالْكَاظِمِينَ الْغَيْظَ وَالْعَافِينَ عَنِ النَّاسِ" (سورة آل عمران: 134)
+
+المبادرة بالإحسان:
+• مقابلة الإساءة بالإحسان
+• "ادْفَعْ بِالَّتِي هِيَ أَحْسَنُ" (سورة المؤمنون: 96)
+• الهدية تذهب السخيمة
+• الكلمة الطيبة صدقة
+
+تجنب المشاكل:
+• عدم الرد على الإساءة
+• التماس الأعذار
+• "وَإِذَا خَاطَبَهُمُ الْجَاهِلُونَ قَالُوا سَلَامًا" (سورة الفرقان: 63)
+• طلب الوساطة من الحكماء
+
+الدعاء لهم:
+• الدعاء بالهداية
+• طلب الخير لهم
+• الاستغفار عن زلاتهم
+• "رَبَّنَا اغْفِرْ لَنَا وَلِإِخْوَانِنَا" (سورة الحشر: 10)
+
+الحكمة في التعامل:
+• اختيار الوقت المناسب
+• استخدام الأسلوب الحسن
+• الحلم والأناة
+• عدم الاستعجال في الحكم'''
       },
     },
     {
       'number': 3,
+      'titleKey': 'relative_fazilat_3_neighbors_as_extended_family',
       'title': 'Neighbors as Extended Family',
       'titleUrdu': 'پڑوسی - وسیع خاندان کی طرح',
       'titleHindi': 'पड़ोसी - वसी ख़ानदान की तरह',
+      'titleArabic': 'الجيران كالعائلة',
       'icon': Icons.home_work,
       'color': Colors.blue,
       'details': {
@@ -508,13 +578,46 @@ Building Community:
 • बच्चों के लिए खेल के इलाक़े बनाएं
 • मोहल्ले की बेहतरी पर तआवुन करें
 • तनाज़ुआत को अमन से हल करें''',
+        'arabic': '''الجيران كالعائلة
+
+حقوق الجيران في الإسلام.
+
+فضل حسن الجوار:
+• قال النبي ﷺ: "ما زال جبريل يوصيني بالجار حتى ظننت أنه سيورثه" (البخاري)
+• من الإيمان بالله واليوم الآخر
+• "وَالْجَارِ ذِي الْقُرْبَىٰ وَالْجَارِ الْجُنُبِ" (سورة النساء: 36)
+
+أنواع الجيران:
+• الجار القريب: له ثلاثة حقوق (الجوار والقرابة والإسلام)
+• الجار المسلم البعيد: له حقان (الجوار والإسلام)
+• الجار غير المسلم: له حق الجوار
+
+حقوق الجار:
+• رد السلام والبشاشة
+• تحمل الأذى والصبر
+• المساعدة في الحاجة
+• عدم التطلع إلى عورته
+• عيادته إذا مرض
+
+أذى الجار:
+• قال النبي ﷺ: "والله لا يؤمن، والله لا يؤمن، والله لا يؤمن" قيل: من يا رسول الله؟ قال: "الذي لا يأمن جاره بوائقه" (البخاري)
+• من كبائر الذنوب
+• يمنع من دخول الجنة
+
+الإحسان إلى الجار:
+• الهدية والصلة
+• المشاركة في الأفراح والأحزان
+• تفقد أحواله
+• الدعاء له بظهر الغيب'''
       },
     },
     {
       'number': 4,
+      'titleKey': 'relative_fazilat_4_muslim_brotherhood',
       'title': 'Muslim Brotherhood',
       'titleUrdu': 'مسلم بھائی چارہ',
       'titleHindi': 'मुस्लिम भाईचारा',
+      'titleArabic': 'الأخوة الإسلامية',
       'icon': Icons.groups_2,
       'color': Colors.purple,
       'details': {
@@ -680,13 +783,50 @@ Unity of Ummah:
 • इख़्तिलाफ़ राय का एहतराम करें
 • मुश्तरका भलाई के लिए मिलकर काम करें
 • "और अल्लाह की रस्सी को मज़बूती से थामो और तफ़र्क़ा न डालो।" (क़ुरआन 3:103)''',
+        'arabic': '''الأخوة الإسلامية
+
+حقوق المسلم على المسلم.
+
+معنى الأخوة:
+• "إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ" (سورة الحجرات: 10)
+• رابطة الإيمان أقوى من رابطة النسب
+• المؤمنون كالجسد الواحد
+• قال النبي ﷺ: "المؤمن للمؤمن كالبنيان يشد بعضه بعضاً" (البخاري)
+
+حقوق الأخوة:
+• رد السلام
+• إجابة الدعوة
+• تشميت العاطس
+• عيادة المريض
+• اتباع الجنازة
+• نصرة المظلوم
+
+المحبة في الله:
+• قال النبي ﷺ: "سبعة يظلهم الله في ظله... ورجلان تحابا في الله" (البخاري)
+• أعلى درجات الإيمان
+• سبب لمحبة الله
+• "وَالَّذِينَ تَبَوَّءُوا الدَّارَ وَالْإِيمَانَ" (سورة الحشر: 9)
+
+النصيحة:
+• قال النبي ﷺ: "الدين النصيحة" (مسلم)
+• نصح الأخ من المحبة
+• بالحكمة والموعظة الحسنة
+• سراً لا علانية
+
+التكافل الاجتماعي:
+• مساعدة المحتاج
+• إعانة الضعيف
+• قضاء حوائج المسلمين
+• "وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ" (سورة المائدة: 2)'''
       },
     },
     {
       'number': 5,
+      'titleKey': 'relative_fazilat_5_inheritance_family_wealth',
       'title': 'Inheritance & Family Wealth',
       'titleUrdu': 'وراثت اور خاندانی دولت',
       'titleHindi': 'विरासत और ख़ानदानी दौलत',
+      'titleArabic': 'الميراث والمال العائلي',
       'icon': Icons.account_balance,
       'color': Colors.amber,
       'details': {
@@ -843,13 +983,47 @@ Family Wealth Guidelines:
 • दौलत का दिखावा करने से बचें
 • बच्चों को दौलत के सही इंतिज़ाम के बारे में सिखाएं
 • सिर्फ़ हलाल आमदनी कमाएं''',
+        'arabic': '''الميراث والمال العائلي
+
+أحكام الميراث وحقوق الورثة.
+
+أهمية الميراث:
+• "لِّلرِّجَالِ نَصِيبٌ مِّمَّا تَرَكَ الْوَالِدَانِ وَالْأَقْرَبُونَ" (سورة النساء: 7)
+• نظام إلهي عادل
+• حفظ حقوق الورثة
+• منع الظلم والخلافات
+
+تقسيم الميراث:
+• يقسم حسب الشرع
+• لكل وارث نصيبه المقدر
+• "تِلْكَ حُدُودُ اللَّهِ" (سورة النساء: 13)
+• عدم التلاعب بالأنصبة
+
+الوصية:
+• جائزة في حدود الثلث
+• لا وصية لوارث
+• قال النبي ﷺ: "إن الله أعطى كل ذي حق حقه فلا وصية لوارث" (الترمذي)
+
+حق البنات:
+• "لِلذَّكَرِ مِثْلُ حَظِّ الْأُنثَيَيْنِ" (سورة النساء: 11)
+• للبنات نصيب مقرر
+• منع حرمانهن من الميراث
+• العدل بين الورثة
+
+تجنب الخلافات:
+• الصلح خير
+• الرضا بحكم الله
+• الابتعاد عن الطمع
+• طلب الفتوى من أهل العلم'''
       },
     },
     {
       'number': 6,
+      'titleKey': 'relative_fazilat_6_breaking_family_ties',
       'title': 'Breaking Family Ties',
       'titleUrdu': 'خاندانی تعلقات توڑنا',
       'titleHindi': 'ख़ानदानी तअल्लुक़ात तोड़ना',
+      'titleArabic': 'قطع صلة الرحم',
       'icon': Icons.link_off,
       'color': Colors.red,
       'details': {
@@ -1063,6 +1237,39 @@ The Reconnection:
 • आख़िरत में सवाब
 • दिल व दिमाग़ का सुकून
 • अल्लाह की ख़ुशी''',
+        'arabic': '''قطع صلة الرحم
+
+عقوبة قطع الأرحام في الدنيا والآخرة.
+
+حرمة القطيعة:
+• "فَهَلْ عَسَيْتُمْ إِن تَوَلَّيْتُمْ أَن تُفْسِدُوا فِي الْأَرْضِ وَتُقَطِّعُوا أَرْحَامَكُمْ" (سورة محمد: 22)
+• من كبائر الذنوب
+• قال النبي ﷺ: "لا يدخل الجنة قاطع رحم" (البخاري)
+
+عقوبة القطيعة:
+• تعجيل العقوبة في الدنيا
+• محق البركة من العمر والرزق
+• الحرمان من الجنة
+• "أُولَٰئِكَ الَّذِينَ لَعَنَهُمُ اللَّهُ" (سورة محمد: 23)
+
+أسباب القطيعة:
+• الخلافات المالية
+• سوء الظن
+• الكبر والحسد
+• الانشغال بالدنيا
+• تأثير الآخرين
+
+علاج القطيعة:
+• المبادرة بالصلح
+• الاعتذار عن الخطأ
+• طلب الوساطة
+• "وَأَن تَعْفُوا أَقْرَبُ لِلتَّقْوَىٰ" (سورة البقرة: 237)
+
+التوبة من القطيعة:
+• الندم على ما فات
+• العزم على الوصل
+• زيارة الأقارب
+• الإحسان إليهم'''
       },
     },
   ];
@@ -1081,45 +1288,16 @@ The Reconnection:
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _titles[_selectedLanguage]!,
-          style: const TextStyle(
+          context.tr('relative_fazilat'),
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: context.responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _selectedLanguage == 'urdu'
-                    ? 'اردو'
-                    : _selectedLanguage == 'hindi'
-                    ? 'हिंदी'
-                    : 'EN',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-            onSelected: (value) => setState(() => _selectedLanguage = value),
-            itemBuilder: (context) => [
-              _buildLanguageMenuItem('english', 'English'),
-              _buildLanguageMenuItem('urdu', 'اردو'),
-              _buildLanguageMenuItem('hindi', 'हिंदी'),
-            ],
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: context.responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1143,11 +1321,12 @@ The Reconnection:
       value: value,
       child: Row(
         children: [
-          if (_selectedLanguage == value)
-            Icon(Icons.check, color: AppColors.primary, size: 18)
-          else
-            const SizedBox(width: 18),
-          const SizedBox(width: 8),
+          Icon(
+            _selectedLanguage == value ? Icons.check_circle : Icons.circle_outlined,
+            color: _selectedLanguage == value ? AppColors.primary : Colors.grey,
+            size: context.responsive.iconSmall,
+          ),
+          SizedBox(width: context.responsive.spaceSmall),
           Text(
             label,
             style: TextStyle(
@@ -1163,97 +1342,125 @@ The Reconnection:
   }
 
   Widget _buildTopicCard(Map<String, dynamic> topic, bool isDark) {
-    final title = _selectedLanguage == 'english'
-        ? topic['title']
-        : _selectedLanguage == 'urdu'
-        ? topic['titleUrdu']
-        : topic['titleHindi'];
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showTopicDetails(topic),
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.lightGreenBorder.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+    final langCode = context.languageProvider.languageCode;
+    final title = context.tr(topic['titleKey'] ?? 'relative_fazilat');
+    final responsive = context.responsive;
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
+return Container(
+      margin: responsive.paddingOnly(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () => _showTopicDetails(topic),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        child: Padding(
+          padding: responsive.paddingAll(14),
+          child: Row(
+            children: [
+              // Number Badge
+              Container(
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
+                decoration: BoxDecoration(
+                  color: darkGreen,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+                child: Center(
+                  child: Text(
+                    '${topic['number']}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsive.textLarge,
+                    ),
                   ),
-                  child: Center(
-                    child: Text(
-                      '${topic['number']}',
+                ),
+              ),
+              SizedBox(width: responsive.spacing(14)),
+
+              // Title and Icon chip
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      title,
                       style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 18,
+                        fontSize: responsive.textLarge,
                         fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                      ),
+                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                    ),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Icon chip
+                    Container(
+                      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            topic['icon'] as IconData,
+                            size: responsive.textXSmall + 2,
+                            color: emeraldGreen,
+                          ),
+                          SizedBox(width: responsive.spacing(4)),
+                          Text(
+                            context.tr('relative_fazilat'),
+                            style: TextStyle(
+                              fontSize: responsive.textXSmall,
+                              fontWeight: FontWeight.w600,
+                              color: emeraldGreen,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: (topic['color'] as Color).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    topic['icon'] as IconData,
-                    color: topic['color'] as Color,
-                    size: 24,
-                  ),
+              ),
+
+              // Arrow Icon
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: isDark ? Colors.white : AppColors.primary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textDirection: _selectedLanguage == 'urdu'
-                        ? TextDirection.rtl
-                        : TextDirection.ltr,
-                  ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.textXSmall + 2,
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E8F5A),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.white,
-                    size: 14,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1262,19 +1469,22 @@ The Reconnection:
 
   void _showTopicDetails(Map<String, dynamic> topic) {
     final details = topic['details'] as Map<String, String>;
+    final titleKey = topic['titleKey'] ?? 'relative_fazilat';
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => BasicAmalDetailScreen(
-          title: topic['title'],
+          title: topic['title'] ?? '',
           titleUrdu: topic['titleUrdu'] ?? '',
           titleHindi: topic['titleHindi'] ?? '',
+          titleArabic: topic['titleArabic'] ?? '',
           contentEnglish: details['english'] ?? '',
           contentUrdu: details['urdu'] ?? '',
           contentHindi: details['hindi'] ?? '',
+          contentArabic: details['arabic'] ?? '',
           color: topic['color'] as Color,
           icon: topic['icon'] as IconData,
-          category: 'Relative - Fazilat',
+          categoryKey: 'category_relative_fazilat',
           number: topic['number'] as int?,
         ),
       ),

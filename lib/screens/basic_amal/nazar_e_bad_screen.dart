@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,17 +16,13 @@ class NazarEBadScreen extends StatefulWidget {
 class _NazarEBadScreenState extends State<NazarEBadScreen> {
   String _selectedLanguage = 'english';
 
-  final Map<String, String> _titles = {
-    'english': 'Protection from Evil Eye',
-    'urdu': 'نظر بد سے حفاظت',
-    'hindi': 'नज़र-ए-बद से हिफ़ाज़त',
-  };
-
   final List<Map<String, dynamic>> _sections = [
     {
+      'titleKey': 'nazar_e_bad_1_prevention_methods',
       'title': 'Prevention Methods',
       'titleUrdu': 'بچاؤ کے طریقے',
       'titleHindi': 'बचाव के तरीक़े',
+      'titleArabic': 'طرق الوقاية من العين',
       'icon': Icons.shield,
       'color': Colors.blue,
       'details': {
@@ -122,12 +120,67 @@ The Prophet ﷺ used to seek refuge for Hasan and Husain:
    • नेमतों का बेजा इज़हार न करें
    • कामयाबियों पर आजिज़ी रखें
    • ख़ामोशी से अल्लाह का शुक्र अदा करें''',
+        'arabic': '''طرق الوقاية من العين (الحسد)
+
+العين حق، والوقاية منها واجب على كل مسلم.
+
+الحديث:
+قال النبي ﷺ: "العين حق، ولو كان شيء سابق القدر سبقته العين" (صحيح مسلم)
+
+طرق الوقاية:
+
+١. قول "ما شاء الله" (ما شاء الله):
+• عند رؤية أي شيء جميل
+• عند رؤية النعم في الآخرين
+• عند النظر إلى نعمك الخاصة
+• قل: "ما شاء الله، لا قوة إلا بالله"
+
+٢. أذكار الصباح والمساء:
+• اقرأ آية الكرسي
+• اقرأ سورة الفلق (3 مرات)
+• اقرأ سورة الناس (3 مرات)
+• اقرأ سورة الإخلاص (3 مرات)
+
+٣. قبل الخروج من المنزل:
+قل: "بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلَى اللَّهِ، لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ"
+"بسم الله، توكلت على الله، لا حول ولا قوة إلا بالله"
+
+٤. دعاء الحماية:
+"أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ"
+"أعوذ بكلمات الله التامات من شر ما خلق"
+
+٥. للأطفال:
+"أُعِيذُكُمَا بِكَلِمَاتِ اللَّهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ"
+(كان النبي ﷺ يعوذ الحسن والحسين بهذا)
+
+٦. إخفاء النعم:
+• لا تتفاخر بالنعم
+• احمد الله سراً
+• لا تنشر كل شيء على وسائل التواصل
+
+٧. الصدقة:
+• الصدقة تدفع البلاء
+• تصدق بانتظام
+
+٨. المحافظة على الصلوات:
+• الصلاة حصن من الشرور
+• صلِّ الفجر والعصر في جماعة
+
+٩. قراءة القرآن في البيت:
+• اقرأ سورة البقرة في البيت
+• لا يدخله الشيطان 3 أيام
+
+١٠. الوضوء الدائم:
+• كن على وضوء دائماً
+• الملائكة تحيط بالمتوضئ'''
       },
     },
     {
+      'titleKey': 'nazar_e_bad_2_ruqyah_for_evil_eye',
       'title': 'Ruqyah for Evil Eye',
       'titleUrdu': 'نظر بد کا دم',
       'titleHindi': 'नज़र-ए-बद का दम',
+      'titleArabic': 'الرقية الشرعية للعين',
       'icon': Icons.healing,
       'color': Colors.green,
       'details': {
@@ -257,12 +310,56 @@ Important Notes:
 • दम में मुस्तक़िल मिज़ाजी रखें
 • दम ख़ुद पर या दूसरों पर किया जा सकता है
 • कोई मुक़र्रर तादाद नहीं - ज़रूरत के मुताबिक़ दोहराएं''',
+        'arabic': '''الرقية الشرعية للعين (الحسد)
+
+الطريقة الأولى - الرقية الذاتية:
+
+١. اقرأ بنية الشفاء:
+   • سورة الفاتحة (7 مرات)
+   • آية الكرسي (7 مرات)
+   • سورة الإخلاص (3 مرات)
+   • سورة الفلق (3 مرات)
+   • سورة الناس (3 مرات)
+
+٢. انفث بلطف على راحتيك بعد كل سورة
+
+٣. امسح بيديك على المكان المصاب أو على الجسم كاملاً
+
+الطريقة الثانية - الرقية على الماء:
+
+١. اقرأ على الماء:
+   • سورة الفاتحة
+   • آية الكرسي
+   • آخر آيتين من سورة البقرة
+   • سورة الإخلاص والفلق والناس
+
+٢. انفث في الماء
+
+٣. اشرب بعضه واغتسل بالباقي
+
+الطريقة الثالثة - بزيت الزيتون:
+
+١. اقرأ القرآن على زيت زيتون نقي
+٢. ادهن الجسم بالزيت
+٣. استخدمه بانتظام
+
+دعاء الشفاء:
+"اللَّهُمَّ رَبَّ النَّاسِ أَذْهِبِ الْبَأْسَ اشْفِهِ وَأَنْتَ الشَّافِي لَا شِفَاءَ إِلَّا شِفَاؤُكَ شِفَاءً لَا يُغَادِرُ سَقَمًا"
+"اللهم رب الناس أذهب البأس، اشفه وأنت الشافي، لا شفاء إلا شفاؤك، شفاءً لا يغادر سقماً"
+
+نقاط مهمة:
+• احرص على اليقين الكامل بقدرة الله على الشفاء
+• كن مستمراً في الرقية
+• يمكن إجراء الرقية على النفس أو الآخرين
+• لا يوجد عدد محدد - كرر حسب الحاجة''',
       },
     },
     {
+      'titleKey': 'nazar_e_bad_3_signs_of_evil_eye',
       'title': 'Signs of Evil Eye',
       'titleUrdu': 'نظر بد کی علامات',
       'titleHindi': 'नज़र-ए-बद की अलामात',
+      'titleArabic': 'علامات العين',
       'icon': Icons.visibility,
       'color': Colors.orange,
       'details': {
@@ -386,12 +483,54 @@ The Prophet ﷺ said: "There is no disease that Allah has created, except that H
 • पागलपन या हर किसी पर शक न करें
 
 नबी करीम ﷺ ने फ़रमाया: "अल्लाह ने कोई बीमारी नहीं बनाई मगर उसका इलाज भी बनाया है।" (सहीह बुख़ारी)''',
+        'arabic': '''علامات العين (الحسد)
+
+العلامات الجسدية:
+• مرض مفاجئ بدون سبب واضح
+• تعب وضعف بدون سبب
+• صداع مستمر
+• فقدان الشهية
+• اصفرار أو شحوب في الوجه
+• آلام مفاجئة في أجزاء من الجسم
+
+العلامات النفسية/العاطفية:
+• اكتئاب أو قلق بدون سبب
+• غضب وتهيج
+• كوابيس واضطراب في النوم
+• خوف وقلق دائم
+• فقدان الاهتمام بالأنشطة
+• الشعور بعدم الراحة في المنزل
+
+علامات في الحياة/المال:
+• مشاكل مالية مفاجئة
+• فشل في العمل بدون تفسير
+• مشاكل في العلاقات
+• عقبات في الدراسة أو المهنة
+• فقدان النعم الموجودة
+
+علامات عند الأطفال:
+• بكاء مستمر بدون سبب
+• اضطراب في النوم
+• فقدان الشهية
+• المرض المتكرر
+• تغيرات في السلوك
+
+ملاحظات مهمة:
+• قد تكون لهذه العلامات أسباب طبيعية أيضاً
+• اطلب المساعدة الطبية إلى جانب العلاج الروحاني
+• لا تفترض أن كل شيء هو عين
+• توكل على الله واطلب حمايته
+• لا تكن مصاباً بالوسواس أو تشك في الجميع
+
+قال النبي ﷺ: "ما أنزل الله داء إلا أنزل له شفاء." (صحيح البخاري)''',
       },
     },
     {
+      'titleKey': 'nazar_e_bad_4_protective_duas',
       'title': 'Protective Duas',
       'titleUrdu': 'حفاظتی دعائیں',
       'titleHindi': 'हिफ़ाज़ती दुआएं',
+      'titleArabic': 'أدعية الحماية',
       'icon': Icons.menu_book,
       'color': Colors.purple,
       'details': {
@@ -503,6 +642,42 @@ Recite every night before sleep.
 ८. उमूमी हिफ़ाज़त:
 "أَعُوذُ بِاللَّهِ السَّمِيعِ الْعَلِيمِ مِنَ الشَّيْطَانِ الرَّجِيمِ"
 "मैं अल्लाह सुनने वाले जानने वाले की पनाह मांगता हूं शैतान मरदूद से।"''',
+        'arabic': '''الأدعية والأذكار الواقية من العين
+
+١. حماية الصباح والمساء:
+"بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ"
+(تُقرأ 3 مرات صباحاً ومساءً)
+"بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم"
+
+٢. آية الكرسي (2:255):
+"اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ..."
+تُقرأ بعد كل صلاة وقبل النوم.
+
+٣. المعوذات الثلاث:
+• سورة الإخلاص (112)
+• سورة الفلق (113)
+• سورة الناس (114)
+تُقرأ 3 مرات صباحاً ومساءً.
+
+٤. آخر آيتين من سورة البقرة:
+"آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ مِن رَّبِّهِ..."
+تُقرأ كل ليلة قبل النوم.
+
+٥. عند رؤية شيء يُعجب:
+"مَا شَاءَ اللَّهُ لَا قُوَّةَ إِلَّا بِاللَّهِ"
+"ما شاء الله، لا قوة إلا بالله"
+
+٦. دعاء الخروج من المنزل:
+"بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَ��هِ لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ"
+"بسم الله، توكلت على الله، لا حول ولا قوة إلا بالله"
+
+٧. للأطفال قبل النوم:
+"أُعِيذُكَ بِكَلِمَاتِ اللَّهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ"
+"أعيذك بكلمات الله التامة من كل شيطان وهامة ومن كل عين لامة"
+
+٨. للحماية العامة:
+"أَعُوذُ بِاللَّهِ السَّمِيعِ الْعَلِيمِ مِنَ الشَّيْطَانِ الرَّجِيمِ"
+"أعوذ بالله السميع العليم من الشيطان الرجيم"''',
       },
     },
   ];
@@ -523,113 +698,16 @@ Recite every night before sleep.
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _titles[_selectedLanguage]!,
-          style: const TextStyle(
+          context.tr('nazar_e_bad'),
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: context.responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 8),
-            child: PopupMenuButton<String>(
-              icon: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.3),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.language, color: Colors.white, size: 18),
-                    const SizedBox(width: 4),
-                    Text(
-                      _selectedLanguage == 'english'
-                          ? 'EN'
-                          : _selectedLanguage == 'urdu'
-                          ? 'UR'
-                          : 'HI',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              onSelected: (value) => setState(() => _selectedLanguage = value),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'english',
-                  child: Row(
-                    children: [
-                      Icon(
-                        _selectedLanguage == 'english'
-                            ? Icons.check_circle
-                            : Icons.circle_outlined,
-                        color: _selectedLanguage == 'english'
-                            ? AppColors.primary
-                            : Colors.grey,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('English'),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'urdu',
-                  child: Row(
-                    children: [
-                      Icon(
-                        _selectedLanguage == 'urdu'
-                            ? Icons.check_circle
-                            : Icons.circle_outlined,
-                        color: _selectedLanguage == 'urdu'
-                            ? AppColors.primary
-                            : Colors.grey,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('اردو'),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'hindi',
-                  child: Row(
-                    children: [
-                      Icon(
-                        _selectedLanguage == 'hindi'
-                            ? Icons.check_circle
-                            : Icons.circle_outlined,
-                        color: _selectedLanguage == 'hindi'
-                            ? AppColors.primary
-                            : Colors.grey,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('हिंदी'),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: context.responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -648,85 +726,126 @@ Recite every night before sleep.
     );
   }
 
-  Widget _buildCard(
-    Map<String, dynamic> item,
-    bool isDark,
-  ) {
-    final title = _selectedLanguage == 'english'
-        ? item['title']
-        : _selectedLanguage == 'urdu'
-        ? item['titleUrdu']
-        : item['titleHindi'];
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showDetails(item),
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.lightGreenBorder.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+  Widget _buildCard(Map<String, dynamic> item, bool isDark) {
+    final langCode = context.languageProvider.languageCode;
+    final title = context.tr(item['titleKey'] ?? 'nazar_e_bad');
+    final responsive = context.responsive;
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
+return Container(
+      margin: responsive.paddingOnly(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () => _showDetails(item),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        child: Padding(
+          padding: responsive.paddingAll(14),
+          child: Row(
+            children: [
+              // Number Badge
+              Container(
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
+                decoration: BoxDecoration(
+                  color: darkGreen,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.15),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    item['icon'] as IconData,
-                    color: AppColors.primary,
-                    size: 26,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
+                child: Center(
                   child: Text(
-                    title,
+                    '${item['number']}',
                     style: TextStyle(
-                      color: isDark ? Colors.white : AppColors.primary,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsive.textLarge,
                     ),
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF1E8F5A),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.white,
-                    size: 14,
-                  ),
+              ),
+              SizedBox(width: responsive.spacing(14)),
+
+              // Title and Icon chip
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: responsive.textLarge,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                      ),
+                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                    ),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Icon chip
+                    Container(
+                      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            item['icon'] as IconData,
+                            size: responsive.textXSmall + 2,
+                            color: emeraldGreen,
+                          ),
+                          SizedBox(width: responsive.spacing(4)),
+                          Text(
+                            context.tr('nazar'),
+                            style: TextStyle(
+                              fontSize: responsive.textXSmall,
+                              fontWeight: FontWeight.w600,
+                              color: emeraldGreen,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+
+              // Arrow Icon
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.textXSmall + 2,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -735,19 +854,22 @@ Recite every night before sleep.
 
   void _showDetails(Map<String, dynamic> item) {
     final details = item['details'] as Map<String, String>;
+    final titleKey = item['titleKey'] ?? 'nazar_e_bad';
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => BasicAmalDetailScreen(
-          title: item['title'],
+          title: item['title'] ?? '',
           titleUrdu: item['titleUrdu'] ?? '',
           titleHindi: item['titleHindi'] ?? '',
+          titleArabic: item['titleArabic'] ?? '',
           contentEnglish: details['english'] ?? '',
           contentUrdu: details['urdu'] ?? '',
           contentHindi: details['hindi'] ?? '',
+          contentArabic: details['arabic'] ?? '',
           color: item['color'] as Color,
           icon: item['icon'] as IconData,
-          category: 'Deen Ki Buniyadi Amal - Nazar-e-Bad',
+          categoryKey: 'category_nazar',
         ),
       ),
     );

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/quran_provider.dart';
+import '../../providers/language_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../data/models/surah_model.dart';
+import '../../widgets/common/search_bar_widget.dart';
 import 'surah_detail_screen.dart';
 
 class SurahListScreen extends StatefulWidget {
@@ -15,9 +19,280 @@ class SurahListScreen extends StatefulWidget {
 
 class _SurahListScreenState extends State<SurahListScreen> {
   final TextEditingController _searchController = TextEditingController();
-  final stt.SpeechToText _speech = stt.SpeechToText();
   String _searchQuery = '';
-  bool _isListening = false;
+
+  // Get transliterated Surah name for Urdu
+  String _getUrduName(String arabicName) {
+    // Remove سُورَةُ prefix and clean up diacritical marks
+    String cleanName = arabicName
+        .replaceAll('سُورَةُ ', '')
+        .replaceAll('سورة ', '')
+        .replaceAll(RegExp(r'[ًٌٍَُِّْٰۡـٓ]'), '') // Remove all diacritical marks including maddah
+        // Normalize hamza and alif variations
+        .replaceAll('أ', 'ا')
+        .replaceAll('إ', 'ا')
+        .replaceAll('آ', 'ا')
+        .replaceAll('ؤ', 'و') // Hamza on waw
+        .replaceAll('ئ', 'ي') // Hamza on ya
+        .replaceAll('ٱ', 'ا') // Alif wasla to regular alif
+        .replaceAll('ى', 'ي') // Alif maqsurah to ya
+        .trim();
+
+    // Complete Surah names in Urdu (all 114 Surahs)
+    final Map<String, String> urduMap = {
+      'الفاتحة': 'الفاتحہ',
+      'البقرة': 'البقرہ',
+      'ال عمران': 'آل عمران',
+      'النساء': 'النساء',
+      'المايدة': 'المائدہ',
+      'الانعام': 'الانعام',
+      'الاعراف': 'الاعراف',
+      'الانفال': 'الانفال',
+      'التوبة': 'التوبہ',
+      'يونس': 'یونس',
+      'هود': 'ہود',
+      'يوسف': 'یوسف',
+      'الرعد': 'الرعد',
+      'ابراهيم': 'ابراہیم',
+      'الحجر': 'الحجر',
+      'النحل': 'النحل',
+      'الاسراء': 'الاسراء',
+      'الكهف': 'الکہف',
+      'مريم': 'مریم',
+      'طه': 'طٰہٰ',
+      'الانبياء': 'الانبیاء',
+      'الحج': 'الحج',
+      'المومنون': 'المؤمنون',
+      'النور': 'النور',
+      'الفرقان': 'الفرقان',
+      'الشعراء': 'الشعراء',
+      'النمل': 'النمل',
+      'القصص': 'القصص',
+      'العنكبوت': 'العنکبوت',
+      'الروم': 'الروم',
+      'لقمان': 'لقمان',
+      'السجدة': 'السجدہ',
+      'الاحزاب': 'الاحزاب',
+      'سبا': 'سبا',
+      'فاطر': 'فاطر',
+      'يس': 'یٰسین',
+      'الصافات': 'الصافات',
+      'ص': 'ص',
+      'الزمر': 'الزمر',
+      'غافر': 'غافر',
+      'فصلت': 'فصلت',
+      'الشوري': 'الشوریٰ',
+      'الزخرف': 'الزخرف',
+      'الدخان': 'الدخان',
+      'الجاثية': 'الجاثیہ',
+      'الاحقاف': 'الاحقاف',
+      'محمد': 'محمد',
+      'الفتح': 'الفتح',
+      'الحجرات': 'الحجرات',
+      'ق': 'ق',
+      'الذاريات': 'الذاریات',
+      'الطور': 'الطور',
+      'النجم': 'النجم',
+      'القمر': 'القمر',
+      'الرحمن': 'الرحمٰن',
+      'الواقعة': 'الواقعہ',
+      'الحديد': 'الحدید',
+      'المجادلة': 'المجادلہ',
+      'الحشر': 'الحشر',
+      'الممتحنة': 'الممتحنہ',
+      'الصف': 'الصف',
+      'الجمعة': 'الجمعہ',
+      'المنافقون': 'المنافقون',
+      'التغابن': 'التغابن',
+      'الطلاق': 'الطلاق',
+      'التحريم': 'التحریم',
+      'الملك': 'الملک',
+      'القلم': 'القلم',
+      'الحاقة': 'الحاقہ',
+      'المعارج': 'المعارج',
+      'نوح': 'نوح',
+      'الجن': 'الجن',
+      'المزمل': 'المزمل',
+      'المدثر': 'المدثر',
+      'القيامة': 'القیامہ',
+      'الانسان': 'الانسان',
+      'المرسلات': 'المرسلات',
+      'النبا': 'النبا',
+      'النازعات': 'النازعات',
+      'عبس': 'عبس',
+      'التكوير': 'التکویر',
+      'الانفطار': 'الانفطار',
+      'المطففين': 'المطففین',
+      'الانشقاق': 'الانشقاق',
+      'البروج': 'البروج',
+      'الطارق': 'الطارق',
+      'الاعلي': 'الاعلیٰ',
+      'الغاشية': 'الغاشیہ',
+      'الفجر': 'الفجر',
+      'البلد': 'البلد',
+      'الشمس': 'الشمس',
+      'الليل': 'اللیل',
+      'الضحي': 'الضحیٰ',
+      'الشرح': 'الشرح',
+      'التين': 'التین',
+      'العلق': 'العلق',
+      'القدر': 'القدر',
+      'البينة': 'البینہ',
+      'الزلزلة': 'الزلزلہ',
+      'العاديات': 'العادیات',
+      'القارعة': 'القارعہ',
+      'التكاثر': 'التکاثر',
+      'العصر': 'العصر',
+      'الهمزة': 'الہمزہ',
+      'الفيل': 'الفیل',
+      'قريش': 'قریش',
+      'الماعون': 'الماعون',
+      'الكوثر': 'الکوثر',
+      'الكافرون': 'الکافرون',
+      'النصر': 'النصر',
+      'المسد': 'المسد',
+      'الاخلاص': 'الاخلاص',
+      'الفلق': 'الفلق',
+      'الناس': 'الناس',
+    };
+    return urduMap[cleanName] ?? arabicName;
+  }
+
+  // Get transliterated Surah name for Hindi
+  String _getHindiName(String arabicName) {
+    // Remove سُورَةُ prefix and clean up diacritical marks
+    String cleanName = arabicName
+        .replaceAll('سُورَةُ ', '')
+        .replaceAll('سورة ', '')
+        .replaceAll(RegExp(r'[ًٌٍَُِّْٰۡـٓ]'), '') // Remove all diacritical marks including maddah
+        // Normalize hamza and alif variations
+        .replaceAll('أ', 'ا')
+        .replaceAll('إ', 'ا')
+        .replaceAll('آ', 'ا')
+        .replaceAll('ؤ', 'و') // Hamza on waw
+        .replaceAll('ئ', 'ي') // Hamza on ya
+        .replaceAll('ٱ', 'ا') // Alif wasla to regular alif
+        .replaceAll('ى', 'ي') // Alif maqsurah to ya
+        .trim();
+
+    final Map<String, String> hindiMap = {
+      'الفاتحة': 'अल-फ़ातिहा',
+      'البقرة': 'अल-बक़रा',
+      'ال عمران': 'आले-इमरान',
+      'النساء': 'अन-निसा',
+      'المايدة': 'अल-माइदा',
+      'الانعام': 'अल-अनआम',
+      'الاعراف': 'अल-आराफ़',
+      'الانفال': 'अल-अनफ़ाल',
+      'التوبة': 'अत-तौबा',
+      'يونس': 'यूनुस',
+      'هود': 'हूद',
+      'يوسف': 'यूसुफ़',
+      'الرعد': 'अर-रअद',
+      'ابراهيم': 'इब्राहीम',
+      'الحجر': 'अल-हिज्र',
+      'النحل': 'अन-नह्ल',
+      'الاسراء': 'अल-इसरा',
+      'الكهف': 'अल-कह्फ़',
+      'مريم': 'मरयम',
+      'طه': 'ताहा',
+      'الانبياء': 'अल-अंबिया',
+      'الحج': 'अल-हज्ज',
+      'المومنون': 'अल-मोमिनून',
+      'النور': 'अन-नूर',
+      'الفرقان': 'अल-फ़ुरक़ान',
+      'الشعراء': 'अश-शुअरा',
+      'النمل': 'अन-नम्ल',
+      'القصص': 'अल-क़सस',
+      'العنكبوت': 'अल-अनकबूत',
+      'الروم': 'अर-रूम',
+      'لقمان': 'लुक़मान',
+      'السجدة': 'अस-सजदा',
+      'الاحزاب': 'अल-अहज़ाब',
+      'سبا': 'सबा',
+      'فاطر': 'फ़ातिर',
+      'يس': 'यासीन',
+      'الصافات': 'अस-साफ़्फ़ात',
+      'ص': 'साद',
+      'الزمر': 'अज़-ज़ुमर',
+      'غافر': 'ग़ाफ़िर',
+      'فصلت': 'फ़ुस्सिलत',
+      'الشوري': 'अश-शूरा',
+      'الزخرف': 'अज़-ज़ुख़रुफ़',
+      'الدخان': 'अद-दुख़ान',
+      'الجاثية': 'अल-जासिया',
+      'الاحقاف': 'अल-अहक़ाफ़',
+      'محمد': 'मुहम्मद',
+      'الفتح': 'अल-फ़तह',
+      'الحجرات': 'अल-हुजुरात',
+      'ق': 'क़ाफ़',
+      'الذاريات': 'अज़-ज़ारियात',
+      'الطور': 'अत-तूर',
+      'النجم': 'अन-नज्म',
+      'القمر': 'अल-क़मर',
+      'الرحمن': 'अर-रहमान',
+      'الواقعة': 'अल-वाक़िआ',
+      'الحديد': 'अल-हदीद',
+      'المجادلة': 'अल-मुजादिला',
+      'الحشر': 'अल-हश्र',
+      'الممتحنة': 'अल-मुम्तहना',
+      'الصف': 'अस-सफ़',
+      'الجمعة': 'अल-जुमुआ',
+      'المنافقون': 'अल-मुनाफ़िक़ून',
+      'التغابن': 'अत-तग़ाबुन',
+      'الطلاق': 'अत-तलाक़',
+      'التحريم': 'अत-तहरीम',
+      'الملك': 'अल-मुल्क',
+      'القلم': 'अल-क़लम',
+      'الحاقة': 'अल-हाक़्क़ा',
+      'المعارج': 'अल-मआरिज',
+      'نوح': 'नूह',
+      'الجن': 'अल-जिन्न',
+      'المزمل': 'अल-मुज़्ज़म्मिल',
+      'المدثر': 'अल-मुद्दस्सिर',
+      'القيامة': 'अल-क़ियामा',
+      'الانسان': 'अल-इनसान',
+      'المرسلات': 'अल-मुरसलात',
+      'النبا': 'अन-नबा',
+      'النازعات': 'अन-नाज़िआत',
+      'عبس': 'अबसा',
+      'التكوير': 'अत-तकवीर',
+      'الانفطار': 'अल-इन्फ़ितार',
+      'المطففين': 'अल-मुतफ़्फ़िफ़ीन',
+      'الانشقاق': 'अल-इनशिक़ाक़',
+      'البروج': 'अल-बुरूज',
+      'الطارق': 'अत-तारिक़',
+      'الاعلي': 'अल-आला',
+      'الغاشية': 'अल-ग़ाशिया',
+      'الفجر': 'अल-फ़ज्र',
+      'البلد': 'अल-बलद',
+      'الشمس': 'अश-शम्स',
+      'الليل': 'अल-लैल',
+      'الضحي': 'अज़-ज़ुहा',
+      'الشرح': 'अश-शर्ह',
+      'التين': 'अत-तीन',
+      'العلق': 'अल-अलक़',
+      'القدر': 'अल-क़द्र',
+      'البينة': 'अल-बय्यिना',
+      'الزلزلة': 'अज़-ज़लज़ला',
+      'العاديات': 'अल-आदियात',
+      'القارعة': 'अल-क़ारिआ',
+      'التكاثر': 'अत-तकासुर',
+      'العصر': 'अल-अस्र',
+      'الهمزة': 'अल-हुमज़ा',
+      'الفيل': 'अल-फ़ील',
+      'قريش': 'क़ुरैश',
+      'الماعون': 'अल-माऊन',
+      'الكوثر': 'अल-कौसर',
+      'الكافرون': 'अल-काफ़िरून',
+      'النصر': 'अन-नस्र',
+      'المسد': 'अल-मसद',
+      'الاخلاص': 'अल-इख़लास',
+      'الفلق': 'अल-फ़लक़',
+      'الناس': 'अन-नास',
+    };
+    return hindiMap[cleanName] ?? arabicName;
+  }
 
   @override
   void initState() {
@@ -25,15 +300,6 @@ class _SurahListScreenState extends State<SurahListScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<QuranProvider>().initialize();
     });
-    _initSpeech();
-  }
-
-  Future<void> _initSpeech() async {
-    try {
-      await _speech.initialize();
-    } catch (e) {
-      debugPrint('Speech init error: $e');
-    }
   }
 
   @override
@@ -42,179 +308,20 @@ class _SurahListScreenState extends State<SurahListScreen> {
     super.dispose();
   }
 
-  void _onMicPressed() async {
-    if (_isListening) {
-      await _speech.stop();
-      setState(() => _isListening = false);
-      return;
-    }
-
-    bool available = await _speech.initialize(
-      onStatus: (status) {
-        if (status == 'done' || status == 'notListening') {
-          setState(() => _isListening = false);
-        }
-      },
-      onError: (error) {
-        setState(() => _isListening = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${error.errorMsg}'),
-            backgroundColor: AppColors.error,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
-      },
-    );
-
-    if (available) {
-      setState(() => _isListening = true);
-      _showListeningDialog();
-      await _speech.listen(
-        onResult: (result) {
-          if (result.finalResult) {
-            Navigator.of(context).pop();
-            setState(() {
-              _searchController.text = result.recognizedWords;
-              _searchQuery = result.recognizedWords;
-              _isListening = false;
-            });
-          }
-        },
-        listenFor: const Duration(seconds: 10),
-        pauseFor: const Duration(seconds: 3),
-        localeId: 'en_US',
-      );
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
-              'Speech recognition not available. Please enable microphone permission.',
-            ),
-            backgroundColor: AppColors.error,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
-      }
-    }
-  }
-
-  void _showListeningDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.mic, size: 40, color: AppColors.primary),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Listening...',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Speak Surah name to search',
-              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 20),
-            TextButton(
-              onPressed: () {
-                _speech.stop();
-                setState(() => _isListening = false);
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-          ],
-        ),
-      ),
-    ).then((_) {
-      if (_isListening) {
-        _speech.stop();
-        setState(() => _isListening = false);
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
+    final isDark = context.watch<SettingsProvider>().isDarkMode;
+    final langProvider = context.watch<LanguageProvider>();
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text('Surah'),
-        actions: [
-          // Language Selector
-          Consumer<QuranProvider>(
-            builder: (context, provider, child) {
-              return PopupMenuButton<QuranLanguage>(
-                icon: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    QuranProvider.languageNames[provider.selectedLanguage]!,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-                onSelected: (QuranLanguage language) {
-                  provider.setLanguage(language);
-                },
-                itemBuilder: (context) => QuranLanguage.values.map((language) {
-                  final isSelected = provider.selectedLanguage == language;
-                  return PopupMenuItem<QuranLanguage>(
-                    value: language,
-                    child: Row(
-                      children: [
-                        if (isSelected)
-                          Icon(Icons.check, color: AppColors.primary, size: 18)
-                        else
-                          const SizedBox(width: 18),
-                        const SizedBox(width: 8),
-                        Text(
-                          QuranProvider.languageNames[language]!,
-                          style: TextStyle(
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: isSelected ? AppColors.primary : null,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              );
-            },
-          ),
-        ],
+        title: Text(
+          context.tr('surah'),
+          style: TextStyle(fontSize: responsive.textLarge),
+        ),
       ),
       body: Consumer<QuranProvider>(
         builder: (context, provider, child) {
@@ -229,13 +336,13 @@ class _SurahListScreenState extends State<SurahListScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.grey),
-                  const SizedBox(height: 16),
+                  Icon(Icons.error_outline, size: responsive.iconHuge, color: Colors.grey),
+                  responsive.vSpaceRegular,
                   Text(provider.error!),
-                  const SizedBox(height: 16),
+                  responsive.vSpaceRegular,
                   ElevatedButton(
                     onPressed: () => provider.fetchSurahList(),
-                    child: const Text('Retry'),
+                    child: Text(context.tr('retry')),
                   ),
                 ],
               ),
@@ -248,91 +355,32 @@ class _SurahListScreenState extends State<SurahListScreen> {
             children: [
               // Search bar
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: const Color(0xFF8AAF9A),
-                      width: 1.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF0A5C36).withValues(alpha: 0.08),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (value) {
-                      setState(() {
-                        _searchQuery = value;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Search Surah...',
-                      hintStyle: TextStyle(
-                        color: AppColors.textHint,
-                        fontSize: 14,
-                      ),
-                      prefixIcon: const Icon(
-                        Icons.search_rounded,
-                        color: Color(0xFF0A5C36),
-                        size: 22,
-                      ),
-                      suffixIcon: Container(
-                        margin: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0A5C36),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: IconButton(
-                          onPressed: _onMicPressed,
-                          icon: Icon(
-                            _isListening ? Icons.mic : Icons.mic_rounded,
-                            color: _isListening ? Colors.red : Colors.white,
-                            size: 20,
-                          ),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(
-                            minWidth: 36,
-                            minHeight: 36,
-                          ),
-                        ),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                    ),
-                  ),
+                padding: responsive.paddingOnly(left: 16, top: 12, right: 16),
+                child: SearchBarWidget(
+                  controller: _searchController,
+                  hintText: context.tr('search_surah'),
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value;
+                    });
+                  },
+                  onClear: () {
+                    setState(() {
+                      _searchQuery = '';
+                    });
+                  },
+                  enableVoiceSearch: true,
                 ),
               ),
 
               // Surah List
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.all(16),
+                  key: ValueKey(langProvider.languageCode), // Force rebuild when language changes
+                  padding: responsive.paddingRegular,
                   itemCount: surahList.length,
                   itemBuilder: (context, index) {
-                    return _buildSurahCard(context, surahList[index]);
+                    return _buildSurahCard(context, surahList[index], langProvider.languageCode);
                   },
                 ),
               ),
@@ -343,20 +391,44 @@ class _SurahListScreenState extends State<SurahListScreen> {
     );
   }
 
-  Widget _buildSurahCard(BuildContext context, SurahInfo surah) {
-    const softGold = Color(0xFFC9A24D);
+  Widget _buildSurahCard(BuildContext context, SurahInfo surah, String languageCode) {
+    final responsive = context.responsive;
+    final isDark = context.watch<SettingsProvider>().isDarkMode;
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
+
+    // Get display name based on language
+    String displayName;
+    switch (languageCode) {
+      case 'ar':
+        displayName = surah.name; // Arabic
+        break;
+      case 'ur':
+        displayName = _getUrduName(surah.name); // Urdu transliteration
+        break;
+      case 'hi':
+        displayName = _getHindiName(surah.name); // Hindi transliteration
+        break;
+      case 'en':
+      default:
+        displayName = surah.englishName; // English
+    }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: responsive.paddingOnly(bottom: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
           ),
         ],
       ),
@@ -365,135 +437,96 @@ class _SurahListScreenState extends State<SurahListScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  SurahDetailScreen(surahNumber: surah.number),
+              builder: (context) => SurahDetailScreen(surahNumber: surah.number),
             ),
           );
         },
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: responsive.paddingAll(14),
           child: Row(
             children: [
-              // Surah Number
+              // Surah Number Badge
               Container(
-                width: 50,
-                height: 50,
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
+                  color: darkGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
                     ),
                   ],
                 ),
                 child: Center(
                   child: Text(
                     '${surah.number}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                      fontSize: responsive.textLarge,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: responsive.spacing(14)),
 
-              // Surah Info
+              // Surah Name and Info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Surah Name (Language-based)
                     Text(
-                      surah.englishName,
+                      displayName,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: responsive.textLarge,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                        fontFamily: languageCode == 'ar'
+                            ? 'Amiri'
+                            : (languageCode == 'ur' ? 'NotoNastaliq' : null),
                       ),
+                      textDirection: (languageCode == 'ar' || languageCode == 'ur')
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
                     ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.lightGreenChip,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            '${surah.numberOfAyahs} Ayahs',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primaryLight,
-                            ),
-                          ),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Ayahs count chip
+                    Container(
+                      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                      ),
+                      child: Text(
+                        '${surah.numberOfAyahs} ${context.tr('ayahs')}',
+                        style: TextStyle(
+                          fontSize: responsive.textXSmall,
+                          fontWeight: FontWeight.w600,
+                          color: emeraldGreen,
                         ),
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color:
-                                surah.revelationType.toLowerCase() == 'meccan'
-                                ? Colors.orange.withValues(alpha: 0.15)
-                                : Colors.blue.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            surah.revelationType,
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color:
-                                  surah.revelationType.toLowerCase() == 'meccan'
-                                  ? Colors.orange[800]
-                                  : Colors.blue[800],
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
               ),
 
-              // Arabic Name with arrow
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    surah.name,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontFamily: 'Amiri',
-                      color: softGold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.arrow_forward_ios,
-                      color: Colors.white,
-                      size: 12,
-                    ),
-                  ),
-                ],
+              // Arrow Icon
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.iconSmall,
+                ),
               ),
             ],
           ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,18 +16,14 @@ class ZamzamFazilatScreen extends StatefulWidget {
 class _ZamzamFazilatScreenState extends State<ZamzamFazilatScreen> {
   String _selectedLanguage = 'english';
 
-  final Map<String, String> _titles = {
-    'english': 'Zamzam Water - Virtues & Benefits',
-    'urdu': 'آب زمزم - فضائل اور فوائد',
-    'hindi': 'ज़मज़म पानी - फ़ज़ीलत और फ़वाइद',
-  };
-
   final List<Map<String, dynamic>> _zamzamTopics = [
     {
       'number': 1,
+      'titleKey': 'zamzam_fazilat_1_origin_of_zamzam',
       'title': 'Origin of Zamzam',
       'titleUrdu': 'زمزم کی ابتداء',
       'titleHindi': 'ज़मज़म की इब्तिदा',
+      'titleArabic': 'نشأة ماء زمزم',
       'icon': Icons.water_drop,
       'color': Colors.blue,
       'details': {
@@ -104,13 +102,42 @@ Scientific Marvel:
 • कुआं तक़रीबन 30 मीटर गहरा है
 • पानी चट्टान की दराड़ों से 11-18.5 लीटर प्रति सेकंड की रफ़्तार से बहता है
 • लाखों लोग सालाना पीते हैं फिर भी कभी ख़त्म नहीं होता''',
+        'arabic': '''نشأة ماء زمزم
+
+قصة ظهور بئر زمزم المباركة.
+
+قصة هاجر وإسماعيل:
+• تركهما إبراهيم عليه السلام في مكة
+• نفد الماء والطعام
+• سعت هاجر بين الصفا والمروة سبع مرات
+• فجر الله الماء تحت قدم إسماعيل
+• "رَبَّنَا إِنِّي أَسْكَنتُ مِن ذُرِّيَّتِي بِوَادٍ غَيْرِ ذِي زَرْعٍ" (سورة إبراهيم: 37)
+
+تسمية زمزم:
+• سميت زمزم لكثرة مائها
+• قيل: لزمزمة الماء عند خروجه
+• قيل: لجمعها الماء
+
+حفر البئر:
+• أول من حفرها إسماعيل عليه السلام
+• طمرتها قبيلة جرهم
+• أعاد حفرها عبد المطلب جد النبي ﷺ
+• رأى في المنام موضعها
+
+بركة زمزم:
+• قال النبي ﷺ: "ماء زمزم لما شرب له" (ابن ماجه)
+• ماء مبارك
+• لا ينضب أبداً
+• يشربه ملايين الحجاج والمعتمرين'''
       },
     },
     {
       'number': 2,
+      'titleKey': 'zamzam_fazilat_2_virtues_in_hadith',
       'title': 'Virtues in Hadith',
       'titleUrdu': 'حدیث میں فضائل',
       'titleHindi': 'हदीस में फ़ज़ाइल',
+      'titleArabic': 'فضائل زمزم في الأحاديث',
       'icon': Icons.menu_book,
       'color': Colors.green,
       'details': {
@@ -189,13 +216,45 @@ Healing Properties:
 • नबी करीम ﷺ ने फ़रमाया: "ज़मज़म का पानी जिस (बीमारी) के लिए पिया जाए शिफ़ा है।"
 • बहुत से उलमा और नेक लोगों ने इसकी शिफ़ा का तजुर्बा किया
 • इब्ने अब्बास रज़ियल्लाहु अन्हु ने कहा: "हम इसे शब्बाआह (सेर करने वाला) कहते थे"''',
+        'arabic': '''فضائل زمزم في الأحاديث
+
+أحاديث النبي ﷺ في فضل ماء زمزم.
+
+ماء زمزم لما شرب له:
+• قال النبي ﷺ: "ماء زمزم لما شرب له" (ابن ماجه)
+• من شربه للشبع أشبعه الله
+• من شربه للشفاء شفاه الله
+• من شربه لحاجة قضاها الله
+
+خير ماء على وجه الأرض:
+• قال النبي ﷺ: "خير ماء على وجه الأرض ماء زمزم" (الطبراني)
+• طعام طعم وشفاء سقم
+• بارك الله فيه
+• ماء مبارك
+
+شراب النبي ﷺ من زمزم:
+• شرب منه النبي ﷺ
+• توضأ منه
+• صب على رأسه
+• دعا عنده
+
+الشرب قائماً:
+• شرب النبي ﷺ من زمزم قائماً
+• استثناء من النهي عن الشرب قائماً
+• لفضله وبركته
+
+الدعاء عند شربه:
+• يستحب الدعاء عند شربه
+• اللهم إني أسألك علماً ناف��اً ورزقاً واسعاً وشفاءً من كل داء'''
       },
     },
     {
       'number': 3,
+      'titleKey': 'zamzam_fazilat_3_how_to_drink_zamzam',
       'title': 'How to Drink Zamzam',
       'titleUrdu': 'زمزم پینے کا طریقہ',
       'titleHindi': 'ज़मज़म पीने का तरीक़ा',
+      'titleArabic': 'آداب شرب ماء زمزم',
       'icon': Icons.local_drink,
       'color': Colors.cyan,
       'details': {
@@ -304,13 +363,47 @@ Standing vs Sitting:
 • नबी करीम ﷺ ने खड़े होकर ज़मज़म पिया
 • बाज़ उलमा कहते हैं यह ज़मज़म के लिए ख़ास है
 • दूसरे कहते हैं आम मशरूबात के लिए बैठकर पीना बेहतर है''',
+        'arabic': '''آداب شرب ماء زمزم
+
+السنن والآداب عند شرب زمزم.
+
+النية:
+• استحضار النية عند الشرب
+• "ماء زمزم لما شرب له"
+• نية الشفاء أو العلم أو الحاجة
+
+الدعاء:
+• الدعاء قبل الشرب
+• اللهم إني أسألك علماً نافعاً ورزقاً واسعاً
+• وشفاءً من كل داء
+
+التسمية:
+• البسملة قبل الشرب
+• بسم الله الرحمن الرحيم
+
+الشرب على ثلاث مرات:
+• كما كان النبي ﷺ يشرب
+• التنفس خارج الإناء
+• الريّ والإرواء
+
+استقبال القبلة:
+• يستحب استقبال القبلة
+• الوقوف عند الشرب
+• رفع البصر إلى السماء
+
+الإكثار منه:
+• الشرب حتى الارتواء
+• الري الكامل
+• "طعام طعم وشفاء سقم"'''
       },
     },
     {
       'number': 4,
+      'titleKey': 'zamzam_fazilat_4_scientific_properties',
       'title': 'Scientific Properties',
       'titleUrdu': 'سائنسی خصوصیات',
       'titleHindi': 'साइंसी ख़ुसूसियात',
+      'titleArabic': 'الخصائص العلمية لزمزم',
       'icon': Icons.science,
       'color': Colors.purple,
       'details': {
@@ -431,13 +524,48 @@ Storage:
 • बू या ज़ायक़ा नहीं बदलता
 • माइक्रोबायोलॉजिकल तौर पर मुस्तहकम रहता है
 • साफ़ बर्तनों में सूरज की रोशनी से दूर रखना बेहतर है''',
+        'arabic': '''الخصائص العلمية لزمزم
+
+الخواص الفريدة لماء زمزم.
+
+التركيب الكيميائي:
+• يحتوي على معادن نافعة
+• نسبة الأملاح أعلى من الماء العادي
+• الكالسيوم والمغنيسيوم
+• غني بالفلورايد
+
+خصائص فيزيائية:
+• لا يتعفن ولا يتغير طعمه
+• لا ينضب مع كثرة الاستخراج
+• درجة حرارته ثابتة
+• نقاء وصفاء
+
+الفوائد الصحية:
+• يقوي جهاز المناعة
+• يساعد على الهضم
+• ينشط الدورة الدموية
+• يعطي طاقة للجسم
+
+الإعجاز العلمي:
+• البئر في وادٍ غير ذي زرع
+• استمرار تدفقه آلاف السنين
+• لا يتأثر بالعوامل الجوية
+• معجزة إلهية
+
+الدراسات العلمية:
+• أثبتت الأبحاث تميزه
+• خلوه من الجراثيم
+• صلاحيته للشرب الدائم
+• فوائده الصحية المتعددة'''
       },
     },
     {
       'number': 5,
+      'titleKey': 'zamzam_fazilat_5_benefits_uses',
       'title': 'Benefits & Uses',
       'titleUrdu': 'فوائد اور استعمال',
       'titleHindi': 'फ़वाइद और इस्तेमाल',
+      'titleArabic': 'فوائد واستخدامات زمزم',
       'icon': Icons.health_and_safety,
       'color': Colors.teal,
       'details': {
@@ -570,13 +698,51 @@ Important Reminder:
 • ज़मज़म एक ज़रीआ है, शिफ़ा का मंबा नहीं
 • ज़रूरत हो तो तिब्बी इलाज के साथ मिलाएं
 • अल्लाह पर मुकम्मल भरोसा (तवक्कुल) रखें''',
+        'arabic': '''فوائد واستخدامات زمزم
+
+الاستخدامات المتنوعة لماء زمزم.
+
+للشفاء:
+• "ماء زمزم لما شرب له"
+• شفاء من الأمراض
+• التداوي به
+• الاستشفاء بإذن الله
+
+للعلم:
+• الشرب بنية طلب العلم
+• قصة الإمام ابن حجر
+• شربه لحفظ القرآن
+• للفهم والحفظ
+
+للحاجات:
+• قضاء الحوائج
+• تفريج الكربات
+• تيسير الأمور
+• البركة في الرزق
+
+الوضوء منه:
+• التوضؤ به أفضل
+• كان النبي ﷺ يتوضأ منه
+• طهارة خاصة
+
+الغسل به:
+• الاغتسال منه مستحب
+• غسل الميت به
+• تبريد الجسم في الحر
+
+للضيافة:
+• تقديمه للضيوف
+• إكرام الزوار
+• السقيا منه صدقة'''
       },
     },
     {
       'number': 6,
+      'titleKey': 'zamzam_fazilat_6_carrying_zamzam',
       'title': 'Carrying Zamzam',
       'titleUrdu': 'زمزم لے جانا',
       'titleHindi': 'ज़मज़म ले जाना',
+      'titleArabic': 'حمل ماء زمزم',
       'icon': Icons.luggage,
       'color': Colors.orange,
       'details': {
@@ -709,6 +875,44 @@ Home Storage:
 • ठंडी, अंधेरी जगह रखें
 • सही ज़ख़ीरा हो तो हमेशा चल सकता है
 • डालते वक़्त साफ़ बर्तन इस्तेमाल करें''',
+        'arabic': '''حمل ماء زمزم
+
+أحكام وآداب نقل ماء زمزم.
+
+جواز نقله:
+• يجوز نقل ماء زمزم للبلدان
+• كان النبي ﷺ يُحمل له
+• للتبرك والاستشفاء
+• هدية كريمة
+
+آداب النقل:
+• حفظه في أوعية نظيفة
+• عدم إهانته
+• تغطيته وصيانته
+• الدعاء عند حمله
+
+الهدية بزمزم:
+• من أفضل الهدايا
+• هدية أم سليم للنبي ﷺ
+• إدخال السرور على المسلمين
+• نشر البركة
+
+التوزيع:
+• توزيعه على الأهل والأحباب
+• إهداؤه للمرضى
+• السقيا منه صدقة
+
+الحفاظ عليه:
+• عدم الإسراف فيه
+• حفظه من التلوث
+• استخدامه فيما ينفع
+• تقديره وإجلاله
+
+الكمية المسموحة:
+• يُسمح بحمل 5 لترات للشخص
+• في رحلات الحج والعمرة
+• حسب أنظمة المطارات
+• التقيد بالأنظمة'''
       },
     },
   ];
@@ -727,45 +931,16 @@ Home Storage:
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _titles[_selectedLanguage]!,
-          style: const TextStyle(
+          context.tr('zamzam'),
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: context.responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _selectedLanguage == 'urdu'
-                    ? 'اردو'
-                    : _selectedLanguage == 'hindi'
-                    ? 'हिंदी'
-                    : 'EN',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-            onSelected: (value) => setState(() => _selectedLanguage = value),
-            itemBuilder: (context) => [
-              _buildLanguageMenuItem('english', 'English'),
-              _buildLanguageMenuItem('urdu', 'اردو'),
-              _buildLanguageMenuItem('hindi', 'हिंदी'),
-            ],
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: context.responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -789,11 +964,12 @@ Home Storage:
       value: value,
       child: Row(
         children: [
-          if (_selectedLanguage == value)
-            Icon(Icons.check, color: AppColors.primary, size: 18)
-          else
-            const SizedBox(width: 18),
-          const SizedBox(width: 8),
+          Icon(
+            _selectedLanguage == value ? Icons.check_circle : Icons.circle_outlined,
+            color: _selectedLanguage == value ? AppColors.primary : Colors.grey,
+            size: context.responsive.iconSmall,
+          ),
+          SizedBox(width: context.responsive.spaceSmall),
           Text(
             label,
             style: TextStyle(
@@ -809,97 +985,125 @@ Home Storage:
   }
 
   Widget _buildTopicCard(Map<String, dynamic> topic, bool isDark) {
-    final title = _selectedLanguage == 'english'
-        ? topic['title']
-        : _selectedLanguage == 'urdu'
-        ? topic['titleUrdu']
-        : topic['titleHindi'];
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showTopicDetails(topic),
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.lightGreenBorder.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+    final langCode = context.languageProvider.languageCode;
+    final title = context.tr(topic['titleKey'] ?? 'zamzam_fazilat');
+    final responsive = context.responsive;
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
+return Container(
+      margin: responsive.paddingOnly(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () => _showTopicDetails(topic),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        child: Padding(
+          padding: responsive.paddingAll(14),
+          child: Row(
+            children: [
+              // Number Badge
+              Container(
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
+                decoration: BoxDecoration(
+                  color: darkGreen,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+                child: Center(
+                  child: Text(
+                    '${topic['number']}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsive.textLarge,
+                    ),
                   ),
-                  child: Center(
-                    child: Text(
-                      '${topic['number']}',
+                ),
+              ),
+              SizedBox(width: responsive.spacing(14)),
+
+              // Title and Icon chip
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      title,
                       style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 18,
+                        fontSize: responsive.textLarge,
                         fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                      ),
+                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                    ),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Icon chip
+                    Container(
+                      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            topic['icon'] as IconData,
+                            size: responsive.textXSmall + 2,
+                            color: emeraldGreen,
+                          ),
+                          SizedBox(width: responsive.spacing(4)),
+                          Text(
+                            context.tr('zamzam_fazilat'),
+                            style: TextStyle(
+                              fontSize: responsive.textXSmall,
+                              fontWeight: FontWeight.w600,
+                              color: emeraldGreen,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: (topic['color'] as Color).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    topic['icon'] as IconData,
-                    color: topic['color'] as Color,
-                    size: 24,
-                  ),
+              ),
+
+              // Arrow Icon
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: isDark ? Colors.white : AppColors.primary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textDirection: _selectedLanguage == 'urdu'
-                        ? TextDirection.rtl
-                        : TextDirection.ltr,
-                  ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.textXSmall + 2,
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E8F5A),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.white,
-                    size: 14,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -908,19 +1112,22 @@ Home Storage:
 
   void _showTopicDetails(Map<String, dynamic> topic) {
     final details = topic['details'] as Map<String, String>;
+    final titleKey = topic['titleKey'] ?? 'zamzam_fazilat';
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => BasicAmalDetailScreen(
-          title: topic['title'],
+          title: topic['title'] ?? '',
           titleUrdu: topic['titleUrdu'] ?? '',
           titleHindi: topic['titleHindi'] ?? '',
+          titleArabic: topic['titleArabic'] ?? '',
           contentEnglish: details['english'] ?? '',
           contentUrdu: details['urdu'] ?? '',
           contentHindi: details['hindi'] ?? '',
+          contentArabic: details['arabic'] ?? '',
           color: topic['color'] as Color,
           icon: topic['icon'] as IconData,
-          category: 'Zamzam Pani - Fazilat',
+          categoryKey: 'category_zamzam_fazilat',
           number: topic['number'] as int?,
         ),
       ),

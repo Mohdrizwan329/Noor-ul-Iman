@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../home/home_screen.dart';
 import '../quran/quran_screen.dart';
 import '../prayer_times/prayer_times_screen.dart';
@@ -24,6 +26,8 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -35,21 +39,21 @@ class _MainScreenState extends State<MainScreen> {
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
+              blurRadius: responsive.spacing(20),
+              offset: Offset(0, responsive.spacing(-5)),
             ),
           ],
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+            padding: responsive.paddingSymmetric(horizontal: 8, vertical: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(0, Icons.mosque_rounded, Icons.mosque_outlined, 'Home'),
-                _buildNavItem(1, Icons.menu_book_rounded, Icons.menu_book_outlined, 'Quran'),
-                _buildNavItem(2, Icons.schedule_rounded, Icons.schedule_outlined, 'Salah'),
-                _buildNavItem(3, Icons.person_rounded, Icons.person_outlined, 'Profile'),
+                _buildNavItem(0, Icons.mosque_rounded, Icons.mosque_outlined, context.tr('home')),
+                _buildNavItem(1, Icons.menu_book_rounded, Icons.menu_book_outlined, context.tr('quran')),
+                _buildNavItem(2, Icons.schedule_rounded, Icons.schedule_outlined, context.tr('prayer_times')),
+                _buildNavItem(3, Icons.person_rounded, Icons.person_outlined, context.tr('settings')),
               ],
             ),
           ),
@@ -60,6 +64,7 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildNavItem(int index, IconData activeIcon, IconData inactiveIcon, String label) {
     final isSelected = _currentIndex == index;
+    final responsive = context.responsive;
 
     return GestureDetector(
       onTap: () => setState(() => _currentIndex = index),
@@ -67,12 +72,12 @@ class _MainScreenState extends State<MainScreen> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: responsive.paddingSymmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
               ? Colors.white.withValues(alpha: 0.2)
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(responsive.radiusXXLarge),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -82,13 +87,13 @@ class _MainScreenState extends State<MainScreen> {
               color: isSelected
                   ? AppColors.secondary
                   : Colors.white.withValues(alpha: 0.7),
-              size: 24,
+              size: responsive.iconMedium,
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: responsive.spaceXSmall),
             Text(
               label,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: responsive.fontSize(11),
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 color: isSelected
                     ? AppColors.secondary

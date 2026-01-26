@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/language_provider.dart';
+import '../../widgets/common/search_bar_widget.dart';
 import 'islamic_name_detail_screen.dart';
 
 class AhlebaitScreen extends StatefulWidget {
@@ -300,8 +304,11 @@ class _AhlebaitScreenState extends State<AhlebaitScreen> {
     super.initState();
     _filteredNames = _ahlebaitNames;
     _searchController.addListener(_filterNames);
+
+    // Listen to language changes to force rebuild
   }
 
+  @override
   @override
   void dispose() {
     _searchController.dispose();
@@ -326,88 +333,108 @@ class _AhlebaitScreenState extends State<AhlebaitScreen> {
     });
   }
 
+  String _getDisplayName(Map<String, dynamic> name, String languageCode) {
+    final transliteration = name['transliteration']!;
+
+    switch (languageCode) {
+      case 'ar':
+        return name['name']!;
+      case 'ur':
+        return _transliterateToUrdu(transliteration);
+      case 'hi':
+        return _transliterateToHindi(transliteration);
+      case 'en':
+      default:
+        return transliteration;
+    }
+  }
+
+  String _getDisplayRelation(Map<String, dynamic> name, String languageCode) {
+    switch (languageCode) {
+      case 'ar':
+        return name['relationUrdu'] ?? name['relation']!;
+      case 'ur':
+        return name['relationUrdu'] ?? name['relation']!;
+      case 'hi':
+        return name['relationHindi'] ?? name['relation']!;
+      case 'en':
+      default:
+        return name['relation']!;
+    }
+  }
+
+  String _transliterateToHindi(String text) {
+    final Map<String, String> map = {
+      'Muhammad ﷺ': 'मुहम्मद ﷺ',
+      'Khadijah bint Khuwaylid': 'ख़दीजा बिन्त ख़ुवैलिद',
+      'Ali ibn Abi Talib': 'अली बिन अबी तालिब',
+      'Fatimah Az-Zahra': 'फ़ातिमा ज़हरा',
+      'Hasan ibn Ali': 'हसन बिन अली',
+      'Husayn ibn Ali': 'हुसैन बिन अली',
+      'Zaynab bint Ali': 'ज़ैनब बिन्त अली',
+      'Umm Kulthum bint Ali': 'उम्मे कुलसूम बिन्त अली',
+      'Aisha bint Abi Bakr': 'आयशा बिन्त अबी बक्र',
+      'Hafsa bint Umar': 'हफ़सा बिन्त उमर',
+      'Zaynab bint Jahsh': 'ज़ैनब बिन्त जहश',
+      'Umm Salamah': 'उम्मे सलमा',
+    };
+    return map[text] ?? text;
+  }
+
+  String _transliterateToUrdu(String text) {
+    final Map<String, String> map = {
+      'Muhammad ﷺ': 'محمد ﷺ',
+      'Khadijah bint Khuwaylid': 'خدیجہ بنت خویلد',
+      'Ali ibn Abi Talib': 'علی بن ابی طالب',
+      'Fatimah Az-Zahra': 'فاطمہ زہرا',
+      'Hasan ibn Ali': 'حسن بن علی',
+      'Husayn ibn Ali': 'حسین بن علی',
+      'Zaynab bint Ali': 'زینب بنت علی',
+      'Umm Kulthum bint Ali': 'ام کلثوم بنت علی',
+      'Aisha bint Abi Bakr': 'عائشہ بنت ابی بکر',
+      'Hafsa bint Umar': 'حفصہ بنت عمر',
+      'Zaynab bint Jahsh': 'زینب بنت جحش',
+      'Umm Salamah': 'ام سلمہ',
+    };
+    return map[text] ?? text;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<SettingsProvider>().isDarkMode;
+    final langProvider = context.watch<LanguageProvider>();
+    final responsive = context.responsive;
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text('Ahlul Bayt'),
+        title: Text(context.tr('ahlebait')),
       ),
       body: Column(
         children: [
           // Search Bar
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
+            padding: responsive.paddingRegular,
+            child: SearchBarWidget(
               controller: _searchController,
-              style: TextStyle(
-                color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-              ),
-              decoration: InputDecoration(
-                hintText: 'Search Ahlul Bayt by name or relation...',
-                hintStyle: TextStyle(
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.textHint,
-                  fontSize: 14,
-                ),
-                prefixIcon: Icon(
-                  Icons.search_rounded,
-                  color: AppColors.primary,
-                  size: 22,
-                ),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: Icon(
-                          Icons.clear,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
-                        ),
-                        onPressed: () {
-                          _searchController.clear();
-                        },
-                      )
-                    : null,
-                filled: true,
-                fillColor: isDark ? AppColors.darkCard : Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide(
-                    color: isDark ? Colors.grey.shade700 : const Color(0xFF8AAF9A),
-                    width: 1.5,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide(
-                    color: isDark ? Colors.grey.shade700 : const Color(0xFF8AAF9A),
-                    width: 1.5,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide(
-                    color: AppColors.primary,
-                    width: 2,
-                  ),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-              ),
+              hintText: context.tr('search_by_name_meaning'),
+              onClear: () => _searchController.clear(),
+              enableVoiceSearch: true,
             ),
           ),
 
           // Results count
           if (_searchController.text.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: responsive.paddingSymmetric(horizontal: 16),
               child: Text(
-                'Found ${_filteredNames.length} result${_filteredNames.length != 1 ? 's' : ''}',
+                '${context.tr('found')} ${_filteredNames.length} ${_filteredNames.length != 1 ? context.tr('results') : context.tr('result')}',
                 style: TextStyle(
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
-                  fontSize: 12,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.textSecondary,
+                  fontSize: responsive.textSmall,
                 ),
               ),
             ),
@@ -420,34 +447,59 @@ class _AhlebaitScreenState extends State<AhlebaitScreen> {
                       children: [
                         Icon(
                           Icons.search_off,
-                          size: 64,
-                          color: isDark ? Colors.grey.shade700 : Colors.grey.shade400,
+                          size: responsive.iconXXLarge,
+                          color: isDark
+                              ? Colors.grey.shade700
+                              : Colors.grey.shade400,
                         ),
-                        const SizedBox(height: 16),
+                        responsive.vSpaceRegular,
                         Text(
-                          'No members found',
+                          context.tr('no_members_found'),
                           style: TextStyle(
-                            fontSize: 16,
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                            fontSize: responsive.textRegular,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.textSecondary,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        responsive.vSpaceSmall,
                         Text(
-                          'Try a different search term',
+                          context.tr('try_different_search'),
                           style: TextStyle(
-                            fontSize: 14,
-                            color: isDark ? Colors.grey.shade600 : Colors.grey.shade500,
+                            fontSize: responsive.textMedium,
+                            color: isDark
+                                ? Colors.grey.shade600
+                                : Colors.grey.shade500,
                           ),
                         ),
                       ],
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                    key: ValueKey(
+                      langProvider.languageCode,
+                    ), // Force rebuild when language changes
+                    padding: responsive.paddingRegular,
                     itemCount: _filteredNames.length,
                     itemBuilder: (context, index) {
-                      final originalIndex = _ahlebaitNames.indexOf(_filteredNames[index]) + 1;
-                      return _buildNameCard(_filteredNames[index], originalIndex, isDark);
+                      final name = _filteredNames[index];
+                      final originalIndex = _ahlebaitNames.indexOf(name) + 1;
+                      final displayName = _getDisplayName(
+                        name,
+                        langProvider.languageCode,
+                      );
+                      final displayRelation = _getDisplayRelation(
+                        name,
+                        langProvider.languageCode,
+                      );
+                      return _buildNameCard(
+                        name: name,
+                        index: originalIndex,
+                        isDark: isDark,
+                        displayName: displayName,
+                        displayRelation: displayRelation,
+                        languageCode: langProvider.languageCode,
+                      );
                     },
                   ),
           ),
@@ -456,173 +508,144 @@ class _AhlebaitScreenState extends State<AhlebaitScreen> {
     );
   }
 
-  Widget _buildNameCard(Map<String, dynamic> name, int index, bool isDark) {
+  Widget _buildNameCard({
+    required Map<String, dynamic> name,
+    required int index,
+    required bool isDark,
+    required String displayName,
+    required String displayRelation,
+    required String languageCode,
+  }) {
     const darkGreen = Color(0xFF0A5C36);
     const emeraldGreen = Color(0xFF1E8F5A);
     const lightGreenBorder = Color(0xFF8AAF9A);
-    const softGold = Color(0xFFC9A24D);
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => IslamicNameDetailScreen(
-              arabicName: name['name']!,
-              transliteration: name['transliteration']!,
-              meaning: name['relation']!,
-              meaningUrdu: name['relationUrdu'] ?? '',
-              meaningHindi: name['relationHindi'] ?? '',
-              description: name['description']!,
-              descriptionUrdu: name['descriptionUrdu'] ?? '',
-              descriptionHindi: name['descriptionHindi'] ?? '',
-              category: 'Ahlul Bayt',
-              number: index,
-              icon: Icons.family_restroom,
-              color: Colors.teal,
-              fatherName: name['fatherName'],
-              motherName: name['motherName'],
-              birthDate: name['birthDate'],
-              birthPlace: name['birthPlace'],
-              deathDate: name['deathDate'],
-              deathPlace: name['deathPlace'],
-              spouse: name['spouse'],
-              children: name['children'],
-              tribe: name['tribe'],
-              title: name['title'],
-              knownFor: name['knownFor'],
-              era: name['era'],
+    return Builder(
+      builder: (context) {
+        final responsive = context.responsive;
+
+        return Container(
+          margin: responsive.paddingOnly(bottom: 10),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkCard : Colors.white,
+            borderRadius: BorderRadius.circular(responsive.radiusLarge),
+            border: Border.all(
+              color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+              width: 1.5,
             ),
+            boxShadow: isDark
+                ? null
+                : [
+                    BoxShadow(
+                      color: darkGreen.withValues(alpha: 0.08),
+                      blurRadius: responsive.spacing(10),
+                      offset: Offset(0, responsive.spacing(2)),
+                    ),
+                  ],
           ),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.darkCard : Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: isDark ? Colors.grey.shade700 : lightGreenBorder,
-            width: 1.5,
-          ),
-          boxShadow: isDark
-              ? null
-              : [
-                  BoxShadow(
-                    color: darkGreen.withValues(alpha: 0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => IslamicNameDetailScreen(
+                    arabicName: name['name']!,
+                    transliteration: name['transliteration']!,
+                    meaning: name['relation']!,
+                    meaningUrdu: name['relationUrdu'] ?? '',
+                    meaningHindi: name['relationHindi'] ?? '',
+                    description: name['description']!,
+                    descriptionUrdu: name['descriptionUrdu'] ?? '',
+                    descriptionHindi: name['descriptionHindi'] ?? '',
+                    category: 'Ahlul Bayt',
+                    number: index,
+                    icon: Icons.family_restroom,
+                    color: Colors.teal,
+                    fatherName: name['fatherName'],
+                    motherName: name['motherName'],
+                    birthDate: name['birthDate'],
+                    birthPlace: name['birthPlace'],
+                    deathDate: name['deathDate'],
+                    deathPlace: name['deathPlace'],
+                    spouse: name['spouse'],
+                    children: name['children'],
+                    tribe: name['tribe'],
+                    title: name['title'],
+                    knownFor: name['knownFor'],
+                    era: name['era'],
                   ),
-                ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+                ),
+              );
+            },
+            borderRadius: BorderRadius.circular(responsive.radiusLarge),
+            child: Padding(
+              padding: responsive.paddingAll(14),
+              child: Row(
                 children: [
+                  // Circular badge
                   Container(
-                    width: 48,
-                    height: 48,
+                    width: responsive.spacing(50),
+                    height: responsive.spacing(50),
                     decoration: BoxDecoration(
                       color: isDark ? emeraldGreen : darkGreen,
                       shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: (isDark ? emeraldGreen : darkGreen).withValues(
-                            alpha: 0.3,
-                          ),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
                     ),
                     child: Center(
                       child: Text(
                         '$index',
-                        style: const TextStyle(
-                          fontSize: 18,
+                        style: TextStyle(
+                          fontSize: responsive.textLarge,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: responsive.spacing(14)),
+                  // Name
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          name['transliteration']!,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: isDark
-                                ? AppColors.darkTextPrimary
-                                : darkGreen,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? Colors.grey.shade800
-                                : const Color(0xFFE8F3ED),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            name['relation']!,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: isDark
-                                  ? AppColors.darkTextSecondary
-                                  : emeraldGreen,
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      displayName,
+                      style: TextStyle(
+                        fontSize: responsive.textRegular,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                        fontFamily: languageCode == 'ar'
+                            ? 'Amiri'
+                            : (languageCode == 'ur' ? 'NotoNastaliq' : null),
+                      ),
+                      textDirection:
+                          (languageCode == 'ar' || languageCode == 'ur')
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
                     ),
                   ),
-                  Text(
-                    name['name']!,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontFamily: 'Amiri',
-                      color: isDark ? AppColors.secondary : softGold,
+                  // Circular forward arrow
+                  Container(
+                    width: responsive.spacing(32),
+                    height: responsive.spacing(32),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? emeraldGreen.withValues(alpha: 0.2)
+                          : const Color(0xFFE8F3ED),
+                      shape: BoxShape.circle,
                     ),
-                    textDirection: TextDirection.rtl,
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: isDark ? AppColors.darkTextSecondary : emeraldGreen,
+                    child: Center(
+                      child: Icon(
+                        Icons.arrow_forward_ios,
+                        size: responsive.iconXSmall,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : emeraldGreen,
+                      ),
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
-              Text(
-                name['description']!,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: isDark
-                      ? AppColors.darkTextSecondary
-                      : AppColors.textSecondary,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

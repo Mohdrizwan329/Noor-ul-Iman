@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
@@ -10,26 +12,30 @@ class NotificationsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final responsive = ResponsiveUtils(context);
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text('Notifications'),
+        title: Text(
+          context.tr('notifications'),
+          style: TextStyle(fontSize: responsive.textLarge),
+        ),
       ),
-      body: _buildEmptyState(isDark),
+      body: _buildEmptyState(context, isDark, responsive),
     );
   }
 
-  Widget _buildEmptyState(bool isDark) {
+  Widget _buildEmptyState(BuildContext context, bool isDark, ResponsiveUtils responsive) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: responsive.paddingAll(32),
         child: Container(
-          padding: const EdgeInsets.all(24),
+          padding: responsive.paddingAll(24),
           decoration: BoxDecoration(
             color: isDark ? AppColors.darkCard : Colors.white,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(responsive.radiusLarge),
             border: Border.all(
               color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
               width: 1.5,
@@ -48,8 +54,8 @@ class NotificationsScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 100,
-                height: 100,
+                width: responsive.iconSize(100),
+                height: responsive.iconSize(100),
                 decoration: BoxDecoration(
                   color: AppColors.primary,
                   shape: BoxShape.circle,
@@ -61,37 +67,37 @@ class NotificationsScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.notifications_outlined,
-                  size: 50,
+                  size: responsive.iconXXLarge,
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: responsive.spaceLarge),
               Text(
-                'No Notifications',
+                context.tr('no_notifications'),
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: responsive.textXLarge,
                   fontWeight: FontWeight.bold,
                   color: isDark ? AppColors.darkTextPrimary : AppColors.primary,
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: responsive.spaceMedium),
               Text(
-                'You\'re all caught up! Check back later for prayer reminders, Islamic events, and more.',
+                context.tr('all_caught_up'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: responsive.textMedium,
                   color: isDark ? AppColors.darkTextSecondary : const Color(0xFF6B7F73),
                   height: 1.5,
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: responsive.spaceLarge),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: responsive.paddingSymmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
                   color: lightGreenChip,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(responsive.radiusMedium),
                   border: Border.all(color: AppColors.lightGreenBorder, width: 1),
                 ),
                 child: Row(
@@ -99,14 +105,14 @@ class NotificationsScreen extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.info_outline,
-                      size: 18,
+                      size: responsive.iconSmall,
                       color: AppColors.primaryLight,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: responsive.spaceSmall),
                     Text(
-                      'Coming Soon, InshaAllah!',
+                      context.tr('coming_soon'),
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: responsive.textMedium,
                         fontWeight: FontWeight.w600,
                         color: AppColors.primaryLight,
                       ),

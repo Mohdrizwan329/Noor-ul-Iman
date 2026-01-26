@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
+import '../../providers/language_provider.dart';
 
-enum HajjLanguage { english, urdu, hindi }
+enum HajjLanguage { english, urdu, hindi, arabic }
 
 class HajjGuideScreen extends StatefulWidget {
   const HajjGuideScreen({super.key});
@@ -20,12 +24,38 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
   final FlutterTts _flutterTts = FlutterTts();
   bool _isPlaying = false;
   String? _currentPlayingId;
+  final Set<String> _expandedDuas = {};
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _initTts();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Sync with app's language provider
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final langCode = languageProvider.languageCode;
+
+    HajjLanguage newLanguage;
+    if (langCode == 'ur') {
+      newLanguage = HajjLanguage.urdu;
+    } else if (langCode == 'hi') {
+      newLanguage = HajjLanguage.hindi;
+    } else if (langCode == 'ar') {
+      newLanguage = HajjLanguage.arabic;
+    } else {
+      newLanguage = HajjLanguage.english;
+    }
+
+    if (_selectedLanguage != newLanguage) {
+      setState(() {
+        _selectedLanguage = newLanguage;
+      });
+    }
   }
 
   Future<void> _initTts() async {
@@ -40,23 +70,6 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
     });
   }
 
-  Future<void> _speak(String text, String id) async {
-    if (_isPlaying && _currentPlayingId == id) {
-      await _flutterTts.stop();
-      setState(() {
-        _isPlaying = false;
-        _currentPlayingId = null;
-      });
-    } else {
-      await _flutterTts.stop();
-      setState(() {
-        _isPlaying = true;
-        _currentPlayingId = id;
-      });
-      await _flutterTts.speak(text);
-    }
-  }
-
   @override
   void dispose() {
     _tabController.dispose();
@@ -64,135 +77,32 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
     super.dispose();
   }
 
-  String _getLanguageLabel() {
-    switch (_selectedLanguage) {
-      case HajjLanguage.english:
-        return 'EN';
-      case HajjLanguage.urdu:
-        return 'UR';
-      case HajjLanguage.hindi:
-        return 'HI';
-    }
-  }
-
-  void _showLanguageSelector() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Select Language',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            _buildLanguageOption(HajjLanguage.english, 'English', 'EN'),
-            _buildLanguageOption(HajjLanguage.urdu, 'اردو', 'UR'),
-            _buildLanguageOption(HajjLanguage.hindi, 'हिंदी', 'HI'),
-            const SizedBox(height: 10),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLanguageOption(HajjLanguage language, String name, String code) {
-    final isSelected = _selectedLanguage == language;
-    return ListTile(
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.grey[200],
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: Text(
-            code,
-            style: TextStyle(
-              color: isSelected ? Colors.white : Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-      title: Text(name),
-      trailing: isSelected ? Icon(Icons.check, color: AppColors.primary) : null,
-      onTap: () {
-        setState(() {
-          _selectedLanguage = language;
-        });
-        Navigator.pop(context);
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final responsive = ResponsiveUtils(context);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        toolbarHeight: 50,
-        title: const Text('Hajj & Umrah Guide'),
-        actions: [
-          // Language selector
-          GestureDetector(
-            onTap: _showLanguageSelector,
-            child: Container(
-              margin: const EdgeInsets.only(right: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.translate, size: 18, color: Colors.white),
-                  const SizedBox(width: 4),
-                  Text(
-                    _getLanguageLabel(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+        toolbarHeight: responsive.value(mobile: 50, tablet: 60, desktop: 70),
+        title: Text(
+          context.tr('hajj_guide'),
+          style: TextStyle(fontSize: responsive.textLarge),
+        ),
         bottom: TabBar(
           controller: _tabController,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
-          tabs: const [
-            Tab(text: 'Hajj'),
-            Tab(text: 'Umrah'),
+          tabs: [
+            Tab(text: context.tr('hajj_rituals')),
+            Tab(text: context.tr('umrah')),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildHajjGuide(),
-          _buildUmrahGuide(),
-        ],
+        children: [_buildHajjGuide(), _buildUmrahGuide()],
       ),
     );
   }
@@ -203,9 +113,11 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
         day: 'Before Hajj',
         dayUrdu: 'حج سے پہلے',
         dayHindi: 'हज से पहले',
+        dayArabic: 'قبل الحج',
         title: 'Preparation',
         titleUrdu: 'تیاری',
         titleHindi: 'तैयारी',
+        titleArabic: 'التحضير',
         icon: Icons.checklist,
         color: Colors.blue,
         steps: [
@@ -238,14 +150,26 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
           'जरूरी वैक्सीनेशन लें',
           'शारीरिक रूप से तैयारी करें',
         ],
+        stepsArabic: [
+          'قم بعمل نية خالصة للحج',
+          'تب من جميع الذنوب واطلب المغفرة',
+          'سدد جميع الديون وحل النزاعات',
+          'اكتب وصية',
+          'تعلم مناسك الحج',
+          'احزم ملابس الإحرام المناسبة',
+          'احصل على التطعيمات اللازمة',
+          'استعد جسديًا للرحلة',
+        ],
       ),
       HajjStep(
         day: '8th Dhul Hijjah',
         dayUrdu: '8 ذو الحجہ',
         dayHindi: '8 ज़िल्हिज्जा',
+        dayArabic: '8 ذو الحجة',
         title: 'Day of Tarwiyah',
         titleUrdu: 'یوم الترویہ',
         titleHindi: 'यौम अल-तरवियह',
+        titleArabic: 'يوم الترويه',
         icon: Icons.flag,
         color: Colors.green,
         steps: [
@@ -275,14 +199,25 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
           'हर नमाज़ अपने वक़्त पर क़स्र करें',
           'रात मिना में गुज़ारें',
         ],
+        stepsArabic: [
+          'ادخل حالة الإحرام من الميقات',
+          'اعقد النية للحج: لبيك اللهم حج',
+          'ردد التلبية باستمرار',
+          'سافر إلى منى',
+          'صلِّ الظهر والعصر والمغرب والعشاء والفجر في منى',
+          'كل صلاة في وقتها، مقصورة',
+          'اقضِ الليل في منى',
+        ],
       ),
       HajjStep(
         day: '9th Dhul Hijjah',
         dayUrdu: '9 ذو الحجہ',
         dayHindi: '9 ज़िल्हिज्जा',
+        dayArabic: '9 ذو الحجة',
         title: 'Day of Arafah',
         titleUrdu: 'یوم عرفہ',
         titleHindi: 'यौम अरफ़ा',
+        titleArabic: 'يوم عرفة',
         icon: Icons.terrain,
         color: Colors.orange,
         steps: [
@@ -315,14 +250,26 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
           'मग़रिब और इशा जमा करें',
           'जमरात के लिए 49-70 कंकरियां जमा करें',
         ],
+        stepsArabic: [
+          'هذا هو أهم يوم في الحج',
+          'سافر إلى عرفة بعد شروق الشمس',
+          'قف في عرفة (الوقوف) - هذا هو ركن الحج',
+          'اجمع وقصر صلاتي الظهر والعصر',
+          'أكثر من الدعاء والذكر',
+          'بعد غروب الشمس، سافر إلى مزدلفة',
+          'صلِّ المغرب والعشاء جمعًا في مزدلفة',
+          'اجمع 49-70 حصاة للجمرات',
+        ],
       ),
       HajjStep(
         day: '10th Dhul Hijjah',
         dayUrdu: '10 ذو الحجہ',
         dayHindi: '10 ज़िल्हिज्जा',
+        dayArabic: '10 ذو الحجة',
         title: 'Eid Day (Yawm al-Nahr)',
         titleUrdu: 'عید کا دن (یوم النحر)',
         titleHindi: 'ईद का दिन (यौम अल-नहर)',
+        titleArabic: 'يوم العيد (يوم النحر)',
         icon: Icons.celebration,
         color: Colors.red,
         steps: [
@@ -355,14 +302,26 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
           'सफ़ा और मरवा के बीच सई करें',
           'रात गुज़ारने के लिए मिना वापस आएं',
         ],
+        stepsArabic: [
+          'صلِّ الفجر في مزدلفة',
+          'اذهب إلى منى قبل شروق الشمس',
+          'ارمِ جمرة العقبة (7 حصيات)',
+          'قم بالأضحية (القربان/الهدي)',
+          'احلق رأسك (الحلق) أو قصر شعرك (التقصير)',
+          'اذهب إلى مكة لطواف الإفاضة',
+          'أدِّ السعي بين الصفا والمروة',
+          'ارجع إلى منى لقضاء الليل',
+        ],
       ),
       HajjStep(
         day: '11th-13th Dhul Hijjah',
         dayUrdu: '11-13 ذو الحجہ',
         dayHindi: '11-13 ज़िल्हिज्जा',
+        dayArabic: '11-13 ذو الحجة',
         title: 'Days of Tashreeq',
         titleUrdu: 'ایام تشریق',
         titleHindi: 'अय्याम अल-तशरीक़',
+        titleArabic: 'أيام التشريق',
         icon: Icons.replay,
         color: Colors.purple,
         steps: [
@@ -392,14 +351,25 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
           'हर जमरा पर 7 कंकरियां',
           '12 तारीख़ को सूर्यास्त से पहले जा सकते हैं',
         ],
+        stepsArabic: [
+          'ابقَ في منى خلال هذه الأيام',
+          'ارمِ الجمرات الثلاث يوميًا (بعد الظهر)',
+          'ابدأ بالجمرة الصغرى',
+          'ثم الجمرة الوسطى',
+          'وأخيرًا جمرة العقبة (الكبرى)',
+          '7 حصيات لكل جمرة',
+          'يمكن المغادرة في الـ12 بعد الرمي (إذا كان قبل الغروب)',
+        ],
       ),
       HajjStep(
         day: 'Before Leaving',
         dayUrdu: 'روانگی سے پہلے',
         dayHindi: 'रवानगी से पहले',
+        dayArabic: 'قبل المغادرة',
         title: 'Farewell Tawaf',
         titleUrdu: 'طواف الوداع',
         titleHindi: 'तवाफ़ अल-विदा',
+        titleArabic: 'طواف الوداع',
         icon: Icons.mosque,
         color: Colors.teal,
         steps: [
@@ -429,6 +399,15 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
           'दुआ करते हुए मक्का से रवाना हों',
           'मदीना की ज़ियारत करें (मुस्तहब)',
         ],
+        stepsArabic: [
+          'أدِّ طواف الوداع',
+          'يجب أن يكون هذا آخر عمل لك في مكة',
+          'ادعُ عند الملتزم',
+          'اشرب ماء زمزم',
+          'صلِّ ركعتين خلف مقام إبراهيم',
+          'اترك مكة أثناء الدعاء',
+          'زر المدينة المنورة (مستحب)',
+        ],
       ),
     ];
 
@@ -441,9 +420,11 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
         day: 'Step 1',
         dayUrdu: 'مرحلہ 1',
         dayHindi: 'चरण 1',
+        dayArabic: 'الخطوة 1',
         title: 'Enter Ihram',
         titleUrdu: 'احرام باندھنا',
         titleHindi: 'इहराम बांधना',
+        titleArabic: 'دخول الإحرام',
         icon: Icons.check_circle,
         color: Colors.green,
         steps: [
@@ -467,14 +448,23 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
           'मीक़ात पर नियत करें: लब्बैक अल्लाहुम्मा उमरा',
           'तल्बियह पढ़ते रहें',
         ],
+        stepsArabic: [
+          'اغتسل قبل الإحرام',
+          'ارتدِ ملابس الإحرام (إزارين أبيضين للرجال)',
+          'ترتدي النساء ملابس عادية محتشمة',
+          'اعقد النية عند الميقات: لبيك اللهم عمرة',
+          'ردد التلبية باستمرار',
+        ],
       ),
       HajjStep(
         day: 'Step 2',
         dayUrdu: 'مرحلہ 2',
         dayHindi: 'चरण 2',
+        dayArabic: 'الخطوة 2',
         title: 'Tawaf (Circumambulation)',
         titleUrdu: 'طواف',
         titleHindi: 'तवाफ़',
+        titleArabic: 'الطواف',
         icon: Icons.autorenew,
         color: Colors.blue,
         steps: [
@@ -501,14 +491,24 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
           'तवाफ़ के बाद मक़ाम इब्राहीम के पीछे 2 रकात पढ़ें',
           'ज़मज़म का पानी पिएं',
         ],
+        stepsArabic: [
+          'ادخل المسجد الحرام بالقدم اليمنى',
+          'ابدأ الطواف من الحجر الأسود',
+          'طُف حول الكعبة 7 أشواط عكس عقارب الساعة',
+          'الرجال: الاضطباع (كشف الكتف الأيمن) في أول 3 أشواط',
+          'بعد الطواف، صلِّ ركعتين خلف مقام إبراهيم',
+          'اشرب ماء زمزم',
+        ],
       ),
       HajjStep(
         day: 'Step 3',
         dayUrdu: 'مرحلہ 3',
         dayHindi: 'चरण 3',
+        dayArabic: 'الخطوة 3',
         title: 'Sa\'i (Walking between hills)',
         titleUrdu: 'سعی',
         titleHindi: 'सई',
+        titleArabic: 'السعي',
         icon: Icons.directions_walk,
         color: Colors.orange,
         steps: [
@@ -535,14 +535,24 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
           '7 चक्कर पूरे करें (मरवा पर ख़त्म)',
           'सई के दौरान दुआ और ज़िक्र करते रहें',
         ],
+        stepsArabic: [
+          'اذهب إلى جبل الصفا',
+          'استقبل الكعبة وادعُ',
+          'امشِ نحو المروة',
+          'الرجال: اهرول بين العلمين الأخضرين',
+          'أكمل 7 أشواط (تنتهي عند المروة)',
+          'ادعُ واذكر الله طوال السعي',
+        ],
       ),
       HajjStep(
         day: 'Step 4',
         dayUrdu: 'مرحلہ 4',
         dayHindi: 'चरण 4',
+        dayArabic: 'الخطوة 4',
         title: 'Halq or Taqsir',
         titleUrdu: 'حلق یا تقصیر',
         titleHindi: 'हल्क़ या तक़्सीर',
+        titleArabic: 'الحلق أو التقصير',
         icon: Icons.content_cut,
         color: Colors.purple,
         steps: [
@@ -569,6 +579,14 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
           'अब इहराम की सभी पाबंदियां ख़त्म हैं',
           'आपका उमरा मुकम्मल हुआ! अल्हम्दुलिल्लाह',
         ],
+        stepsArabic: [
+          'الرجال: احلق رأسك بالكامل (الحلق) - الأفضل',
+          'أو قصر شعرك على الأقل (التقصير)',
+          'النساء: اقطع قدر أنملة من الشعر',
+          'هذا يمثل نهاية الإحرام',
+          'جميع محظورات الإحرام أصبحت مرفوعة الآن',
+          'عمرتك مكتملة! الحمد لله',
+        ],
       ),
     ];
 
@@ -576,17 +594,19 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
   }
 
   Widget _buildGuideList(List<HajjStep> steps, String type) {
+    final responsive = ResponsiveUtils(context);
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: responsive.paddingRegular,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildIntroCard(type),
-          const SizedBox(height: 16),
+          SizedBox(height: responsive.spaceRegular),
           ...steps.map((step) => _buildStepCard(step)),
-          const SizedBox(height: 16),
+          SizedBox(height: responsive.spaceRegular),
           _buildDuasCard(type),
-          const SizedBox(height: 16),
+          SizedBox(height: responsive.spaceRegular),
           _buildProhibitionsCard(),
         ],
       ),
@@ -594,54 +614,60 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
   }
 
   Widget _buildIntroCard(String type) {
-    String title;
+    final responsive = ResponsiveUtils(context);
+    final title = type == 'Hajj'
+        ? context.tr('guide_to_hajj')
+        : context.tr('guide_to_umrah');
+
     String subtitle;
 
     switch (_selectedLanguage) {
       case HajjLanguage.urdu:
-        title = type == 'Hajj' ? 'حج کا رہنما' : 'عمرہ کا رہنما';
         subtitle = type == 'Hajj'
             ? 'اسلام کا پانچواں رکن - زندگی میں ایک بار فرض'
             : 'چھوٹا حج - سال میں کسی بھی وقت ادا کیا جا سکتا ہے';
         break;
       case HajjLanguage.hindi:
-        title = type == 'Hajj' ? 'हज गाइड' : 'उमरा गाइड';
         subtitle = type == 'Hajj'
             ? 'इस्लाम का पांचवां रुक्न - ज़िंदगी में एक बार फ़र्ज़'
             : 'छोटा हज - साल में कभी भी अदा किया जा सकता है';
         break;
+      case HajjLanguage.arabic:
+        subtitle = type == 'Hajj'
+            ? 'الركن الخامس من أركان الإسلام - واجب مرة واحدة في العمر'
+            : 'الحج الأصغر - يمكن أداؤها في أي وقت من السنة';
+        break;
       default:
-        title = type == 'Hajj' ? 'Guide to Hajj' : 'Guide to Umrah';
         subtitle = type == 'Hajj'
             ? 'The fifth pillar of Islam - obligatory once in a lifetime'
-            : 'The minor pilgrimage - can be performed any time of the year';
+            : context.tr('umrah_description');
     }
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: responsive.paddingLarge,
       decoration: BoxDecoration(
         gradient: AppColors.headerGradient,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(responsive.radiusXLarge),
       ),
       child: Column(
         children: [
-          const Icon(Icons.mosque, color: Colors.white, size: 48),
-          const SizedBox(height: 12),
+          Icon(Icons.mosque, color: Colors.white, size: responsive.iconXXLarge),
+          SizedBox(height: responsive.spaceMedium),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: responsive.textXXLarge,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: responsive.spaceSmall),
           Text(
             subtitle,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.9),
-              fontSize: 14,
+              fontSize: responsive.textMedium,
             ),
             textAlign: TextAlign.center,
           ),
@@ -653,35 +679,42 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
   Widget _buildStepCard(HajjStep step) {
     const lightGreenBorder = Color(0xFF8AAF9A);
     const darkGreen = Color(0xFF0A5C36);
+    final responsive = ResponsiveUtils(context);
 
     final title = _selectedLanguage == HajjLanguage.urdu
         ? step.titleUrdu
         : _selectedLanguage == HajjLanguage.hindi
-            ? step.titleHindi
-            : step.title;
+        ? step.titleHindi
+        : _selectedLanguage == HajjLanguage.arabic
+        ? step.titleArabic
+        : step.title;
 
     final day = _selectedLanguage == HajjLanguage.urdu
         ? step.dayUrdu
         : _selectedLanguage == HajjLanguage.hindi
-            ? step.dayHindi
-            : step.day;
+        ? step.dayHindi
+        : _selectedLanguage == HajjLanguage.arabic
+        ? step.dayArabic
+        : step.day;
 
     final steps = _selectedLanguage == HajjLanguage.urdu
         ? step.stepsUrdu
         : _selectedLanguage == HajjLanguage.hindi
-            ? step.stepsHindi
-            : step.steps;
+        ? step.stepsHindi
+        : _selectedLanguage == HajjLanguage.arabic
+        ? step.stepsArabic
+        : step.steps;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: responsive.spaceMedium),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         border: Border.all(color: lightGreenBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: 10,
+            blurRadius: responsive.spacing(10),
             offset: const Offset(0, 2),
           ),
         ],
@@ -689,100 +722,132 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: step.color.withValues(alpha: 0.1),
-            shape: BoxShape.circle,
+          leading: Container(
+            padding: EdgeInsets.all(responsive.spaceSmall),
+            decoration: BoxDecoration(
+              color: step.color.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              step.icon,
+              color: step.color,
+              size: responsive.iconMedium,
+            ),
           ),
-          child: Icon(step.icon, color: step.color),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(
-          day,
-          style: TextStyle(color: step.color, fontSize: 12),
-        ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: steps.asMap().entries.map((entry) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: step.color.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            '${entry.key + 1}',
-                            style: TextStyle(
-                              color: step.color,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+          title: Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: responsive.textRegular,
+            ),
+          ),
+          subtitle: Text(
+            day,
+            style: TextStyle(color: step.color, fontSize: responsive.textSmall),
+          ),
+          children: [
+            Padding(
+              padding: responsive.paddingRegular,
+              child: Column(
+                children: steps.asMap().entries.map((entry) {
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: responsive.spaceSmall),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: responsive.iconMedium,
+                          height: responsive.iconMedium,
+                          decoration: BoxDecoration(
+                            color: step.color.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(
+                              '${entry.key + 1}',
+                              style: TextStyle(
+                                color: step.color,
+                                fontSize: responsive.textSmall,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          entry.value,
-                          style: const TextStyle(height: 1.4),
+                        SizedBox(width: responsive.spaceMedium),
+                        Expanded(
+                          child: Text(
+                            entry.value,
+                            style: TextStyle(
+                              height: 1.4,
+                              fontSize: responsive.textMedium,
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
-          ),
-        ],
+          ],
         ),
       ),
     );
   }
 
   Widget _buildDuasCard(String type) {
+    final responsive = ResponsiveUtils(context);
     final duas = [
       HajjDua(
         id: '1',
         title: 'Talbiyah',
         titleUrdu: 'تلبیہ',
         titleHindi: 'तल्बियह',
-        arabic: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ، لَبَّيْكَ لَا شَرِيكَ لَكَ لَبَّيْكَ، إِنَّ الْحَمْدَ وَالنِّعْمَةَ لَكَ وَالْمُلْكَ، لَا شَرِيكَ لَكَ',
-        translationEn: 'Here I am, O Allah, here I am. Here I am, You have no partner, here I am. Verily all praise, grace and sovereignty belong to You. You have no partner.',
-        translationUrdu: 'حاضر ہوں اے اللہ حاضر ہوں۔ حاضر ہوں، تیرا کوئی شریک نہیں، حاضر ہوں۔ بے شک تمام تعریف، نعمت اور بادشاہی تیری ہے۔ تیرا کوئی شریک نہیں۔',
-        translationHindi: 'हाज़िर हूं ऐ अल्लाह हाज़िर हूं। हाज़िर हूं, तेरा कोई शरीक नहीं, हाज़िर हूं। बेशक सारी तारीफ़, नेमत और बादशाही तेरी है। तेरा कोई शरीक नहीं।',
+        titleArabic: 'التلبية',
+        arabic:
+            'لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ، لَبَّيْكَ لَا شَرِيكَ لَكَ لَبَّيْكَ، إِنَّ الْحَمْدَ وَالنِّعْمَةَ لَكَ وَالْمُلْكَ، لَا شَرِيكَ لَكَ',
+        translationEn:
+            'Here I am, O Allah, here I am. Here I am, You have no partner, here I am. Verily all praise, grace and sovereignty belong to You. You have no partner.',
+        translationUrdu:
+            'حاضر ہوں اے اللہ حاضر ہوں۔ حاضر ہوں، تیرا کوئی شریک نہیں، حاضر ہوں۔ بے شک تمام تعریف، نعمت اور بادشاہی تیری ہے۔ تیرا کوئی شریک نہیں۔',
+        translationHindi:
+            'हाज़िर हूं ऐ अल्लाह हाज़िर हूं। हाज़िर हूं, तेरा कोई शरीक नहीं, हाज़िर हूं। बेशक सारी तारीफ़, नेमत और बादशाही तेरी है। तेरा कोई शरीक नहीं।',
+        translationArabic:
+            'ها أنا ذا يا الله ها أنا ذا، ها أنا ذا لا شريك لك ها أنا ذا، إن الحمد والنعمة لك والملك، لا شريك لك.',
       ),
       HajjDua(
         id: '2',
         title: 'Dua between Yemeni Corner and Black Stone',
         titleUrdu: 'رکن یمانی اور حجر اسود کے درمیان کی دعا',
         titleHindi: 'रुक्न यमानी और हज्र-ए-अस्वद के बीच की दुआ',
-        arabic: 'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',
-        translationEn: 'Our Lord, give us good in this world and good in the Hereafter, and save us from the punishment of the Fire.',
-        translationUrdu: 'اے ہمارے رب! ہمیں دنیا میں بھی بھلائی دے اور آخرت میں بھی بھلائی دے اور ہمیں آگ کے عذاب سے بچا۔',
-        translationHindi: 'ऐ हमारे रब! हमें दुनिया में भी भलाई दे और आख़िरत में भी भलाई दे और हमें आग के अज़ाब से बचा।',
+        titleArabic: 'الدعاء بين الركن اليماني والحجر الأسود',
+        arabic:
+            'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',
+        translationEn:
+            'Our Lord, give us good in this world and good in the Hereafter, and save us from the punishment of the Fire.',
+        translationUrdu:
+            'اے ہمارے رب! ہمیں دنیا میں بھی بھلائی دے اور آخرت میں بھی بھلائی دے اور ہمیں آگ کے عذاب سے بچا۔',
+        translationHindi:
+            'ऐ हमारे रब! हमें दुनिया में भी भलाई दे और आख़िरत में भी भलाई दे और हमें आग के अज़ाब से बचा।',
+        translationArabic:
+            'ربنا آتنا في الدنيا حسنة وفي الآخرة حسنة وقنا عذاب النار.',
       ),
       HajjDua(
         id: '3',
         title: 'Dua on Mount Safa/Marwa',
         titleUrdu: 'صفا/مروہ پر دعا',
         titleHindi: 'सफ़ा/मरवा पर दुआ',
-        arabic: 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ',
-        translationEn: 'There is no god but Allah alone, with no partner. His is the dominion, and His is the praise, and He is able to do all things.',
-        translationUrdu: 'اللہ کے سوا کوئی معبود نہیں، وہ اکیلا ہے، اس کا کوئی شریک نہیں۔ بادشاہی اسی کی ہے اور تعریف اسی کے لیے ہے اور وہ ہر چیز پر قادر ہے۔',
-        translationHindi: 'अल्लाह के सिवा कोई माबूद नहीं, वो अकेला है, उसका कोई शरीक नहीं। बादशाही उसी की है और तारीफ़ उसी के लिए है और वो हर चीज़ पर क़ादिर है।',
+        titleArabic: 'الدعاء على جبل الصفا/المروة',
+        arabic:
+            'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ',
+        translationEn:
+            'There is no god but Allah alone, with no partner. His is the dominion, and His is the praise, and He is able to do all things.',
+        translationUrdu:
+            'اللہ کے سوا کوئی معبود نہیں، وہ اکیلا ہے، اس کا کوئی شریک نہیں۔ بادشاہی اسی کی ہے اور تعریف اسی کے لیے ہے اور وہ ہر چیز پر قادر ہے۔',
+        translationHindi:
+            'अल्लाह के सिवा कोई माबूद नहीं, वो अकेला है, उसका कोई शरीक नहीं। बादशाही उसी की है और तारीफ़ उसी के लिए है और वो हर चीज़ पर क़ादिर है।',
+        translationArabic:
+            'لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير.',
       ),
     ];
 
@@ -794,6 +859,9 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
       case HajjLanguage.hindi:
         sectionTitle = 'अहम दुआएं';
         break;
+      case HajjLanguage.arabic:
+        sectionTitle = 'أدعية مهمة';
+        break;
       default:
         sectionTitle = 'Important Duas';
     }
@@ -804,35 +872,40 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         border: Border.all(color: lightGreenBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: 10,
+            blurRadius: responsive.spacing(10),
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(Icons.menu_book, color: darkGreen),
-                const SizedBox(width: 8),
+                Icon(
+                  Icons.menu_book,
+                  color: darkGreen,
+                  size: responsive.iconMedium,
+                ),
+                SizedBox(width: responsive.spaceSmall),
                 Text(
                   sectionTitle,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: darkGreen,
-                      ),
+                  style: TextStyle(
+                    fontSize: responsive.textLarge,
+                    fontWeight: FontWeight.bold,
+                    color: darkGreen,
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: responsive.spaceRegular),
             ...duas.map((dua) => _buildDuaItem(dua)),
           ],
         ),
@@ -842,120 +915,375 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
 
   Widget _buildDuaItem(HajjDua dua) {
     const lightGreenBorder = Color(0xFF8AAF9A);
-    const darkGreen = Color(0xFF0A5C36);
     const lightGreenChip = Color(0xFFE8F3ED);
+    final responsive = ResponsiveUtils(context);
 
     final title = _selectedLanguage == HajjLanguage.urdu
         ? dua.titleUrdu
         : _selectedLanguage == HajjLanguage.hindi
-            ? dua.titleHindi
-            : dua.title;
+        ? dua.titleHindi
+        : _selectedLanguage == HajjLanguage.arabic
+        ? dua.titleArabic
+        : dua.title;
 
     final translation = _selectedLanguage == HajjLanguage.urdu
         ? dua.translationUrdu
         : _selectedLanguage == HajjLanguage.hindi
-            ? dua.translationHindi
-            : dua.translationEn;
+        ? dua.translationHindi
+        : _selectedLanguage == HajjLanguage.arabic
+        ? dua.translationArabic
+        : dua.translationEn;
 
-    final isPlaying = _isPlaying && _currentPlayingId == dua.id;
+    final isExpanded = _expandedDuas.contains(dua.id);
+    final isPlayingArabic = _isPlaying && _currentPlayingId == '${dua.id}_arabic';
+    final isPlayingTranslation = _isPlaying && _currentPlayingId == '${dua.id}_translation';
+    final isPlaying = isPlayingArabic || isPlayingTranslation;
+
+    String languageLabel;
+    switch (_selectedLanguage) {
+      case HajjLanguage.hindi:
+        languageLabel = context.tr('hindi');
+        break;
+      case HajjLanguage.urdu:
+        languageLabel = context.tr('urdu');
+        break;
+      case HajjLanguage.arabic:
+        languageLabel = context.tr('arabic');
+        break;
+      default:
+        languageLabel = context.tr('english');
+    }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(12),
+      margin: EdgeInsets.only(bottom: responsive.spaceRegular),
       decoration: BoxDecoration(
-        color: lightGreenChip,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: lightGreenBorder, width: 1.5),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isPlaying ? AppColors.primaryLight : lightGreenBorder,
+          width: isPlaying ? 2 : 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: AppColors.primary.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            dua.arabic,
-            style: const TextStyle(
-              fontFamily: 'Amiri',
-              fontSize: 20,
-              height: 2,
-              color: AppColors.arabicText,
-            ),
-            textAlign: TextAlign.right,
-            textDirection: TextDirection.rtl,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            translation,
-            style: TextStyle(
-              color: Colors.grey[700],
-              fontSize: 13,
-              fontStyle: FontStyle.italic,
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Action buttons
+          // Header Section with Light Green Background
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 4),
+            padding: responsive.paddingSymmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+              color: isPlaying
+                  ? AppColors.primaryLight.withValues(alpha: 0.1)
+                  : lightGreenChip,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(responsive.radiusLarge),
+                topRight: Radius.circular(responsive.radiusLarge),
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            child: Column(
               children: [
-                // Audio button
-                IconButton(
-                  icon: Icon(
-                    isPlaying ? Icons.stop_circle : Icons.play_circle,
-                    color: isPlaying ? Colors.red : AppColors.primary,
-                  ),
-                  onPressed: () => _speak(dua.arabic, dua.id),
-                  tooltip: isPlaying ? 'Stop' : 'Listen',
+                // Title Row
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: responsive.textSmall,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
-                // Copy button
-                IconButton(
-                  icon: const Icon(Icons.copy, size: 20),
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(
-                      text: '${dua.arabic}\n\n$translation',
-                    ));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Copied to clipboard')),
-                    );
-                  },
-                  tooltip: 'Copy',
-                ),
-                // Share button
-                IconButton(
-                  icon: const Icon(Icons.share, size: 20),
-                  onPressed: () {
-                    Share.share(
-                      '$title\n\n${dua.arabic}\n\n$translation',
-                    );
-                  },
-                  tooltip: 'Share',
+                responsive.vSpaceSmall,
+                // Action Buttons Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildHeaderActionButton(
+                      icon: isPlayingArabic ? Icons.stop : Icons.volume_up,
+                      label: isPlayingArabic
+                          ? context.tr('stop')
+                          : context.tr('audio'),
+                      onTap: () => _speakDua(dua.arabic, '${dua.id}_arabic'),
+                      isActive: isPlayingArabic,
+                      responsive: responsive,
+                    ),
+                    _buildHeaderActionButton(
+                      icon: Icons.translate,
+                      label: context.tr('translate'),
+                      onTap: () => _toggleDuaExpanded(dua.id),
+                      isActive: isExpanded,
+                      responsive: responsive,
+                    ),
+                    _buildHeaderActionButton(
+                      icon: Icons.copy,
+                      label: context.tr('copy'),
+                      onTap: () => _copyDua(dua, title, translation),
+                      isActive: false,
+                      responsive: responsive,
+                    ),
+                    _buildHeaderActionButton(
+                      icon: Icons.share,
+                      label: context.tr('share'),
+                      onTap: () => _shareDua(dua, title, translation),
+                      isActive: false,
+                      responsive: responsive,
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
+
+          // Arabic Text with Tap to Play
+          GestureDetector(
+            onTap: () {
+              if (isPlayingArabic) {
+                _stopPlaying();
+              } else {
+                _speakDua(dua.arabic, '${dua.id}_arabic');
+              }
+            },
+            child: Container(
+              margin: responsive.paddingSymmetric(horizontal: 12, vertical: 8),
+              padding: responsive.paddingAll(12),
+              decoration: isPlayingArabic
+                  ? BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(
+                        responsive.radiusMedium,
+                      ),
+                    )
+                  : null,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (isPlayingArabic)
+                    Padding(
+                      padding: EdgeInsets.only(
+                        right: responsive.spaceSmall,
+                        top: responsive.spaceSmall,
+                      ),
+                      child: Icon(
+                        Icons.volume_up,
+                        size: responsive.iconSmall,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  Expanded(
+                    child: Text(
+                      dua.arabic,
+                      style: TextStyle(
+                        fontFamily: 'Amiri',
+                        fontSize: responsive.fontSize(26),
+                        height: 2.0,
+                        color: isPlayingArabic
+                            ? AppColors.primary
+                            : AppColors.primary,
+                      ),
+                      textAlign: TextAlign.center,
+                      textDirection: TextDirection.rtl,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Translation Section (Shown when expanded)
+          if (isExpanded)
+            GestureDetector(
+              onTap: () {
+                if (isPlayingTranslation) {
+                  _stopPlaying();
+                } else {
+                  _speakDua(translation, '${dua.id}_translation');
+                }
+              },
+              child: Container(
+                margin: responsive.paddingSymmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                padding: responsive.paddingAll(12),
+                decoration: BoxDecoration(
+                  color: isPlayingTranslation
+                      ? AppColors.primary.withValues(alpha: 0.1)
+                      : Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(responsive.radiusMedium),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (isPlayingTranslation)
+                      Padding(
+                        padding: EdgeInsets.only(
+                          right: responsive.spaceSmall,
+                          top: responsive.spaceXSmall,
+                        ),
+                        child: Icon(
+                          Icons.volume_up,
+                          size: responsive.iconSmall,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.translate,
+                                size: responsive.iconSmall,
+                                color: AppColors.primary,
+                              ),
+                              SizedBox(width: responsive.spaceSmall),
+                              Text(
+                                '${context.tr('translation')} ($languageLabel)',
+                                style: TextStyle(
+                                  fontSize: responsive.textSmall,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: responsive.spaceMedium),
+                          Text(
+                            translation,
+                            style: TextStyle(
+                              fontSize: responsive.textMedium,
+                              height: 1.6,
+                              color: isPlayingTranslation
+                                  ? AppColors.primary
+                                  : Colors.black87,
+                              fontFamily:
+                                  _selectedLanguage == HajjLanguage.arabic
+                                  ? 'Amiri'
+                                  : null,
+                            ),
+                            textDirection:
+                                (_selectedLanguage == HajjLanguage.urdu ||
+                                    _selectedLanguage == HajjLanguage.arabic)
+                                ? TextDirection.rtl
+                                : TextDirection.ltr,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
 
+  Widget _buildHeaderActionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    required bool isActive,
+    required ResponsiveUtils responsive,
+  }) {
+    const lightGreenChip = Color(0xFFE8F3ED);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(responsive.radiusMedium),
+        child: Container(
+          padding: responsive.paddingSymmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: isActive ? AppColors.primaryLight : lightGreenChip,
+            borderRadius: BorderRadius.circular(responsive.radiusMedium),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: responsive.iconSize(22),
+                color: isActive ? Colors.white : AppColors.primary,
+              ),
+              SizedBox(height: responsive.spaceXSmall),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: responsive.textXSmall,
+                  color: isActive ? Colors.white : AppColors.primary,
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _toggleDuaExpanded(String duaId) {
+    setState(() {
+      if (_expandedDuas.contains(duaId)) {
+        _expandedDuas.remove(duaId);
+      } else {
+        _expandedDuas.add(duaId);
+      }
+    });
+  }
+
+  void _speakDua(String text, String id) async {
+    if (_isPlaying && _currentPlayingId == id) {
+      _stopPlaying();
+    } else {
+      await _flutterTts.stop();
+      setState(() {
+        _isPlaying = true;
+        _currentPlayingId = id;
+      });
+      await _flutterTts.speak(text);
+    }
+  }
+
+  void _stopPlaying() async {
+    await _flutterTts.stop();
+    setState(() {
+      _isPlaying = false;
+      _currentPlayingId = null;
+    });
+  }
+
+  void _copyDua(HajjDua dua, String title, String translation) {
+    Clipboard.setData(
+      ClipboardData(text: '$title\n\n${dua.arabic}\n\n$translation'),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(context.tr('copied')),
+        backgroundColor: AppColors.primary,
+      ),
+    );
+  }
+
+  void _shareDua(HajjDua dua, String title, String translation) {
+    Share.share('$title\n\n${dua.arabic}\n\n$translation');
+  }
+
   Widget _buildProhibitionsCard() {
+    final responsive = ResponsiveUtils(context);
     List<String> prohibitions;
     String sectionTitle;
 
@@ -986,6 +1314,19 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
           'लड़ाई झगड़ा',
         ];
         break;
+      case HajjLanguage.arabic:
+        sectionTitle = 'محظورات الإحرام';
+        prohibitions = [
+          'قص الشعر أو الأظافر',
+          'استخدام العطر',
+          'تغطية الرأس (الرجال)',
+          'الملابس المخيطة (الرجال)',
+          'صيد الحيوانات',
+          'عقد النكاح',
+          'العلاقات الزوجية',
+          'الجدال والقتال',
+        ];
+        break;
       default:
         sectionTitle = 'Ihram Prohibitions';
         prohibitions = [
@@ -1006,43 +1347,53 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         border: Border.all(color: lightGreenBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: 10,
+            blurRadius: responsive.spacing(10),
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                const Icon(Icons.block, color: Colors.red),
-                const SizedBox(width: 8),
+                Icon(
+                  Icons.block,
+                  color: Colors.red,
+                  size: responsive.iconMedium,
+                ),
+                SizedBox(width: responsive.spaceSmall),
                 Text(
                   sectionTitle,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: TextStyle(
+                    fontSize: responsive.textLarge,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: responsive.spaceRegular),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: responsive.spaceSmall,
+              runSpacing: responsive.spaceSmall,
               children: prohibitions
-                  .map((p) => Chip(
-                        label: Text(p, style: const TextStyle(fontSize: 12)),
-                        backgroundColor: Colors.red.withValues(alpha: 0.1),
-                        side: BorderSide.none,
-                      ))
+                  .map(
+                    (p) => Chip(
+                      label: Text(
+                        p,
+                        style: TextStyle(fontSize: responsive.textSmall),
+                      ),
+                      backgroundColor: Colors.red.withValues(alpha: 0.1),
+                      side: BorderSide.none,
+                    ),
+                  )
                   .toList(),
             ),
           ],
@@ -1056,27 +1407,33 @@ class HajjStep {
   final String day;
   final String dayUrdu;
   final String dayHindi;
+  final String dayArabic;
   final String title;
   final String titleUrdu;
   final String titleHindi;
+  final String titleArabic;
   final IconData icon;
   final Color color;
   final List<String> steps;
   final List<String> stepsUrdu;
   final List<String> stepsHindi;
+  final List<String> stepsArabic;
 
   HajjStep({
     required this.day,
     required this.dayUrdu,
     required this.dayHindi,
+    required this.dayArabic,
     required this.title,
     required this.titleUrdu,
     required this.titleHindi,
+    required this.titleArabic,
     required this.icon,
     required this.color,
     required this.steps,
     required this.stepsUrdu,
     required this.stepsHindi,
+    required this.stepsArabic,
   });
 }
 
@@ -1085,19 +1442,23 @@ class HajjDua {
   final String title;
   final String titleUrdu;
   final String titleHindi;
+  final String titleArabic;
   final String arabic;
   final String translationEn;
   final String translationUrdu;
   final String translationHindi;
+  final String translationArabic;
 
   HajjDua({
     required this.id,
     required this.title,
     required this.titleUrdu,
     required this.titleHindi,
+    required this.titleArabic,
     required this.arabic,
     required this.translationEn,
     required this.translationUrdu,
     required this.translationHindi,
+    required this.translationArabic,
   });
 }

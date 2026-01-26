@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,17 +16,14 @@ class GhuslScreen extends StatefulWidget {
 class _GhuslScreenState extends State<GhuslScreen> {
   String _selectedLanguage = 'english';
 
-  final Map<String, String> _titles = {
-    'english': 'Ghusl - Complete Guide',
-    'urdu': 'غسل کا طریقہ - مکمل رہنمائی',
-    'hindi': 'ग़ुस्ल का तरीका - संपूर्ण मार्गदर्शन',
-  };
 
   final List<Map<String, dynamic>> _ghuslTypes = [
     {
+      'titleKey': 'ghusl_1_when_is_ghusl_obligatory',
       'title': 'When is Ghusl Obligatory?',
       'titleUrdu': 'غسل کب فرض ہوتا ہے؟',
       'titleHindi': 'ग़ुस्ल कब फ़र्ज़ होता है?',
+      'titleArabic': 'متى يجب الغسل؟',
       'icon': Icons.help_outline,
       'color': Colors.blue,
       'details': {
@@ -106,12 +105,40 @@ Note: If any of these conditions apply, Ghusl is mandatory before prayer, touchi
    • यह फ़र्ज़-ए-किफ़ाया है
 
 नोट: अगर इनमें से कोई हालत लागू हो तो नमाज़, क़ुरआन छूने, या तवाफ़ से पहले ग़ुस्ल फ़र्ज़ है।''',
+        'arabic': '''متى يجب الغسل (الفرض)؟
+
+يجب الغسل في الحالات التالية:
+
+١. بعد الجنابة (النجاسة الكبرى):
+   • بعد الجماع (حتى بدون إنزال)
+   • بعد الإنزال (أثناء النوم أو في اليقظة)
+   • بعد الاحتلام
+
+٢. بعد الحيض:
+   • يجب على النساء الاغتسال بعد انتهاء الدورة الشهرية
+   • الصلاة والصوم غير صحيحين بدون الغسل بعد الحيض
+
+٣. بعد النفاس (دم ما بعد الولادة):
+   • بعد الولادة، عندما يتوقف النزيف
+   • المدة القصوى 40 يومًا
+
+٤. عند الدخول في الإسلام:
+   • ينبغي للمسلم الجديد أن يغتسل عند إسلامه
+   • يعتبر هذا سنة أو واجبًا عند مختلف العلماء
+
+٥. الموت:
+   • يجب تغسيل الميت قبل الدفن
+   • هذا فرض كفاية
+
+ملاحظة: إذا انطبق أي من هذه الشروط، يكون الغسل واجبًا قبل الصلاة، أو لمس القرآن، أو أداء الطواف.''',
       },
     },
     {
+      'titleKey': 'ghusl_2_recommended_ghusl',
       'title': 'Recommended Ghusl',
       'titleUrdu': 'مستحب غسل',
       'titleHindi': 'मुस्तहब ग़ुस्ल',
+      'titleArabic': 'الغسل المستحب',
       'icon': Icons.star,
       'color': Colors.amber,
       'details': {
@@ -217,12 +244,48 @@ These are recommended acts that bring additional reward but are not obligatory.'
    • लैलतुल क़द्र
 
 ये मुस्तहब आमाल हैं जो इज़ाफ़ी सवाब लाते हैं लेकिन फ़र्ज़ नहीं।''',
+        'arabic': '''الغسل المستحب/السنة
+
+الغسل مستحب (وليس واجبًا) في هذه الحالات:
+
+١. غسل الجمعة:
+   • مستحب جدًا قبل صلاة الجمعة
+   • قال النبي ﷺ: "غُسل الجمعة واجب على كل محتلم." (يرى معظم العلماء أنه مستحب مؤكد)
+
+٢. صلاة العيدين:
+   • قبل صلاة عيد الفطر
+   • قبل صلاة عيد الأضحى
+
+٣. قبل الإحرام:
+   • قبل الإحرام للحج أو العمرة
+   • حتى للنساء الحائض
+
+٤. عند دخول مكة:
+   • يستحب الغسل عند دخول مكة المكرمة
+
+٥. يوم عرفة:
+   • في التاسع من ذي الحجة
+
+٦. عند الوقوف بعرفة:
+   • للحجاج
+
+٧. بعد الإفاقة من الإغماء:
+   • عند استعادة الوعي
+
+٨. قبل صلوات خاصة:
+   • الاستسقاء (صلاة طلب المطر)
+   • صلاة الكسوف
+   • ليلة القدر
+
+هذه أعمال مستحبة تجلب ثوابًا إضافيًا ولكنها ليست فرضًا.''',
       },
     },
     {
+      'titleKey': 'ghusl_3_fard_acts_of_ghusl',
       'title': 'Fard Acts of Ghusl',
       'titleUrdu': 'غسل کے فرائض',
       'titleHindi': 'ग़ुस्ल के फ़राइज़',
+      'titleArabic': 'فرائض الغسل',
       'icon': Icons.check_circle,
       'color': Colors.green,
       'details': {
@@ -313,12 +376,48 @@ Note: According to Shafi'i and Hanbali schools, intention (Niyyah) is also Fard.
 • ख़वातीन को चोटियां खोलने की ज़रूरत नहीं अगर पानी जड़ों तक पहुंच जाए
 
 नोट: शाफ़ई और हंबली मसलक के मुताबिक़ नीयत भी फ़र्ज़ है।''',
+        'arabic': '''فرائض الغسل
+
+الغسل صحيح فقط عندما تُؤدى هذه الفرائض الثلاثة:
+
+١. المضمضة (غسل الفم):
+   • يجب أن يصل الماء إلى جميع أجزاء الفم
+   • تغرغر إذا لم تكن صائمًا
+   • هذا فرض وفقًا للمذهب الحنفي
+
+٢. الاستنشاق (تنظيف الأنف):
+   • يجب أن يصل الماء داخل فتحتي الأنف
+   • استنشق الماء إلى داخل الأنف ثم أخرجه
+   • هذا فرض وفقًا للمذهب الحنفي
+
+٣. غسل الجسم كله:
+   • كل جزء من الجسم يجب أن يُبلل بالماء
+   • من أعلى الرأس إلى أسفل القدمين
+   • لا يجوز ترك أي جزء جافًا
+
+الأماكن التي يجب الانتباه لها:
+   • خلف الأذنين وفي الأذنين
+   • تحت الذقن والرقبة
+   • تحت الإبطين
+   • السرة يجب تنظيفها
+   • بين أصابع القدمين واليدين
+
+نقاط مهمة:
+• إذا بقي أي مكان بمقدار شعرة جافًا، فالغسل غير صحيح
+• أزل أي شيء يمنع وصول الماء إلى الجلد (طلاء الأظافر، الطلاء الجاف، إلخ)
+• يجب أن يبتل الشعر حتى الجذور
+• يجب على الرجال غسل تحت اللحية
+• النساء لا يحتجن إلى فك الضفائر إذا وصل الماء إلى الجذور
+
+ملاحظة: وفقًا للمذهبين الشافعي والحنبلي، النية أيضًا فرض.''',
       },
     },
     {
+      'titleKey': 'ghusl_4_complete_method_of_ghusl',
       'title': 'Complete Method of Ghusl',
       'titleUrdu': 'غسل کا مکمل طریقہ',
       'titleHindi': 'ग़ुस्ल का मुकम्मल तरीक़ा',
+      'titleArabic': 'الطريقة الكاملة للغسل',
       'icon': Icons.format_list_numbered,
       'color': Colors.purple,
       'details': {
@@ -469,12 +568,64 @@ Step 10: Recite Dua After Ghusl
 दसवां क़दम: ग़ुस्ल के बाद दुआ पढ़ें
 • वुज़ू वाली दुआ:
 "أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ"''',
+        'arabic': '''الطريقة الكاملة للغسل وفق السنة
+
+الخطوة الأولى: النية
+• انو في قلبك أن تتطهر من النجاسة الكبرى
+• قل "بسم الله"
+
+الخطوة الثانية: اغسل اليدين (3 مرات)
+• اغسل اليدين حتى المعصمين ثلاث مرات
+
+الخطوة الثالثة: اغسل الأعضاء التناسلية
+• اغسل وطهر المكان النجس
+• استخدم اليد اليسرى لهذا
+• تأكد من النظافة الكاملة
+
+الخطوة الرابعة: توضأ للصلاة
+• توضأ وضوءًا كاملاً
+• يمكنك ترك غسل القدمين للنهاية
+• أو اغسلهما الآن
+
+الخطوة الخامسة: صب الماء على الرأس (3 مرات)
+• تأكد أن الماء يصل إلى فروة الرأس
+• دلك الشعر بالأصابع
+• يجب أن يصل الماء إلى جذور الشعر
+
+الخطوة السادسة: صب الماء على الجانب الأيمن من الجسم (3 مرات)
+• ابدأ من الكتف الأيمن
+• اغسل الجانب الأيمن بالكامل
+• دلك الجسم لضمان وصول الماء في كل مكان
+
+الخطوة السابعة: صب الماء على الجانب الأيسر من الجسم (3 مرات)
+• ثم اغسل الكتف الأيسر
+• اغسل الجانب الأيسر بالكامل
+• دلك الجسم جيدًا
+
+الخطوة الثامنة: صب الماء على الجسم كله
+• تأكد من عدم بقاء أي جزء جافًا
+• انتبه بشكل خاص إلى:
+  - تحت الإبطين
+  - خلف الأذنين
+  - داخل السرة
+  - بين أصابع القدمين
+  - جميع طيات الجسم
+
+الخطوة التاسعة: انتقل إلى مكان نظيف واغسل القدمين
+• إذا تركت القدمين في الوضوء فاغسلهما الآن
+• اغسل بين الأصابع
+
+الخطوة العاشرة: اقرأ الدعاء بعد الغسل
+• دعاء الوضوء:
+"أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ"''',
       },
     },
     {
+      'titleKey': 'ghusl_5_ghusl_for_women',
       'title': 'Ghusl for Women',
       'titleUrdu': 'خواتین کا غسل',
       'titleHindi': 'ख़वातीन का ग़ुस्ल',
+      'titleArabic': 'غسل النساء',
       'icon': Icons.female,
       'color': Colors.pink,
       'details': {
@@ -571,12 +722,45 @@ If Unable to Use Water:
 
 अगर पानी इस्तेमाल न कर सकें:
 • बीमारी या पानी न होने की सूरत में तयम्मुम कर सकती हैं''',
+        'arabic': '''غسل النساء - إرشادات خاصة
+
+طريقة الغسل للنساء هي نفسها كما للرجال، مع بعض الاعتبارات الإضافية:
+
+بخصوص الشعر:
+• النساء لا يحتجن إلى فك ضفائرهن إذا وصل الماء إلى الجذور
+• قال النبي ﷺ لأم سلمة رضي الله عنها: "يكفيك أن تحثي على رأسك ثلاث حثيات، ثم تفيضين عليك الماء فتطهرين." (صحيح مسلم)
+• ومع ذلك، بعد الحيض، يوصي بعض العلماء بفك الضفائر
+
+بعد الحيض:
+• الغسل واجب عند انتهاء الحيض
+• استخدم مسكًا أو قطعة قماش معطرة لتطهير مكان الدم (سنة)
+• إذا لم يتوفر المسك، فأي عطر نظيف أو الماء فقط يكفي
+
+بعد النفاس:
+• نفس الطريقة كما في الحيض
+• يمكن بدء الصلاة والصيام بعد الغسل
+• المدة القصوى للنفاس 40 يومًا
+
+بعد الجماع:
+• يجب على كل من الزوج والزوجة الاغتسال
+• يمكنهما الاغتسال معًا إذا كان هناك حجاب مناسب
+
+نقاط خاصة:
+• يجب إزالة المجوهرات الضيقة التي تمنع الماء من الوصول إلى الجلد
+• يجب إزالة طلاء الأظافر لأنه يشكل حاجزًا
+• يجب إزالة الرموش الصناعية التي تمنع الماء من الوصول إلى جلد الجفن
+• تأكد من وصول الماء تحت الأساور والخواتم
+
+إذا لم تتمكن من استخدام الماء:
+• في حالة المرض أو نقص الماء، يمكن أداء التيمم بدلاً من ذلك''',
       },
     },
     {
+      'titleKey': 'ghusl_6_tayammum_dry_ablution',
       'title': 'Tayammum (Dry Ablution)',
       'titleUrdu': 'تیمم',
       'titleHindi': 'तयम्मुम',
+      'titleArabic': 'التيمم (الوضوء الجاف)',
       'icon': Icons.landscape,
       'color': Colors.brown,
       'details': {
@@ -730,6 +914,59 @@ What Breaks Tayammum:
 • वही चीज़ें जो वुज़ू तोड़ती हैं
 • पानी मिलना जब इस्तेमाल कर सकें
 • तयम्मुम की वजह बाक़ी न रहे''',
+        'arabic': '''التيمم (الوضوء الجاف)
+
+التيمم هو عمل إسلامي للوضوء الجاف باستخدام تراب نظيف أو غبار، ويمكن أداؤه عندما يكون الماء غير متوفر أو لا يمكن استخدامه.
+
+متى يُسمح بالتيمم؟
+
+١. عدم توفر الماء:
+   • في السفر عندما لا يتوفر الماء
+   • عندما لا يكون هناك مصدر ماء قريب
+
+٢. عدم القدرة على استخدام الماء:
+   • بسبب المرض حيث يكون الماء ضارًا
+   • في البرد الشديد حيث يكون الماء ضارًا
+   • الجروح أو الأمراض الجلدية
+
+٣. الماء مطلوب لغرض أكثر أهمية:
+   • ماء الشرب للبقاء على قيد الحياة
+   • الطبخ الضروري
+
+طريقة التيمم:
+
+الخطوة الأولى: النية
+• انو التيمم للطهارة
+
+الخطوة الثانية: قل بسم الله
+• "بِسْمِ اللَّهِ"
+
+الخطوة الثالثة: اضرب راحتي اليدين على تراب نظيف
+• اضرب أو ضع راحتي اليدين على تراب نظيف أو رمل أو حجر
+• انفخ الغبار الزائد
+
+الخطوة الرابعة: امسح الوجه
+• امسح الوجه كله مرة واحدة بكلتا راحتي اليدين
+• من الجبهة إلى الذقن
+• من أذن إلى أذن
+
+الخطوة الخامسة: اضرب راحتي اليدين على التراب مرة أخرى
+• للمذهب الحنفي: ضربة واحدة تكفي
+• للشافعي: ضربتان منفصلتان
+
+الخطوة السادسة: امسح الذراعين
+• امسح الذراع الأيمن باليد اليسرى (حتى المرفق)
+• امسح الذراع الأيسر باليد اليمنى (حتى المرفق)
+• شمل بين الأصابع أيضًا
+
+التيمم يحل محل:
+• كل من الوضوء والغسل
+• تيمم واحد صحيح حتى يُنقض أو يتوفر الماء
+
+ما الذي يُبطل التيمم:
+• نفس الأشياء التي تُبطل الوضوء
+• توفر الماء عندما يمكنك استخدامه
+• انتهاء سبب التيمم''',
       },
     },
   ];
@@ -753,117 +990,16 @@ What Breaks Tayammum:
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _titles[_selectedLanguage]!,
-          style: const TextStyle(
+          context.tr('ghusl'),
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: context.responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 8),
-            child: PopupMenuButton<String>(
-              icon: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.3),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.language, color: Colors.white, size: 18),
-                    const SizedBox(width: 4),
-                    Text(
-                      _selectedLanguage == 'english'
-                          ? 'EN'
-                          : _selectedLanguage == 'urdu'
-                          ? 'UR'
-                          : 'HI',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              onSelected: (value) {
-                setState(() {
-                  _selectedLanguage = value;
-                });
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'english',
-                  child: Row(
-                    children: [
-                      Icon(
-                        _selectedLanguage == 'english'
-                            ? Icons.check_circle
-                            : Icons.circle_outlined,
-                        color: _selectedLanguage == 'english'
-                            ? AppColors.primary
-                            : Colors.grey,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('English'),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'urdu',
-                  child: Row(
-                    children: [
-                      Icon(
-                        _selectedLanguage == 'urdu'
-                            ? Icons.check_circle
-                            : Icons.circle_outlined,
-                        color: _selectedLanguage == 'urdu'
-                            ? AppColors.primary
-                            : Colors.grey,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('اردو'),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'hindi',
-                  child: Row(
-                    children: [
-                      Icon(
-                        _selectedLanguage == 'hindi'
-                            ? Icons.check_circle
-                            : Icons.circle_outlined,
-                        color: _selectedLanguage == 'hindi'
-                            ? AppColors.primary
-                            : Colors.grey,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('हिंदी'),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: context.responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -886,89 +1022,123 @@ What Breaks Tayammum:
     );
   }
 
-  Widget _buildGhuslCard(
-    Map<String, dynamic> ghusl,
-    bool isDark,
-  ) {
-    final title = _selectedLanguage == 'english'
-        ? ghusl['title']
-        : _selectedLanguage == 'urdu'
-        ? ghusl['titleUrdu']
-        : ghusl['titleHindi'];
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showGhuslDetails(ghusl),
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.lightGreenBorder.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+  Widget _buildGhuslCard(ghusl, bool isDark) {
+    final langCode = context.languageProvider.languageCode;
+    final title = context.tr(ghusl['titleKey'] ?? 'ghusl');
+    final responsive = context.responsive;
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
+return Container(
+      margin: responsive.paddingOnly(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () => _showGhuslDetails(ghusl),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        child: Padding(
+          padding: responsive.paddingAll(14),
+          child: Row(
+            children: [
+              // Number Badge (if has number field)
+              Container(
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
+                decoration: BoxDecoration(
+                  color: darkGreen,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.15),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
+                child: Center(
                   child: Icon(
                     ghusl['icon'] as IconData,
-                    color: AppColors.primary,
-                    size: 26,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: isDark ? Colors.white : AppColors.primary,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textDirection: _selectedLanguage == 'urdu'
-                        ? TextDirection.rtl
-                        : TextDirection.ltr,
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E8F5A),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.arrow_forward_ios,
                     color: Colors.white,
-                    size: 14,
+                    size: responsive.textLarge,
                   ),
                 ),
-              ],
-            ),
+              ),
+              SizedBox(width: responsive.spacing(14)),
+
+              // Title and Icon chip
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: responsive.textLarge,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                      ),
+                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                    ),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Icon chip
+                    Container(
+                      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            ghusl['icon'] as IconData,
+                            size: responsive.textXSmall + 2,
+                            color: emeraldGreen,
+                          ),
+                          SizedBox(width: responsive.spacing(4)),
+                          Text(
+                            context.tr('ghusl'),
+                            style: TextStyle(
+                              fontSize: responsive.textXSmall,
+                              fontWeight: FontWeight.w600,
+                              color: emeraldGreen,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Arrow Icon
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.textXSmall + 2,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -981,15 +1151,17 @@ What Breaks Tayammum:
       context,
       MaterialPageRoute(
         builder: (context) => BasicAmalDetailScreen(
-          title: ghusl['title'],
+          title: ghusl['title'] ?? '',
           titleUrdu: ghusl['titleUrdu'] ?? '',
           titleHindi: ghusl['titleHindi'] ?? '',
+          titleArabic: ghusl['titleArabic'] ?? '',
           contentEnglish: details['english'] ?? '',
           contentUrdu: details['urdu'] ?? '',
           contentHindi: details['hindi'] ?? '',
+          contentArabic: details['arabic'] ?? '',
           color: ghusl['color'] as Color,
           icon: ghusl['icon'] as IconData,
-          category: 'Deen Ki Buniyadi Amal - Ghusl',
+          categoryKey: 'category_ghusl',
         ),
       ),
     );

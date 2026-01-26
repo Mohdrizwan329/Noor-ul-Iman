@@ -17,6 +17,7 @@ class AdhanProvider with ChangeNotifier {
   bool _adhanSoundEnabled = true;
   String _selectedAdhan = 'makkah';
   bool _isInitialized = false;
+
   final Map<String, bool> _prayerNotifications = {
     'Fajr': true,
     'Sunrise': false,
@@ -43,11 +44,14 @@ class AdhanProvider with ChangeNotifier {
 
   // Adhan URLs (using Islamic Network CDN)
   static const Map<String, String> adhanUrls = {
-    'makkah': 'https://cdn.islamic.network/adhaan/128/ar.abdullahbasfaralhuthaify.mp3',
-    'madinah': 'https://cdn.islamic.network/adhaan/128/ar.abdullahawadaljuhani.mp3',
+    'makkah':
+        'https://cdn.islamic.network/adhaan/128/ar.abdullahbasfaralhuthaify.mp3',
+    'madinah':
+        'https://cdn.islamic.network/adhaan/128/ar.abdullahawadaljuhani.mp3',
     'alaqsa': 'https://cdn.islamic.network/adhaan/64/ar.misharyalafasy.mp3',
     'mishary': 'https://cdn.islamic.network/adhaan/128/ar.misharyalafasy.mp3',
-    'abdul_basit': 'https://cdn.islamic.network/adhaan/128/ar.abdulbasitabdussamad.mp3',
+    'abdul_basit':
+        'https://cdn.islamic.network/adhaan/128/ar.abdulbasitabdussamad.mp3',
   };
 
   Future<void> initialize() async {
@@ -66,7 +70,9 @@ class AdhanProvider with ChangeNotifier {
   }
 
   Future<void> _initNotifications() async {
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -86,13 +92,15 @@ class AdhanProvider with ChangeNotifier {
     // Request permissions for Android 13+
     await _notifications
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.requestNotificationsPermission();
 
     // Request exact alarm permission for Android 12+
     await _notifications
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.requestExactAlarmsPermission();
   }
 

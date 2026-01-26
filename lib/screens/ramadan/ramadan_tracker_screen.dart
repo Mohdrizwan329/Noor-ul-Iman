@@ -7,8 +7,11 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../data/models/dua_model.dart';
 import '../../providers/prayer_provider.dart';
+import '../../providers/language_provider.dart';
 
 class RamadanTrackerScreen extends StatefulWidget {
   const RamadanTrackerScreen({super.key});
@@ -39,6 +42,32 @@ class _RamadanTrackerScreenState extends State<RamadanTrackerScreen> {
     _checkRamadan();
     _loadFastingData();
     _initTts();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncLanguageWithApp();
+  }
+
+  void _syncLanguageWithApp() {
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final appLanguage = languageProvider.languageCode;
+
+    setState(() {
+      switch (appLanguage) {
+        case 'hi':
+          _selectedLanguage = DuaLanguage.hindi;
+        case 'en':
+          _selectedLanguage = DuaLanguage.english;
+        case 'ur':
+          _selectedLanguage = DuaLanguage.urdu;
+        case 'ar':
+          _selectedLanguage = DuaLanguage.arabic;
+        default:
+          _selectedLanguage = DuaLanguage.hindi;
+      }
+    });
   }
 
   Future<void> _initTts() async {
@@ -139,48 +168,64 @@ class _RamadanTrackerScreenState extends State<RamadanTrackerScreen> {
   // Ramadan Duas Data
   List<Map<String, dynamic>> get _ramadanDuas => [
     {
-      'title': 'Dua for Suhoor (Sehri)',
+      'titleKey': 'dua_for_suhoor',
       'arabic': 'وَبِصَوْمِ غَدٍ نَّوَيْتُ مِنْ شَهْرِ رَمَضَانَ',
       'transliteration': 'Wa bisawmi ghadinn nawaytu min shahri Ramadan',
       'hindi': 'मैं कल रमज़ान के महीने का रोज़ा रखने की नियत करता/करती हूँ।',
-      'english': 'I intend to keep the fast for tomorrow in the month of Ramadan.',
+      'english':
+          'I intend to keep the fast for tomorrow in the month of Ramadan.',
       'urdu': 'میں کل رمضان کے مہینے کا روزہ رکھنے کی نیت کرتا/کرتی ہوں۔',
       'color': const Color(0xFF3949AB),
     },
     {
-      'title': 'Dua for Iftar',
+      'titleKey': 'dua_for_iftar',
       'arabic': 'اللَّهُمَّ لَكَ صُمْتُ وَعَلَى رِزْقِكَ أَفْطَرْتُ',
       'transliteration': "Allahumma laka sumtu wa 'ala rizqika aftartu",
-      'hindi': 'ऐ अल्लाह! मैंने तेरे लिए रोज़ा रखा और तेरी रिज़्क़ से इफ्तार किया।',
-      'english': 'O Allah! I fasted for You and I break my fast with Your sustenance.',
+      'hindi':
+          'ऐ अल्लाह! मैंने तेरे लिए रोज़ा रखा और तेरी रिज़्क़ से इफ्तार किया।',
+      'english':
+          'O Allah! I fasted for You and I break my fast with Your sustenance.',
       'urdu': 'اے اللہ! میں نے تیرے لیے روزہ رکھا اور تیرے رزق سے افطار کیا۔',
       'color': const Color(0xFFE65100),
     },
     {
-      'title': 'Dua When Breaking Fast',
-      'arabic': 'ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ',
-      'transliteration': "Dhahaba al-zama' wa abtallatil-'urooq wa thabatal-ajru in sha Allah",
-      'hindi': 'प्यास बुझ गई, नसें तर हो गईं और अगर अल्लाह ने चाहा तो सवाब मिल गया।',
-      'english': 'The thirst has gone, the veins are moistened and the reward is confirmed, if Allah wills.',
-      'urdu': 'پیاس بجھ گئی، رگیں تر ہو گئیں اور اگر اللہ نے چاہا تو ثواب مل گیا۔',
+      'titleKey': 'dua_when_breaking_fast',
+      'arabic':
+          'ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ',
+      'transliteration':
+          "Dhahaba al-zama' wa abtallatil-'urooq wa thabatal-ajru in sha Allah",
+      'hindi':
+          'प्यास बुझ गई, नसें तर हो गईं और अगर अल्लाह ने चाहा तो सवाब मिल गया।',
+      'english':
+          'The thirst has gone, the veins are moistened and the reward is confirmed, if Allah wills.',
+      'urdu':
+          'پیاس بجھ گئی، رگیں تر ہو گئیں اور اگر اللہ نے چاہا تو ثواب مل گیا۔',
       'color': const Color(0xFF2E7D32),
     },
     {
-      'title': 'Dua for Laylatul Qadr',
+      'titleKey': 'dua_for_laylatul_qadr',
       'arabic': 'اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي',
       'transliteration': "Allahumma innaka 'afuwwun tuhibbul-'afwa fa'fu 'anni",
-      'hindi': 'ऐ अल्लाह! तू माफ करने वाला है, माफी को पसंद करता है, तो मुझे माफ कर दे।',
-      'english': 'O Allah, You are Forgiving and love forgiveness, so forgive me.',
-      'urdu': 'اے اللہ! تو معاف کرنے والا ہے، معافی کو پسند کرتا ہے، تو مجھے معاف کر دے۔',
+      'hindi':
+          'ऐ अल्लाह! तू माफ करने वाला है, माफी को पसंद करता है, तो मुझे माफ कर दे।',
+      'english':
+          'O Allah, You are Forgiving and love forgiveness, so forgive me.',
+      'urdu':
+          'اے اللہ! تو معاف کرنے والا ہے، معافی کو پسند کرتا ہے، تو مجھے معاف کر دے۔',
       'color': const Color(0xFF6A1B9A),
     },
     {
-      'title': 'Dua for Taraweeh',
-      'arabic': 'سُبْحَانَ ذِي الْمُلْكِ وَالْمَلَكُوتِ سُبْحَانَ ذِي الْعِزَّةِ وَالْعَظَمَةِ وَالْهَيْبَةِ وَالْقُدْرَةِ',
-      'transliteration': "Subhana dhil-mulki wal-malakoot, subhana dhil-'izzati wal-'azamati wal-haybati wal-qudrati",
-      'hindi': 'पाक है वो जो बादशाहत और सल्तनत का मालिक है, पाक है वो जो इज़्ज़त, अज़मत, हैबत और क़ुदरत वाला है।',
-      'english': 'Glory be to the Owner of the Kingdom and the Dominion, Glory be to the Owner of Might, Grandeur, Awe and Power.',
-      'urdu': 'پاک ہے وہ جو بادشاہت اور سلطنت کا مالک ہے، پاک ہے وہ جو عزت، عظمت، ہیبت اور قدرت والا ہے۔',
+      'titleKey': 'dua_for_taraweeh',
+      'arabic':
+          'سُبْحَانَ ذِي الْمُلْكِ وَالْمَلَكُوتِ سُبْحَانَ ذِي الْعِزَّةِ وَالْعَظَمَةِ وَالْهَيْبَةِ وَالْقُدْرَةِ',
+      'transliteration':
+          "Subhana dhil-mulki wal-malakoot, subhana dhil-'izzati wal-'azamati wal-haybati wal-qudrati",
+      'hindi':
+          'पाक है वो जो बादशाहत और सल्तनत का मालिक है, पाक है वो जो इज़्ज़त, अज़मत, हैबत और क़ुदरत वाला है।',
+      'english':
+          'Glory be to the Owner of the Kingdom and the Dominion, Glory be to the Owner of Might, Grandeur, Awe and Power.',
+      'urdu':
+          'پاک ہے وہ جو بادشاہت اور سلطنت کا مالک ہے، پاک ہے وہ جو عزت، عظمت، ہیبت اور قدرت والا ہے۔',
       'color': const Color(0xFF00695C),
     },
   ];
@@ -213,6 +258,8 @@ class _RamadanTrackerScreenState extends State<RamadanTrackerScreen> {
           langCode = 'en-US';
         case DuaLanguage.urdu:
           langCode = 'ur-PK';
+        case DuaLanguage.arabic:
+          langCode = 'ar-SA';
       }
     }
 
@@ -225,12 +272,6 @@ class _RamadanTrackerScreenState extends State<RamadanTrackerScreen> {
     await _flutterTts.speak(text);
   }
 
-  void _changeLanguage(DuaLanguage language) {
-    setState(() {
-      _selectedLanguage = language;
-    });
-  }
-
   void _toggleDuaExpanded(int index) {
     setState(() {
       if (_expandedDuas.contains(index)) {
@@ -241,7 +282,7 @@ class _RamadanTrackerScreenState extends State<RamadanTrackerScreen> {
     });
   }
 
-  void _copyDua(Map<String, dynamic> dua) {
+  void _copyDua(BuildContext context, Map<String, dynamic> dua) {
     String currentTranslation;
     switch (_selectedLanguage) {
       case DuaLanguage.hindi:
@@ -250,10 +291,14 @@ class _RamadanTrackerScreenState extends State<RamadanTrackerScreen> {
         currentTranslation = dua['english'];
       case DuaLanguage.urdu:
         currentTranslation = dua['urdu'];
+      case DuaLanguage.arabic:
+        currentTranslation =
+            dua['english']; // Arabic users see English translation
     }
 
-    final textToCopy = '''
-${dua['title']}
+    final textToCopy =
+        '''
+${context.tr(dua['titleKey'])}
 
 ${dua['arabic']}
 
@@ -264,14 +309,14 @@ $currentTranslation
 
     Clipboard.setData(ClipboardData(text: textToCopy));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Dua copied to clipboard'),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: Text(context.tr('dua_copied')),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  void _shareDua(Map<String, dynamic> dua) {
+  void _shareDua(BuildContext context, Map<String, dynamic> dua) {
     String currentTranslation;
     switch (_selectedLanguage) {
       case DuaLanguage.hindi:
@@ -280,10 +325,14 @@ $currentTranslation
         currentTranslation = dua['english'];
       case DuaLanguage.urdu:
         currentTranslation = dua['urdu'];
+      case DuaLanguage.arabic:
+        currentTranslation =
+            dua['english']; // Arabic users see English translation
     }
 
-    final textToShare = '''
-${dua['title']}
+    final textToShare =
+        '''
+${context.tr(dua['titleKey'])}
 
 ${dua['arabic']}
 
@@ -291,7 +340,7 @@ ${dua['transliteration']}
 
 $currentTranslation
 
-- Shared from Jiyan Islamic Academy App
+${context.tr('shared_from_app')}
 ''';
 
     Share.share(textToShare);
@@ -299,6 +348,7 @@ $currentTranslation
 
   @override
   Widget build(BuildContext context) {
+    final responsive = ResponsiveUtils(context);
     final prayerProvider = context.watch<PrayerProvider>();
     final prayerTimes = prayerProvider.todayPrayerTimes;
 
@@ -306,167 +356,102 @@ $currentTranslation
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text('Ramadan Tracker'),
-        actions: [
-          // Language selector popup
-          PopupMenuButton<DuaLanguage>(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.translate, size: 18),
-                  const SizedBox(width: 4),
-                  Text(
-                    _selectedLanguage == DuaLanguage.hindi
-                        ? 'HI'
-                        : _selectedLanguage == DuaLanguage.english
-                            ? 'EN'
-                            : 'UR',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            onSelected: _changeLanguage,
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: DuaLanguage.hindi,
-                child: Row(
-                  children: [
-                    Icon(
-                      _selectedLanguage == DuaLanguage.hindi
-                          ? Icons.check_circle
-                          : Icons.circle_outlined,
-                      color: _selectedLanguage == DuaLanguage.hindi
-                          ? AppColors.primary
-                          : Colors.grey,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 12),
-                    const Text('Hindi (हिंदी)'),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: DuaLanguage.english,
-                child: Row(
-                  children: [
-                    Icon(
-                      _selectedLanguage == DuaLanguage.english
-                          ? Icons.check_circle
-                          : Icons.circle_outlined,
-                      color: _selectedLanguage == DuaLanguage.english
-                          ? AppColors.primary
-                          : Colors.grey,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 12),
-                    const Text('English'),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: DuaLanguage.urdu,
-                child: Row(
-                  children: [
-                    Icon(
-                      _selectedLanguage == DuaLanguage.urdu
-                          ? Icons.check_circle
-                          : Icons.circle_outlined,
-                      color: _selectedLanguage == DuaLanguage.urdu
-                          ? AppColors.primary
-                          : Colors.grey,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 12),
-                    const Text('Urdu (اردو)'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 8),
-        ],
+        title: Text(
+          context.tr('ramadan_tracker_title'),
+          style: TextStyle(fontSize: responsive.textLarge),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Ramadan Status Card
-            _buildStatusCard(),
-            const SizedBox(height: 16),
+            _buildStatusCard(responsive),
+            SizedBox(height: responsive.spaceRegular),
 
             // Suhoor & Iftar Times
             if (prayerTimes != null) ...[
-              _buildFastingTimesCard(prayerTimes.fajr, prayerTimes.maghrib),
-              const SizedBox(height: 16),
+              _buildFastingTimesCard(
+                prayerTimes.fajr,
+                prayerTimes.maghrib,
+                responsive,
+              ),
+              SizedBox(height: responsive.spaceRegular),
             ],
 
             // Statistics
-            _buildStatisticsCard(),
-            const SizedBox(height: 16),
+            _buildStatisticsCard(responsive),
+            SizedBox(height: responsive.spaceRegular),
 
-            // Fasting Days Grid
+            // Fasting Days Grid Card
             Text(
-              'Fasting Days - Ramadan $_currentRamadanYear',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              context
+                  .tr('fasting_days_ramadan')
+                  .replaceAll('{year}', _currentRamadanYear.toString()),
+              style: TextStyle(
+                fontSize: responsive.textRegular,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
+              ),
             ),
-            const SizedBox(height: 12),
-            _buildFastingGrid(),
+            SizedBox(height: responsive.spaceMedium),
+            _buildFastingGridCard(responsive),
 
-            const SizedBox(height: 24),
+            SizedBox(height: responsive.spaceXXLarge),
 
             // Ramadan Duas Section
-            _buildDuasSection(),
+            _buildDuasSection(responsive),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatusCard() {
+  Widget _buildStatusCard(ResponsiveUtils responsive) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: responsive.paddingLarge,
       decoration: BoxDecoration(
-        gradient: AppColors.headerGradient,
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: [
           Icon(
             _isRamadan ? Icons.nights_stay : Icons.calendar_month,
-            color: Colors.white,
-            size: 48,
+            color: AppColors.primary,
+            size: responsive.iconXXLarge,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: responsive.spaceMedium),
           Text(
-            _isRamadan ? 'Ramadan Mubarak!' : 'Ramadan Tracker',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 24,
+            _isRamadan
+                ? context.tr('ramadan_mubarak')
+                : context.tr('ramadan_tracker_title'),
+            style: TextStyle(
+              color: AppColors.primary,
+              fontSize: responsive.textXXLarge,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: responsive.spaceSmall),
           Text(
             _isRamadan
-                ? 'Day $_currentDay of Ramadan'
-                : 'Track your fasting for Ramadan $_currentRamadanYear',
+                ? context
+                      .tr('day_of_ramadan')
+                      .replaceAll('{day}', _currentDay.toString())
+                : '${context.tr('track_your_fasting')} $_currentRamadanYear',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.9),
-              fontSize: 16,
+              color: AppColors.textSecondary,
+              fontSize: responsive.textRegular,
             ),
           ),
         ],
@@ -474,11 +459,15 @@ $currentTranslation
     );
   }
 
-  Widget _buildFastingTimesCard(String suhoorEnd, String iftarTime) {
+  Widget _buildFastingTimesCard(
+    String suhoorEnd,
+    String iftarTime,
+    ResponsiveUtils responsive,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
@@ -489,24 +478,26 @@ $currentTranslation
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: responsive.paddingRegular,
         child: Row(
           children: [
             Expanded(
               child: _buildTimeColumn(
-                'Suhoor Ends',
+                context.tr('suhoor_ends'),
                 suhoorEnd,
                 Icons.wb_twilight,
                 Colors.indigo,
+                responsive,
               ),
             ),
             Container(height: 60, width: 1, color: AppColors.lightGreenBorder),
             Expanded(
               child: _buildTimeColumn(
-                'Iftar Time',
+                context.tr('iftar_time'),
                 iftarTime,
                 Icons.nights_stay,
                 Colors.orange,
+                responsive,
               ),
             ),
           ],
@@ -520,33 +511,38 @@ $currentTranslation
     String time,
     IconData icon,
     Color color,
+    ResponsiveUtils responsive,
   ) {
     return Column(
       children: [
-        Icon(icon, color: color, size: 28),
-        const SizedBox(height: 8),
-        Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-        const SizedBox(height: 4),
+        Icon(icon, color: color, size: responsive.iconMedium),
+        SizedBox(height: responsive.spaceSmall),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: responsive.textSmall,
+            color: AppColors.textSecondary,
+          ),
+        ),
+        SizedBox(height: responsive.spaceXSmall),
         Text(
           time,
           style: TextStyle(
-            fontSize: 24,
+            fontSize: responsive.textLarge,
             fontWeight: FontWeight.bold,
-            color: color,
+            color: AppColors.textPrimary,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildStatisticsCard() {
-    final remaining = 30 - _totalFasted - _totalMissed;
-    final progress = _totalFasted / 30;
-
+  Widget _buildStatisticsCard(ResponsiveUtils responsive) {
     return Container(
+      padding: responsive.paddingRegular,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
@@ -556,471 +552,696 @@ $currentTranslation
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Progress',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            context.tr('statistics'),
+            style: TextStyle(
+              fontSize: responsive.textRegular,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
             ),
-            const SizedBox(height: 16),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: LinearProgressIndicator(
-                value: progress,
-                minHeight: 12,
-                backgroundColor: Colors.grey[200],
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStatItem('Completed', _totalFasted, Colors.green),
-                _buildStatItem('Missed', _totalMissed, Colors.red),
-                _buildStatItem('Remaining', remaining, Colors.grey),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatItem(String label, int count, Color color) {
-    return Column(
-      children: [
-        Text(
-          '$count',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: color,
           ),
-        ),
-        Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-      ],
-    );
-  }
-
-  Widget _buildFastingGrid() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 6,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-      ),
-      itemCount: 30,
-      itemBuilder: (context, index) {
-        final day = index + 1;
-        final fastingDay = _fastingDays[day]!;
-        return _buildDayTile(fastingDay);
-      },
-    );
-  }
-
-  Widget _buildDayTile(FastingDay day) {
-    Color backgroundColor;
-    Color textColor;
-    IconData? icon;
-
-    switch (day.status) {
-      case FastingStatus.completed:
-        backgroundColor = Colors.green;
-        textColor = Colors.white;
-        icon = Icons.check;
-      case FastingStatus.missed:
-        backgroundColor = Colors.red;
-        textColor = Colors.white;
-        icon = Icons.close;
-      case FastingStatus.pending:
-        backgroundColor = Colors.grey[200]!;
-        textColor = Colors.black87;
-        icon = null;
-    }
-
-    return InkWell(
-      onTap: () => _showDayOptions(day.day),
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(8),
-          border: _isRamadan && day.day == _currentDay
-              ? Border.all(color: AppColors.secondary, width: 3)
-              : null,
-        ),
-        child: Center(
-          child: icon != null
-              ? Icon(icon, color: textColor, size: 20)
-              : Text(
-                  '${day.day}',
-                  style: TextStyle(
-                    color: textColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-        ),
-      ),
-    );
-  }
-
-  void _showDayOptions(int day) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Day $day', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildOptionButton(
-                  'Fasted',
-                  Icons.check_circle,
+          SizedBox(height: responsive.spaceMedium),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatItem(
+                  context.tr('completed'),
+                  _totalFasted,
                   Colors.green,
-                  () {
-                    _updateFastingStatus(day, FastingStatus.completed);
-                    Navigator.pop(context);
-                  },
+                  Icons.check_circle,
+                  responsive,
                 ),
-                _buildOptionButton('Missed', Icons.cancel, Colors.red, () {
-                  _updateFastingStatus(day, FastingStatus.missed);
-                  Navigator.pop(context);
-                }),
-                _buildOptionButton('Reset', Icons.refresh, Colors.grey, () {
-                  _updateFastingStatus(day, FastingStatus.pending);
-                  Navigator.pop(context);
-                }),
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
+              ),
+              SizedBox(width: responsive.spaceMedium),
+              Expanded(
+                child: _buildStatItem(
+                  context.tr('missed'),
+                  _totalMissed,
+                  Colors.red,
+                  Icons.cancel,
+                  responsive,
+                ),
+              ),
+              SizedBox(width: responsive.spaceMedium),
+              Expanded(
+                child: _buildStatItem(
+                  context.tr('pending'),
+                  30 - _totalFasted - _totalMissed,
+                  Colors.orange,
+                  Icons.pending,
+                  responsive,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildOptionButton(
+  Widget _buildStatItem(
     String label,
-    IconData icon,
+    int count,
     Color color,
-    VoidCallback onTap,
+    IconData icon,
+    ResponsiveUtils responsive,
   ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 32),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(color: color, fontWeight: FontWeight.w600),
+    return Container(
+      padding: responsive.paddingSmall,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(responsive.radiusMedium),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: responsive.iconMedium),
+          SizedBox(height: responsive.spaceXSmall),
+          Text(
+            count.toString(),
+            style: TextStyle(
+              fontSize: responsive.textXLarge,
+              fontWeight: FontWeight.bold,
+              color: color,
             ),
-          ],
-        ),
+          ),
+          SizedBox(height: responsive.spaceXSmall),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: responsive.textXSmall,
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
 
-  // Duas Section
-  Widget _buildDuasSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Ramadan Duas',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-        const SizedBox(height: 12),
-        ..._ramadanDuas.asMap().entries.map(
-              (entry) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _buildDuaCard(entry.key, entry.value),
-              ),
+  Widget _buildFastingGridCard(ResponsiveUtils responsive) {
+    return Container(
+      padding: responsive.paddingRegular,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Weekday Header
+          _buildWeekDaysHeader(responsive),
+          SizedBox(height: responsive.spaceSmall),
+          // Days Grid
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 7,
+              crossAxisSpacing: responsive.spaceSmall,
+              mainAxisSpacing: responsive.spaceSmall,
+              childAspectRatio: 1,
             ),
-      ],
+            itemCount: 30,
+            itemBuilder: (context, index) {
+              final day = index + 1;
+              final fastingDay = _fastingDays[day]!;
+              return _buildDayCell(day, fastingDay, responsive);
+            },
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildDuaCard(int duaIndex, Map<String, dynamic> dua) {
-    final isExpanded = _expandedDuas.contains(duaIndex);
-    final color = dua['color'] as Color;
-    final isCurrentlyPlaying = _playingDuaIndex == duaIndex && _isSpeaking;
+  Widget _buildWeekDaysHeader(ResponsiveUtils responsive) {
+    final weekDays = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
-    String currentTranslation;
-    switch (_selectedLanguage) {
-      case DuaLanguage.hindi:
-        currentTranslation = dua['hindi'];
-      case DuaLanguage.english:
-        currentTranslation = dua['english'];
-      case DuaLanguage.urdu:
-        currentTranslation = dua['urdu'];
+    return Container(
+      padding: responsive.paddingSymmetric(vertical: 8, horizontal: 4),
+      decoration: BoxDecoration(
+        color: AppColors.lightGreenChip,
+        borderRadius: BorderRadius.circular(responsive.radiusMedium),
+        border: Border.all(color: AppColors.lightGreenBorder, width: 1),
+      ),
+      child: Row(
+        children: weekDays.map((day) {
+          return Expanded(
+            child: Text(
+              context.tr(day),
+              style: TextStyle(
+                fontSize: responsive.textXSmall,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildDayCell(
+    int day,
+    FastingDay fastingDay,
+    ResponsiveUtils responsive,
+  ) {
+    Color backgroundColor;
+    Color borderColor;
+    Color textColor;
+
+    switch (fastingDay.status) {
+      case FastingStatus.completed:
+        backgroundColor = Colors.green.withValues(alpha: 0.15);
+        borderColor = Colors.green;
+        textColor = Colors.green.shade700;
+        break;
+      case FastingStatus.missed:
+        backgroundColor = Colors.red.withValues(alpha: 0.15);
+        borderColor = Colors.red;
+        textColor = Colors.red.shade700;
+        break;
+      case FastingStatus.pending:
+        backgroundColor = AppColors.lightGreenChip;
+        borderColor = AppColors.lightGreenBorder;
+        textColor = AppColors.primary;
+        break;
     }
 
     return GestureDetector(
-      onTap: () => _toggleDuaExpanded(duaIndex),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        width: double.infinity,
+      onTap: () => _showStatusDialog(day),
+      child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: isExpanded ? AppColors.primaryLight : AppColors.lightGreenBorder,
-            width: isExpanded ? 2 : 1.5,
-          ),
+          color: backgroundColor,
+          border: Border.all(color: borderColor, width: 2),
+          borderRadius: BorderRadius.circular(responsive.radiusMedium),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withValues(alpha: isExpanded ? 0.12 : 0.08),
-              blurRadius: isExpanded ? 12 : 10,
+              color: borderColor.withValues(alpha: 0.1),
+              blurRadius: 4,
               offset: const Offset(0, 2),
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.vertical(
-                  top: const Radius.circular(15),
-                  bottom: isExpanded ? Radius.zero : const Radius.circular(15),
-                ),
+        child: Center(
+          child: Text(
+            day.toString(),
+            style: TextStyle(
+              fontSize: responsive.textRegular,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showStatusDialog(int day) {
+    final responsive = ResponsiveUtils(context);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        ),
+        title: Text(
+          '${context.tr('day')} $day',
+          style: TextStyle(
+            fontSize: responsive.textLarge,
+            fontWeight: FontWeight.bold,
+            color: AppColors.primary,
+          ),
+        ),
+        content: Text(
+          context.tr('select_fasting_status'),
+          style: TextStyle(fontSize: responsive.textRegular),
+        ),
+        actions: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildDialogButton(
+                label: context.tr('completed'),
+                icon: Icons.check_circle,
+                color: Colors.green,
+                onPressed: () {
+                  _updateFastingStatus(day, FastingStatus.completed);
+                  Navigator.pop(context);
+                },
+                responsive: responsive,
               ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(Icons.menu_book, color: color, size: 20),
+              SizedBox(height: responsive.spaceSmall),
+              _buildDialogButton(
+                label: context.tr('missed'),
+                icon: Icons.cancel,
+                color: Colors.red,
+                onPressed: () {
+                  _updateFastingStatus(day, FastingStatus.missed);
+                  Navigator.pop(context);
+                },
+                responsive: responsive,
+              ),
+              SizedBox(height: responsive.spaceSmall),
+              _buildDialogButton(
+                label: context.tr('pending'),
+                icon: Icons.pending,
+                color: Colors.orange,
+                onPressed: () {
+                  _updateFastingStatus(day, FastingStatus.pending);
+                  Navigator.pop(context);
+                },
+                responsive: responsive,
+              ),
+              SizedBox(height: responsive.spaceSmall),
+              _buildDialogButton(
+                label: context.tr('cancel'),
+                icon: Icons.close,
+                color: Colors.grey,
+                onPressed: () => Navigator.pop(context),
+                responsive: responsive,
+              ),
+            ],
+          ),
+        ],
+        actionsPadding: responsive.paddingAll(16),
+      ),
+    );
+  }
+
+  Widget _buildDialogButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onPressed,
+    required ResponsiveUtils responsive,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: color, width: 2),
+        borderRadius: BorderRadius.circular(responsive.radiusMedium),
+        color: color.withValues(alpha: 0.1),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(responsive.radiusMedium),
+          child: Padding(
+            padding: responsive.paddingSymmetric(vertical: 12, horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: color, size: responsive.iconMedium),
+                SizedBox(width: responsive.spaceSmall),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: responsive.textRegular,
+                    fontWeight: FontWeight.bold,
+                    color: color,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      dua['title'],
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: color,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDuasSection(ResponsiveUtils responsive) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          context.tr('ramadan_duas'),
+          style: TextStyle(
+            fontSize: responsive.textXLarge,
+            fontWeight: FontWeight.bold,
+            color: AppColors.primary,
+          ),
+        ),
+        SizedBox(height: responsive.spaceMedium),
+
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _ramadanDuas.length,
+          separatorBuilder: (context, index) =>
+              SizedBox(height: responsive.spaceRegular),
+          itemBuilder: (context, index) {
+            final dua = _ramadanDuas[index];
+            final isExpanded = _expandedDuas.contains(index);
+            return _buildDuaCard(dua, index, isExpanded, responsive);
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDuaCard(
+    Map<String, dynamic> dua,
+    int index,
+    bool isExpanded,
+    ResponsiveUtils responsive,
+  ) {
+    String currentTranslation;
+    String languageLabel;
+
+    switch (_selectedLanguage) {
+      case DuaLanguage.hindi:
+        currentTranslation = dua['hindi'];
+        languageLabel = context.tr('hindi');
+      case DuaLanguage.english:
+        currentTranslation = dua['english'];
+        languageLabel = context.tr('english');
+      case DuaLanguage.urdu:
+        currentTranslation = dua['urdu'];
+        languageLabel = context.tr('urdu');
+      case DuaLanguage.arabic:
+        currentTranslation = dua['english'];
+        languageLabel = context.tr('english');
+    }
+
+    final isPlayingArabic = _playingDuaIndex == (index * 2) && _isSpeaking;
+    final isPlayingTranslation =
+        _playingDuaIndex == (index * 2 + 1) && _isSpeaking;
+    final isPlaying = isPlayingArabic || isPlayingTranslation;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isPlaying
+              ? AppColors.primaryLight
+              : AppColors.lightGreenBorder,
+          width: isPlaying ? 2 : 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header Section with Light Green Background
+          Container(
+            padding: responsive.paddingSymmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: isPlaying
+                  ? AppColors.primaryLight.withValues(alpha: 0.1)
+                  : AppColors.lightGreenChip,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(responsive.radiusLarge),
+                topRight: Radius.circular(responsive.radiusLarge),
+              ),
+            ),
+            child: Column(
+              children: [
+                // Number Badge and Title Row
+                Row(
+                  children: [
+                    Container(
+                      width: responsive.spacing(40),
+                      height: responsive.spacing(40),
+                      decoration: BoxDecoration(
+                        color: isPlaying
+                            ? AppColors.primaryLight
+                            : AppColors.primary,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.3),
+                            blurRadius: responsive.spacing(6),
+                            offset: Offset(0, responsive.spacing(2)),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          '${index + 1}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: responsive.textMedium,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  Icon(
-                    isExpanded
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
-                    color: color,
+                    responsive.hSpaceMedium,
+                    Expanded(
+                      child: Text(
+                        context.tr(dua['titleKey']),
+                        style: TextStyle(
+                          fontSize: responsive.textSmall,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                responsive.vSpaceSmall,
+                // Action Buttons Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildHeaderActionButton(
+                      icon: isPlayingArabic ? Icons.stop : Icons.volume_up,
+                      label: isPlayingArabic
+                          ? context.tr('stop')
+                          : context.tr('audio'),
+                      onTap: () =>
+                          _playDua(index * 2, dua['arabic'], isArabic: true),
+                      isActive: isPlayingArabic,
+                    ),
+                    _buildHeaderActionButton(
+                      icon: Icons.translate,
+                      label: context.tr('translate'),
+                      onTap: () => _toggleDuaExpanded(index),
+                      isActive: isExpanded,
+                    ),
+                    _buildHeaderActionButton(
+                      icon: Icons.copy,
+                      label: context.tr('copy'),
+                      onTap: () => _copyDua(context, dua),
+                      isActive: false,
+                    ),
+                    _buildHeaderActionButton(
+                      icon: Icons.share,
+                      label: context.tr('share'),
+                      onTap: () => _shareDua(context, dua),
+                      isActive: false,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // Arabic Text with Tap to Play
+          GestureDetector(
+            onTap: () {
+              if (isPlayingArabic) {
+                _stopPlaying();
+              } else {
+                _playDua(index * 2, dua['arabic'], isArabic: true);
+              }
+            },
+            child: Container(
+              margin: responsive.paddingSymmetric(horizontal: 12, vertical: 8),
+              padding: responsive.paddingAll(12),
+              decoration: isPlayingArabic
+                  ? BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(
+                        responsive.radiusMedium,
+                      ),
+                    )
+                  : null,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (isPlayingArabic)
+                    Padding(
+                      padding: EdgeInsets.only(
+                        right: responsive.spaceSmall,
+                        top: responsive.spaceSmall,
+                      ),
+                      child: Icon(
+                        Icons.volume_up,
+                        size: responsive.iconSmall,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  Expanded(
+                    child: Text(
+                      dua['arabic'],
+                      style: TextStyle(
+                        fontFamily: 'Amiri',
+                        fontSize: responsive.fontSize(26),
+                        height: 2.0,
+                        color: isPlayingArabic
+                            ? AppColors.primary
+                            : AppColors.primary,
+                      ),
+                      textAlign: TextAlign.center,
+                      textDirection: TextDirection.rtl,
+                    ),
                   ),
                 ],
               ),
             ),
+          ),
 
-            // Expanded Content
-            if (isExpanded) ...[
-              // Arabic text
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+          // Translation Section (Shown when expanded)
+          if (isExpanded)
+            GestureDetector(
+              onTap: () {
+                if (isPlayingTranslation) {
+                  _stopPlaying();
+                } else {
+                  _playDua(index * 2 + 1, currentTranslation, isArabic: false);
+                }
+              },
+              child: Container(
+                margin: responsive.paddingSymmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                padding: responsive.paddingAll(12),
+                decoration: BoxDecoration(
+                  color: isPlayingTranslation
+                      ? AppColors.primary.withValues(alpha: 0.1)
+                      : Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(responsive.radiusMedium),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Arabic with audio button
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            dua['arabic'],
-                            textAlign: TextAlign.right,
-                            textDirection: TextDirection.rtl,
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w500,
-                              height: 1.8,
-                            ),
-                          ),
+                    if (isPlayingTranslation)
+                      Padding(
+                        padding: EdgeInsets.only(
+                          right: responsive.spaceSmall,
+                          top: responsive.spaceXSmall,
                         ),
-                        const SizedBox(width: 8),
-                        InkWell(
-                          onTap: () => _playDua(duaIndex, dua['arabic'], isArabic: true),
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: isCurrentlyPlaying
-                                  ? color.withValues(alpha: 0.15)
-                                  : Colors.transparent,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isCurrentlyPlaying ? color : Colors.grey.shade300,
-                              ),
-                            ),
-                            child: Icon(
-                              isCurrentlyPlaying ? Icons.stop : Icons.volume_up,
-                              size: 18,
-                              color: isCurrentlyPlaying ? color : Colors.grey.shade600,
-                            ),
-                          ),
+                        child: Icon(
+                          Icons.volume_up,
+                          size: responsive.iconSmall,
+                          color: AppColors.primary,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Transliteration
-                    Text(
-                      dua['transliteration'],
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontStyle: FontStyle.italic,
-                        color: color,
                       ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Translation with audio
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
+                    Expanded(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Text(
-                              currentTranslation,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade700,
-                                height: 1.5,
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.translate,
+                                size: responsive.iconSmall,
+                                color: AppColors.primary,
                               ),
-                              textDirection: _selectedLanguage == DuaLanguage.urdu
-                                  ? TextDirection.rtl
-                                  : TextDirection.ltr,
-                            ),
+                              SizedBox(width: responsive.spaceSmall),
+                              Text(
+                                '${context.tr('translation')} ($languageLabel)',
+                                style: TextStyle(
+                                  fontSize: responsive.textSmall,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          InkWell(
-                            onTap: () => _playDua(duaIndex + 100, currentTranslation),
-                            borderRadius: BorderRadius.circular(20),
-                            child: Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: color.withValues(alpha: 0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                _playingDuaIndex == duaIndex + 100 && _isSpeaking
-                                    ? Icons.stop
-                                    : Icons.play_arrow,
-                                size: 16,
-                                color: color,
-                              ),
+                          SizedBox(height: responsive.spaceMedium),
+                          Text(
+                            currentTranslation,
+                            style: TextStyle(
+                              fontSize: responsive.textMedium,
+                              height: 1.6,
+                              color: isPlayingTranslation
+                                  ? AppColors.primary
+                                  : Colors.black87,
+                              fontFamily:
+                                  _selectedLanguage == DuaLanguage.arabic
+                                  ? 'Amiri'
+                                  : null,
                             ),
+                            textDirection:
+                                (_selectedLanguage == DuaLanguage.urdu ||
+                                    _selectedLanguage == DuaLanguage.arabic)
+                                ? TextDirection.rtl
+                                : TextDirection.ltr,
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
-
-                    // Action buttons: Copy and Share
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        // Copy button
-                        InkWell(
-                          onTap: () => _copyDua(dua),
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.copy, size: 16, color: Colors.grey.shade700),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Copy',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey.shade700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        // Share button
-                        InkWell(
-                          onTap: () => _shareDua(dua),
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: color.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.share, size: 16, color: color),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Share',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: color,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderActionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    required bool isActive,
+  }) {
+    final responsive = context.responsive;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(responsive.radiusMedium),
+        child: Container(
+          padding: responsive.paddingSymmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: isActive ? AppColors.primaryLight : AppColors.lightGreenChip,
+            borderRadius: BorderRadius.circular(responsive.radiusMedium),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: responsive.iconSize(22),
+                color: isActive ? Colors.white : AppColors.primary,
+              ),
+              SizedBox(height: responsive.spaceXSmall),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: responsive.textXSmall,
+                  color: isActive ? Colors.white : AppColors.primary,
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -1032,27 +1253,19 @@ enum FastingStatus { pending, completed, missed }
 class FastingDay {
   final int day;
   final FastingStatus status;
-  final String? notes;
 
-  FastingDay({required this.day, required this.status, this.notes});
+  FastingDay({required this.day, required this.status});
 
-  FastingDay copyWith({FastingStatus? status, String? notes}) {
-    return FastingDay(
-      day: day,
-      status: status ?? this.status,
-      notes: notes ?? this.notes,
-    );
+  FastingDay copyWith({FastingStatus? status}) {
+    return FastingDay(day: day, status: status ?? this.status);
   }
 
-  Map<String, dynamic> toJson() => {
-    'day': day,
-    'status': status.index,
-    'notes': notes,
-  };
+  Map<String, dynamic> toJson() => {'day': day, 'status': status.index};
 
-  factory FastingDay.fromJson(Map<String, dynamic> json) => FastingDay(
-    day: json['day'],
-    status: FastingStatus.values[json['status']],
-    notes: json['notes'],
-  );
+  factory FastingDay.fromJson(Map<String, dynamic> json) {
+    return FastingDay(
+      day: json['day'],
+      status: FastingStatus.values[json['status']],
+    );
+  }
 }

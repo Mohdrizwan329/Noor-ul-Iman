@@ -4,9 +4,11 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/language_provider.dart';
 
-enum ZakatGuideLanguage { hindi, english, urdu }
+enum ZakatGuideLanguage { hindi, english, urdu, arabic }
 
 class ZakatGuideScreen extends StatefulWidget {
   const ZakatGuideScreen({super.key});
@@ -19,12 +21,13 @@ class _ZakatGuideScreenState extends State<ZakatGuideScreen> {
   final FlutterTts _flutterTts = FlutterTts();
   bool _isSpeaking = false;
   int? _playingSectionIndex;
-  ZakatGuideLanguage _selectedLanguage = ZakatGuideLanguage.hindi;
+  late ZakatGuideLanguage _selectedLanguage;
 
   static const Map<ZakatGuideLanguage, String> languageNames = {
     ZakatGuideLanguage.hindi: 'Hindi',
     ZakatGuideLanguage.english: 'English',
     ZakatGuideLanguage.urdu: 'Urdu',
+    ZakatGuideLanguage.arabic: 'Arabic',
   };
 
   final List<Map<String, dynamic>> _sections = [
@@ -33,7 +36,8 @@ class _ZakatGuideScreenState extends State<ZakatGuideScreen> {
       'title': 'ज़कात क्या है?',
       'titleArabic': 'ما هي الزكاة؟',
       'titleEnglish': 'What is Zakat?',
-      'contentHindi': '''ज़कात इस्लाम के पांच अरकान में से एक है। यह एक फ़र्ज़ इबादत है जो हर साहिब-ए-निसाब मुसलमान पर वाजिब है।
+      'contentHindi':
+          '''ज़कात इस्लाम के पांच अरकान में से एक है। यह एक फ़र्ज़ इबादत है जो हर साहिब-ए-निसाब मुसलमान पर वाजिब है।
 
 ज़कात का मतलब है "पाक करना" या "बढ़ना"। अपने माल में से 2.5% (1/40) हिस्सा गरीबों और ज़रूरतमंदों को देना ज़कात कहलाता है।
 
@@ -42,7 +46,8 @@ class _ZakatGuideScreenState extends State<ZakatGuideScreen> {
 (सूरह अल-बक़रह: 43)
 
 ज़कात माल को पाक करती है और बरकत लाती है। यह दिल से बख़ीली (कंजूसी) दूर करती है और अल्लाह की रज़ा हासिल होती है।''',
-      'contentEnglish': '''Zakat is one of the five pillars of Islam. It is an obligatory act of worship for every Muslim who possesses the minimum threshold (nisab).
+      'contentEnglish':
+          '''Zakat is one of the five pillars of Islam. It is an obligatory act of worship for every Muslim who possesses the minimum threshold (nisab).
 
 The word Zakat means "purification" or "growth". Giving 2.5% (1/40) of your wealth to the poor and needy is called Zakat.
 
@@ -51,7 +56,8 @@ Allah says in the Quran:
 (Surah Al-Baqarah: 43)
 
 Zakat purifies wealth and brings blessings. It removes greed from the heart and earns Allah's pleasure.''',
-      'contentUrdu': '''زکات اسلام کے پانچ ارکان میں سے ایک ہے۔ یہ ہر صاحب نصاب مسلمان پر فرض عبادت ہے۔
+      'contentUrdu':
+          '''زکات اسلام کے پانچ ارکان میں سے ایک ہے۔ یہ ہر صاحب نصاب مسلمان پر فرض عبادت ہے۔
 
 زکات کا مطلب ہے "پاک کرنا" یا "بڑھنا"۔ اپنے مال میں سے 2.5% (1/40) حصہ غریبوں اور ضرورت مندوں کو دینا زکات کہلاتا ہے۔
 
@@ -60,13 +66,24 @@ Zakat purifies wealth and brings blessings. It removes greed from the heart and 
 (سورۃ البقرۃ: 43)
 
 زکات مال کو پاک کرتی ہے اور برکت لاتی ہے۔ یہ دل سے بخل دور کرتی ہے اور اللہ کی رضا حاصل ہوتی ہے۔''',
+      'contentArabic':
+          '''الزكاة واحدة من أركان الإسلام الخمسة. وهي عبادة واجبة على كل مسلم يمتلك النصاب.
+
+تعني كلمة الزكاة "التطهير" أو "النمو". إعطاء 2.5٪ (1/40) من مالك للفقراء والمحتاجين يسمى الزكاة.
+
+قال الله في القرآن:
+"وأقيموا الصلاة وآتوا الزكاة"
+(سورة البقرة: 43)
+
+الزكاة تطهر المال وتجلب البركة. تزيل الطمع من القلب وتكسب رضا الله.''',
     },
     {
       'icon': Icons.star,
       'title': 'ज़कात क्यों ज़रूरी है?',
       'titleArabic': 'لماذا الزكاة مهمة؟',
       'titleEnglish': 'Why is Zakat Important?',
-      'contentHindi': '''1. फ़र्ज़ इबादत: ज़कात इस्लाम का तीसरा रुक्न है। इसका इंकार कुफ्र है।
+      'contentHindi':
+          '''1. फ़र्ज़ इबादत: ज़कात इस्लाम का तीसरा रुक्न है। इसका इंकार कुफ्र है।
 
 2. माल की सफ़ाई: ज़कात से माल पाक होता है और हलाल कमाई में बरकत आती है।
 
@@ -79,7 +96,8 @@ Zakat purifies wealth and brings blessings. It removes greed from the heart and 
 रसूलुल्लाह ﷺ ने फ़रमाया:
 "जो शख्स अपनी ज़कात खुशी से देता है, उसके लिए जन्नत वाजिब हो जाती है।"
 (सहीह बुखारी)''',
-      'contentEnglish': '''1. Obligatory Worship: Zakat is the third pillar of Islam. Denying it is disbelief.
+      'contentEnglish':
+          '''1. Obligatory Worship: Zakat is the third pillar of Islam. Denying it is disbelief.
 
 2. Purification of Wealth: Zakat purifies wealth and brings blessings to lawful earnings.
 
@@ -92,7 +110,8 @@ Zakat purifies wealth and brings blessings. It removes greed from the heart and 
 The Prophet ﷺ said:
 "Whoever gives Zakat happily, Paradise becomes obligatory for him."
 (Sahih Bukhari)''',
-      'contentUrdu': '''1. فرض عبادت: زکات اسلام کا تیسرا رکن ہے۔ اس کا انکار کفر ہے۔
+      'contentUrdu':
+          '''1. فرض عبادت: زکات اسلام کا تیسرا رکن ہے۔ اس کا انکار کفر ہے۔
 
 2. مال کی صفائی: زکات سے مال پاک ہوتا ہے اور حلال کمائی میں برکت آتی ہے۔
 
@@ -171,7 +190,8 @@ Zakat is Not Obligatory:
       'title': 'ज़कात किसको दी जाए?',
       'titleArabic': 'مستحقو الزكاة',
       'titleEnglish': 'Who Can Receive Zakat?',
-      'contentHindi': '''अल्लाह तआला ने क़ुरआन में 8 किस्म के लोगों का ज़िक्र किया है जिन्हें ज़कात दी जा सकती है:
+      'contentHindi':
+          '''अल्लाह तआला ने क़ुरआन में 8 किस्म के लोगों का ज़िक्र किया है जिन्हें ज़कात दी जा सकती है:
 
 1. फुक़रा (फ़क़ीर): जो अपनी ज़रूरत पूरी नहीं कर सकते
 
@@ -190,7 +210,8 @@ Zakat is Not Obligatory:
 8. इब्नुस्सबील: मुसाफिर जो सफर में अटक गया हो
 
 (सूरह अत-तौबा: 60)''',
-      'contentEnglish': '''Allah mentions 8 categories of people who can receive Zakat in the Quran:
+      'contentEnglish':
+          '''Allah mentions 8 categories of people who can receive Zakat in the Quran:
 
 1. Fuqara (The Poor): Those who cannot meet their basic needs
 
@@ -209,7 +230,8 @@ Zakat is Not Obligatory:
 8. Ibn-us-Sabeel: Travelers stranded on their journey
 
 (Surah At-Tawbah: 60)''',
-      'contentUrdu': '''اللہ تعالیٰ نے قرآن میں 8 قسم کے لوگوں کا ذکر کیا ہے جنہیں زکات دی جا سکتی ہے:
+      'contentUrdu':
+          '''اللہ تعالیٰ نے قرآن میں 8 قسم کے لوگوں کا ذکر کیا ہے جنہیں زکات دی جا سکتی ہے:
 
 1. فقراء (فقیر): جو اپنی ضرورت پوری نہیں کر سکتے
 
@@ -450,7 +472,8 @@ Zakat: ₹4,50,000 × 2.5% = ₹11,250''',
       'title': 'अहम बातें',
       'titleArabic': 'نقاط مهمة',
       'titleEnglish': 'Important Points',
-      'contentHindi': '''📅 ज़कात का वक़्त: साल पूरा होने पर। रमज़ान में देना अफ़ज़ल है।
+      'contentHindi':
+          '''📅 ज़कात का वक़्त: साल पूरा होने पर। रमज़ान में देना अफ़ज़ल है।
 
 🎯 नीयत ज़रूरी: ज़कात देते वक़्त दिल में नीयत होनी चाहिए।
 
@@ -465,7 +488,8 @@ Zakat: ₹4,50,000 × 2.5% = ₹11,250''',
 🎁 बता कर देना: लेने वाले को बताना ज़रूरी नहीं, लेकिन बता सकते हैं।
 
 📊 रिकॉर्ड रखें: हिसाब किताब रखना बेहतर है।''',
-      'contentEnglish': '''📅 Time for Zakat: After completing one year. Giving in Ramadan is preferable.
+      'contentEnglish':
+          '''📅 Time for Zakat: After completing one year. Giving in Ramadan is preferable.
 
 🎯 Intention Required: There must be intention in the heart when giving Zakat.
 
@@ -480,7 +504,8 @@ Zakat: ₹4,50,000 × 2.5% = ₹11,250''',
 🎁 Informing Recipient: Not required to tell the recipient, but you can.
 
 📊 Keep Records: It's better to keep accounts.''',
-      'contentUrdu': '''📅 زکات کا وقت: سال پورا ہونے پر۔ رمضان میں دینا افضل ہے۔
+      'contentUrdu':
+          '''📅 زکات کا وقت: سال پورا ہونے پر۔ رمضان میں دینا افضل ہے۔
 
 🎯 نیت ضروری: زکات دیتے وقت دل میں نیت ہونی چاہیے۔
 
@@ -501,7 +526,25 @@ Zakat: ₹4,50,000 × 2.5% = ₹11,250''',
   @override
   void initState() {
     super.initState();
+    // Initialize language based on app's current language
+    final languageCode = context.read<LanguageProvider>().languageCode;
+    _selectedLanguage = _getLanguageFromCode(languageCode);
     _initTts();
+  }
+
+  // Helper method to convert app language code to ZakatGuideLanguage enum
+  ZakatGuideLanguage _getLanguageFromCode(String languageCode) {
+    switch (languageCode) {
+      case 'hi':
+        return ZakatGuideLanguage.hindi;
+      case 'ur':
+        return ZakatGuideLanguage.urdu;
+      case 'ar':
+        return ZakatGuideLanguage.arabic;
+      case 'en':
+      default:
+        return ZakatGuideLanguage.english;
+    }
   }
 
   Future<void> _initTts() async {
@@ -554,11 +597,33 @@ Zakat: ₹4,50,000 × 2.5% = ₹11,250''',
         break;
       case ZakatGuideLanguage.urdu:
         textToSpeak = section['contentUrdu'] ?? section['contentHindi'];
-        ttsLangCode = await _getAvailableLanguage(['ur-PK', 'ur-IN', 'ur', 'hi-IN']);
+        ttsLangCode = await _getAvailableLanguage([
+          'ur-PK',
+          'ur-IN',
+          'ur',
+          'hi-IN',
+        ]);
+        break;
+      case ZakatGuideLanguage.arabic:
+        textToSpeak =
+            section['contentArabic'] ??
+            section['contentUrdu'] ??
+            section['contentHindi'];
+        ttsLangCode = await _getAvailableLanguage([
+          'ar-SA',
+          'ar-EG',
+          'ar',
+          'ur-PK',
+        ]);
         break;
       case ZakatGuideLanguage.hindi:
         textToSpeak = section['contentHindi'];
-        ttsLangCode = await _getAvailableLanguage(['hi-IN', 'hi', 'en-IN', 'en-US']);
+        ttsLangCode = await _getAvailableLanguage([
+          'hi-IN',
+          'hi',
+          'en-IN',
+          'en-US',
+        ]);
         break;
     }
 
@@ -613,6 +678,11 @@ ${section['contentEnglish']}''';
 
 ${section['contentUrdu']}''';
         break;
+      case ZakatGuideLanguage.arabic:
+        content = '''${section['titleArabic']}
+
+${section['contentArabic'] ?? section['contentUrdu']}''';
+        break;
       case ZakatGuideLanguage.hindi:
         content = '''${section['title']}
 
@@ -621,9 +691,9 @@ ${section['contentHindi']}''';
     }
 
     Clipboard.setData(ClipboardData(text: content));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Copied to clipboard')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(context.tr('copied'))));
   }
 
   void _shareSection(int sectionIndex) {
@@ -632,21 +702,32 @@ ${section['contentHindi']}''';
 
     switch (_selectedLanguage) {
       case ZakatGuideLanguage.english:
-        content = '''${section['titleEnglish']}
+        content =
+            '''${section['titleEnglish']}
 
 ${section['contentEnglish']}
 
 - Shared from Jiyan Islamic Academy App''';
         break;
       case ZakatGuideLanguage.urdu:
-        content = '''${section['titleArabic']}
+        content =
+            '''${section['titleArabic']}
 
 ${section['contentUrdu']}
 
 - Shared from Jiyan Islamic Academy App''';
         break;
+      case ZakatGuideLanguage.arabic:
+        content =
+            '''${section['titleArabic']}
+
+${section['contentArabic'] ?? section['contentUrdu']}
+
+- Shared from Jiyan Islamic Academy App''';
+        break;
       case ZakatGuideLanguage.hindi:
-        content = '''${section['title']}
+        content =
+            '''${section['title']}
 
 ${section['contentHindi']}
 
@@ -661,58 +742,15 @@ ${section['contentHindi']}
   Widget build(BuildContext context) {
     final isDark = context.watch<SettingsProvider>().isDarkMode;
 
+    // Watch LanguageProvider to update language when app language changes
+    final languageCode = context.watch<LanguageProvider>().languageCode;
+    _selectedLanguage = _getLanguageFromCode(languageCode);
+
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text('Zakat Guide'),
-        actions: [
-          // Language selector
-          PopupMenuButton<ZakatGuideLanguage>(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                languageNames[_selectedLanguage]!,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-            onSelected: (ZakatGuideLanguage language) {
-              setState(() {
-                _selectedLanguage = language;
-              });
-            },
-            itemBuilder: (context) => ZakatGuideLanguage.values.map((language) {
-              final isSelected = _selectedLanguage == language;
-              return PopupMenuItem<ZakatGuideLanguage>(
-                value: language,
-                child: Row(
-                  children: [
-                    if (isSelected)
-                      Icon(Icons.check, color: AppColors.primary, size: 18)
-                    else
-                      const SizedBox(width: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      languageNames[language]!,
-                      style: TextStyle(
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                        color: isSelected ? AppColors.primary : null,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-        ],
+        title: Text(context.tr('zakat_guide')),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -727,10 +765,7 @@ ${section['contentHindi']}
             ...List.generate(_sections.length, (index) {
               return Column(
                 children: [
-                  _buildSection(
-                    isDark: isDark,
-                    sectionIndex: index,
-                  ),
+                  _buildSection(isDark: isDark, sectionIndex: index),
                   const SizedBox(height: 20),
                 ],
               );
@@ -772,9 +807,15 @@ ${section['contentHindi']}
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'ZAKAT',
-            style: TextStyle(
+          Text(
+            _selectedLanguage == ZakatGuideLanguage.english
+                ? 'ZAKAT'
+                : _selectedLanguage == ZakatGuideLanguage.urdu
+                ? 'زکات'
+                : _selectedLanguage == ZakatGuideLanguage.arabic
+                ? 'الزكاة'
+                : 'ज़कात',
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -786,8 +827,10 @@ ${section['contentHindi']}
             _selectedLanguage == ZakatGuideLanguage.english
                 ? 'The Third Pillar of Islam'
                 : _selectedLanguage == ZakatGuideLanguage.urdu
-                    ? 'اسلام کا تیسرا رکن'
-                    : 'इस्लाम का तीसरा रुक्न',
+                ? 'اسلام کا تیسرا رکن'
+                : _selectedLanguage == ZakatGuideLanguage.arabic
+                ? 'الركن الثالث من أركان الإسلام'
+                : 'इस्लाम का तीसरा रुक्न',
             style: TextStyle(
               fontSize: 14,
               color: Colors.white.withValues(alpha: 0.9),
@@ -800,9 +843,15 @@ ${section['contentHindi']}
               color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Text(
-              '2.5% = 1/40 of Wealth',
-              style: TextStyle(
+            child: Text(
+              _selectedLanguage == ZakatGuideLanguage.english
+                  ? '2.5% = 1/40 of Wealth'
+                  : _selectedLanguage == ZakatGuideLanguage.urdu
+                  ? '2.5% = 1/40 دولت کا'
+                  : _selectedLanguage == ZakatGuideLanguage.arabic
+                  ? '2.5% = 1/40 من الثروة'
+                  : '2.5% = 1/40 संपत्ति का',
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -814,15 +863,11 @@ ${section['contentHindi']}
     );
   }
 
-  Widget _buildSection({
-    required bool isDark,
-    required int sectionIndex,
-  }) {
+  Widget _buildSection({required bool isDark, required int sectionIndex}) {
     final section = _sections[sectionIndex];
     final isPlaying = _playingSectionIndex == sectionIndex && _isSpeaking;
 
     String title = section['title'];
-    String titleArabic = section['titleArabic'];
     String content = section['contentHindi'];
 
     switch (_selectedLanguage) {
@@ -833,6 +878,10 @@ ${section['contentHindi']}
       case ZakatGuideLanguage.urdu:
         title = section['titleArabic'];
         content = section['contentUrdu'];
+        break;
+      case ZakatGuideLanguage.arabic:
+        title = section['titleArabic'];
+        content = section['contentArabic'] ?? section['contentUrdu'];
         break;
       case ZakatGuideLanguage.hindi:
         break;
@@ -869,9 +918,7 @@ ${section['contentHindi']}
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.grey.shade800
-                  : const Color(0xFFE8F3ED),
+              color: isDark ? Colors.grey.shade800 : const Color(0xFFE8F3ED),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
@@ -887,31 +934,34 @@ ${section['contentHindi']}
                         color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(section['icon'], color: AppColors.primary, size: 24),
+                      child: Icon(
+                        section['icon'],
+                        color: AppColors.primary,
+                        size: 24,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-                            ),
-                          ),
-                          if (_selectedLanguage != ZakatGuideLanguage.urdu)
-                            Text(
-                              titleArabic,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontFamily: 'Amiri',
-                                color: AppColors.primary,
-                              ),
-                            ),
-                        ],
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.textPrimary,
+                          fontFamily:
+                              (_selectedLanguage == ZakatGuideLanguage.urdu ||
+                                  _selectedLanguage ==
+                                      ZakatGuideLanguage.arabic)
+                              ? 'Amiri'
+                              : null,
+                        ),
+                        textDirection:
+                            (_selectedLanguage == ZakatGuideLanguage.urdu ||
+                                _selectedLanguage == ZakatGuideLanguage.arabic)
+                            ? TextDirection.rtl
+                            : TextDirection.ltr,
                       ),
                     ),
                   ],
@@ -929,13 +979,13 @@ ${section['contentHindi']}
                     ),
                     _buildActionButton(
                       icon: Icons.copy,
-                      label: 'Copy',
+                      label: context.tr('copy'),
                       onTap: () => _copySection(sectionIndex),
                       isActive: false,
                     ),
                     _buildActionButton(
                       icon: Icons.share,
-                      label: 'Share',
+                      label: context.tr('share'),
                       onTap: () => _shareSection(sectionIndex),
                       isActive: false,
                     ),
@@ -953,9 +1003,13 @@ ${section['contentHindi']}
               style: TextStyle(
                 fontSize: 14,
                 height: 1.6,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.textSecondary,
               ),
-              textDirection: _selectedLanguage == ZakatGuideLanguage.urdu
+              textDirection:
+                  (_selectedLanguage == ZakatGuideLanguage.urdu ||
+                      _selectedLanguage == ZakatGuideLanguage.arabic)
                   ? TextDirection.rtl
                   : TextDirection.ltr,
             ),
@@ -989,11 +1043,7 @@ ${section['contentHindi']}
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: 22,
-                color: isActive ? Colors.white : darkGreen,
-              ),
+              Icon(icon, size: 22, color: isActive ? Colors.white : darkGreen),
               const SizedBox(height: 2),
               Text(
                 label,
@@ -1016,6 +1066,8 @@ ${section['contentHindi']}
       hadithTranslation = '"Charity (Zakat) does not decrease wealth"';
     } else if (_selectedLanguage == ZakatGuideLanguage.urdu) {
       hadithTranslation = '"صدقہ (زکات) سے مال کم نہیں ہوتا"';
+    } else if (_selectedLanguage == ZakatGuideLanguage.arabic) {
+      hadithTranslation = '"الصدقة (الزكاة) لا تنقص المال"';
     }
 
     return Container(
@@ -1048,13 +1100,21 @@ ${section['contentHindi']}
               fontStyle: FontStyle.italic,
             ),
             textAlign: TextAlign.center,
-            textDirection: _selectedLanguage == ZakatGuideLanguage.urdu
+            textDirection:
+                (_selectedLanguage == ZakatGuideLanguage.urdu ||
+                    _selectedLanguage == ZakatGuideLanguage.arabic)
                 ? TextDirection.rtl
                 : TextDirection.ltr,
           ),
           const SizedBox(height: 8),
           Text(
-            '— Sahih Muslim',
+            _selectedLanguage == ZakatGuideLanguage.english
+                ? '— Sahih Muslim'
+                : _selectedLanguage == ZakatGuideLanguage.urdu
+                ? '— صحیح مسلم'
+                : _selectedLanguage == ZakatGuideLanguage.arabic
+                ? '— صحيح مسلم'
+                : '— सहीह मुस्लिम',
             style: TextStyle(
               fontSize: 12,
               color: Colors.white.withValues(alpha: 0.8),

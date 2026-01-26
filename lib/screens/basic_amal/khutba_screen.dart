@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,17 +16,14 @@ class KhutbaScreen extends StatefulWidget {
 class _KhutbaScreenState extends State<KhutbaScreen> {
   String _selectedLanguage = 'english';
 
-  final Map<String, String> _titles = {
-    'english': 'Khutba - Complete Guide',
-    'urdu': 'خطبہ - مکمل رہنمائی',
-    'hindi': 'ख़ुतबा - संपूर्ण मार्गदर्शन',
-  };
 
   final List<Map<String, dynamic>> _khutbaTypes = [
     {
+      'titleKey': 'friday_khutba',
       'title': 'Jumu\'ah (Friday) Khutba',
       'titleUrdu': 'جمعہ کا خطبہ',
       'titleHindi': 'जुमा का ख़ुतबा',
+      'titleArabic': 'خطبة الجمعة',
       'icon': Icons.mosque,
       'color': Colors.green,
       'details': {
@@ -69,6 +68,47 @@ Conditions:
 • Sermon can be in local language
 • Khatib should stand on the Minbar
 • Congregation should listen silently''',
+        'arabic': '''خطبة الجمعة
+
+خطبة الجمعة جزء أساسي من صلاة الجمعة وتُلقى قبل الصلاة.
+
+بنية خطبة الجمعة:
+
+الخطبة الأولى:
+١. البداية بالحمد (حمد الله):
+"الْحَمْدُ لِلَّهِ نَحْمَدُهُ وَنَسْتَعِينُهُ وَنَسْتَغْفِرُهُ"
+
+٢. الشهادة:
+"أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا اللَّهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ"
+
+٣. الصلاة على النبي ﷺ
+
+٤. تلاوة آية من القرآن
+
+٥. إلقاء الموعظة الرئيسية:
+   • التذكير بالتقوى
+   • مناقشة المواضيع الإسلامية
+   • معالجة قضايا المجتمع الحالية
+   • تقديم النصائح العملية
+
+٦. الختام بالدعاء
+
+الخطبة الثانية:
+١. البداية بالحمد
+٢. الصلاة على النبي ﷺ
+٣. الدعاء للمسلمين
+٤. الدعاء للقادة والمجتمع
+
+بعد الخطبة الثانية:
+• تُقام الصلاة
+• تُصلى ركعتا الفرض
+
+الشروط:
+• كلتا الخطبتين واجبة
+• يجب أن تُلقى باللغة العربية (الأجزاء الرئيسية)
+• يمكن أن تكون الموعظة باللغة المحلية
+• ينبغي للخطيب أن يقف على المنبر
+• يجب على الجماعة الاستماع بصمت''',
         'urdu': '''جمعہ کا خطبہ
 
 جمعہ کا خطبہ نماز جمعہ کا لازمی حصہ ہے اور نماز سے پہلے دیا جاتا ہے۔
@@ -154,9 +194,11 @@ Conditions:
       },
     },
     {
+      'titleKey': 'khutba_1_eid_khutba',
       'title': 'Eid Khutba',
       'titleUrdu': 'عید کا خطبہ',
       'titleHindi': 'ईद का ख़ुतबा',
+      'titleArabic': 'خطبة العيد',
       'icon': Icons.celebration,
       'color': Colors.orange,
       'details': {
@@ -293,12 +335,58 @@ Key Differences from Jumu'ah:
 • पूरे ख़ुतबे में ज़्यादा तकबीरात
 • सुनना सुन्नत है (जुमा की तरह वाजिब नहीं)
 • लोग ख़ुतबे से पहले जा सकते हैं (अगरचे मुस्तहब नहीं)''',
+        'arabic': '''خطبة العيد
+
+تُلقى خطبة العيد بعد صلاة العيد، بخلاف خطبة الجمعة التي تُلقى قبل الصلاة.
+
+البنية:
+
+الخطبة الأولى:
+١. البداية بالتكبير:
+"اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ"
+
+٢. الاستمرار بالتكبيرات (٩ مرات في الخطبة الأولى)
+
+٣. الحمد والشهادة
+
+٤. الصلاة على النبي ﷺ
+
+٥. موعظة خاصة بالعيد:
+
+   لعيد الفطر:
+   • أهمية إتمام رمضان
+   • زكاة الفطر
+   • الشكر على الصيام
+   • مواصلة الأعمال الصالحة
+
+   لعيد الأضحى:
+   • قصة إبراهيم عليه السلام وإسماعيل عليه السلام
+   • روح التضحية
+   • أحكام الأضحية
+   • تكبيرات التشريق
+
+٦. الدعاء
+
+الخطبة الثانية:
+١. البداية بالتكبيرات (٧ مرات)
+٢. الحمد والصلاة على النبي ﷺ
+٣. الدعاء للأمة
+٤. التوجيه العملي
+
+الفروق عن خطبة الجمعة:
+• تُلقى بعد الصلاة (وليس قبلها)
+• تبدأ بالتكبيرات (وليس بالحمد)
+• تكبيرات أكثر خلال الخطبة
+• الاستماع سنة (وليس واجباً كخطبة الجمعة)
+• يمكن للناس المغادرة قبل الخطبة (رغم أنه غير مستحب)''',
       },
     },
     {
+      'titleKey': 'khutba_2_nikah_khutba',
       'title': 'Nikah Khutba',
       'titleUrdu': 'نکاح کا خطبہ',
       'titleHindi': 'निकाह का ख़ुतबा',
+      'titleArabic': 'خطبة النكاح',
       'icon': Icons.favorite,
       'color': Colors.red,
       'details': {
@@ -398,12 +486,46 @@ After the Khutba:
 • जोड़े के लिए दुआ:
 "بَارَكَ اللَّهُ لَكَ وَبَارَكَ عَلَيْكَ وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ"
 "अल्लाह तुम्हें बरकत दे और तुम पर बरकतें नाज़िल करे और तुम दोनों को ख़ैर में जमा रखे।"''',
+        'arabic': '''خطبة النكاح
+
+تُلقى خطبة النكاح قبل عقد الزواج. إنها سنة وتجلب البركة للزواج.
+
+خطبة النكاح المسنونة:
+
+البداية بالحمد:
+"الْحَمْدُ لِلَّهِ نَحْمَدُهُ وَنَسْتَعِينُهُ وَنَسْتَغْفِرُهُ وَنَعُوذُ بِاللَّهِ مِنْ شُرُورِ أَنْفُسِنَا وَمِنْ سَيِّئَاتِ أَعْمَالِنَا"
+
+"الحمد لله، نحمده ونستعينه ونستغفره، ونعوذ بالله من شرور أنفسنا ومن سيئات أعمالنا."
+
+الشهادة:
+"مَنْ يَهْدِهِ اللَّهُ فَلَا مُضِلَّ لَهُ وَمَنْ يُضْلِلْ فَلَا هَادِيَ لَهُ وَأَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ"
+
+ثلاث آيات قرآنية:
+
+١. سورة النساء (٤:١):
+"يَا أَيُّهَا النَّاسُ اتَّقُوا رَبَّكُمُ الَّذِي خَلَقَكُمْ مِنْ نَفْسٍ وَاحِدَةٍ..."
+
+٢. سورة الأحزاب (٣٣:٧٠-٧١):
+"يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ وَقُولُوا قَوْلًا سَدِيدًا..."
+
+٣. سورة آل عمران (٣:١٠٢):
+"يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ حَقَّ تُقَاتِهِ..."
+
+بعد الخطبة:
+• يُؤخذ موافقة العروس والعريس
+• يُعلن عن المهر
+• يشهد الشهود
+• الدعاء للزوجين:
+"بَارَكَ اللَّهُ لَكَ وَبَارَكَ عَلَيْكَ وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ"
+"بارك الله لك وبارك عليك وجمع بينكما في خير."''',
       },
     },
     {
+      'titleKey': 'khutba_3_etiquette_of_listening',
       'title': 'Etiquette of Listening',
       'titleUrdu': 'خطبہ سننے کے آداب',
       'titleHindi': 'ख़ुतबा सुनने के आदाब',
+      'titleArabic': 'آداب الاستماع للخطبة',
       'icon': Icons.hearing,
       'color': Colors.blue,
       'details': {
@@ -539,12 +661,58 @@ The Prophet ﷺ said: "Whoever performs Ghusl on Friday, comes early, walks and 
 
 सवाब:
 नबी करीम ﷺ ने फ़रमाया: "जो शख़्स जुमा को ग़ुस्ल करे, जल्दी आए, पैदल चलकर आए सवार न हो, इमाम के क़रीब बैठे, सुने और फ़ुज़ूल बात न करे, उसके हर क़दम के बदले उसे एक साल के रोज़े और नमाज़ का सवाब मिलेगा।" (सुनन अबू दाऊद)''',
+        'arabic': '''آداب الاستماع للخطبة
+
+لخطبة الجمعة:
+
+١. الحضور مبكراً:
+   • الحضور إلى المسجد مبكراً
+   • كلما جئت مبكراً، كان الأجر أعظم
+
+٢. الجلوس قرب الإمام:
+   • حاول الجلوس في الصفوف الأولى
+   • لا تتخطى رقاب الناس
+
+٣. الاستماع بصمت تام:
+   • لا تتحدث أثناء الخطبة
+   • قال النبي ﷺ: "إذا قلت لصاحبك أنصت يوم الجمعة والإمام يخطب فقد لغوت." (صحيح البخاري)
+
+٤. التوجه نحو الخطيب:
+   • اتجه نحو الإمام
+   • أعطِ انتباهك الكامل
+
+٥. عدم العبث:
+   • تجنب اللعب بالثياب أو السبحة أو الهاتف
+   • اجلس بانتباه وسكون
+
+٦. عدم رد السلام:
+   • إذا سلم عليك أحد فلا ترد عليه لفظاً
+   • يمكنك الرد بعد انتهاء الخطبة
+
+٧. عدم الصلاة أثناء الخطبة:
+   • إلا تحية المسجد (ركعتان سريعتان عند الدخول)
+   • حتى هذه يجب أن تكون موجزة
+
+٨. تجنب المغادرة أثناء الخطبة:
+   • إلا في حالة الطوارئ
+   • انتظر حتى تنتهي الصلاة
+
+٩. الدعاء عند التوقف:
+   • عندما يتوقف الإمام، ادعُ في نفسك
+
+١٠. تطبيق ما تتعلم:
+    • الخطبة هي إرشاد - طبقه في حياتك
+
+الأجر:
+قال النبي ﷺ: "من اغتسل يوم الجمعة، وبكر وابتكر، ومشى ولم يركب، ودنا من الإمام فاستمع ولم يلغ، كان له بكل خطوة عمل سنة أجر صيامها وقيامها." (سنن أبي داود)''',
       },
     },
     {
+      'titleKey': 'khutba_4_khutba_samples',
       'title': 'Khutba Samples',
       'titleUrdu': 'خطبہ کے نمونے',
       'titleHindi': 'ख़ुतबा के नमूने',
+      'titleArabic': 'نماذج الخطب',
       'icon': Icons.article,
       'color': Colors.purple,
       'details': {
@@ -636,6 +804,40 @@ Closing Dua:
 "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ"
 
 "ऐ हमारे रब! हमें दुनिया में भलाई दे और आख़िरत में भलाई दे और हमें आग के अज़ाब से बचा।"''',
+        'arabic': '''نماذج افتتاح الخطبة (بالعربية مع الترجمة)
+
+افتتاح الخطبة الأولى:
+
+"إِنَّ الْحَمْدَ لِلَّهِ نَحْمَدُهُ وَنَسْتَعِينُهُ وَنَسْتَغْفِرُهُ وَنَعُوذُ بِاللَّهِ مِنْ شُرُورِ أَنْفُسِنَا وَمِنْ سَيِّئَاتِ أَعْمَالِنَا مَنْ يَهْدِهِ اللَّهُ فَلَا مُضِلَّ لَهُ وَمَنْ يُضْلِلْ فَلَا هَادِيَ لَهُ"
+
+"إن الحمد لله، نحمده ونستعينه ونستغفره، ونعوذ بالله من شرور أنفسنا ومن سيئات أعمالنا. من يهده الله فلا مضل له، ومن يضلل فلا هادي له."
+
+"وَأَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ"
+
+"أشهد أن لا إله إلا الله وحده لا شريك له، وأشهد أن محمداً عبده ورسوله."
+
+آية التقوى:
+"يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ حَقَّ تُقَاتِهِ وَلَا تَمُوتُنَّ إِلَّا وَأَنتُم مُّسْلِمُونَ"
+
+"يا أيها الذين آمنوا اتقوا الله حق تقاته ولا تموتن إلا وأنتم مسلمون."
+
+افتتاح الخطبة الثانية:
+
+"الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ وَالصَّلَاةُ وَالسَّلَامُ عَلَى أَشْرَفِ الْأَنْبِيَاءِ وَالْمُرْسَلِينَ سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِهِ وَصَحْبِهِ أَجْمَعِينَ"
+
+"الحمد لله رب العالمين، والصلاة والسلام على أشرف الأنبياء والمرسلين، سيدنا محمد وعلى آله وصحبه أجمعين."
+
+دعاء الختام:
+"رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ"
+
+"ربنا آتنا في الدنيا حسنة وفي الآخرة حسنة وقنا عذاب النار."
+
+"عِبَادَ اللَّهِ إِنَّ اللَّهَ يَأْمُرُ بِالْعَدْلِ وَالْإِحْسَانِ وَإِيتَاءِ ذِي الْقُرْبَى وَيَنْهَى عَنِ الْفَحْشَاءِ وَالْمُنكَرِ وَالْبَغْيِ يَعِظُكُمْ لَعَلَّكُمْ تَذَكَّرُونَ"
+
+"عباد الله، إن الله يأمر بالعدل والإحسان وإيتاء ذي القربى، وينهى عن الفحشاء والمنكر والبغي، يعظكم لعلكم تذكرون."
+
+"أَقُولُ قَوْلِي هَذَا وَأَسْتَغْفِرُ اللَّهَ لِي وَلَكُمْ"
+"أقول قولي هذا وأستغفر الله لي ولكم."''',
       },
     },
   ];
@@ -656,113 +858,16 @@ Closing Dua:
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _titles[_selectedLanguage]!,
-          style: const TextStyle(
+          context.tr('khutba'),
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: context.responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 8),
-            child: PopupMenuButton<String>(
-              icon: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.3),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.language, color: Colors.white, size: 18),
-                    const SizedBox(width: 4),
-                    Text(
-                      _selectedLanguage == 'english'
-                          ? 'EN'
-                          : _selectedLanguage == 'urdu'
-                          ? 'UR'
-                          : 'HI',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              onSelected: (value) => setState(() => _selectedLanguage = value),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'english',
-                  child: Row(
-                    children: [
-                      Icon(
-                        _selectedLanguage == 'english'
-                            ? Icons.check_circle
-                            : Icons.circle_outlined,
-                        color: _selectedLanguage == 'english'
-                            ? AppColors.primary
-                            : Colors.grey,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('English'),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'urdu',
-                  child: Row(
-                    children: [
-                      Icon(
-                        _selectedLanguage == 'urdu'
-                            ? Icons.check_circle
-                            : Icons.circle_outlined,
-                        color: _selectedLanguage == 'urdu'
-                            ? AppColors.primary
-                            : Colors.grey,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('اردو'),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'hindi',
-                  child: Row(
-                    children: [
-                      Icon(
-                        _selectedLanguage == 'hindi'
-                            ? Icons.check_circle
-                            : Icons.circle_outlined,
-                        color: _selectedLanguage == 'hindi'
-                            ? AppColors.primary
-                            : Colors.grey,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('हिंदी'),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: context.responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -781,85 +886,128 @@ Closing Dua:
     );
   }
 
-  Widget _buildKhutbaCard(
-    Map<String, dynamic> khutba,
-    bool isDark,
-  ) {
-    final title = _selectedLanguage == 'english'
-        ? khutba['title']
-        : _selectedLanguage == 'urdu'
-        ? khutba['titleUrdu']
-        : khutba['titleHindi'];
+  Widget _buildKhutbaCard(khutba, bool isDark) {
+    final langCode = context.languageProvider.languageCode;
+    final title = context.tr(khutba['titleKey'] ?? 'khutba');
+    final responsive = context.responsive;
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showKhutbaDetails(khutba),
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.lightGreenBorder.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+      margin: responsive.paddingOnly(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () => _showKhutbaDetails(khutba),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        child: Padding(
+          padding: responsive.paddingAll(14),
+          child: Row(
+            children: [
+              // Number Badge (if has number field)
+              Container(
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
+                decoration: BoxDecoration(
+                  color: darkGreen,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.15),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
+                child: Center(
                   child: Icon(
                     khutba['icon'] as IconData,
-                    color: AppColors.primary,
-                    size: 26,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: isDark ? Colors.white : AppColors.primary,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF1E8F5A),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.arrow_forward_ios,
                     color: Colors.white,
-                    size: 14,
+                    size: responsive.textLarge,
                   ),
                 ),
-              ],
-            ),
+              ),
+              SizedBox(width: responsive.spacing(14)),
+
+              // Title and Icon chip
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: responsive.textLarge,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                      ),
+                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                    ),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Icon chip
+                    Container(
+                      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            khutba['icon'] as IconData,
+                            size: responsive.textXSmall + 2,
+                            color: emeraldGreen,
+                          ),
+                          SizedBox(width: responsive.spacing(4)),
+                          Flexible(
+                            child: Text(
+                              context.tr(khutba['titleKey'] ?? 'khutba'),
+                              style: TextStyle(
+                                fontSize: responsive.textXSmall,
+                                fontWeight: FontWeight.w600,
+                                color: emeraldGreen,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Arrow Icon
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.textXSmall + 2,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -872,15 +1020,17 @@ Closing Dua:
       context,
       MaterialPageRoute(
         builder: (context) => BasicAmalDetailScreen(
-          title: khutba['title'],
+          title: khutba['title'] ?? '',
           titleUrdu: khutba['titleUrdu'] ?? '',
           titleHindi: khutba['titleHindi'] ?? '',
+          titleArabic: khutba['titleArabic'] ?? '',
           contentEnglish: details['english'] ?? '',
           contentUrdu: details['urdu'] ?? '',
           contentHindi: details['hindi'] ?? '',
+          contentArabic: details['arabic'] ?? '',
           color: khutba['color'] as Color,
           icon: khutba['icon'] as IconData,
-          category: 'Deen Ki Buniyadi Amal - Khutba',
+          categoryKey: 'category_khutba',
         ),
       ),
     );

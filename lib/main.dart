@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'core/theme/app_theme.dart';
+import 'core/services/background_location_service.dart';
 import 'providers/prayer_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/quran_provider.dart';
@@ -11,6 +14,8 @@ import 'providers/tasbih_provider.dart';
 import 'providers/adhan_provider.dart';
 import 'providers/hadith_provider.dart';
 import 'providers/dua_provider.dart';
+import 'providers/language_provider.dart';
+import 'providers/cart_provider.dart';
 import 'screens/splash/splash_screen.dart';
 
 void main() async {
@@ -33,6 +38,13 @@ void main() async {
     ),
   );
 
+  // Configure Google Fonts to handle network errors gracefully
+  GoogleFonts.config.allowRuntimeFetching = false;
+
+  // Start background location tracking for automatic prayer time updates
+  final backgroundLocationService = BackgroundLocationService();
+  await backgroundLocationService.startLocationTracking();
+
   runApp(const MyApp());
 }
 
@@ -43,6 +55,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ChangeNotifierProvider(
           create: (_) => SettingsProvider()..loadSettings(),
         ),
@@ -52,15 +65,28 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AdhanProvider()),
         ChangeNotifierProvider(create: (_) => HadithProvider()..initialize()),
         ChangeNotifierProvider(create: (_) => DuaProvider()..loadCategories()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
-      child: Consumer<SettingsProvider>(
-        builder: (context, settings, child) {
+      child: Consumer2<SettingsProvider, LanguageProvider>(
+        builder: (context, settings, language, child) {
           return MaterialApp(
-            title: 'Jiyan Islamic Academy',
+            title: 'Noor-ul-Huda',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: settings.themeMode,
+            locale: language.locale,
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en'),
+              Locale('ur'),
+              Locale('ar'),
+              Locale('hi'),
+            ],
             home: const SplashScreen(),
           );
         },

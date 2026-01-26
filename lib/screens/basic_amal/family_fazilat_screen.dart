@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,18 +16,14 @@ class FamilyFazilatScreen extends StatefulWidget {
 class _FamilyFazilatScreenState extends State<FamilyFazilatScreen> {
   String _selectedLanguage = 'english';
 
-  final Map<String, String> _titles = {
-    'english': 'Family - Rights & Duties',
-    'urdu': 'خاندان - حقوق اور فرائض',
-    'hindi': 'ख़ानदान - हुक़ूक़ और फ़राइज़',
-  };
-
   final List<Map<String, dynamic>> _familyTopics = [
     {
       'number': 1,
+      'titleKey': 'family_fazilat_1_rights_of_parents',
       'title': 'Rights of Parents',
       'titleUrdu': 'والدین کے حقوق',
       'titleHindi': 'वालिदैन के हुक़ूक़',
+      'titleArabic': 'فضائل الوالدين',
       'icon': Icons.elderly,
       'color': Colors.orange,
       'details': {
@@ -128,13 +126,48 @@ When Obedience is Not Required:
 • सिर्फ़ अगर वो शिर्क (अल्लाह के साथ शरीक ठहराने) का हुक्म दें
 • "लेकिन अगर वो तुम्हें कोशिश करें कि मेरे साथ शिर्क करो जिसका तुम्हें इल्म नहीं, तो उनकी इताअत न करो लेकिन दुनिया में उनके साथ भलाई से रहो।" (क़ुरआन 31:15)
 • फिर भी उनके साथ मेहरबानी और एहतराम से पेश आएं''',
+        'arabic': '''حقوق الوالدين
+
+الوالدان لهما أعظم مكانة بعد الله ورسوله.
+
+مكانتهم في الإسلام:
+• "وَقَضَىٰ رَبُّكَ أَلَّا تَعْبُدُوا إِلَّا إِيَّاهُ وَبِالْوَالِدَيْنِ إِحْسَانًا" (سورة الإسراء: 23)
+• طاعة الوالدين بعد طاعة الله
+• الإحسان إلى الوالدين من أعظم الأعمال
+• قال النبي ﷺ: "رضا الرب في رضا الوالدين، وسخط الرب في سخط الوالدين" (الترمذي)
+
+الحقوق والواجبات:
+• الحديث معهما بكل احترام وإكرام
+• عدم قول "أف" أو أي كلمة غير لائقة
+• خدمتهما بكل تواضع ومحبة
+• الدعاء لهما: "رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا" (سورة الإسراء: 24)
+• رعايتهما في الكبر
+• استئذانهما في القرارات المهمة
+
+المكانة الخاصة للأم:
+• جاء رجل للنبي ﷺ فقال: "من أحق الناس بحسن صحابتي؟" قال: "أمك" قال: "ثم من؟" قال: "أمك" قال: "ثم من؟" قال: "أمك" قال: "ثم من؟" قال: "أبوك" (البخاري ومسلم)
+• الجنة تحت أقدام الأمهات
+• حق الأم ثلاثة أضعاف حق الأب
+
+عواقب العقوق:
+• من كبائر الذنوب في الإسلام
+• "وَاتَّقُوا اللَّهَ الَّذِي تَسَاءَلُونَ بِهِ وَالْأَرْحَامَ إِنَّ اللَّهَ كَانَ عَلَيْكُمْ رَقِيبًا" (سورة النساء: 1)
+• دعوة الوالد المظلوم مستجابة
+• العقوبة في الدنيا والآخرة
+
+متى لا تجب الطاعة:
+• فقط إذا أمرا بالشرك بالله
+• "وَإِن جَاهَدَاكَ عَلَىٰ أَن تُشْرِكَ بِي مَا لَيْسَ لَكَ بِهِ عِلْمٌ فَلَا تُطِعْهُمَا وَصَاحِبْهُمَا فِي الدُّنْيَا مَعْرُوفًا" (سورة لقمان: 15)
+• حتى في هذه الحالة، يجب معاملتهما بالإحسان والاحترام'''
       },
     },
     {
       'number': 2,
+      'titleKey': 'family_fazilat_2_rights_of_spouse',
       'title': 'Rights of Spouse',
       'titleUrdu': 'شریک حیات کے حقوق',
       'titleHindi': 'शरीक हयात के हुक़ूक़',
+      'titleArabic': 'فضائل الأم',
       'icon': Icons.favorite,
       'color': Colors.pink,
       'details': {
@@ -270,13 +303,52 @@ Conflict Resolution:
 • "और उनके साथ भलाई से रहो। लेकिन अगर तुम उन्हें नापसंद करते हो - शायद तुम किसी चीज़ को नापसंद करो और अल्लाह उसमें बहुत भलाई रखे।" (क़ुरआन 4:19)
 • ज़रूरत हो तो मशवरा लें
 • कभी एक दूसरे से नाराज़ होकर न सोएं''',
+        'arabic': '''حقوق الزوجين
+
+الزواج رباط مقدس له حقوق وواجبات متبادلة.
+
+حقوق الزوجة:
+• النفقة - على الزوج توفير الطعام والكسوة والسكن
+• المعاملة الحسنة: "وَعَاشِرُوهُنَّ بِالْمَعْرُوفِ" (سورة النساء: 19)
+• قال النبي ﷺ: "خيركم خيركم لأهله، وأنا خيركم لأهلي" (الترمذي)
+• احترامها وإكرامها في السر والعلن
+• المساعدة في أعمال المنزل (كما كان يفعل النبي ﷺ)
+• قضاء الوقت معها
+• حماية كرامتها وشرفها
+• الصبر على عيوبها
+
+حقوق الزوج:
+• الطاعة في غير المعصية
+• حفظ ماله وممتلكاته في غيابه
+• رعاية البيت وتوفير بيئة هادئة
+• قال النبي ﷺ: "إذا صلت المرأة خمسها، وصامت شهرها، وحفظت فرجها، وأطاعت زوجها، قيل لها: ادخلي الجنة من أي أبواب الجنة شئت" (أحمد)
+• احترامه وإكرامه
+• الشكر على جهوده
+
+الحقوق المشتركة:
+• الأمانة والإخلاص
+• حسن الخلق والمعاملة
+• التعاون في تربية الأولاد
+• المشورة في القرارات المهمة
+• الحفاظ على الأسرار الزوجية
+• التسامح والعفو
+
+نصائح للحياة الزوجية السعيدة:
+• الاحترام المتبادل
+• التواصل الفعال
+• الصبر والتفاهم
+• تجنب المقارنة مع الآخرين
+• قضاء وقت ممتع معاً
+• الدعاء لبعضكما البعض'''
       },
     },
     {
       'number': 3,
+      'titleKey': 'family_fazilat_3_rights_of_children',
       'title': 'Rights of Children',
       'titleUrdu': 'بچوں کے حقوق',
       'titleHindi': 'बच्चों के हुक़ूक़',
+      'titleArabic': 'فضائل الأب',
       'icon': Icons.child_care,
       'color': Colors.blue,
       'details': {
@@ -418,13 +490,56 @@ Special Care for Daughters:
 • उन्हें इज़्ज़त और एहतराम से पालें
 • उनकी इज़्ज़त की हिफ़ाज़त करें
 • उन्हें मुनासिब तालीम दें''',
+        'arabic': '''حقوق الأولاد
+
+للأولاد حقوق عديدة على والديهم في الإسلام.
+
+الحقوق الأساسية:
+• اختيار اسم حسن
+• الرضاعة والرعاية الصحية
+• التربية الإسلامية الصحيحة
+• التعليم والتهذيب
+• العدل بين الأولاد
+• قال النبي ﷺ: "اتقوا الله واعدلوا بين أولادكم" (البخاري)
+
+التربية الإسلامية:
+• تعليم القرآن والصلاة
+• قال النبي ﷺ: "مروا أولادكم بالصلاة وهم أبناء سبع سنين" (أبو داود)
+• تعليم الأخلاق الحميدة
+• غرس القيم الإسلامية
+• القدوة الحسنة
+
+العدل والمساواة:
+• المساواة في العطايا والهدايا
+• عدم التمييز بين الذكور والإناث
+• معاملة جميع الأولاد بالعدل
+• تجنب التفضيل الظاهر
+
+التوجيه والإرشاد:
+• الصبر على تربيتهم
+• الاستماع لهم وفهم مشاكلهم
+• توجيههم بالحكمة والموعظة الحسنة
+• تشجيعهم على الخير
+• تحذيرهم من السوء بلطف
+
+المسؤوليات المالية:
+• توفير المأكل والمسكن
+• توفير التعليم المناسب
+• الرعاية الصحية
+• تأمين مستقبلهم
+
+الدعاء للأولاد:
+• "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ" (سورة الفرقان: 74)
+• الدعاء لهم بالصلاح والهداية'''
       },
     },
     {
       'number': 4,
+      'titleKey': 'family_fazilat_4_rights_of_siblings',
       'title': 'Rights of Siblings',
       'titleUrdu': 'بہن بھائیوں کے حقوق',
       'titleHindi': 'बहन भाइयों के हुक़ूक़',
+      'titleArabic': 'فضائل الأخوة',
       'icon': Icons.people,
       'color': Colors.purple,
       'details': {
@@ -593,13 +708,55 @@ Special Bond:
 • बचपन की यादों को प्यार से याद रखें
 • बाक़ायदा राबिते में रहें
 • मुमकिन हो तो ख़ानदान को इकट्ठा करें''',
+        'arabic': '''حقوق الإخوة
+
+للإخوة والأخوات حقوق خاصة في الإسلام.
+
+��لمحبة والود:
+• المحبة والمودة بينهم
+• التعاون في الخير
+• قال النبي ﷺ: "المؤمن للمؤمن كالبنيان يشد بعضه بعضاً" (البخاري)
+• نصرة الأخ في الحق
+
+حقوق الأخ الأكبر:
+• احترام الأخ الأكبر
+• استشارته في الأمور المهمة
+• طاعته في المعروف (خاصة بعد وفاة الوالدين)
+• الاستفادة من خبرته
+
+حقوق الأخ الأصغر:
+• الرحمة به والعطف عليه
+• توجيهه وإرشاده
+• مساعدته في حاجاته
+• حمايته ورعايته
+
+حقوق الأخوات:
+• حماية شرفهن وكرامتهن
+• الإنفاق عليهن عند الحاجة
+• قال النبي ﷺ: "من كان له ثلاث بنات أو ثلاث أخوات، فأحسن إليهن، كن له ستراً من النار" (الترمذي)
+• مساعدتهن في الزواج والحياة
+
+تجنب الخلافات:
+• العدل بينهم
+• عدم الحسد والغيرة
+• تجنب الخصومات
+• الصلح عند الخلاف
+• التنازل عن الحقوق الشخصية للمصلحة العامة
+
+صلة الرحم:
+• التواصل المستمر
+• الزيارات المنتظمة
+• المساعدة المالية عند الحاجة
+• الدعاء لبعضهم البعض'''
       },
     },
     {
       'number': 5,
+      'titleKey': 'family_fazilat_5_extended_family_rights',
       'title': 'Extended Family Rights',
       'titleUrdu': 'وسیع خاندان کے حقوق',
       'titleHindi': 'वसी ख़ानदान के हुक़ूक़',
+      'titleArabic': 'حقوق الأقارب الموسعة',
       'icon': Icons.family_restroom,
       'color': Colors.teal,
       'details': {
@@ -768,13 +925,70 @@ Resolving Family Disputes:
 • माफ़ करें और ग़लतियों को नज़रअंदाज़ करें
 • ख़ानदानी इत्तेहाद की अहमियत याद रखें
 • "तो अल्लाह से डरो और अपने दरमियान की चीज़ों को दुरुस्त करो।" (क़ुरआन 8:1)''',
+        'arabic': '''حقوق الأقارب الموسعة
+
+الحفاظ على الروابط الأسرية واجب ديني.
+
+أهمية الروابط الأسرية:
+• "وَاتَّقُوا اللَّهَ الَّذِي تَسَاءَلُونَ بِهِ وَالْأَرْحَامَ إِنَّ اللَّهَ كَانَ عَلَيْكُمْ رَقِيبًا" (سورة النساء: 1)
+• صلة الرحم تزيد في العمر والرزق
+• قال النبي ﷺ: "من سره أن يبسط له في رزقه، وينسأ له في أثره، فليصل رحمه" (البخاري)
+• قطع الروابط الأسرية من كبائر الذنوب
+
+حقوق الأجداد:
+• إكرامهم واحترامهم كالوالدين
+• زيارتهم بانتظام
+• رعايتهم في الكبر
+• طلب بركاتهم ودعائهم
+• التعلم من حكمتهم وخبراتهم
+• النبي ﷺ اعتنى بجده عبد المطلب عناية خاصة
+
+حقوق الأعمام والعمات والأخوال والخالات:
+• الخال بمنزلة قريبة من الأب
+• قال النبي ﷺ: "الخالة بمنزلة الأم" (البخاري)
+• العم يمثل الأب في غيابه
+• إظهار الاحترام والتقدير لهم
+• المحافظة على التواصل المنتظم
+• المساعدة في أوقات الحاجة
+
+حقوق أبناء العم والخال:
+• هم كالإخوة
+• دعم بعضهم البعض
+• الحفاظ على علاقات جيدة
+• المشاركة في الأفراح والأحزان
+• المساعدة في الأوقات الصعبة
+• تجنب النزاعات على الميراث
+
+زيارة العائلة:
+• الزيارات المنتظمة تقوي الروابط
+• مهمة بشكل خاص أثناء المرض
+• حضور التجمعات العائلية
+• مشاركة الوجبات معاً
+• تذكرهم في المناسبات الخاصة
+• استخدام التكنولوجيا الحديثة للبقاء على اتصال
+
+الدعم المالي:
+• مساعدة الأقارب الفقراء أولاً
+• الصدقة على الأقارب لها أجر مضاعف
+• قال النبي ﷺ: "الصدقة على المسكين صدقة، وعلى ذي الرحم اثنتان: صدقة وصلة" (الترمذي)
+• مشاركة المال في أوقات الشدة
+
+حل النزاعات العائلية:
+• العمل كوسيط للصلح
+• عدم الانحياز بناء على التحيز
+• السعي للعدل والإنصاف
+• المسامحة والتغاضي عن الأخطاء
+• تذكر أهمية وحدة الأسرة
+• "فَاتَّقُوا اللَّهَ وَأَصْلِحُوا ذَاتَ بَيْنِكُمْ" (سورة الأنفال: 1)'''
       },
     },
     {
       'number': 6,
+      'titleKey': 'family_fazilat_6_building_strong_families',
       'title': 'Building Strong Families',
       'titleUrdu': 'مضبوط خاندان بنانا',
       'titleHindi': 'मज़बूत ख़ानदान बनाना',
+      'titleArabic': 'فضائل الأقارب',
       'icon': Icons.home,
       'color': Colors.green,
       'details': {
@@ -976,6 +1190,72 @@ Legacy Building:
 • रिवायतें बनाएं जो जारी रहें
 • ख़ानदानी इस्लामी तारीख़ रिकॉर्ड करें
 • ख़ानदानी वक़्फ़ क़ायम करें''',
+        'arabic': '''بناء أسر قوية
+
+الأسرة القوية هي أساس المجتمع الإسلامي.
+
+أساسيات الأسرة القوية:
+• "وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً" (سورة الروم: 21)
+• المحبة والمودة
+• الاحترام المتبادل
+• التواصل المفتوح
+• القيم الإسلامية المشتركة
+
+دور الوالدين في بناء الأسرة:
+• القدوة الحسنة في العبادة والأخلاق
+• توفير بيئة آمنة ومحبة
+• التربية الإسلامية السليمة
+• التوازن بين الحزم والرحمة
+• قضاء وقت ممتع مع الأولاد
+• التواصل الفعال والاستماع
+
+بناء القيم الإسلامية:
+• تعليم القرآن والحديث
+• الصلاة الجماعية في البيت
+• قص القصص النبوية
+• المشاركة في الأعمال الخيرية
+• الاحتفال بالمناسبات الإسلامية
+• زيارة المساجد والمراكز الإسلامية
+
+التربية المتوازنة:
+• تعليم العلوم الدينية والدنيوية
+• تطوير المهارات والمواهب
+• تشجيع الاستقلالية المسؤولة
+• تعليم حل المشكلات
+• غرس الثقة بالنفس
+• تنمية الذكاء العاطفي
+
+وقت العائلة:
+• وجبات مشتركة يومية
+• ليلة عائلية أسبوعية
+• رحلات ونزهات
+• قراءة القرآن معاً
+• المشاريع المشتركة
+• المناقشات الهادفة
+
+حل المشكلات الأسرية:
+• الحوار المفتوح والصريح
+• الاستماع بدون حكم مسبق
+• البحث عن حلول مشتركة
+• الاستعانة بالعلماء عند الحاجة
+• الصبر والتسامح
+• الدعاء والاستغفار
+
+حماية الأسرة:
+• الحذر من التأثيرات السلبية
+• مراقبة محتوى الإعلام
+• اختيار الصحبة الصالحة
+• تعليم القيم الأخلاقية
+• تعزيز الهوية الإسلامية
+• الحفاظ على الخصوصية العائلية
+
+البركة في البيت:
+• ذكر الله وقراءة القرآن
+• الصلاة في أوقاتها
+• الصدقة والإنفاق
+• حسن الخلق والتعامل
+• الدعاء للأسرة
+• الشكر على النعم'''
       },
     },
   ];
@@ -994,45 +1274,16 @@ Legacy Building:
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _titles[_selectedLanguage]!,
-          style: const TextStyle(
+          context.tr('family_fazilat'),
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: context.responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _selectedLanguage == 'urdu'
-                    ? 'اردو'
-                    : _selectedLanguage == 'hindi'
-                    ? 'हिंदी'
-                    : 'EN',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-            onSelected: (value) => setState(() => _selectedLanguage = value),
-            itemBuilder: (context) => [
-              _buildLanguageMenuItem('english', 'English'),
-              _buildLanguageMenuItem('urdu', 'اردو'),
-              _buildLanguageMenuItem('hindi', 'हिंदी'),
-            ],
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: context.responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1051,122 +1302,128 @@ Legacy Building:
     );
   }
 
-  PopupMenuItem<String> _buildLanguageMenuItem(String value, String label) {
-    return PopupMenuItem(
-      value: value,
-      child: Row(
-        children: [
-          if (_selectedLanguage == value)
-            Icon(Icons.check, color: AppColors.primary, size: 18)
-          else
-            const SizedBox(width: 18),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: _selectedLanguage == value
-                  ? FontWeight.bold
-                  : FontWeight.normal,
-              color: _selectedLanguage == value ? AppColors.primary : null,
-            ),
+
+  Widget _buildTopicCard(Map<String, dynamic> topic, bool isDark) {
+    final langCode = context.languageProvider.languageCode;
+    final title = context.tr(topic['titleKey'] ?? 'family_fazilat');
+    final responsive = context.responsive;
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
+
+    return Container(
+      margin: responsive.paddingOnly(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTopicCard(Map<String, dynamic> topic, bool isDark) {
-    final title = _selectedLanguage == 'english'
-        ? topic['title']
-        : _selectedLanguage == 'urdu'
-        ? topic['titleUrdu']
-        : topic['titleHindi'];
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showTopicDetails(topic),
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.lightGreenBorder.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+      child: InkWell(
+        onTap: () => _showTopicDetails(topic),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        child: Padding(
+          padding: responsive.paddingAll(14),
+          child: Row(
+            children: [
+              // Number Badge
+              Container(
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
+                decoration: BoxDecoration(
+                  color: darkGreen,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+                child: Center(
+                  child: Text(
+                    '${topic['number']}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsive.textLarge,
+                    ),
                   ),
-                  child: Center(
-                    child: Text(
-                      '${topic['number']}',
+                ),
+              ),
+              SizedBox(width: responsive.spacing(14)),
+
+              // Title and Icon chip
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      title,
                       style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 18,
+                        fontSize: responsive.textLarge,
                         fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                      ),
+                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                    ),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Icon chip
+                    Container(
+                      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            topic['icon'] as IconData,
+                            size: responsive.textXSmall + 2,
+                            color: emeraldGreen,
+                          ),
+                          SizedBox(width: responsive.spacing(4)),
+                          Text(
+                            context.tr('family_fazilat'),
+                            style: TextStyle(
+                              fontSize: responsive.textXSmall,
+                              fontWeight: FontWeight.w600,
+                              color: emeraldGreen,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: (topic['color'] as Color).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    topic['icon'] as IconData,
-                    color: topic['color'] as Color,
-                    size: 24,
-                  ),
+              ),
+
+              // Arrow Icon
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: isDark ? Colors.white : AppColors.primary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textDirection: _selectedLanguage == 'urdu'
-                        ? TextDirection.rtl
-                        : TextDirection.ltr,
-                  ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.textXSmall + 2,
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E8F5A),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.white,
-                    size: 14,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1179,15 +1436,17 @@ Legacy Building:
       context,
       MaterialPageRoute(
         builder: (context) => BasicAmalDetailScreen(
-          title: topic['title'],
+          title: topic['title'] ?? '',
           titleUrdu: topic['titleUrdu'] ?? '',
           titleHindi: topic['titleHindi'] ?? '',
+          titleArabic: topic['titleArabic'] ?? '',
           contentEnglish: details['english'] ?? '',
           contentUrdu: details['urdu'] ?? '',
           contentHindi: details['hindi'] ?? '',
+          contentArabic: details['arabic'] ?? '',
           color: topic['color'] as Color,
           icon: topic['icon'] as IconData,
-          category: 'Family - Fazilat',
+          categoryKey: 'category_family_fazilat',
           number: topic['number'] as int?,
         ),
       ),

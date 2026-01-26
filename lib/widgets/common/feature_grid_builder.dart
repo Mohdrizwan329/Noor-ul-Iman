@@ -1,35 +1,45 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
 
-/// Reusable grid builder for feature cards
+/// Reusable grid builder for feature cards with responsive design
+/// Automatically adjusts columns based on screen size and orientation
 /// Used in home screen and other screens with grid layouts
 class FeatureGridBuilder extends StatelessWidget {
   final List<FeatureGridItem> items;
-  final int crossAxisCount;
-  final double crossAxisSpacing;
-  final double mainAxisSpacing;
+  final int? crossAxisCount; // Now optional, will auto-calculate if null
+  final double? crossAxisSpacing;
+  final double? mainAxisSpacing;
   final double childAspectRatio;
 
   const FeatureGridBuilder({
     super.key,
     required this.items,
-    this.crossAxisCount = 3,
-    this.crossAxisSpacing = 12,
-    this.mainAxisSpacing = 12,
+    this.crossAxisCount, // Removed default value
+    this.crossAxisSpacing,
+    this.mainAxisSpacing,
     this.childAspectRatio = 0.9,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final responsive = context.responsive;
+
+    // Auto-calculate responsive grid columns if not specified
+    final int columns = crossAxisCount ?? responsive.gridColumnCount;
+
+    // Use responsive spacing or defaults
+    final double spacing = crossAxisSpacing ?? responsive.gridSpacing;
+    final double mainSpacing = mainAxisSpacing ?? responsive.gridSpacing;
 
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: crossAxisSpacing,
-        mainAxisSpacing: mainAxisSpacing,
+        crossAxisCount: columns,
+        crossAxisSpacing: spacing,
+        mainAxisSpacing: mainSpacing,
         childAspectRatio: childAspectRatio,
       ),
       itemCount: items.length,
@@ -58,7 +68,7 @@ class FeatureGridItem {
   });
 }
 
-/// Internal feature grid card widget
+/// Internal feature grid card widget with responsive design
 class _FeatureGridCard extends StatelessWidget {
   final FeatureGridItem item;
   final bool isDark;
@@ -70,14 +80,16 @@ class _FeatureGridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
+
     return InkWell(
       onTap: item.onTap,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(responsive.radiusLarge),
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: responsive.paddingAll(8),
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkCard : Colors.white,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(responsive.radiusLarge),
           border: Border.all(
             color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
             width: 1.5,
@@ -87,8 +99,8 @@ class _FeatureGridCard extends StatelessWidget {
               : [
                   BoxShadow(
                     color: AppColors.primary.withValues(alpha: 0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
+                    blurRadius: responsive.spacing(10),
+                    offset: Offset(0, responsive.spacing(2)),
                   ),
                 ],
         ),
@@ -96,7 +108,7 @@ class _FeatureGridCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: responsive.paddingAll(12),
               decoration: BoxDecoration(
                 color: isDark
                     ? item.color.withValues(alpha: 0.2)
@@ -107,29 +119,32 @@ class _FeatureGridCard extends StatelessWidget {
                     : [
                         BoxShadow(
                           color: AppColors.primary.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+                          blurRadius: responsive.spacing(8),
+                          offset: Offset(0, responsive.spacing(2)),
                         ),
                       ],
               ),
               child: item.emoji != null
-                  ? Text(item.emoji!, style: const TextStyle(fontSize: 24))
+                  ? Text(
+                      item.emoji!,
+                      style: TextStyle(fontSize: responsive.fontSize(24)),
+                    )
                   : Icon(
                       item.icon,
                       color: isDark ? item.color : Colors.white,
-                      size: 24,
+                      size: responsive.iconMedium,
                     ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: responsive.spaceSmall),
             Text(
               item.title,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: responsive.fontSize(12),
                 fontWeight: FontWeight.bold,
                 color: isDark ? AppColors.darkTextPrimary : AppColors.primary,
               ),
               textAlign: TextAlign.center,
-              maxLines: 1,
+              maxLines: responsive.isTablet ? 2 : 1,
               overflow: TextOverflow.ellipsis,
             ),
           ],

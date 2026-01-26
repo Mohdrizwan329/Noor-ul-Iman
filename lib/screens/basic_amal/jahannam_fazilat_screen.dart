@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,18 +16,14 @@ class JahannamFazilatScreen extends StatefulWidget {
 class _JahannamFazilatScreenState extends State<JahannamFazilatScreen> {
   String _selectedLanguage = 'english';
 
-  final Map<String, String> _titles = {
-    'english': 'Jahannam - Hellfire & Protection',
-    'urdu': 'جہنم - دوزخ اور حفاظت',
-    'hindi': 'जहन्नम - दोज़ख़ और हिफ़ाज़त',
-  };
-
   final List<Map<String, dynamic>> _jahannamTopics = [
     {
       'number': 1,
+      'titleKey': 'jahannam_fazilat_1_description_of_jahannam',
       'title': 'Description of Jahannam',
       'titleUrdu': 'جہنم کی تفصیل',
       'titleHindi': 'जहन्नम की तफ़सील',
+      'titleArabic': 'وصف جهنم',
       'icon': Icons.local_fire_department,
       'color': Colors.red,
       'details': {
@@ -143,13 +141,55 @@ The Horror:
 • अगर जहन्नम की एक बाल्टी ज़मीन पर ज़ाहिर कर दी जाए तो सब कुछ जल जाए
 • इसकी गर्ज और ग़ुस्सा फ़रिश्तों को भी ख़ौफ़ज़दा करता है
 • नबी करीम ﷺ ने इसकी सांस सुनी और अपनी उम्मत के लिए परेशान हुए''',
+        'arabic': '''وصف جهنم
+
+جهنم دار العذاب الأليم التي أعدها الله للكافرين.
+
+عظم جهنم:
+• "إِذَا رَأَتْهُم مِّن مَّكَانٍ بَعِيدٍ سَمِعُوا لَهَا تَغَيُّظًا وَزَفِيرًا" (سورة الفرقان: 12)
+• نارها أشد من نار الدنيا بسبعين مرة
+• "نَارُ اللَّهِ الْمُوقَدَةُ * الَّتِي تَطَّلِعُ عَلَى الْأَفْئِدَةِ" (سورة الهمزة: 6-7)
+• حرها شديد لا يطاق
+
+بناء جهنم:
+• سوداء مظلمة
+• لها سبعة أبواب
+• "لَهَا سَبْعَةُ أَبْوَابٍ لِّكُلِّ بَابٍ مِّنْهُمْ جُزْءٌ مَّقْسُومٌ" (سورة الحجر: 44)
+• أودية وجبال من نار
+• لا راحة ولا نجاة منها
+
+شدة حرها:
+• قال النبي ﷺ: "نار ابن آدم التي توقدون جزء من سبعين جزءاً من نار جهنم" (البخاري)
+• تأكل اللحم والعظم
+• تصهر ما في البطون والجلود
+• "كُلَّمَا نَضِجَتْ جُلُودُهُم بَدَّلْنَاهُمْ جُلُودًا غَيْرَهَا" (سورة النساء: 56)
+
+طعام أهل النار:
+• الزقوم: شجرة تخرج في أصل الجحيم
+• "إِنَّ شَجَرَتَ الزَّقُّومِ * طَعَامُ الْأَثِيمِ" (سورة الدخان: 43-44)
+• كالمهل يغلي في البطون
+• الضريع: طعام لا يسمن ولا يغني من جوع
+
+شراب أهل النار:
+• الحميم: الماء الحار المغلي
+• "وَسُقُوا مَاءً حَمِيمًا فَقَطَّعَ أَمْعَاءَهُمْ" (سورة محمد: 15)
+• الغساق: صديد أهل النار
+• يشوي الوجوه
+
+الخلود في النار:
+• "خَالِدِينَ فِيهَا أَبَدًا" (سورة الجن: 23)
+• لا يموتون فيها ولا يحيون
+• "لَا يُقْضَىٰ عَلَيْهِمْ فَيَمُوتُوا" (سورة فاطر: 36)
+• عذاب دائم لا ينقطع'''
       },
     },
     {
       'number': 2,
+      'titleKey': 'jahannam_fazilat_2_levels_of_hellfire',
       'title': 'Levels of Hellfire',
       'titleUrdu': 'جہنم کے درجات',
       'titleHindi': 'जहन्नम के दर्जात',
+      'titleArabic': 'دركات جهنم',
       'icon': Icons.layers,
       'color': Colors.deepOrange,
       'details': {
@@ -297,13 +337,56 @@ Warning for Believers:
 • मुसलसल माफ़ी मांगें
 • ख़ास तौर पर कबीरा गुनाहों से बचें
 • नबी करीम ﷺ ने ख़बरदार किया: "जन्नत मुश्किलात से घिरी है और जहन्नम ख़्वाहिशात से घिरी है।"''',
+        'arabic': '''دركات جهنم
+
+لجهنم دركات ومنازل متفاوتة في العذاب.
+
+الدركات السبع:
+• جهنم: أعلاها
+• لظى: دركة شديدة الحرارة
+• الحطمة: تحطم كل شيء
+• السعير: نار مستعرة
+• سقر: شديدة السواد
+• الجحيم: نار ملتهبة
+• الهاوية: أسفل دركات النار
+
+أهل كل دركة:
+• "إِنَّ الْمُنَافِقِينَ فِي الدَّرْكِ الْأَسْفَلِ مِنَ النَّارِ" (سورة النساء: 145)
+• المنافقون في الدرك الأسفل
+• الكفار في دركات حسب كفرهم
+• العصاة من المؤمنين في الدركات العليا
+
+شدة العذاب:
+• كلما نزل الدرك زاد العذاب
+• الدرك الأسفل أشد عذاباً
+• "لَهُمْ مِن فَوْقِهِمْ ظُلَلٌ مِّنَ النَّارِ وَمِن تَحْتِهِمْ ظُلَلٌ" (سورة الزمر: 16)
+
+خزنة جهنم:
+• ملائكة غلاظ شداد
+• "عَلَيْهَا تِسْعَةَ عَشَرَ" (سورة المدثر: 30)
+• "لَّا يَعْصُونَ اللَّهَ مَا أَمَرَهُمْ" (سورة التحريم: 6)
+• يزيدون في عذاب أهل النار
+
+مالك خازن النار:
+• رئيس خزنة جهنم
+• "وَنَادَوْا يَا مَالِكُ لِيَقْضِ عَلَيْنَا رَبُّكَ" (سورة الزخرف: 77)
+• لا يجيبهم إلا بعد ألف عام
+• يقول لهم: إنكم ماكثون
+
+التفاوت في العذاب:
+• "لِكُلٍّ دَرَجَاتٌ مِّمَّا عَمِلُوا" (سورة الأنعام: 132)
+• يتفاوت العذاب بحسب الذنوب
+• أخف أهل النار عذاباً من له نعلان من نار
+• أشدهم عذاباً المنافقون والمشركون'''
       },
     },
     {
       'number': 3,
+      'titleKey': 'jahannam_fazilat_3_people_of_hellfire',
       'title': 'People of Hellfire',
       'titleUrdu': 'جہنم کے لوگ',
       'titleHindi': 'जहन्नम के लोग',
+      'titleArabic': 'أهل النار',
       'icon': Icons.groups,
       'color': Colors.brown,
       'details': {
@@ -484,13 +567,57 @@ The Way to Avoid:
 • तमाम कबीरा गुनाहों से परहेज़
 • तमाम गुनाहों से मुख़्लिसाना तौबा
 • मुसलसल अल्लाह से माफ़ी मांगना''',
+        'arabic': '''أهل النار
+
+من هم أهل النار وأعمالهم.
+
+الكفار والمشركون:
+• "إِنَّ اللَّهَ لَا يَغْفِرُ أَن يُشْرَكَ بِهِ" (سورة النساء: 48)
+• الذين كفروا بالله ورسله
+• المشركون الذين عبدوا غير الله
+• "إِنَّهُ مَن يُشْرِكْ بِاللَّهِ فَقَدْ حَرَّمَ اللَّهُ عَلَيْهِ الْجَنَّةَ" (سورة المائدة: 72)
+• خالدون فيها أبداً
+
+المنافقون:
+• "إِنَّ الْمُنَافِقِينَ فِي الدَّرْكِ الْأَسْفَلِ مِنَ النَّارِ" (سورة النساء: 145)
+• الذين يظهرون الإيمان ويبطنون الكفر
+• عذابهم أشد من الكفار
+• في الدرك الأسفل من النار
+
+أصحاب الكبائر:
+• من مات على كبيرة دون توبة
+• قد يدخل النار بذنوبه
+• ثم يخرج بالشفاعة أو فضل الله
+• "مَن كَانَ فِي قَلْبِهِ مِثْقَالُ ذَرَّةٍ مِّنْ إِيمَانٍ" يخرج
+
+الظالمون:
+• "أَلَا لَعْنَةُ اللَّهِ عَلَى الظَّالِمِينَ" (سورة هود: 18)
+• الذين ظلموا أنفسهم بالمعاصي
+• ظلموا الناس في حقوقهم
+• منعوا الزكاة واغتصبوا الأموال
+
+قتلة الأنفس:
+• "وَمَن يَقْتُلْ مُؤْمِنًا مُّتَعَمِّدًا فَجَزَاؤُهُ جَهَنَّمُ" (سورة النساء: 93)
+• القاتل المتعمد في النار
+• خالداً فيها إلا أن يتوب
+
+آكلو الربا:
+• "الَّذِينَ يَأْكُلُونَ الرِّبَا لَا يَقُومُونَ" (سورة البقرة: 275)
+• محاربون لله ورسوله
+• عذابهم شديد في النار
+
+العاقون للوالدين:
+• من أكبر الكبائر
+• قال النبي ﷺ: "ألا أنبئكم بأكبر الكبائر؟" قالوا: بلى، قال: "الإشراك بالله، وعقوق الوالدين" (البخاري)'''
       },
     },
     {
       'number': 4,
+      'titleKey': 'jahannam_fazilat_4_punishments_in_hellfire',
       'title': 'Punishments in Hellfire',
       'titleUrdu': 'جہنم میں سزائیں',
       'titleHindi': 'जहन्नम में सज़ाएं',
+      'titleArabic': 'عذاب النار',
       'icon': Icons.dangerous,
       'color': Colors.red.shade900,
       'details': {
@@ -683,13 +810,55 @@ No Relief or Escape:
 • काफ़िरों के लिए सज़ा कभी कम नहीं होती
 • राहत के लिए कोई मौत या नींद नहीं
 • अबदी तकलीफ़''',
+        'arabic': '''عذاب النار
+
+أنواع العذاب في جهنم.
+
+العذاب الجسدي:
+• "كُلَّمَا نَضِجَتْ جُلُودُهُم بَدَّلْنَاهُمْ جُلُودًا غَيْرَهَا" (سورة النساء: 56)
+• النار تحرق الجلود
+• تبديل الجلود لاستمرار العذاب
+• تأكل اللحم والعظام
+
+السلاسل والأغلال:
+• "إِنَّا أَعْتَدْنَا لِلْكَافِرِينَ سَلَاسِلَ وَأَغْلَالًا وَسَعِيرًا" (سورة الإنسان: 4)
+• يقيدون بالسلاسل والأغلال
+• سلسلة طولها سبعون ذراعاً
+• "ثُمَّ فِي سِلْسِلَةٍ ذَرْعُهَا سَبْعُونَ ذِرَاعًا فَاسْلُكُوهُ" (سورة الحاقة: 32)
+
+الحميم والغساق:
+• "وَسُقُوا مَاءً حَمِيمًا فَقَطَّعَ أَمْعَاءَهُمْ" (سورة محمد: 15)
+• الماء المغلي يقطع الأمعاء
+• الغساق: صديد أهل النار
+• يشوي الوجوه ويصهر البطون
+
+طعام الزقوم:
+• "إِنَّ شَجَرَتَ الزَّقُّومِ * طَعَامُ الْأَثِيمِ" (سورة الدخان: 43-44)
+• شجرة خبيثة في أصل الجحيم
+• طلعها كأنه رؤوس الشياطين
+• كالمهل يغلي في البطون
+
+العذاب المعنوي:
+• الخزي والهوان
+• "فَذُوقُوا فَلَن نَّزِيدَكُمْ إِلَّا عَذَابًا" (سورة النبأ: 30)
+• الندم الشديد على ما فات
+• الحسرة واليأس
+• سماع الزفير والشهيق
+
+استمرار العذاب:
+• "وَالَّذِينَ كَفَرُوا لَهُمْ نَارُ جَهَنَّمَ" (سورة فاطر: 36)
+• لا راحة ولا نوم
+• لا يموتون ولا يحيون
+• "كُلَّمَا خَبَتْ زِدْنَاهُمْ سَعِيرًا" (سورة الإسراء: 97)'''
       },
     },
     {
       'number': 5,
+      'titleKey': 'jahannam_fazilat_5_protection_from_hellfire',
       'title': 'Protection from Hellfire',
       'titleUrdu': 'جہنم سے حفاظت',
       'titleHindi': 'जहन्नम से हिफ़ाज़त',
+      'titleArabic': 'الحماية من النار',
       'icon': Icons.shield_outlined,
       'color': Colors.green,
       'details': {
@@ -921,13 +1090,59 @@ Constant Dua:
 मुसलसल दुआ:
 • "ऐ हमारे रब, हमें इस दुनिया में भलाई दे और आख़िरत में भलाई दे और हमें आग के अज़ाब से बचा।" (क़ुरआन 2:201)
 • हमेशा अपनी रोज़ाना की दुआओं में अल्लाह से जहन्नम से हिफ़ाज़त मांगें''',
+        'arabic': '''الحماية من النار
+
+كيفية الوقاية من عذاب جهنم.
+
+التوحيد والإيمان:
+• "إِنَّ اللَّهَ لَا يَغْفِرُ أَن يُشْرَكَ بِهِ وَيَغْفِرُ مَا دُونَ ذَٰلِكَ" (سورة النساء: 48)
+• الإيمان بالله ورسوله
+• إخلاص العبادة لله وحده
+• البعد عن الشرك بجميع أنواعه
+
+التقوى:
+• "يَا أَيُّهَا الَّذِينَ آمَنُوا قُوا أَنفُسَكُمْ وَأَهْلِيكُمْ نَارًا" (سورة التحريم: 6)
+• اتقاء الله في السر والعلن
+• المحافظة على الصلوات
+• اجتناب الكبائر
+
+الأعمال الصالحة:
+• قال النبي ﷺ: "اتقوا النار ولو بشق تمرة" (البخاري)
+• الصدقة تطفئ الخطيئة
+• الصيام جنة من النار
+• قيام الليل والاستغفار بالأسحار
+
+التوبة والاستغفار:
+• "وَتُوبُوا إِلَى اللَّهِ جَمِيعًا أَيُّهَ الْمُؤْمِنُونَ" (سورة النور: 31)
+• التوبة النصوح من الذنوب
+• كثرة الاستغفار
+• الندم على المعاصي والعزم على عدم العودة
+
+بر الوالدين:
+• من أعظم أسباب النجاة من النار
+• الإحسان إليهما في حياتهما
+• الدعاء لهما بعد موتهما
+• طاعتهما في المعروف
+
+صلة الرحم:
+• قال النبي ﷺ: "من سره أن يبسط له في رزقه فليصل رحمه" (البخاري)
+• زيارة الأقارب والإحسان إليهم
+• تجنب القطيعة والخصام
+
+الدعاء:
+• "رَبَّنَا اصْرِفْ عَنَّا عَذَابَ جَهَنَّمَ" (سورة الفرقان: 65)
+• اللهم أجرني من النار
+• اللهم إني أعوذ بك من النار
+• الإكثار من الدعاء والتضرع'''
       },
     },
     {
       'number': 6,
+      'titleKey': 'jahannam_fazilat_6_warnings_in_quran_hadith',
       'title': 'Warnings in Quran & Hadith',
       'titleUrdu': 'قرآن و حدیث میں تنبیہات',
       'titleHindi': 'क़ुरआन व हदीस में तंबीहात',
+      'titleArabic': 'التحذيرات من النار',
       'icon': Icons.warning_amber,
       'color': Colors.amber,
       'details': {
@@ -1138,6 +1353,51 @@ The Wise Take Heed:
 • यह हमें बदलने और तौबा करने का मौक़ा देती हैं
 • "बेशक इसमें याददिहानी है हर उस शख़्स के लिए जिसके पास दिल हो।" (क़ुरआन 50:37)
 • बहुत देर होने से पहले आज अमल करें''',
+        'arabic': '''التحذيرات من النار
+
+تحذيرات القرآن والسنة من جهنم.
+
+تحذيرات القرآن:
+• "فَاتَّقُوا النَّارَ الَّتِي وَقُودُهَا النَّاسُ وَالْحِجَارَةُ" (سورة البقرة: 24)
+• "إِنَّ جَهَنَّمَ كَانَتْ مِرْصَادًا" (سورة النبأ: 21)
+• "وَإِن مِّنكُمْ إِلَّا وَارِدُهَا" (سورة مريم: 71)
+• "كُلُّ نَفْسٍ ذَائِقَةُ الْمَوْتِ" (سورة آل عمران: 185)
+
+تحذير النبي ﷺ:
+• قال ﷺ: "اتقوا النار ولو بشق تمرة" (البخاري)
+• "بعثت أنا والساعة كهاتين" (البخاري)
+• "النار النار" خطب بها النبي وأحمرت وجنتاه
+• حذر من الذنوب الموبقات
+
+وصف عذاب القبر:
+• القبر أول منازل الآخرة
+• "إِنَّا بَلَوْنَاهُمْ كَمَا بَلَوْنَا أَصْحَابَ الْجَنَّةِ" (سورة القلم: 17)
+• فتنة القبر وعذابه
+• ضمة القبر للمؤمن والكافر
+
+أهوال يوم القيامة:
+• "يَوْمَ تَرَوْنَهَا تَذْهَلُ كُلُّ مُرْضِعَةٍ عَمَّا أَرْضَعَتْ" (سورة الحج: 2)
+• الحساب والميزان
+• الصراط فوق جهنم
+• "وَتَرَى الْمُجْرِمِينَ يَوْمَئِذٍ مُّقَرَّنِينَ فِي الْأَصْفَادِ" (سورة إبراهيم: 49)
+
+الاعتبار بحال الأمم:
+• "أَلَمْ يَأْتِهِمْ نَبَأُ الَّذِينَ مِن قَبْلِهِمْ" (سورة التوبة: 70)
+• قوم نوح وعاد وثمود
+• قوم لوط وأصحاب الأيكة
+• فرعون وقارون
+
+الندم يوم القيامة:
+• "وَيَوْمَ يَعَضُّ الظَّالِمُ عَلَىٰ يَدَيْهِ" (سورة الفرقان: 27)
+• "يَا وَيْلَتَىٰ لَيْتَنِي لَمْ أَتَّخِذْ فُلَانًا خَلِيلًا" (سورة الفرقان: 28)
+• لا ينفع الندم حينئذ
+• الحسرة على ما فات
+
+العمل قبل الموت:
+• "مِن قَبْلِ أَن يَأْتِيَ أَحَدَكُمُ الْمَوْتُ" (سورة المنافقون: 10)
+• المبادرة إلى التوبة
+• الإكثار من الأعمال الصالحة
+• تذكر الموت والآخرة'''
       },
     },
   ];
@@ -1156,45 +1416,16 @@ The Wise Take Heed:
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _titles[_selectedLanguage]!,
-          style: const TextStyle(
+          context.tr('jahannam'),
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: context.responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _selectedLanguage == 'urdu'
-                    ? 'اردو'
-                    : _selectedLanguage == 'hindi'
-                    ? 'हिंदी'
-                    : 'EN',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-            onSelected: (value) => setState(() => _selectedLanguage = value),
-            itemBuilder: (context) => [
-              _buildLanguageMenuItem('english', 'English'),
-              _buildLanguageMenuItem('urdu', 'اردو'),
-              _buildLanguageMenuItem('hindi', 'हिंदी'),
-            ],
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: context.responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1213,122 +1444,127 @@ The Wise Take Heed:
     );
   }
 
-  PopupMenuItem<String> _buildLanguageMenuItem(String value, String label) {
-    return PopupMenuItem(
-      value: value,
-      child: Row(
-        children: [
-          if (_selectedLanguage == value)
-            Icon(Icons.check, color: AppColors.primary, size: 18)
-          else
-            const SizedBox(width: 18),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: _selectedLanguage == value
-                  ? FontWeight.bold
-                  : FontWeight.normal,
-              color: _selectedLanguage == value ? AppColors.primary : null,
-            ),
+
+  Widget _buildTopicCard(Map<String, dynamic> topic, bool isDark) {
+    final langCode = context.languageProvider.languageCode;
+    final title = context.tr(topic['titleKey'] ?? 'jahannam_fazilat');
+    final responsive = context.responsive;
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
+return Container(
+      margin: responsive.paddingOnly(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTopicCard(Map<String, dynamic> topic, bool isDark) {
-    final title = _selectedLanguage == 'english'
-        ? topic['title']
-        : _selectedLanguage == 'urdu'
-        ? topic['titleUrdu']
-        : topic['titleHindi'];
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showTopicDetails(topic),
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.lightGreenBorder.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+      child: InkWell(
+        onTap: () => _showTopicDetails(topic),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        child: Padding(
+          padding: responsive.paddingAll(14),
+          child: Row(
+            children: [
+              // Number Badge
+              Container(
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
+                decoration: BoxDecoration(
+                  color: darkGreen,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+                child: Center(
+                  child: Text(
+                    '${topic['number']}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsive.textLarge,
+                    ),
                   ),
-                  child: Center(
-                    child: Text(
-                      '${topic['number']}',
+                ),
+              ),
+              SizedBox(width: responsive.spacing(14)),
+
+              // Title and Icon chip
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      title,
                       style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 18,
+                        fontSize: responsive.textLarge,
                         fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                      ),
+                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                    ),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Icon chip
+                    Container(
+                      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            topic['icon'] as IconData,
+                            size: responsive.textXSmall + 2,
+                            color: emeraldGreen,
+                          ),
+                          SizedBox(width: responsive.spacing(4)),
+                          Text(
+                            context.tr('jahannam_fazilat'),
+                            style: TextStyle(
+                              fontSize: responsive.textXSmall,
+                              fontWeight: FontWeight.w600,
+                              color: emeraldGreen,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: (topic['color'] as Color).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    topic['icon'] as IconData,
-                    color: topic['color'] as Color,
-                    size: 24,
-                  ),
+              ),
+
+              // Arrow Icon
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: isDark ? Colors.white : AppColors.primary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textDirection: _selectedLanguage == 'urdu'
-                        ? TextDirection.rtl
-                        : TextDirection.ltr,
-                  ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.textXSmall + 2,
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E8F5A),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.white,
-                    size: 14,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1337,19 +1573,22 @@ The Wise Take Heed:
 
   void _showTopicDetails(Map<String, dynamic> topic) {
     final details = topic['details'] as Map<String, String>;
+    final titleKey = topic['titleKey'] ?? 'jahannam_fazilat';
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => BasicAmalDetailScreen(
-          title: topic['title'],
+          title: topic['title'] ?? '',
           titleUrdu: topic['titleUrdu'] ?? '',
           titleHindi: topic['titleHindi'] ?? '',
+          titleArabic: topic['titleArabic'] ?? '',
           contentEnglish: details['english'] ?? '',
           contentUrdu: details['urdu'] ?? '',
           contentHindi: details['hindi'] ?? '',
+          contentArabic: details['arabic'] ?? '',
           color: topic['color'] as Color,
           icon: topic['icon'] as IconData,
-          category: 'Jahannam - Fazilat',
+          categoryKey: 'category_jahannam_fazilat',
           number: topic['number'] as int?,
         ),
       ),

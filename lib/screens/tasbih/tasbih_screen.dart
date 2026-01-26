@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/tasbih_provider.dart';
 
 class TasbihScreen extends StatefulWidget {
@@ -63,11 +65,16 @@ class _TasbihScreenState extends State<TasbihScreen>
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text('Tasbih Counter'),
+        title: Text(
+          context.tr('tasbih_counter'),
+          style: TextStyle(fontSize: responsive.textLarge),
+        ),
       ),
       body: Consumer<TasbihProvider>(
         builder: (context, provider, child) {
@@ -90,35 +97,35 @@ class _TasbihScreenState extends State<TasbihScreen>
                   ),
                   // Reset Button
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 30),
+                    padding: EdgeInsets.only(bottom: responsive.spacing(30)),
                     child: GestureDetector(
                       onTap: () {
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
-                            title: const Text('Reset Counter?'),
-                            content: const Text('This will reset count and laps to 0.'),
+                            title: Text(context.tr('reset_counter')),
+                            content: Text(context.tr('reset_counter_message')),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: const Text('Cancel'),
+                                child: Text(context.tr('cancel')),
                               ),
                               ElevatedButton(
                                 onPressed: () {
                                   provider.reset();
                                   Navigator.pop(context);
                                 },
-                                child: const Text('Reset'),
+                                child: Text(context.tr('reset')),
                               ),
                             ],
                           ),
                         );
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                        padding: responsive.paddingSymmetric(horizontal: 32, vertical: 14),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(responsive.spacing(30)),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.1),
@@ -127,15 +134,19 @@ class _TasbihScreenState extends State<TasbihScreen>
                             ),
                           ],
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.refresh, color: AppColors.primary),
-                            SizedBox(width: 8),
+                            Icon(
+                              Icons.refresh,
+                              color: AppColors.primary,
+                              size: responsive.iconMedium,
+                            ),
+                            SizedBox(width: responsive.spaceSmall),
                             Text(
-                              'Reset',
+                              context.tr('reset'),
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: responsive.textRegular,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.primary,
                               ),
@@ -155,26 +166,32 @@ class _TasbihScreenState extends State<TasbihScreen>
   }
 
   Widget _buildCounterButton(TasbihProvider provider) {
+    final responsive = context.responsive;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Lap Counter
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            padding: responsive.paddingSymmetric(horizontal: 24, vertical: 12),
             decoration: BoxDecoration(
               color: AppColors.secondary,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(responsive.radiusXLarge),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.repeat, color: Colors.white, size: 20),
-                const SizedBox(width: 8),
+                Icon(
+                  Icons.repeat,
+                  color: Colors.white,
+                  size: responsive.iconSmall,
+                ),
+                SizedBox(width: responsive.spaceSmall),
                 Text(
                   '${provider.lapCount}',
-                  style: const TextStyle(
-                    fontSize: 24,
+                  style: TextStyle(
+                    fontSize: responsive.textXXLarge,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
@@ -182,7 +199,7 @@ class _TasbihScreenState extends State<TasbihScreen>
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: responsive.spaceLarge),
 
           // Main Counter with +/- buttons
           Row(
@@ -198,27 +215,27 @@ class _TasbihScreenState extends State<TasbihScreen>
                   provider.decrement();
                 },
                 child: Container(
-                  width: 60,
-                  height: 60,
+                  width: responsive.spacing(60),
+                  height: responsive.spacing(60),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        blurRadius: responsive.spacing(10),
+                        offset: Offset(0, responsive.spacing(4)),
                       ),
                     ],
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.remove,
-                    size: 32,
+                    size: responsive.iconXLarge,
                     color: AppColors.primary,
                   ),
                 ),
               ),
-              const SizedBox(width: 20),
+              SizedBox(width: responsive.spaceXLarge),
 
               // Main Counter Button
               GestureDetector(
@@ -229,16 +246,16 @@ class _TasbihScreenState extends State<TasbihScreen>
                     return Transform.scale(
                       scale: _scaleAnimation.value,
                       child: Container(
-                        width: 180,
-                        height: 180,
+                        width: responsive.spacing(180),
+                        height: responsive.spacing(180),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: AppColors.headerGradient,
                           boxShadow: [
                             BoxShadow(
                               color: AppColors.primary.withValues(alpha: 0.4),
-                              blurRadius: 30,
-                              offset: const Offset(0, 10),
+                              blurRadius: responsive.spacing(30),
+                              offset: Offset(0, responsive.spacing(10)),
                             ),
                           ],
                         ),
@@ -247,16 +264,16 @@ class _TasbihScreenState extends State<TasbihScreen>
                           children: [
                             Text(
                               '${provider.count}',
-                              style: const TextStyle(
-                                fontSize: 56,
+                              style: TextStyle(
+                                fontSize: responsive.fontSize(56),
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
                             ),
-                            const Text(
-                              'TAP',
+                            Text(
+                              context.tr('tap'),
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: responsive.textSmall,
                                 color: Colors.white70,
                                 letterSpacing: 4,
                               ),
@@ -268,28 +285,28 @@ class _TasbihScreenState extends State<TasbihScreen>
                   },
                 ),
               ),
-              const SizedBox(width: 20),
+              SizedBox(width: responsive.spaceXLarge),
 
               // Increment Button
               GestureDetector(
                 onTap: _onTap,
                 child: Container(
-                  width: 60,
-                  height: 60,
+                  width: responsive.spacing(60),
+                  height: responsive.spacing(60),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        blurRadius: responsive.spacing(10),
+                        offset: Offset(0, responsive.spacing(4)),
                       ),
                     ],
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.add,
-                    size: 32,
+                    size: responsive.iconXLarge,
                     color: AppColors.primary,
                   ),
                 ),

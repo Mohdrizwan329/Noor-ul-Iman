@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,17 +16,14 @@ class NazarKarikaScreen extends StatefulWidget {
 class _NazarKarikaScreenState extends State<NazarKarikaScreen> {
   String _selectedLanguage = 'english';
 
-  final Map<String, String> _titles = {
-    'english': 'Nazar Complete Guide',
-    'urdu': 'نذر کا طریقہ - مکمل رہنمائی',
-    'hindi': 'नज़र का तरीका - संपूर्ण मार्गदर्शन',
-  };
 
   final List<Map<String, dynamic>> _nazarTypes = [
     {
+      'titleKey': 'nazar_karika_1_nazar_for_charity',
       'title': 'Nazar for Charity',
       'titleUrdu': 'صدقے کی نذر',
       'titleHindi': 'सदक़े की नज़र',
+      'titleArabic': 'نذر الصدقة',
       'icon': Icons.volunteer_activism,
       'color': Colors.green,
       'details': {
@@ -103,12 +102,41 @@ Important Points:
 • एक शख़्स को या कई लोगों को तक़सीम कर सकते हैं
 • नीयत ख़ालिस अल्लाह के लिए होनी चाहिए
 • अपना वादा ज़रूर पूरा करें - नज़र तोड़ना गुनाह है''',
+        'arabic': '''نذر الصدقة
+
+نذر الصدقة هو وعد تقطعه لله تعالى بإخراج صدقة عند تحقق مرادك.
+
+كيفية النذر:
+قل: "يا الله، إذا حققت لي طلبي (اذكر طلبك)، سأتصدق بـ(المبلغ/الشيء) لوجهك الكريم."
+
+مثال: "يا الله، إذا شُفي ولدي من المرض، سأطعم 10 فقراء."
+
+كيفية الوفاء:
+١. عند تحقق مرادك، أوفِ بوعدك في أقرب وقت ممكن
+٢. أعطِ الصدقة للفقراء والمحتاجين
+٣. لا تؤخر بلا سبب
+٤. تصدق بنية خالصة لله
+
+أنواع الصدقة:
+• المال للفقراء
+• توزيع الطعام
+• الملابس للمحتاجين
+• الدعم التعليمي
+• المساعدة الطبية
+
+نقاط مهمة:
+• يجب أن تُعطى الصدقة لمن يستحقون الزكاة
+• يمكنك التوزيع على شخص واحد أو عدة أشخاص
+• النية يجب أن تكون خالصة لله
+• احفظ وعدك - نقض النذر إثم''',
       },
     },
     {
+      'titleKey': 'nazar_karika_2_nazar_for_fasting',
       'title': 'Nazar for Fasting',
       'titleUrdu': 'روزے کی نذر',
       'titleHindi': 'रोज़े की नज़र',
+      'titleArabic': 'نذر الصيام',
       'icon': Icons.no_food,
       'color': Colors.orange,
       'details': {
@@ -187,12 +215,41 @@ Fidya (If Unable to Fast):
 • हर छूटे हुए रोज़े के बदले एक ग़रीब को खाना खिलाएं
 • एक वक़्त के खाने के बराबर दें
 • या उसकी माली क़ीमत अदा करें''',
+        'arabic': '''نذر الصيام
+
+نذر الصيام هو وعد تقطعه لله تعالى بصيام عدد من الأيام عند تحقق مرادك.
+
+كيفية النذر:
+قل: "يا الله، إذا حققت لي طلبي (اذكر طلبك)، سأصوم (عدد) أيام لوجهك الكريم."
+
+مثال: "يا الله، إذا حصلت على هذه الوظيفة، سأصوم 3 أيام."
+
+كيفية الوفاء:
+١. صم في الأيام المباحة (ليس في أيام العيد أو أيام التشريق)
+٢. نوِّ قبل الفجر: "أنا صائم اليوم لأفي بنذري لله"
+٣. صم من الفجر إلى المغرب
+٤. أفطر عند المغرب بتمر أو ماء
+
+أحكام صيام النذر:
+• هذه الأصوام واجبة بعد تحقق الشرط
+• يمكن صيامها متتابعة أو متفرقة
+• لا يمكن الصيام في يومي العيد
+• لا يمكن الصيام في 11 و12 و13 ذو الحجة
+• إذا لم تستطع الصيام بسبب المرض، اقضها لاحقاً
+• إذا كنت عاجزاً بشكل دائم، أعطِ الفدية
+
+الفدية (إذا لم تستطع الصيام):
+• أطعم مسكيناً واحداً عن كل يوم فائت
+• أعطِ ما يعادل وجبة واحدة
+• أو ادفع المعادل المالي''',
       },
     },
     {
+      'titleKey': 'nazar_karika_3_nazar_for_prayer',
       'title': 'Nazar for Prayer',
       'titleUrdu': 'نماز کی نذر',
       'titleHindi': 'नमाज़ की नज़र',
+      'titleArabic': 'نذر الصلاة',
       'icon': Icons.mosque,
       'color': Colors.blue,
       'details': {
@@ -289,12 +346,47 @@ Important Notes:
 • नज़र की नमाज़ फ़र्ज़ नमाज़ों की जगह नहीं ले सकती
 • अगर किसी ख़ास मस्जिद में नमाज़ पढ़ने की नज़र मानी तो वहीं पढ़नी होगी
 • अगर उस मस्जिद में नमाज़ पढ़ना मुमकिन न हो तो जहां मुमकिन हो वहां पढ़ें''',
+        'arabic': '''نذر الصلاة
+
+نذر الصلاة هو وعد تقطعه لله تعالى بأداء عدد من ركعات النافلة عند تحقق مرادك.
+
+كيفية النذر:
+قل: "يا الله، إذا حققت لي طلبي (اذكر طلبك)، سأصلي (عدد) ركعات نافلة لوجهك الكريم."
+
+مثال: "يا الله، إذا نجحت العملية الجراحية، سأصلي 4 ركعات صلاة الشكر."
+
+كيفية الوفاء:
+١. صلِّ بوضوء صحيح
+٢. نوِّ: "أنا أصلي هذه الركعات لأفي بنذري لله"
+٣. صلِّ بخشوع تام
+٤. أكمل جميع أركان الصلاة بشكل صحيح
+
+أنواع صلوات النذر:
+• صلاة الشكر - ركعتان أو 4 ركعات
+• صلاة الحاجة - ركعتان أو 4 ركعات
+• صلاة التوبة - ركعتان
+• صلاة النافلة العامة - حسب الوعد
+
+أفضل أوقات النوافل:
+• بعد الفجر حتى الشروق - مكروه
+• بعد الشروق حتى 15 دقيقة قبل الظهر - جيد
+• بعد الظهر حتى العصر - جيد
+• بعد العصر حتى المغرب - مكروه
+• بعد المغرب حتى العشاء - جيد
+• بعد العشاء حتى الفجر - أفضل وقت (التهجد)
+
+ملاحظات مهمة:
+• صلاة النذر لا تحل محل الفرائض
+• إذا نذرت الصلاة في مسجد معين، يجب أن تصلي فيه
+• إذا تعذر الصلاة في ذلك المسجد، صلِّ حيثما أمكن''',
       },
     },
     {
+      'titleKey': 'nazar_karika_4_nazar_for_sacrifice',
       'title': 'Nazar for Sacrifice',
       'titleUrdu': 'قربانی کی نذر',
       'titleHindi': 'क़ुर्बानी की नज़र',
+      'titleArabic': 'نذر الأضحية',
       'icon': Icons.pets,
       'color': Colors.red,
       'details': {
@@ -406,12 +498,52 @@ Important Notes:
 • जानवर का कोई हिस्सा बेच नहीं सकते
 • खाल सदक़े में दे सकते हैं लेकिन बेच नहीं सकते
 • क़ुर्बानी सही इस्लामी तरीक़े से होनी चाहिए''',
+        'arabic': '''نذر الأضحية
+
+نذر الأضحية هو وعد تقطعه لله تعالى بذبح حيوان عند تحقق مرادك.
+
+كيفية النذر:
+قل: "يا الله، إذا حققت لي طلبي (اذكر طلبك)، سأذبح (نوع الحيوان) لوجهك الكريم."
+
+مثال: "يا الله، إذا عاد ابني سالماً، سأذبح خروفاً."
+
+كيفية الوفاء:
+١. اشترِ حيواناً صحيحاً يستوفي الشروط
+٢. يوم الذبح، نوِّ النية
+٣. قل: "بسم الله الله أكبر" قبل الذبح
+٤. اذبح وفق الطريقة ��لإسلامية (الذبيحة)
+٥. وزع اللحم حسب الشريعة
+
+شروط الحيوان:
+• الماعز/الخروف: عمره سنة على الأقل
+• البقر/الجاموس: عمره سنتان على الأقل
+• الجمل: عمره 5 سنوات على الأقل
+• يجب أن يكون صحيحاً وخالياً من العيوب
+
+توزيع اللحم:
+• قسمه إلى ثلاثة أجزاء:
+  - ثلث لنفسك وعائلتك
+  - ثلث للأقارب والأصدقاء
+  - ثلث للفقراء والمحتاجين
+• يمكنك إعطاء الكل للفقراء إذا شئت
+
+وقت الذبح:
+• يمكن الذبح في أي يوم (ليس مقيداً بأيام العيد)
+• الأفضل الذبح في أقرب وقت بعد تحقق الشرط
+• تجنب التأخير غير الضروري
+
+ملاحظات مهمة:
+• لا يمكن بيع أي جزء من الحيوان
+• الجلد يمكن التصدق به ولكن لا يباع
+• يجب أن يتم الذبح بالطريقة الإسلامية الصحيحة''',
       },
     },
     {
+      'titleKey': 'nazar_karika_5_nazar_for_hajjumrah',
       'title': 'Nazar for Hajj/Umrah',
       'titleUrdu': 'حج/عمرہ کی نذر',
       'titleHindi': 'हज/उमरा की नज़र',
+      'titleArabic': 'نذر الحج/العمرة',
       'icon': Icons.place,
       'color': Colors.purple,
       'details': {
@@ -520,12 +652,51 @@ Important Notes:
 • शर्त पूरी होते ही बचत शुरू करें
 • ग़ैर-ज़रूरी देरी न करें
 • अगर पूरा करने से पहले वफ़ात हो जाए तो वारिस आपकी तरफ़ से किसी को भेजें''',
+        'arabic': '''نذر الحج/العمرة
+
+نذر الحج أو العمرة هو وعد تقطعه لله تعالى بأداء الحج أو العمرة عند تحقق مرادك.
+
+كيفية النذر:
+قل: "يا الله، إذا حققت لي طلبي (اذكر طلبك)، سأؤدي الحج/العمرة لوجهك الكريم."
+
+مثال: "يا الله، إذا شُفيت من هذا المرض، سأعتمر."
+
+اعتبارات مهمة:
+• هذا التزام كبير - لا تنذر إلا إذا كانت لديك الوسائل
+• بعد تحقق الشرط، يصبح أداء الحج واجباً
+• إذا لم تستطع أداءه بنفسك، أرسل نائباً عنك
+
+كيفية الوفاء:
+١. رتب للرحلة في أقرب وقت ممكن
+٢. تأكد من أن لديك الأموال الكافية والقدرة البدنية
+٣. أدِّ جميع المناسك وفق السنة
+٤. أكمل الحج بنية خالصة
+
+إذا لم تستطع الأداء شخصياً:
+• يمكنك إرسال بديل (نائب) ليؤدي عنك
+• يجب أن يكون النائب قد أدى حجه/عمرته الخاصة
+• ادفع جميع نفقات النائب
+• الأجر لك والنائب ينال أجراً أيضاً
+
+مناسك العمرة:
+١. أحرم من الميقات
+٢. طف بالكعبة (7 أشواط)
+٣. صلِّ ركعتين خلف مقام إبراهيم
+٤. اسعَ بين الصفا والمروة (7 مرات)
+٥. احلق أو قصر الشعر
+
+ملاحظات مهمة:
+• ابدأ الادخار فوراً بعد تحقق الشرط
+• لا تؤخر بلا سبب
+• إذا توفيت قبل الوفاء، يجب على ورثتك إرسال نائب عنك''',
       },
     },
     {
+      'titleKey': 'nazar_karika_6_breaking_a_nazar',
       'title': 'Breaking a Nazar',
       'titleUrdu': 'نذر توڑنا',
       'titleHindi': 'नज़र तोड़ना',
+      'titleArabic': 'نقض النذر',
       'icon': Icons.warning_amber,
       'color': Colors.amber,
       'details': {
@@ -631,6 +802,40 @@ Important Notes:
 • मुस्तक़बिल में लापरवाही से नज़र न मानें
 • अल्लाह से कोई वादा करने से पहले सोच-समझ लें
 • अगर किसी हराम चीज़ की नज़र मानी तो उसे पूरा न करें बल्कि कफ़्फ़ारा दें''',
+        'arabic': '''ماذا يحدث عند نقض النذر؟
+
+نقض النذر (عدم الوفاء بالوعد بعد تحقق الشرط) إثم عظيم في الإسلام. ومع ذلك، هناك طريقة للتكفير عنه من خلال الكفارة.
+
+متى تجب الكفارة:
+• عندما تنقض نذرك عمداً
+• عندما لا تستطيع الوفاء بالنذر الأصلي
+• عندما تريد تغيير نذرك إلى شيء آخر
+
+كفارة نقض النذر:
+الكفارة هي نفسها كفارة نقض اليمين:
+
+الخيار الأول: إطعام 10 مساكين
+• أعطِ كل مسكين وجبة واحدة (فطور وغداء، أو غداء وعشاء)
+• أو أعطِ ما يعادلها من الحبوب/المواد الغذائية
+• حوالي 1.75 كجم من القمح أو ما يعادله لكل شخص
+
+الخيار الثاني: كسوة 10 مساكين
+• أعطِ كل مسكين ملابس تستر جسده بشكل مناسب
+• زي كامل لكل شخص
+
+الخيار الثالث: عتق رقبة
+• هذا الخيار غير متاح في العصر الحديث
+
+الخيار الرابع: صيام 3 أيام متتابعة
+• فقط إذا لم تستطع تحمل الخيارين الأول والثاني
+• يجب أن تكون الأصوام متتابعة
+• إذا انقطعت التتابع، ابدأ من اليوم الأول
+
+ملاحظات مهمة:
+• يجب إعطاء الكفارة فوراً
+• لا تنذر بتهور في المستقبل
+• فكر جيداً قبل أن تعد الله بشيء
+• إذا نذرت شيئاً حراماً، لا تفِ به وأعطِ الكفارة بدلاً منه''',
       },
     },
   ];
@@ -649,111 +854,16 @@ Important Notes:
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _titles[_selectedLanguage]!,
-          style: const TextStyle(
+          context.tr('nazar_karika'),
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: context.responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _selectedLanguage == 'urdu'
-                    ? 'اردو'
-                    : _selectedLanguage == 'hindi'
-                    ? 'हिंदी'
-                    : 'EN',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-            onSelected: (value) => setState(() => _selectedLanguage = value),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'english',
-                child: Row(
-                  children: [
-                    if (_selectedLanguage == 'english')
-                      Icon(Icons.check, color: AppColors.primary, size: 18)
-                    else
-                      const SizedBox(width: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      'English',
-                      style: TextStyle(
-                        fontWeight: _selectedLanguage == 'english'
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        color: _selectedLanguage == 'english'
-                            ? AppColors.primary
-                            : null,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'urdu',
-                child: Row(
-                  children: [
-                    if (_selectedLanguage == 'urdu')
-                      Icon(Icons.check, color: AppColors.primary, size: 18)
-                    else
-                      const SizedBox(width: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      'اردو',
-                      style: TextStyle(
-                        fontWeight: _selectedLanguage == 'urdu'
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        color: _selectedLanguage == 'urdu'
-                            ? AppColors.primary
-                            : null,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'hindi',
-                child: Row(
-                  children: [
-                    if (_selectedLanguage == 'hindi')
-                      Icon(Icons.check, color: AppColors.primary, size: 18)
-                    else
-                      const SizedBox(width: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      'हिंदी',
-                      style: TextStyle(
-                        fontWeight: _selectedLanguage == 'hindi'
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        color: _selectedLanguage == 'hindi'
-                            ? AppColors.primary
-                            : null,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: context.responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -782,89 +892,122 @@ Important Notes:
     bool isDark,
     int index,
   ) {
+    final langCode = context.languageProvider.languageCode;
+    final title = context.tr(nazar['titleKey'] ?? 'nazar_karika');
+    final responsive = context.responsive;
+    const darkGreen = Color(0xFF0A5C36);
     const emeraldGreen = Color(0xFF1E8F5A);
-
-    final title = _selectedLanguage == 'english'
-        ? nazar['title']
-        : _selectedLanguage == 'urdu'
-        ? nazar['titleUrdu']
-        : nazar['titleHindi'];
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+    const lightGreenBorder = Color(0xFF8AAF9A);
+return Container(
+      margin: responsive.paddingOnly(bottom: 10),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         border: Border.all(
-          color: isDark ? Colors.grey.shade800 : AppColors.lightGreenBorder,
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: isDark ? 0.05 : 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
           ),
         ],
       ),
       child: InkWell(
         onTap: () => _showNazarDetails(nazar),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: responsive.paddingAll(14),
           child: Row(
             children: [
-              // Icon Circle
+              // Number Badge
               Container(
-                width: 50,
-                height: 50,
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
                 decoration: BoxDecoration(
-                  color: nazar['color'] as Color,
+                  color: darkGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: (nazar['color'] as Color).withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
                     ),
                   ],
                 ),
                 child: Center(
-                  child: Icon(
-                    nazar['icon'] as IconData,
-                    color: Colors.white,
-                    size: 24,
+                  child: Text(
+                    '${index + 1}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsive.textLarge,
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(width: 14),
-              // Info
+              SizedBox(width: responsive.spacing(14)),
+
+              // Title and Icon chip
               Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? AppColors.darkTextPrimary : AppColors.primary,
-                  ),
-                  textDirection: _selectedLanguage == 'urdu'
-                      ? TextDirection.rtl
-                      : TextDirection.ltr,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: responsive.textLarge,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                      ),
+                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                    ),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Icon chip
+                    Container(
+                      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            nazar['icon'] as IconData,
+                            size: responsive.textXSmall + 2,
+                            color: emeraldGreen,
+                          ),
+                          SizedBox(width: responsive.spacing(4)),
+                          Text(
+                            context.tr('nazar_karika'),
+                            style: TextStyle(
+                              fontSize: responsive.textXSmall,
+                              fontWeight: FontWeight.w600,
+                              color: emeraldGreen,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              // Arrow
+
+              // Arrow Icon
               Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? emeraldGreen.withValues(alpha: 0.3)
-                      : emeraldGreen,
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.arrow_forward_ios,
-                  color: isDark ? Colors.green.shade300 : Colors.white,
-                  size: 12,
+                  color: Colors.white,
+                  size: responsive.textXSmall + 2,
                 ),
               ),
             ],
@@ -876,21 +1019,45 @@ Important Notes:
 
   void _showNazarDetails(Map<String, dynamic> nazar) {
     final details = nazar['details'] as Map<String, String>;
-
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => BasicAmalDetailScreen(
-          title: nazar['title'],
+          title: nazar['title'] ?? '',
           titleUrdu: nazar['titleUrdu'] ?? '',
           titleHindi: nazar['titleHindi'] ?? '',
+          titleArabic: nazar['titleArabic'] ?? '',
           contentEnglish: details['english'] ?? '',
           contentUrdu: details['urdu'] ?? '',
           contentHindi: details['hindi'] ?? '',
+          contentArabic: details['arabic'] ?? '',
           color: nazar['color'] as Color,
           icon: nazar['icon'] as IconData,
-          category: 'Deen Ki Buniyadi Amal - Nazar',
+          categoryKey: 'category_nazar',
         ),
+      ),
+    );
+  }
+
+  PopupMenuItem<String> _buildLanguageMenuItem(String value, String label) {
+    return PopupMenuItem(
+      value: value,
+      child: Row(
+        children: [
+          Icon(
+            _selectedLanguage == value ? Icons.check_circle : Icons.circle_outlined,
+            color: _selectedLanguage == value ? AppColors.primary : Colors.grey,
+            size: context.responsive.iconSmall,
+          ),
+          SizedBox(width: context.responsive.spaceSmall),
+          Text(
+            context.tr(label),
+            style: TextStyle(
+              fontWeight: _selectedLanguage == value ? FontWeight.bold : FontWeight.normal,
+              color: _selectedLanguage == value ? AppColors.primary : null,
+            ),
+          ),
+        ],
       ),
     );
   }

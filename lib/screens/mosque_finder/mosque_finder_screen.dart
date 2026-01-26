@@ -2,9 +2,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/location_service.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
+import '../../providers/language_provider.dart';
 
 class MosqueFinderScreen extends StatefulWidget {
   const MosqueFinderScreen({super.key});
@@ -19,6 +23,7 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
   bool _isLoading = true;
   String? _error;
   Position? _currentPosition;
+  String? _currentLanguage;
 
   @override
   void initState() {
@@ -26,7 +31,40 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
     _loadMosques();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final newLanguage = languageProvider.languageCode;
+
+    // If language changed, reload mosques with new translations
+    if (_currentLanguage != null &&
+        _currentLanguage != newLanguage &&
+        _currentPosition != null) {
+      _currentLanguage = newLanguage;
+      _refreshData();
+    } else if (_currentLanguage == null) {
+      _currentLanguage = newLanguage;
+    }
+  }
+
+  Future<void> _refreshData() async {
+    await _loadMosques();
+  }
+
   Future<void> _loadMosques() async {
+    if (!mounted) return;
+
+    // Get all translations and language info before any async operations
+    final languageProvider = context.languageProvider;
+    final enableLocationMsg = languageProvider.translate(
+      'enable_location_services',
+    );
+    final defaultMosqueName = languageProvider.translate('mosque');
+    final defaultAddress = languageProvider.translate('address_not_available');
+    final errorText = languageProvider.translate('error');
+    final currentLang = languageProvider.languageCode;
+
     setState(() {
       _isLoading = true;
       _error = null;
@@ -35,39 +73,70 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
     try {
       _currentPosition = await _locationService.getCurrentLocation();
       if (_currentPosition == null) {
+        if (!mounted) return;
         setState(() {
-          _error = 'Unable to get your location. Please enable location services.';
+          _error = enableLocationMsg;
           _isLoading = false;
         });
         return;
       }
 
-      await _searchNearbyMosques();
+      await _searchNearbyMosques(
+        defaultMosqueName,
+        defaultAddress,
+        currentLang,
+      );
     } catch (e) {
+      debugPrint('Mosque Finder: Error in _loadMosques: $e');
+      if (!mounted) return;
       setState(() {
-        _error = 'Error: $e';
+        _error = '$errorText: $e';
         _isLoading = false;
       });
     }
   }
 
-  Future<void> _searchNearbyMosques() async {
+  Future<void> _searchNearbyMosques(
+    String defaultMosqueName,
+    String defaultAddress,
+    String currentLang,
+  ) async {
     if (_currentPosition == null) return;
 
     try {
+      // Language code is now passed as parameter to avoid context issues
+
+      // Map language codes to OpenStreetMap language tags
+      String osmLangTag = 'name';
+      if (currentLang == 'ur') {
+        osmLangTag = 'name:ur';
+      } else if (currentLang == 'ar') {
+        osmLangTag = 'name:ar';
+      } else if (currentLang == 'hi') {
+        osmLangTag = 'name:hi';
+      } else if (currentLang == 'en') {
+        osmLangTag = 'name:en';
+      }
+
       // Using Overpass API (OpenStreetMap) to find mosques
-      final query = '''
+      // Search for nodes, ways, and relations within 2km radius
+      final query =
+          '''
         [out:json][timeout:25];
         (
-          node["amenity"="place_of_worship"]["religion"="muslim"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
-          way["amenity"="place_of_worship"]["religion"="muslim"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
-          node["building"="mosque"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
-          way["building"="mosque"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          node["amenity"="place_of_worship"]["religion"="muslim"](around:2000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          way["amenity"="place_of_worship"]["religion"="muslim"](around:2000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          relation["amenity"="place_of_worship"]["religion"="muslim"](around:2000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          node["building"="mosque"](around:2000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          way["building"="mosque"](around:2000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          relation["building"="mosque"](around:2000,${_currentPosition!.latitude},${_currentPosition!.longitude});
         );
-        out body;
-        >;
-        out skel qt;
+        out center;
       ''';
+
+      debugPrint(
+        'Mosque Finder: Searching for mosques near ${_currentPosition!.latitude}, ${_currentPosition!.longitude}',
+      );
 
       final response = await http.post(
         Uri.parse('https://overpass-api.de/api/interpreter'),
@@ -78,59 +147,340 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
         final data = json.decode(response.body);
         final elements = data['elements'] as List? ?? [];
 
+        debugPrint('Mosque Finder: Found ${elements.length} elements from API');
+
         final mosques = <MosqueModel>[];
+        final processedIds = <String>{};
+        final processedCoords = <String>{};
+        int skippedNoTags = 0;
+        int skippedDuplicates = 0;
+        int skippedNoCoords = 0;
+
         for (final element in elements) {
+          final tags = element['tags'];
+          final elementType = element['type'];
+          final id = element['id'].toString();
+
+          // Skip elements without tags (these are way nodes, not actual POIs)
+          if (tags == null || tags.isEmpty) {
+            skippedNoTags++;
+            continue;
+          }
+
+          // Get lat/lon - handle both nodes and ways
+          double? lat;
+          double? lon;
+
           if (element['lat'] != null && element['lon'] != null) {
-            final tags = element['tags'] ?? {};
-            final name = tags['name'] ?? tags['name:en'] ?? 'Mosque';
-            final address = _buildAddress(tags);
+            // Node element
+            lat = element['lat'].toDouble();
+            lon = element['lon'].toDouble();
+          } else if (element['center'] != null) {
+            // Way element with center
+            lat = element['center']['lat']?.toDouble();
+            lon = element['center']['lon']?.toDouble();
+          }
 
-            final distanceInMeters = _locationService.calculateDistance(
-              _currentPosition!.latitude,
-              _currentPosition!.longitude,
-              element['lat'].toDouble(),
-              element['lon'].toDouble(),
+          // Skip if no coordinates available
+          if (lat == null || lon == null) {
+            skippedNoCoords++;
+            final name = tags['name'] ?? tags['name:en'] ?? 'Unknown';
+            debugPrint(
+              'Mosque Finder: Skipped $elementType $id "$name" - no coordinates (has center: ${element['center'] != null})',
             );
-            final distance = distanceInMeters / 1000; // Convert to kilometers
+            continue;
+          }
 
-            mosques.add(MosqueModel(
-              id: element['id'].toString(),
-              name: name,
-              address: address,
-              latitude: element['lat'].toDouble(),
-              longitude: element['lon'].toDouble(),
-              distance: distance,
-              phone: tags['phone'] ?? tags['contact:phone'],
-              website: tags['website'] ?? tags['contact:website'],
-              openingHours: tags['opening_hours'],
-            ));
+          // Create composite key using element type + ID (OSM IDs are unique per type)
+          final compositeId = '$elementType:$id';
+
+          // Create coordinate key rounded to 5 decimal places (~1 meter precision)
+          final coordKey =
+              '${lat.toStringAsFixed(5)},${lon.toStringAsFixed(5)}';
+
+          // Skip if we've already processed this element (by composite ID or coordinates)
+          if (processedIds.contains(compositeId) ||
+              processedCoords.contains(coordKey)) {
+            skippedDuplicates++;
+            debugPrint(
+              'Mosque Finder: Skipped duplicate - type=$elementType, id=$id, coords=$coordKey',
+            );
+            continue;
+          }
+
+          processedIds.add(compositeId);
+          processedCoords.add(coordKey);
+
+          // Try to get name in current language, fallback to default languages
+          final rawName =
+              tags[osmLangTag] ??
+              tags['name:$currentLang'] ??
+              tags['name'] ??
+              tags['name:en'] ??
+              defaultMosqueName;
+
+          // Transliterate name if not in English
+          final name = currentLang == 'en'
+              ? rawName
+              : _transliterateName(rawName, currentLang);
+
+          final distanceInMeters = _locationService.calculateDistance(
+            _currentPosition!.latitude,
+            _currentPosition!.longitude,
+            lat,
+            lon,
+          );
+          final distance = distanceInMeters / 1000; // Convert to kilometers
+
+          final mosqueAddress = _buildAddress(
+            tags,
+            defaultAddress,
+            currentLang,
+          );
+          final mosque = MosqueModel(
+            id: id,
+            name: name,
+            address: mosqueAddress,
+            latitude: lat,
+            longitude: lon,
+            distance: distance,
+            phone: tags['phone'] ?? tags['contact:phone'],
+            website: tags['website'] ?? tags['contact:website'],
+            openingHours: tags['opening_hours'],
+          );
+
+          debugPrint(
+            'Adding mosque: name="$name", address="$mosqueAddress", distance=${distance.toStringAsFixed(2)}km',
+          );
+          mosques.add(mosque);
+        }
+
+        // Remove duplicates based on name and proximity (within 100 meters)
+        final uniqueMosques = <MosqueModel>[];
+        final seenMosques = <String, MosqueModel>{};
+
+        for (final mosque in mosques) {
+          // Create a key based on name and rounded distance (to nearest 100m)
+          final distanceKey = (mosque.distance * 10).round() / 10; // Round to 0.1km
+          final key = '${mosque.name.toLowerCase()}_$distanceKey';
+
+          if (!seenMosques.containsKey(key)) {
+            seenMosques[key] = mosque;
+            uniqueMosques.add(mosque);
+          } else {
+            // If we already have a mosque with this name at this distance,
+            // keep the one with more information (has address, phone, etc.)
+            final existing = seenMosques[key]!;
+            final hasMoreInfo = (mosque.address != defaultAddress && existing.address == defaultAddress) ||
+                                (mosque.phone != null && existing.phone == null) ||
+                                (mosque.website != null && existing.website == null);
+
+            if (hasMoreInfo) {
+              // Replace with the one that has more information
+              uniqueMosques.remove(existing);
+              uniqueMosques.add(mosque);
+              seenMosques[key] = mosque;
+              debugPrint(
+                'Mosque Finder: Replaced duplicate "$key" with more detailed version',
+              );
+            } else {
+              debugPrint(
+                'Mosque Finder: Skipped duplicate "$key"',
+              );
+            }
           }
         }
 
-        // Sort by distance
-        mosques.sort((a, b) => a.distance.compareTo(b.distance));
+        debugPrint('Mosque Finder: After deduplication: ${uniqueMosques.length} unique mosques');
 
+        // Sort by distance
+        uniqueMosques.sort((a, b) => a.distance.compareTo(b.distance));
+
+        debugPrint('Mosque Finder: Processing Summary:');
+        debugPrint('  - Total elements from API: ${elements.length}');
+        debugPrint('  - Skipped (no tags): $skippedNoTags');
+        debugPrint('  - Skipped (duplicates by ID/coords): $skippedDuplicates');
+        debugPrint('  - Skipped (no coordinates): $skippedNoCoords');
+        debugPrint('  - Initially processed: ${mosques.length} mosques');
+        debugPrint('  - After name/distance dedup: ${uniqueMosques.length} unique mosques');
+
+        if (!mounted) return;
         setState(() {
-          _mosques = mosques;
+          _mosques = uniqueMosques;
           _isLoading = false;
         });
       } else {
-        throw Exception('Failed to fetch mosques');
+        final errorMsg = 'API Error: Status ${response.statusCode}';
+        debugPrint('Mosque Finder: $errorMsg');
+        debugPrint('Response body: ${response.body}');
+        if (!mounted) return;
+        setState(() {
+          _error = errorMsg;
+          _isLoading = false;
+        });
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('Mosque Finder Error: $e');
+      debugPrint('Stack trace: $stackTrace');
+      if (!mounted) return;
       setState(() {
-        _error = 'Could not load mosques. Please try again.';
+        _error = 'Failed to load mosques: $e';
         _isLoading = false;
       });
     }
   }
 
-  String _buildAddress(Map<dynamic, dynamic> tags) {
+  String _transliterateName(String name, String currentLang) {
+    // If already in target language or is default placeholder, return as is
+    if (name.contains('मस्जिद') ||
+        name.contains('مسجد') ||
+        name.contains('Mosque')) {
+      return name;
+    }
+
+    // Simple transliteration maps for common letters
+    if (currentLang == 'hi') {
+      return name
+          .replaceAll('A', 'ए')
+          .replaceAll('B', 'बी')
+          .replaceAll('C', 'सी')
+          .replaceAll('D', 'डी')
+          .replaceAll('E', 'ई')
+          .replaceAll('F', 'एफ')
+          .replaceAll('G', 'जी')
+          .replaceAll('H', 'एच')
+          .replaceAll('I', 'आई')
+          .replaceAll('J', 'जे')
+          .replaceAll('K', 'के')
+          .replaceAll('L', 'एल')
+          .replaceAll('M', 'एम')
+          .replaceAll('N', 'एन')
+          .replaceAll('O', 'ओ')
+          .replaceAll('P', 'पी')
+          .replaceAll('Q', 'क्यू')
+          .replaceAll('R', 'आर')
+          .replaceAll('S', 'एस')
+          .replaceAll('T', 'टी')
+          .replaceAll('U', 'यू')
+          .replaceAll('V', 'वी')
+          .replaceAll('W', 'डब्ल्यू')
+          .replaceAll('X', 'एक्स')
+          .replaceAll('Y', 'वाई')
+          .replaceAll('Z', 'जेड')
+          .replaceAll('a', 'अ')
+          .replaceAll('b', 'ब')
+          .replaceAll('c', 'क')
+          .replaceAll('d', 'ड')
+          .replaceAll('e', 'ई')
+          .replaceAll('f', 'फ')
+          .replaceAll('g', 'ग')
+          .replaceAll('h', 'ह')
+          .replaceAll('i', 'इ')
+          .replaceAll('j', 'ज')
+          .replaceAll('k', 'क')
+          .replaceAll('l', 'ल')
+          .replaceAll('m', 'म')
+          .replaceAll('n', 'न')
+          .replaceAll('o', 'ओ')
+          .replaceAll('p', 'प')
+          .replaceAll('q', 'क')
+          .replaceAll('r', 'र')
+          .replaceAll('s', 'स')
+          .replaceAll('t', 'त')
+          .replaceAll('u', 'उ')
+          .replaceAll('v', 'व')
+          .replaceAll('w', 'व')
+          .replaceAll('x', 'क्स')
+          .replaceAll('y', 'य')
+          .replaceAll('z', 'ज');
+    } else if (currentLang == 'ur') {
+      return name
+          .replaceAll('A', 'اے')
+          .replaceAll('B', 'بی')
+          .replaceAll('C', 'سی')
+          .replaceAll('D', 'ڈی')
+          .replaceAll('E', 'ای')
+          .replaceAll('F', 'ایف')
+          .replaceAll('G', 'جی')
+          .replaceAll('H', 'ایچ')
+          .replaceAll('I', 'آئی')
+          .replaceAll('J', 'جے')
+          .replaceAll('K', 'کے')
+          .replaceAll('L', 'ایل')
+          .replaceAll('M', 'ایم')
+          .replaceAll('N', 'این')
+          .replaceAll('O', 'او')
+          .replaceAll('P', 'پی')
+          .replaceAll('Q', 'کیو')
+          .replaceAll('R', 'آر')
+          .replaceAll('S', 'ایس')
+          .replaceAll('T', 'ٹی')
+          .replaceAll('U', 'یو')
+          .replaceAll('V', 'وی')
+          .replaceAll('W', 'ڈبلیو')
+          .replaceAll('X', 'ایکس')
+          .replaceAll('Y', 'وائی')
+          .replaceAll('Z', 'زیڈ');
+    } else if (currentLang == 'ar') {
+      return name
+          .replaceAll('A', 'ا')
+          .replaceAll('B', 'ب')
+          .replaceAll('C', 'س')
+          .replaceAll('D', 'د')
+          .replaceAll('E', 'ي')
+          .replaceAll('F', 'ف')
+          .replaceAll('G', 'ج')
+          .replaceAll('H', 'ه')
+          .replaceAll('I', 'ي')
+          .replaceAll('J', 'ج')
+          .replaceAll('K', 'ك')
+          .replaceAll('L', 'ل')
+          .replaceAll('M', 'م')
+          .replaceAll('N', 'ن')
+          .replaceAll('O', 'و')
+          .replaceAll('P', 'ب')
+          .replaceAll('Q', 'ق')
+          .replaceAll('R', 'ر')
+          .replaceAll('S', 'س')
+          .replaceAll('T', 'ت')
+          .replaceAll('U', 'و')
+          .replaceAll('V', 'ف')
+          .replaceAll('W', 'و')
+          .replaceAll('X', 'كس')
+          .replaceAll('Y', 'ي')
+          .replaceAll('Z', 'ز');
+    }
+
+    return name; // Return original for English
+  }
+
+  String _buildAddress(
+    Map<dynamic, dynamic> tags,
+    String defaultAddress,
+    String currentLang,
+  ) {
     final parts = <String>[];
-    if (tags['addr:street'] != null) parts.add(tags['addr:street']);
-    if (tags['addr:city'] != null) parts.add(tags['addr:city']);
+
+    // Try to get street name in current language
+    final street = tags['addr:street:$currentLang'] ?? tags['addr:street'];
+    if (street != null) {
+      parts.add(
+        currentLang == 'en' ? street : _transliterateName(street, currentLang),
+      );
+    }
+
+    // Try to get city name in current language
+    final city = tags['addr:city:$currentLang'] ?? tags['addr:city'];
+    if (city != null) {
+      parts.add(
+        currentLang == 'en' ? city : _transliterateName(city, currentLang),
+      );
+    }
+
+    // Postcode doesn't need translation
     if (tags['addr:postcode'] != null) parts.add(tags['addr:postcode']);
-    return parts.isEmpty ? 'Address not available' : parts.join(', ');
+
+    return parts.isEmpty ? defaultAddress : parts.join(', ');
   }
 
   Future<void> _openInMaps(MosqueModel mosque) async {
@@ -151,138 +501,164 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
 
   String _formatDistance(double distance) {
     if (distance < 1) {
-      return '${(distance * 1000).toInt()} m';
+      return '${(distance * 1000).toInt()} ${context.tr('unit_m')}';
     }
-    return '${distance.toStringAsFixed(1)} km';
+    return '${distance.toStringAsFixed(1)} ${context.tr('unit_km')}';
   }
 
   void _showMosqueDetails(MosqueModel mosque) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(context.responsive.radiusLarge),
+        ),
       ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
+      builder: (context) {
+        final responsive = context.responsive;
+        return Container(
+          padding: responsive.paddingLarge,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: responsive.spacing(40),
+                  height: responsive.spacing(4),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(Icons.mosque, color: AppColors.primary, size: 32),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        mosque.name,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+              responsive.vSpaceLarge,
+              Row(
+                children: [
+                  Container(
+                    padding: responsive.paddingMedium,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(
+                        responsive.radiusMedium,
                       ),
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '${_formatDistance(mosque.distance)} away',
-                          style: TextStyle(
-                            color: AppColors.secondaryDark,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            _buildDetailRow(Icons.location_on, mosque.address),
-            if (mosque.openingHours != null)
-              _buildDetailRow(Icons.access_time, mosque.openingHours!),
-            if (mosque.phone != null)
-              _buildDetailRow(Icons.phone, mosque.phone!),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _openInMaps(mosque);
-                    },
-                    icon: const Icon(Icons.directions),
-                    label: const Text('Directions'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.all(14),
+                    ),
+                    child: Icon(
+                      Icons.mosque,
+                      color: AppColors.primary,
+                      size: responsive.iconLarge,
                     ),
                   ),
-                ),
-                if (mosque.phone != null) ...[
-                  const SizedBox(width: 12),
+                  SizedBox(width: responsive.spaceRegular),
                   Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        _callMosque(mosque.phone!);
-                      },
-                      icon: const Icon(Icons.phone),
-                      label: const Text('Call'),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.all(14),
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          mosque.name,
+                          style: TextStyle(
+                            fontSize: responsive.textLarge,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: responsive.spaceXSmall),
+                        Container(
+                          padding: responsive.paddingSymmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.secondary.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(
+                              responsive.radiusMedium,
+                            ),
+                          ),
+                          child: Text(
+                            '${_formatDistance(mosque.distance)} ${context.tr('away')}',
+                            style: TextStyle(
+                              color: AppColors.secondaryDark,
+                              fontWeight: FontWeight.w600,
+                              fontSize: responsive.textSmall,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
-              ],
-            ),
-            const SizedBox(height: 10),
-          ],
-        ),
-      ),
+              ),
+              responsive.vSpaceLarge,
+              _buildDetailRow(Icons.location_on, mosque.address),
+              if (mosque.openingHours != null)
+                _buildDetailRow(Icons.access_time, mosque.openingHours!),
+              if (mosque.phone != null)
+                _buildDetailRow(Icons.phone, mosque.phone!),
+              responsive.vSpaceLarge,
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _openInMaps(mosque);
+                      },
+                      icon: const Icon(Icons.directions),
+                      label: Text(context.tr('directions')),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: responsive.paddingSymmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (mosque.phone != null) ...[
+                    SizedBox(width: responsive.spaceMedium),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _callMosque(mosque.phone!);
+                        },
+                        icon: const Icon(Icons.phone),
+                        label: Text(context.tr('call')),
+                        style: OutlinedButton.styleFrom(
+                          padding: responsive.paddingSymmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              responsive.vSpaceSmall,
+            ],
+          ),
+        );
+      },
     );
   }
 
   Widget _buildDetailRow(IconData icon, String text) {
+    final responsive = context.responsive;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: responsive.paddingOnly(bottom: 12),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: Colors.grey[600]),
-          const SizedBox(width: 12),
+          Icon(icon, size: responsive.iconSmall, color: Colors.grey[600]),
+          SizedBox(width: responsive.spaceMedium),
           Expanded(
             child: Text(
               text,
-              style: TextStyle(color: Colors.grey[700], fontSize: 14),
+              style: TextStyle(
+                color: Colors.grey[700],
+                fontSize: responsive.textMedium,
+              ),
             ),
           ),
         ],
@@ -292,25 +668,33 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Listen to language changes to rebuild UI
+    context.watch<LanguageProvider>();
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text('Nearby Mosques'),
+        title: Text(context.tr('mosque_finder')),
       ),
       body: _buildBody(),
     );
   }
 
   Widget _buildBody() {
+    final responsive = context.responsive;
+
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Finding mosques near you...'),
+            const CircularProgressIndicator(),
+            responsive.vSpaceRegular,
+            Text(
+              context.tr('finding_mosques'),
+              style: TextStyle(fontSize: responsive.textMedium),
+            ),
           ],
         ),
       );
@@ -319,22 +703,29 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
     if (_error != null) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: responsive.paddingXLarge,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.location_off, size: 64, color: Colors.grey),
-              const SizedBox(height: 16),
+              Icon(
+                Icons.location_off,
+                size: responsive.iconHuge,
+                color: Colors.grey,
+              ),
+              responsive.vSpaceRegular,
               Text(
                 _error!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.grey),
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: responsive.textMedium,
+                ),
               ),
-              const SizedBox(height: 24),
+              responsive.vSpaceXLarge,
               ElevatedButton.icon(
                 onPressed: _loadMosques,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Try Again'),
+                label: Text(context.tr('try_again')),
               ),
             ],
           ),
@@ -343,35 +734,44 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
     }
 
     if (_mosques.isEmpty) {
-      return const Center(
+      debugPrint('Mosque Finder UI: Showing empty state');
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.mosque, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
+            Icon(Icons.mosque, size: responsive.iconHuge, color: Colors.grey),
+            responsive.vSpaceRegular,
             Text(
-              'No mosques found nearby',
-              style: TextStyle(color: Colors.grey),
+              context.tr('no_mosques_found'),
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: responsive.textMedium,
+              ),
             ),
           ],
         ),
       );
     }
 
+    debugPrint('Mosque Finder UI: Showing ${_mosques.length} mosques in list');
     return Column(
       children: [
         // Header showing count
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: responsive.paddingRegular,
           child: Row(
             children: [
-              Icon(Icons.location_on, color: AppColors.primary, size: 20),
-              const SizedBox(width: 8),
+              Icon(
+                Icons.location_on,
+                color: AppColors.primary,
+                size: responsive.iconSmall,
+              ),
+              SizedBox(width: responsive.spaceSmall),
               Text(
-                '${_mosques.length} mosques found near you',
-                style: const TextStyle(
+                '${_mosques.length} ${context.tr('mosques_found')}',
+                style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: 14,
+                  fontSize: responsive.textMedium,
                 ),
               ),
             ],
@@ -382,7 +782,7 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
           child: RefreshIndicator(
             onRefresh: _loadMosques,
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: responsive.paddingSymmetric(horizontal: 16),
               itemCount: _mosques.length,
               itemBuilder: (context, index) {
                 return _buildMosqueCard(_mosques[index], index + 1);
@@ -398,69 +798,56 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
     const lightGreenBorder = Color(0xFF8AAF9A);
     const darkGreen = Color(0xFF0A5C36);
     const lightGreenChip = Color(0xFFE8F3ED);
+    final responsive = context.responsive;
+
+    debugPrint(
+      'Building mosque card #$rank: ${mosque.name}, ${mosque.address}, ${mosque.distance}km',
+    );
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: responsive.paddingOnly(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         border: Border.all(color: lightGreenBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: 10,
+            blurRadius: responsive.spacing(10),
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: InkWell(
         onTap: () => _showMosqueDetails(mosque),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: responsive.paddingRegular,
           child: Row(
             children: [
               // Rank number
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: lightGreenChip,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    '$rank',
-                    style: const TextStyle(
-                      color: darkGreen,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
               // Mosque icon
               Container(
-                padding: const EdgeInsets.all(10),
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
                 decoration: BoxDecoration(
                   color: darkGreen,
-                  borderRadius: BorderRadius.circular(12),
+                  shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
                       color: darkGreen.withValues(alpha: 0.3),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
                     ),
                   ],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.mosque,
                   color: Colors.white,
-                  size: 24,
+                  size: responsive.iconMedium,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: responsive.spaceMedium),
               // Mosque info
               Expanded(
                 child: Column(
@@ -468,19 +855,19 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
                   children: [
                     Text(
                       mosque.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 15,
+                        fontSize: responsive.fontSize(15),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: responsive.spaceXSmall),
                     Text(
                       mosque.address,
                       style: TextStyle(
                         color: Colors.grey[600],
-                        fontSize: 13,
+                        fontSize: responsive.textSmall,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -488,42 +875,28 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: responsive.spaceSmall),
               // Distance badge
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(
+                    padding: responsive.paddingSymmetric(
                       horizontal: 10,
                       vertical: 5,
                     ),
                     decoration: BoxDecoration(
                       color: lightGreenChip,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(
+                        responsive.radiusLarge,
+                      ),
                     ),
                     child: Text(
                       _formatDistance(mosque.distance),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: darkGreen,
                         fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  GestureDetector(
-                    onTap: () => _openInMaps(mosque),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E8F5A),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(
-                        Icons.directions,
-                        color: Colors.white,
-                        size: 18,
+                        fontSize: responsive.textSmall,
                       ),
                     ),
                   ),

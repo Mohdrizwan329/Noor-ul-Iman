@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
+import '../../widgets/common/search_bar_widget.dart';
 import 'basic_amal_detail_screen.dart';
 
 class MonthNameFazilatScreen extends StatefulWidget {
@@ -13,19 +16,17 @@ class MonthNameFazilatScreen extends StatefulWidget {
 
 class _MonthNameFazilatScreenState extends State<MonthNameFazilatScreen> {
   String _selectedLanguage = 'english';
-
-  final Map<String, String> _titles = {
-    'english': 'Islamic Months - Virtues & Significance',
-    'urdu': 'اسلامی مہینے - فضائل و اہمیت',
-    'hindi': 'इस्लामी महीने - फ़ज़ीलत और अहमियत',
-  };
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   final List<Map<String, dynamic>> _islamicMonths = [
     {
       'number': 1,
+      'titleKey': 'month_name_fazilat_1_muharram',
       'title': 'Muharram',
       'titleUrdu': 'محرم',
       'titleHindi': 'मुहर्रम',
+      'titleArabic': 'محرم',
       'icon': Icons.calendar_month,
       'color': Colors.red,
       'details': {
@@ -98,13 +99,48 @@ Acts of Worship:
 • ज़्यादा नमाज़ें और ज़िक्र
 • सदक़ा और नेक आमाल
 • क़ुरआन की तिलावत''',
+        'arabic': '''شهر محرم
+
+أول شهور السنة الهجرية وأحد الأشهر الحرم.
+
+فضل شهر محرم:
+• من الأشهر الحرم الأربعة
+• "إِنَّ عِدَّةَ الشُّهُورِ عِندَ اللَّهِ اثْنَا عَشَرَ شَهْرًا" (سورة التوبة: 36)
+• "مِنْهَا أَرْبَعَةٌ حُرُمٌ" الأشهر الحرم
+• يحرم فيه القتال إلا دفاعاً
+
+صيام المحرم:
+• قال النبي ﷺ: "أفضل الصيام بعد رمضان شهر الله المحرم" (مسلم)
+• صيام يوم عاشوراء مكفر لسنة ماضية
+• يستحب صيام تاسوعاء مع عاشوراء
+• صيام النافلة فيه أفضل
+
+يوم عاشوراء:
+• العاشر من محرم
+• يوم نجى الله فيه موسى وقومه
+• صامه النبي ﷺ وأمر بصيامه
+• قال ﷺ: "صيام يوم عاشوراء أحتسب على الله أن يكفر السنة التي قبله" (مسلم)
+
+سنة صيام عاشوراء:
+• صيام يوم تاسوعاء (9 محرم)
+• ثم يوم عاشوراء (10 محرم)
+• مخالفة لليهود
+• صيام يوم قبله أو بعده
+
+أحداث في محرم:
+• نجاة موسى من فرعون
+• استشهاد الحسين بن علي رضي الله عنهما
+• بداية السنة الهجرية
+• مناسبة للتوبة والاستغفار''',
       },
     },
     {
       'number': 2,
+      'titleKey': 'month_name_fazilat_2_safar',
       'title': 'Safar',
       'titleUrdu': 'صفر',
       'titleHindi': 'सफ़र',
+      'titleArabic': 'صفر',
       'icon': Icons.calendar_month,
       'color': Colors.orange,
       'details': {
@@ -186,13 +222,47 @@ The Last Wednesday:
 
 आख़िरी बुध:
 • "आख़िरी चहार शंबा" मनाने की बिदअत का कोई सुबूत नहीं''',
+        'arabic': '''شهر صفر
+
+الشهر الثاني من السنة الهجرية.
+
+حقيقة شهر صفر:
+• ليس شهراً منحوساً
+• لا تشاؤم فيه
+• قال النبي ﷺ: "لا عدوى ولا طيرة ولا هامة ولا صفر" (البخاري)
+• الخير والشر بيد الله وحده
+
+الخرافات المرفوضة:
+• التشاؤم من صفر من الجاهلية
+• لا تأثير للشهر على الحظ
+• الإسلام أبطل هذه المعتقدات
+• "قُل لَّن يُصِيبَنَا إِلَّا مَا كَتَبَ اللَّهُ لَنَا" (سورة التوبة: 51)
+
+الأعمال المستحبة:
+• الإكثار من العبادة
+• الصيام النافلة
+• قراءة القرآن
+• الصدقة والإحسان
+
+التوكل على الله:
+• الاعتماد على الله وحده
+• عدم التعلق بالخرافات
+• "وَعَلَى اللَّهِ فَتَوَكَّلُوا إِن كُنتُم مُّؤْمِنِينَ" (سورة المائدة: 23)
+
+دروس من صفر:
+• بطلان الخرافات
+• التوكل على الله
+• الإيمان بالقضاء والقدر
+• عدم التطير''',
       },
     },
     {
       'number': 3,
+      'titleKey': 'month_name_fazilat_3_rabi_alawwal',
       'title': 'Rabi al-Awwal',
       'titleUrdu': 'ربیع الاول',
       'titleHindi': 'रबीउल अव्वल',
+      'titleArabic': 'ربيع الأول',
       'icon': Icons.calendar_month,
       'color': Colors.green,
       'details': {
@@ -280,13 +350,46 @@ Note: The manner of celebration should be in accordance with authentic Islamic t
 • सोमवार को रोज़ा रखें (सुन्नत)
 
 नोट: जश्न का तरीक़ा मुस्तनद इस्लामी तालीमात के मुताबिक़ होना चाहिए, बिदअतों से बचते हुए।''',
+        'arabic': '''ربيع الأول
+
+الشهر الثالث من السنة الهجرية وفيه مولد النبي ﷺ.
+
+شهر المولد النبوي:
+• ولد النبي ﷺ في 12 ربيع الأول
+• عام الفيل
+• يوم الاثنين
+• "لَقَدْ جَاءَكُمْ رَسُولٌ مِّنْ أَنفُسِكُمْ" (سورة التوبة: 128)
+
+الاحتفال بالمولد:
+• ليس من السنة الاحتفال بيوم محدد
+• ولكن محبة النبي ﷺ واجبة
+• إحياء سيرته طوال العام
+• الصلاة عليه في كل وقت
+
+إحياء سيرة النبي:
+• دراسة السيرة النبوية
+• الاقتداء بأخلاقه
+• نشر سنته
+• الدفاع عن النبي ﷺ
+
+الصلاة على النبي:
+• "إِنَّ اللَّهَ وَمَلَائِكَتَهُ يُصَلُّونَ عَلَى النَّبِيِّ" (سورة الأحزاب: 56)
+• الإكثار منها في هذا الشهر
+• اللهم صل على محمد وعلى آل محمد
+
+أحداث في ربيع الأول:
+• مولد النبي ﷺ
+• وفاة النبي ﷺ (في نفس الشهر)
+• الهجرة إلى المدينة''',
       },
     },
     {
       'number': 4,
+      'titleKey': 'month_name_fazilat_4_rabi_althani',
       'title': 'Rabi al-Thani',
       'titleUrdu': 'ربیع الثانی',
       'titleHindi': 'रबीउस्सानी',
+      'titleArabic': 'ربيع الآخر',
       'icon': Icons.calendar_month,
       'color': Colors.teal,
       'details': {
@@ -377,13 +480,46 @@ General Islamic Guidance:
 • साल भर बाक़ायदा इबादत जारी रखें
 • सुन्नत में साबित न होने वाली बिदअतों से बचें
 • मुस्तनद इस्लामी आमाल पर तवज्जोह दें''',
+        'arabic': '''ربيع الآخر (ربيع الثاني)
+
+الشهر الرابع من السنة الهجرية.
+
+شهر مبارك:
+• من أشهر السنة الهجرية
+• لا تخصيص له بعبادة معينة
+• العبادة فيه كسائر الشهور
+
+الأعمال المستحبة:
+• المحافظة على الفرائض
+• الإكثار من النوافل
+• الصيام التطوع
+• قراءة القرآن وتدبره
+
+التقرب إلى الله:
+• الذكر والدعاء
+• الصدقة والإحسان
+• صلة الرحم
+• الأمر بالمعروف والنهي عن المنكر
+
+عمارة الأوقات:
+• استغلال الوقت في الطاعة
+• "وَالْعَصْرِ * إِنَّ الْإِنسَانَ لَفِي خُسْرٍ" (سورة العصر: 1-2)
+• المحافظة على الأذكار
+• قيام الليل
+
+دروس من الشهر:
+• كل وقت فرصة للطاعة
+• لا تخصيص بدون دليل
+• الاستمرار على العبادة''',
       },
     },
     {
       'number': 5,
+      'titleKey': 'month_name_fazilat_5_jumada_alawwal',
       'title': 'Jumada al-Awwal',
       'titleUrdu': 'جمادی الاول',
       'titleHindi': 'जमादिउल अव्वल',
+      'titleArabic': 'جمادى الأولى',
       'icon': Icons.calendar_month,
       'color': Colors.blue,
       'details': {
@@ -474,13 +610,47 @@ Lesson:
 सबक़:
 • सच्चा ईमान मुसलसल अमल से ज़ाहिर होता है, सिर्फ़ ख़ास मौक़ों पर नहीं
 • हर लम्हा सवाब का मौक़ा है''',
+        'arabic': '''جمادى الأولى
+
+الشهر الخامس من السنة الهجرية.
+
+معنى الاسم:
+• سمي جمادى لوقوعه في الشتاء عند التسمية
+• جمد الماء من البرد
+• الجمادى: البرد والتجمد
+
+شهر العبادة:
+• لا يختلف عن سائر الشهور
+• المحافظة على الطاعات
+• استمرار العمل الصالح
+• "وَاعْبُدْ رَبَّكَ حَتَّىٰ يَأْتِيَكَ الْيَقِينُ" (سورة الحجر: 99)
+
+الأعمال المستحبة:
+• صيام الإثنين والخميس
+• صيام الأيام البيض (13، 14، 15)
+• قيام الليل
+• الصدقة والإنفاق
+
+الحكمة من الشهور:
+• تنظيم العبادات
+• معرفة الأوقات
+• حساب الأعمار
+• التاريخ والتوثيق
+
+استثمار الوقت:
+• كل يوم فرصة جديدة
+• المبادرة إلى الخيرات
+• ترك التسويف
+• "فَإِذَا فَرَغْتَ فَانصَبْ" (سورة الشرح: 7)''',
       },
     },
     {
       'number': 6,
+      'titleKey': 'month_name_fazilat_6_jumada_althani',
       'title': 'Jumada al-Thani',
       'titleUrdu': 'جمادی الثانی',
       'titleHindi': 'जमादिउस्सानी',
+      'titleArabic': 'جمادى الآخرة',
       'icon': Icons.calendar_month,
       'color': Colors.indigo,
       'details': {
@@ -583,13 +753,45 @@ Remember:
 याद रखें:
 • हर महीना रूहानी तरक़्क़ी का मौक़ा है
 • इबादत में मुसलसल रहना अल्लाह को कभी कभार की इबादत से ज़्यादा महबूब है''',
+        'arabic': '''جمادى الآخرة (جمادى الثانية)
+
+الشهر السادس من السنة الهجرية.
+
+شهر الاستمرار:
+• منتصف العام الهجري
+• فرصة للمراجعة والتقويم
+• محاسبة النفس
+• "يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ وَلْتَنظُرْ نَفْسٌ مَّا قَدَّمَتْ لِغَدٍ" (سورة الحشر: 18)
+
+المحاسبة:
+• مراجعة الأعمال
+• التوبة من التقصير
+• تجديد النية
+• العزم على الاستمرار
+
+الأعمال الصالحة:
+• المداومة على الطاعات
+• عدم الملل والفتور
+• "وَاعْبُدْ رَبَّكَ حَتَّىٰ يَأْتِيَكَ الْيَقِينُ" (سورة الحجر: 99)
+
+الاستعداد لرجب:
+• قرب شهر رجب المبارك
+• التهيؤ للأشهر الفاضلة
+• زيادة العمل الصالح
+
+دروس الشهر:
+• الاستمرار في الطاعة
+• عدم الانقطاع
+• المحاسبة الدورية''',
       },
     },
     {
       'number': 7,
+      'titleKey': 'month_name_fazilat_7_rajab',
       'title': 'Rajab',
       'titleUrdu': 'رجب',
       'titleHindi': 'रजब',
+      'titleArabic': 'رجب',
       'icon': Icons.calendar_month,
       'color': Colors.purple,
       'details': {
@@ -677,13 +879,53 @@ Recommended Acts:
 • ज़्यादा इस्तिग़फ़ार
 • नबी करीम ﷺ फ़रमाते: "अल्लाहुम्मा बारिक लना फ़ी रजब व शाबान व बल्लिग़ना रमज़ान" (ऐ अल्लाह, रजब और शाबान में हमें बरकत दे और रमज़ान तक पहुंचा)
 • रमज़ान के लिए रूहानी तौर पर तैयारी करें''',
+        'arabic': '''شهر رجب
+
+السابع من شهور السنة الهجرية وأحد الأشهر الحرم.
+
+فضل شهر رجب:
+• من الأشهر الحرم
+• "إِنَّ عِدَّةَ الشُّهُورِ عِندَ اللَّهِ اثْنَا عَشَرَ شَهْرًا" (سورة التوبة: 36)
+• يحرم فيه القتال
+• شهر مبارك
+
+معنى الاسم:
+• رجب: أي عظّم وهيّب
+• كانت العرب تعظمه
+• الرجب: الترجيب والتعظيم
+
+صيام رجب:
+• يجوز صيامه
+• لكن دون تخصيص
+• كصيام سائر الشهور
+• لا يفرد بصيام كامل
+
+البدع في رجب:
+• لا صلاة الرغائب
+• لا عمرة خاصة برجب
+• لا ذبح في رجب (العتيرة)
+• الالتزام بالسنة
+
+الأعمال المستحبة:
+• صيام التطوع
+• قيام الليل
+• الصدقة والإحسان
+• قراءة القرآن
+
+الاستعداد لرمضان:
+• رجب مقدمة لرمضان
+• التهيؤ والاستعداد
+• زيادة الطاعات
+• ترك المعاصي''',
       },
     },
     {
       'number': 8,
+      'titleKey': 'month_name_fazilat_8_ramadan',
       'title': 'Sha\'ban',
       'titleUrdu': 'شعبان',
       'titleHindi': 'शाबान',
+      'titleArabic': 'رمضان',
       'icon': Icons.calendar_month,
       'color': Colors.pink,
       'details': {
@@ -786,13 +1028,48 @@ Important:
 अहम:
 • रमज़ान से एक या दो दिन पहले रोज़ा रखना बंद करें
 • नबी करीम ﷺ ने फ़रमाया: "रमज़ान से एक या दो दिन पहले रोज़ा रखकर उससे आगे न बढ़ो।" (बुख़ारी)''',
+        'arabic': '''شهر رمضان
+
+أفضل شهور السنة وشهر الصيام المفروض.
+
+فضل شهر رمضان:
+• "شَهْرُ رَمَضَانَ الَّذِي أُنزِلَ فِيهِ الْقُرْآنُ" (سورة البقرة: 185)
+• فيه ليلة القدر خير من ألف شهر
+• تفتح فيه أبواب الجنة
+• تغلق فيه أبواب النار
+• تصفد فيه الشياطين
+
+الصيام:
+• ركن من أركان الإسلام
+• واجب على كل مسلم بالغ عاقل
+• من الفجر إلى المغرب
+• "كُتِبَ عَلَيْكُمُ الصِّيَامُ" (سورة البقرة: 183)
+
+القيام:
+• قيام رمضان سنة مؤكدة
+• صلاة التراويح
+• قال النبي ﷺ: "من قام رمضان إيماناً واحتساباً غفر له ما تقدم من ذنبه" (البخاري)
+
+ليلة القدر:
+• خير من ألف شهر
+• "إِنَّا أَنزَلْنَاهُ فِي لَيْلَةِ الْقَدْرِ" (سورة القدر: 1)
+• في العشر الأواخر من رمضان
+• الأرجح في الوتر منها
+
+زكاة الفطر:
+• واجبة على كل مسلم
+• تطهير للصائم
+• طعمة للمساكين
+• قبل صلاة العيد''',
       },
     },
     {
       'number': 9,
+      'titleKey': 'month_name_fazilat_9_shawwal',
       'title': 'Ramadan',
       'titleUrdu': 'رمضان',
       'titleHindi': 'रमज़ान',
+      'titleArabic': 'شوال',
       'icon': Icons.calendar_month,
       'color': Colors.amber,
       'details': {
@@ -895,13 +1172,53 @@ Suhoor (Pre-dawn meal):
 
 सहरी:
 • नबी करीम ﷺ ने फ़रमाया: "सहरी खाओ, इसमें बरकत है।" (बुख़ारी)''',
+        'arabic': '''شهر شوال
+
+العاشر من شهور السنة وفيه عيد الفطر.
+
+عيد الفطر:
+• أول أيام شوال
+• عيد المسلمين بعد رمضان
+• صلاة العيد سنة مؤكدة
+• "فَصَلِّ لِرَبِّكَ وَانْحَرْ" (سورة الكوثر: 2)
+
+صيام ستة من شوال:
+• قال النبي ﷺ: "من صام رمضان ثم أتبعه ستاً من شوال كان كصيام الدهر" (مسلم)
+• تصام متتابعة أو متفرقة
+• بعد عيد الفطر
+• أجر عظيم
+
+فضل الصيام بعد رمضان:
+• دليل على قبول رمضان
+• الحسنة بعشر أمثالها
+• رمضان (30 × 10 = 300) + شوال (6 × 10 = 60) = 360 يوماً
+
+آداب العيد:
+• الاغتسال والتطيب
+• لبس أحسن الثياب
+• التكبير من الفجر
+• الفطر قبل الصلاة
+• الذهاب من طريق والعودة من آخر
+
+صلة الرحم:
+• زيارة الأقارب
+• التهنئة بالعيد
+• التسامح والمودة
+• إدخال السرور
+
+شكر النعمة:
+• شكر الله على إتمام رمضان
+• الاستمرار على الطاعة
+• عدم العودة للمعاصي''',
       },
     },
     {
       'number': 10,
+      'titleKey': 'month_name_fazilat_10_dhulhijjah',
       'title': 'Shawwal',
       'titleUrdu': 'شوال',
       'titleHindi': 'शव्वाल',
+      'titleArabic': 'ذو الحجة',
       'icon': Icons.calendar_month,
       'color': Colors.lime,
       'details': {
@@ -1001,6 +1318,44 @@ Acts of Worship:
 • छह दिन के रोज़े
 • रमज़ान के छूटे रोज़े पूरे करना
 • रमज़ान की अच्छी आदतें जारी रखना''',
+        'arabic': '''ذو الحجة
+
+الثاني عشر من شهور السنة وفيه الحج وعيد الأضحى.
+
+فضل شهر ذي الحجة:
+• من الأشهر الحرم
+• فيه أفضل أيام الدنيا
+• "وَالْفَجْرِ * وَلَيَالٍ عَشْرٍ" (سورة الفجر: 1-2)
+• العشر الأوائل منه أفضل أيام العام
+
+العشر الأوائل:
+• قال النبي ﷺ: "ما من أيام العمل الصالح فيهن أحب إلى الله من هذه الأيام" (البخاري)
+• يستحب الإكثار من العمل الصالح
+• التكبير والتهليل والتحميد
+• الصيام والصدقة
+
+يوم عرفة:
+• التاسع من ذي الحجة
+• أعظم أيام السنة
+• قال النبي ﷺ: "صيام يوم عرفة أحتسب على الله أن يكفر السنة التي قبله والسنة التي بعده" (مسلم)
+• ركن الحج الأعظم
+
+يوم النحر:
+• العاشر من ذي الحجة
+• عيد الأضحى
+• أعظم الأيام عند الله
+• "إِنَّ أَوَّلَ بَيْتٍ وُضِعَ لِلنَّاسِ" (سورة آل عمران: 96)
+
+الأضحية:
+• سنة مؤكدة
+• ذبح الأنعام تقرباً إلى الله
+• "فَصَلِّ لِرَبِّكَ وَانْحَرْ" (سورة الكوثر: 2)
+• توزيع اللحم على الفقراء
+
+الحج:
+• الركن الخامس من أركان الإسلام
+• واجب على المستطيع مرة في العمر
+• "وَلِلَّهِ عَلَى النَّاسِ حِجُّ الْبَيْتِ" (سورة آل عمران: 97)''',
       },
     },
     {
@@ -1008,6 +1363,7 @@ Acts of Worship:
       'title': 'Dhul-Qa\'dah',
       'titleUrdu': 'ذوالقعدہ',
       'titleHindi': 'ज़ुलक़ादा',
+      'titleArabic': 'النص العربي',
       'icon': Icons.calendar_month,
       'color': Colors.brown,
       'details': {
@@ -1113,6 +1469,40 @@ Reminder:
 याददिहानी:
 • हराम महीने गुनाहों से बचने में ज़्यादा होशियारी का तक़ाज़ा करते हैं
 • इबादत और मग़फ़िरत तलब करने में इज़ाफ़ा करें''',
+        'arabic': '''ذو القعدة - شهر القعود
+
+ذو القعدة هو الشهر الحادي عشر وأحد الأشهر الحرم الأربعة في الإسلام.
+
+معنى الاسم:
+• "ذو القعدة" تعني "شهر القعود"
+• كان العرب يقعدون ويمتنعون عن السفر والقتال
+• سمي بذلك لأن الناس كانوا يستقرون بعد العودة من رحلاتهم
+
+مكانة الشهر الحرام:
+• أحد الأشهر الحرم الأربعة (ذو القعدة، ذو الحجة، المحرم، رجب)
+• كان القتال والحرب محرمين
+• "إِنَّ عِدَّةَ الشُّهُورِ عِندَ اللَّهِ اثْنَا عَشَرَ شَهْرًا... مِنْهَا أَرْبَعَةٌ حُرُمٌ" (القرآن 9:36)
+
+الاستعداد للحج:
+• يبدأ الحجاج في الاستعداد للحج
+• غالباً ما يغادر من ينوي الحج في هذا الشهر
+• بدأت حجة الوداع للنبي ﷺ في هذا الشهر
+
+الأحداث التاريخية:
+• تم توقيع صلح الحديبية في هذا الشهر (6 هـ)
+• سماها الله "فتحاً مبيناً"
+• أدى النبي ﷺ العمرة في هذا الشهر
+
+الأعمال الصالحة:
+• زيادة الطاعات كما في جميع الأشهر الحرم
+• تجنب الذنوب (الذنوب أشد في الأشهر الحرم)
+• الاستعداد الروحي لشهر ذي الحجة
+• النية للحج أو العمرة إن أمكن
+• الاستمرار في الصلوات المنتظمة والأعمال الصالحة
+
+تذكير:
+• تتطلب الأشهر الحرم يقظة إضافية لتجنب الذنوب
+• الزيادة في العبادة وطلب المغفرة''',
       },
     },
     {
@@ -1120,6 +1510,7 @@ Reminder:
       'title': 'Dhul-Hijjah',
       'titleUrdu': 'ذوالحجہ',
       'titleHindi': 'ज़ुलहिज्जा',
+      'titleArabic': 'النص العربي',
       'icon': Icons.calendar_month,
       'color': Colors.deepOrange,
       'details': {
@@ -1219,9 +1610,75 @@ Recommended Acts:
 • जो इस्तिताअत रखते हैं उनके लिए क़ुर्बानी
 • तमाम नेक आमाल में इज़ाफ़ा
 • क़ुर्बानी करने वाले बाल/नाख़ून न काटें''',
+        'arabic': '''ذو الحجة
+
+الثاني عشر من شهور السنة وفيه الحج وعيد الأضحى.
+
+فضل شهر ذي الحجة:
+• من الأشهر الحرم
+• فيه أفضل أيام الدنيا
+• "وَالْفَجْرِ * وَلَيَالٍ عَشْرٍ" (سورة الفجر: 1-2)
+• العشر الأوائل منه أفضل أيام العام
+
+العشر الأوائل:
+• قال النبي ﷺ: "ما من أيام العمل الصالح فيهن أحب إلى الله من هذه الأيام" (البخاري)
+• يستحب الإكثار من العمل الصالح
+• التكبير والتهليل والتحميد
+• الصيام والصدقة
+
+يوم عرفة:
+• التاسع من ذي الحجة
+• أعظم أيام السنة
+• قال النبي ﷺ: "صيام يوم عرفة أحتسب على الله أن يكفر السنة التي قبله والسنة التي بعده" (مسلم)
+• ركن الحج الأعظم
+
+يوم النحر:
+• العاشر من ذي الحجة
+• عيد الأضحى
+• أعظم الأيام عند الله
+• تذكار لاستعداد إبراهيم عليه السلام لذبح ابنه
+
+الأضحية:
+• سنة مؤكدة
+• ذبح الأنعام تقرباً إلى الله
+• "فَصَلِّ لِرَبِّكَ وَانْحَرْ" (سورة الكوثر: 2)
+• توزيع اللحم على الفقراء
+
+الحج:
+• الركن الخامس من أركان الإسلام
+• واجب على المستطيع مرة في العمر
+• "وَلِلَّهِ عَلَى النَّاسِ حِجُّ الْبَيْتِ" (سورة آل عمران: 97)
+
+الأعمال المستحبة:
+• صيام التسع الأوائل (خاصة يوم عرفة)
+• كثرة التكبير والتهليل والتحميد
+• الأضحية لمن استطاع
+• الإكثار من الأعمال الصالحة
+• من أراد الأضحية لا يأخذ من شعره وأظافره''',
       },
     },
   ];
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<Map<String, dynamic>> get filteredMonths {
+    if (_searchQuery.isEmpty) {
+      return _islamicMonths;
+    }
+    final query = _searchQuery.toLowerCase();
+    return _islamicMonths.where((month) {
+      final title = context
+          .tr(month['titleKey'] ?? 'month_name_fazilat_1_muharram')
+          .toString()
+          .toLowerCase();
+      final monthNumber = month['number'].toString();
+      return title.contains(query) || monthNumber.contains(query);
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1237,57 +1694,77 @@ Recommended Acts:
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _titles[_selectedLanguage]!,
-          style: const TextStyle(
+          context.tr('month_fazilat'),
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: context.responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _selectedLanguage == 'urdu'
-                    ? 'اردو'
-                    : _selectedLanguage == 'hindi'
-                    ? 'हिंदी'
-                    : 'EN',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-            onSelected: (value) => setState(() => _selectedLanguage = value),
-            itemBuilder: (context) => [
-              _buildLanguageMenuItem('english', 'English'),
-              _buildLanguageMenuItem('urdu', 'اردو'),
-              _buildLanguageMenuItem('hindi', 'हिंदी'),
-            ],
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: context.responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _islamicMonths.length,
-              itemBuilder: (context, index) {
-                final month = _islamicMonths[index];
-                return _buildMonthCard(month, isDark);
-              },
+            // Search Bar
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: SearchBarWidget(
+                controller: _searchController,
+                hintText: context.tr('search_month_fazilat'),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                },
+                onClear: () {
+                  setState(() {
+                    _searchQuery = '';
+                  });
+                },
+                enableVoiceSearch: true,
+              ),
             ),
+
+            // Islamic Months List
+            filteredMonths.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: isDark
+                                ? Colors.grey.shade600
+                                : Colors.grey.shade400,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            context.tr('no_months_found'),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: isDark
+                                  ? Colors.grey.shade400
+                                  : Colors.grey.shade600,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: filteredMonths.length,
+                    itemBuilder: (context, index) {
+                      final month = filteredMonths[index];
+                      return _buildMonthCard(month, isDark);
+                    },
+                  ),
           ],
         ),
       ),
@@ -1299,11 +1776,14 @@ Recommended Acts:
       value: value,
       child: Row(
         children: [
-          if (_selectedLanguage == value)
-            Icon(Icons.check, color: AppColors.primary, size: 18)
-          else
-            const SizedBox(width: 18),
-          const SizedBox(width: 8),
+          Icon(
+            _selectedLanguage == value
+                ? Icons.check_circle
+                : Icons.circle_outlined,
+            color: _selectedLanguage == value ? AppColors.primary : Colors.grey,
+            size: context.responsive.iconSmall,
+          ),
+          SizedBox(width: context.responsive.spaceSmall),
           Text(
             label,
             style: TextStyle(
@@ -1319,97 +1799,133 @@ Recommended Acts:
   }
 
   Widget _buildMonthCard(Map<String, dynamic> month, bool isDark) {
-    final title = _selectedLanguage == 'english'
-        ? month['title']
-        : _selectedLanguage == 'urdu'
-        ? month['titleUrdu']
-        : month['titleHindi'];
+    final langCode = context.languageProvider.languageCode;
+    final title = context.tr(month['titleKey'] ?? 'month_name');
+    final responsive = context.responsive;
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showMonthDetails(month),
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.lightGreenBorder.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+      margin: responsive.paddingOnly(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () => _showMonthDetails(month),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        child: Padding(
+          padding: responsive.paddingAll(14),
+          child: Row(
+            children: [
+              // Month Number Badge
+              Container(
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
+                decoration: BoxDecoration(
+                  color: darkGreen,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+                child: Center(
+                  child: Text(
+                    '${month['number']}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsive.textLarge,
+                    ),
                   ),
-                  child: Center(
-                    child: Text(
-                      '${month['number']}',
+                ),
+              ),
+              SizedBox(width: responsive.spacing(14)),
+
+              // Title and Icon chip
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      title,
                       style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 18,
+                        fontSize: responsive.textLarge,
                         fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                      ),
+                      textDirection: langCode == 'ur'
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
+                    ),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Icon chip
+                    Container(
+                      padding: responsive.paddingSymmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(
+                          responsive.radiusSmall,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            month['icon'] as IconData,
+                            size: responsive.textXSmall + 2,
+                            color: emeraldGreen,
+                          ),
+                          SizedBox(width: responsive.spacing(4)),
+                          Text(
+                            '${context.tr('islamic_month')} ${month['number']}',
+                            style: TextStyle(
+                              fontSize: responsive.textXSmall,
+                              fontWeight: FontWeight.w600,
+                              color: emeraldGreen,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: (month['color'] as Color).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    month['icon'] as IconData,
-                    color: month['color'] as Color,
-                    size: 24,
-                  ),
+              ),
+
+              // Arrow Icon
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: isDark ? Colors.white : AppColors.primary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textDirection: _selectedLanguage == 'urdu'
-                        ? TextDirection.rtl
-                        : TextDirection.ltr,
-                  ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.textXSmall + 2,
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E8F5A),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.white,
-                    size: 14,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1422,15 +1938,17 @@ Recommended Acts:
       context,
       MaterialPageRoute(
         builder: (context) => BasicAmalDetailScreen(
-          title: month['title'],
+          title: month['title'] ?? '',
           titleUrdu: month['titleUrdu'] ?? '',
           titleHindi: month['titleHindi'] ?? '',
+          titleArabic: month['titleArabic'] ?? '',
           contentEnglish: details['english'] ?? '',
           contentUrdu: details['urdu'] ?? '',
           contentHindi: details['hindi'] ?? '',
+          contentArabic: details['arabic'] ?? '',
           color: month['color'] as Color,
           icon: month['icon'] as IconData,
-          category: 'Islamic Months - Fazilat',
+          categoryKey: 'category_month_fazilat',
           number: month['number'] as int?,
         ),
       ),

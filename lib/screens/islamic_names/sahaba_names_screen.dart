@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/language_provider.dart';
+import '../../widgets/common/search_bar_widget.dart';
 import 'islamic_name_detail_screen.dart';
 
 class SahabaNamesScreen extends StatefulWidget {
@@ -381,88 +385,122 @@ class _SahabaNamesScreenState extends State<SahabaNamesScreen> {
     });
   }
 
+  String _getDisplayName(Map<String, dynamic> name, String languageCode) {
+    final transliteration = name['transliteration']!;
+
+    switch (languageCode) {
+      case 'ar':
+        return name['name']!;
+      case 'ur':
+        return _transliterateToUrdu(transliteration);
+      case 'hi':
+        return _transliterateToHindi(transliteration);
+      case 'en':
+      default:
+        return transliteration;
+    }
+  }
+
+  String _transliterateToHindi(String text) {
+    final Map<String, String> map = {
+      'Abu Bakr As-Siddiq': 'अबू बक्र सिद्दीक़',
+      'Umar ibn Al-Khattab': 'उमर बिन अल-ख़त्ताब',
+      'Uthman ibn Affan': 'उस्मान बिन अफ़्फ़ान',
+      'Ali ibn Abi Talib': 'अली बिन अबी तालिब',
+      'Talha ibn Ubaydullah': 'तल्हा बिन उबैदुल्लाह',
+      'Zubayr ibn Al-Awwam': 'ज़ुबैर बिन अल-अव्वाम',
+      'Abdur Rahman ibn Awf': 'अब्दुर्रहमान बिन औफ़',
+      'Saad ibn Abi Waqqas': 'साद बिन अबी वक़्क़ास',
+      'Said ibn Zayd': 'सईद बिन ज़ैद',
+      'Abu Ubayda ibn Al-Jarrah': 'अबू उबैदा बिन अल-जर्राह',
+      'Bilal ibn Rabah': 'बिलाल बिन रबाह',
+      'Abu Dharr Al-Ghifari': 'अबू ज़र ग़िफ़ारी',
+      'Salman Al-Farsi': 'सलमान फ़ारसी',
+      'Ammar ibn Yasir': 'अम्मार बिन यासिर',
+      'Hudhayfah ibn Al-Yaman': 'हुज़ैफ़ा बिन अल-यमान',
+      'Abu Hurayrah': 'अबू हुरैरा',
+      'Abdullah ibn Masud': 'अब्दुल्लाह बिन मसऊद',
+      'Abdullah ibn Abbas': 'अब्दुल्लाह बिन अब्बास',
+      'Abdullah ibn Umar': 'अब्दुल्लाह बिन उमर',
+      'Anas ibn Malik': 'अनस बिन मालिक',
+    };
+    return map[text] ?? text;
+  }
+
+  String _transliterateToUrdu(String text) {
+    final Map<String, String> map = {
+      'Abu Bakr As-Siddiq': 'ابوبکر صدیق',
+      'Umar ibn Al-Khattab': 'عمر بن الخطاب',
+      'Uthman ibn Affan': 'عثمان بن عفان',
+      'Ali ibn Abi Talib': 'علی بن ابی طالب',
+      'Talha ibn Ubaydullah': 'طلحہ بن عبیداللہ',
+      'Zubayr ibn Al-Awwam': 'زبیر بن العوام',
+      'Abdur Rahman ibn Awf': 'عبدالرحمان بن عوف',
+      'Saad ibn Abi Waqqas': 'سعد بن ابی وقاص',
+      'Said ibn Zayd': 'سعید بن زید',
+      'Abu Ubayda ibn Al-Jarrah': 'ابو عبیدہ بن الجراح',
+      'Bilal ibn Rabah': 'بلال بن رباح',
+      'Abu Dharr Al-Ghifari': 'ابوذر غفاری',
+      'Salman Al-Farsi': 'سلمان فارسی',
+      'Ammar ibn Yasir': 'عمار بن یاسر',
+      'Hudhayfah ibn Al-Yaman': 'حذیفہ بن الیمان',
+      'Abu Hurayrah': 'ابوہریرہ',
+      'Abdullah ibn Masud': 'عبداللہ بن مسعود',
+      'Abdullah ibn Abbas': 'عبداللہ بن عباس',
+      'Abdullah ibn Umar': 'عبداللہ بن عمر',
+      'Anas ibn Malik': 'انس بن مالک',
+    };
+    return map[text] ?? text;
+  }
+
+  String _getDisplayMeaning(Map<String, dynamic> name, String languageCode) {
+    switch (languageCode) {
+      case 'ar':
+        return name['meaningUrdu'] ?? name['meaning']!;
+      case 'ur':
+        return name['meaningUrdu'] ?? name['meaning']!;
+      case 'hi':
+        return name['meaningHindi'] ?? name['meaning']!;
+      case 'en':
+      default:
+        return name['meaning']!;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<SettingsProvider>().isDarkMode;
+    final langProvider = context.watch<LanguageProvider>();
+    final responsive = context.responsive;
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text('Sahaba Companions'),
+        title: Text(context.tr('sahaba_names')),
       ),
       body: Column(
         children: [
           // Search Bar
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
+            padding: responsive.paddingRegular,
+            child: SearchBarWidget(
               controller: _searchController,
-              style: TextStyle(
-                color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-              ),
-              decoration: InputDecoration(
-                hintText: 'Search companions by name or meaning...',
-                hintStyle: TextStyle(
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.textHint,
-                  fontSize: 14,
-                ),
-                prefixIcon: Icon(
-                  Icons.search_rounded,
-                  color: AppColors.primary,
-                  size: 22,
-                ),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: Icon(
-                          Icons.clear,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
-                        ),
-                        onPressed: () {
-                          _searchController.clear();
-                        },
-                      )
-                    : null,
-                filled: true,
-                fillColor: isDark ? AppColors.darkCard : Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide(
-                    color: isDark ? Colors.grey.shade700 : const Color(0xFF8AAF9A),
-                    width: 1.5,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide(
-                    color: isDark ? Colors.grey.shade700 : const Color(0xFF8AAF9A),
-                    width: 1.5,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide(
-                    color: AppColors.primary,
-                    width: 2,
-                  ),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-              ),
+              hintText: context.tr('search_by_name_meaning'),
+              onClear: () => _searchController.clear(),
+              enableVoiceSearch: true,
             ),
           ),
 
           // Results count
           if (_searchController.text.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: responsive.paddingSymmetric(horizontal: 16),
               child: Text(
-                'Found ${_filteredNames.length} result${_filteredNames.length != 1 ? 's' : ''}',
+                '${context.tr('found')} ${_filteredNames.length} ${_filteredNames.length != 1 ? context.tr('results') : context.tr('result')}',
                 style: TextStyle(
                   color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
-                  fontSize: 12,
+                  fontSize: responsive.textSmall,
                 ),
               ),
             ),
@@ -475,22 +513,22 @@ class _SahabaNamesScreenState extends State<SahabaNamesScreen> {
                       children: [
                         Icon(
                           Icons.search_off,
-                          size: 64,
+                          size: responsive.iconXXLarge,
                           color: isDark ? Colors.grey.shade700 : Colors.grey.shade400,
                         ),
-                        const SizedBox(height: 16),
+                        responsive.vSpaceRegular,
                         Text(
-                          'No companions found',
+                          context.tr('no_companions_found'),
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: responsive.textRegular,
                             color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        responsive.vSpaceSmall,
                         Text(
-                          'Try a different search term',
+                          context.tr('try_different_search'),
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: responsive.textMedium,
                             color: isDark ? Colors.grey.shade600 : Colors.grey.shade500,
                           ),
                         ),
@@ -498,11 +536,22 @@ class _SahabaNamesScreenState extends State<SahabaNamesScreen> {
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                    key: ValueKey(langProvider.languageCode), // Force rebuild when language changes
+                    padding: responsive.paddingRegular,
                     itemCount: _filteredNames.length,
                     itemBuilder: (context, index) {
-                      final originalIndex = _sahabaNames.indexOf(_filteredNames[index]) + 1;
-                      return _buildNameCard(_filteredNames[index], originalIndex, isDark);
+                      final name = _filteredNames[index];
+                      final originalIndex = _sahabaNames.indexOf(name) + 1;
+                      final displayName = _getDisplayName(name, langProvider.languageCode);
+                      final displayMeaning = _getDisplayMeaning(name, langProvider.languageCode);
+                      return _buildNameCard(
+                        name: name,
+                        index: originalIndex,
+                        isDark: isDark,
+                        displayName: displayName,
+                        displayMeaning: displayMeaning,
+                        languageCode: langProvider.languageCode,
+                      );
                     },
                   ),
           ),
@@ -511,153 +560,135 @@ class _SahabaNamesScreenState extends State<SahabaNamesScreen> {
     );
   }
 
-  Widget _buildNameCard(Map<String, dynamic> name, int index, bool isDark) {
+  Widget _buildNameCard({
+    required Map<String, dynamic> name,
+    required int index,
+    required bool isDark,
+    required String displayName,
+    required String displayMeaning,
+    required String languageCode,
+  }) {
     const darkGreen = Color(0xFF0A5C36);
     const emeraldGreen = Color(0xFF1E8F5A);
     const lightGreenBorder = Color(0xFF8AAF9A);
-    const softGold = Color(0xFFC9A24D);
+    final responsive = context.responsive;
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => IslamicNameDetailScreen(
-              arabicName: name['name']!,
-              transliteration: name['transliteration']!,
-              meaning: name['meaning']!,
-              meaningUrdu: name['meaningUrdu'] ?? '',
-              meaningHindi: name['meaningHindi'] ?? '',
-              description: name['description']!,
-              descriptionUrdu: name['descriptionUrdu'] ?? '',
-              descriptionHindi: name['descriptionHindi'] ?? '',
-              category: 'Companion of Prophet ﷺ',
-              number: index,
-              icon: Icons.people,
-              color: Colors.blue,
-              fatherName: name['fatherName'],
-              motherName: name['motherName'],
-              birthDate: name['birthDate'],
-              birthPlace: name['birthPlace'],
-              deathDate: name['deathDate'],
-              deathPlace: name['deathPlace'],
-              spouse: name['spouse'],
-              children: name['children'],
-              tribe: name['tribe'],
-              title: name['title'],
-              era: name['era'],
-              knownFor: name['knownFor'],
-            ),
-          ),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.darkCard : Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: isDark ? Colors.grey.shade700 : lightGreenBorder,
-            width: 1.5,
-          ),
-          boxShadow: isDark
-              ? null
-              : [
-                  BoxShadow(
-                    color: darkGreen.withValues(alpha: 0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+    return Container(
+      margin: responsive.paddingOnly(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
         ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: darkGreen.withValues(alpha: 0.08),
+                  blurRadius: responsive.spacing(10),
+                  offset: Offset(0, responsive.spacing(2)),
+                ),
+              ],
+      ),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => IslamicNameDetailScreen(
+                arabicName: name['name']!,
+                transliteration: name['transliteration']!,
+                meaning: name['meaning']!,
+                meaningUrdu: name['meaningUrdu'] ?? '',
+                meaningHindi: name['meaningHindi'] ?? '',
+                description: name['description']!,
+                descriptionUrdu: name['descriptionUrdu'] ?? '',
+                descriptionHindi: name['descriptionHindi'] ?? '',
+                category: 'Companion of Prophet ﷺ',
+                number: index,
+                icon: Icons.people,
+                color: Colors.blue,
+                fatherName: name['fatherName'],
+                motherName: name['motherName'],
+                birthDate: name['birthDate'],
+                birthPlace: name['birthPlace'],
+                deathDate: name['deathDate'],
+                deathPlace: name['deathPlace'],
+                spouse: name['spouse'],
+                children: name['children'],
+                tribe: name['tribe'],
+                title: name['title'],
+                era: name['era'],
+                knownFor: name['knownFor'],
+              ),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: responsive.paddingAll(14),
           child: Row(
             children: [
+              // Number Badge (circular)
               Container(
-                width: 48,
-                height: 48,
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
                 decoration: BoxDecoration(
                   color: isDark ? emeraldGreen : darkGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: (isDark ? emeraldGreen : darkGreen).withValues(
-                        alpha: 0.3,
-                      ),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+                      color: (isDark ? emeraldGreen : darkGreen).withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
                     ),
                   ],
                 ),
                 child: Center(
                   child: Text(
                     '$index',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                    style: TextStyle(
                       color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsive.textLarge,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: responsive.spacing(14)),
+
+              // Companion Name
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name['transliteration']!,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.grey.shade800
-                            : const Color(0xFFE8F3ED),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        name['meaning']!,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: isDark
-                              ? AppColors.darkTextSecondary
-                              : emeraldGreen,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Flexible(
                 child: Text(
-                  name['name']!,
+                  displayName,
                   style: TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Amiri',
-                    color: isDark ? AppColors.secondary : softGold,
+                    fontSize: responsive.textLarge,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                    fontFamily: languageCode == 'ar'
+                        ? 'Amiri'
+                        : (languageCode == 'ur' ? 'NotoNastaliq' : null),
                   ),
-                  textDirection: TextDirection.rtl,
-                  textAlign: TextAlign.right,
-                  overflow: TextOverflow.ellipsis,
+                  textDirection: (languageCode == 'ar' || languageCode == 'ur')
+                      ? TextDirection.rtl
+                      : TextDirection.ltr,
                 ),
               ),
-              const SizedBox(width: 8),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: isDark ? AppColors.darkTextSecondary : emeraldGreen,
+
+              // Forward Arrow in Circle
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: BoxDecoration(
+                  color: isDark ? emeraldGreen : emeraldGreen,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.iconSmall,
+                ),
               ),
             ],
           ),

@@ -1,11 +1,11 @@
 {
-    "name": "jiyanislamicacademy",
-    "short_name": "jiyanislamicacademy",
+    "name": "Noor-ul-Huda",
+    "short_name": "Noor-ul-Huda",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FFFFFF",
     "theme_color": "#2E7D32",
-    "description": "A new Flutter project.",
+    "description": "Complete Islamic App",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

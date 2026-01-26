@@ -9,6 +9,9 @@ class SettingsProvider with ChangeNotifier {
   static const String _arabicFontSizeKey = 'arabic_font_size';
   static const String _translationFontSizeKey = 'translation_font_size';
   static const String _countryCodeKey = 'country_code';
+  static const String _profileNameKey = 'profile_name';
+  static const String _profileLocationKey = 'profile_location';
+  static const String _profileImagePathKey = 'profile_image_path';
 
   ThemeMode _themeMode = ThemeMode.light;
   int _calculationMethod = 1; // Karachi
@@ -17,6 +20,9 @@ class SettingsProvider with ChangeNotifier {
   double _arabicFontSize = 28.0;
   double _translationFontSize = 16.0;
   String _countryCode = 'IN'; // Default country - India
+  String _profileName = 'User';
+  String _profileLocation = '';
+  String? _profileImagePath;
 
   // Getters
   ThemeMode get themeMode => _themeMode;
@@ -27,6 +33,9 @@ class SettingsProvider with ChangeNotifier {
   double get translationFontSize => _translationFontSize;
   bool get isDarkMode => _themeMode == ThemeMode.dark;
   String get countryCode => _countryCode;
+  String get profileName => _profileName;
+  String get profileLocation => _profileLocation;
+  String? get profileImagePath => _profileImagePath;
 
   Future<void> loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
@@ -40,6 +49,9 @@ class SettingsProvider with ChangeNotifier {
     _arabicFontSize = prefs.getDouble(_arabicFontSizeKey) ?? 28.0;
     _translationFontSize = prefs.getDouble(_translationFontSizeKey) ?? 16.0;
     _countryCode = prefs.getString(_countryCodeKey) ?? 'IN';
+    _profileName = prefs.getString(_profileNameKey) ?? 'User';
+    _profileLocation = prefs.getString(_profileLocationKey) ?? '';
+    _profileImagePath = prefs.getString(_profileImagePathKey);
 
     notifyListeners();
   }
@@ -103,6 +115,42 @@ class SettingsProvider with ChangeNotifier {
   Future<void> setCountryFromPhoneCode(String phoneCode) async {
     final country = _phoneCodeToCountry[phoneCode] ?? 'IN';
     await setCountryCode(country);
+  }
+
+  // Profile methods
+  Future<void> setProfileName(String name) async {
+    _profileName = name;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_profileNameKey, name);
+    notifyListeners();
+  }
+
+  Future<void> setProfileLocation(String location) async {
+    _profileLocation = location;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_profileLocationKey, location);
+    notifyListeners();
+  }
+
+  Future<void> setProfileImagePath(String? path) async {
+    _profileImagePath = path;
+    final prefs = await SharedPreferences.getInstance();
+    if (path != null) {
+      await prefs.setString(_profileImagePathKey, path);
+    } else {
+      await prefs.remove(_profileImagePathKey);
+    }
+    notifyListeners();
+  }
+
+  Future<void> updateProfile({
+    required String name,
+    required String location,
+    String? imagePath,
+  }) async {
+    await setProfileName(name);
+    await setProfileLocation(location);
+    await setProfileImagePath(imagePath);
   }
 
   // Phone code to country mapping

@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/hadith_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../data/models/hadith_model.dart';
 
 class HadithCollectionScreen extends StatefulWidget {
@@ -31,9 +33,14 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<HadithProvider>();
-      provider.fetchChapters(widget.collection);
-      provider.fetchAllHadiths(widget.collection, page: 1);
+      final hadithProvider = context.read<HadithProvider>();
+      final languageProvider = context.read<LanguageProvider>();
+
+      // Sync hadith language with app language
+      hadithProvider.syncWithAppLanguage(languageProvider.languageCode);
+
+      hadithProvider.fetchChapters(widget.collection);
+      hadithProvider.fetchAllHadiths(widget.collection, page: 1);
     });
 
     _scrollController.addListener(_onScroll);
@@ -108,53 +115,6 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
           ],
         ),
         actions: [
-          // Language Selector
-          Consumer<HadithProvider>(
-            builder: (context, provider, child) {
-              return PopupMenuButton<HadithLanguage>(
-                icon: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    HadithProvider.languageNames[provider.selectedLanguage]!,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-                onSelected: (HadithLanguage language) {
-                  provider.setLanguage(language);
-                },
-                itemBuilder: (context) => HadithLanguage.values.map((language) {
-                  final isSelected = provider.selectedLanguage == language;
-                  return PopupMenuItem<HadithLanguage>(
-                    value: language,
-                    child: Row(
-                      children: [
-                        if (isSelected)
-                          Icon(Icons.check, color: AppColors.primary, size: 18)
-                        else
-                          const SizedBox(width: 18),
-                        const SizedBox(width: 8),
-                        Text(
-                          HadithProvider.languageNames[language]!,
-                          style: TextStyle(
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            color: isSelected ? AppColors.primary : null,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              );
-            },
-          ),
           IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: () => _showBookInfo(context, info),
@@ -188,7 +148,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                     controller: _searchController,
                     onChanged: (value) => setState(() => _searchQuery = value),
                     decoration: InputDecoration(
-                      hintText: 'Search hadith...',
+                      hintText: context.tr('search_hadith_hint'),
                       hintStyle: TextStyle(color: AppColors.textHint),
                       prefixIcon: const Icon(Icons.search, color: Color(0xFF0A5C36)),
                       filled: true,
@@ -216,7 +176,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: ChoiceChip(
-                            label: const Text('All'),
+                            label: Text(context.tr('all')),
                             selected: _selectedChapter == null,
                             onSelected: (selected) => _onChapterSelected(null),
                             selectedColor: AppColors.primary,
@@ -259,7 +219,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        '${_getFilteredHadiths(provider).length} Hadiths',
+                        '${_getFilteredHadiths(provider).length} ${context.tr('hadiths')}',
                         style: TextStyle(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
@@ -300,7 +260,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
           children: [
             Icon(Icons.error_outline, size: 48, color: Colors.grey.shade400),
             const SizedBox(height: 16),
-            Text(provider.error ?? 'Failed to load hadiths'),
+            Text(provider.error ?? context.tr('failed_to_load_hadiths')),
             const SizedBox(height: 8),
             ElevatedButton(
               onPressed: () {
@@ -310,7 +270,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                   provider.fetchAllHadiths(widget.collection, page: 1);
                 }
               },
-              child: const Text('Retry'),
+              child: Text(context.tr('retry')),
             ),
           ],
         ),
@@ -326,7 +286,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
           children: [
             Icon(Icons.menu_book, size: 48, color: Colors.grey.shade400),
             const SizedBox(height: 16),
-            const Text('No hadiths found'),
+            Text(context.tr('no_hadiths_found')),
           ],
         ),
       );
@@ -433,7 +393,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                     children: [
                       if (hadith.narrator.isNotEmpty)
                         Text(
-                          hadith.narrator,
+                          '${context.tr('narrated_by')} ${hadith.narrator}',
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondary,
@@ -450,7 +410,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            hadith.grade,
+                            _translateGrade(hadith.grade),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 10,
@@ -520,33 +480,46 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (hadith.english.isNotEmpty) ...[
-                    Text(
-                      hadith.english,
-                      style: TextStyle(
-                        fontSize: translationFontSize,
-                        height: 1.5,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                  if (hadith.urdu.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      hadith.urdu,
-                      style: TextStyle(
-                        fontSize: translationFontSize,
-                        height: 1.5,
-                        color: Colors.black87,
-                        fontFamily: 'Amiri',
-                      ),
-                      textDirection: TextDirection.rtl,
-                    ),
-                  ],
+                  // Show translation based on current language
+                  Builder(
+                    builder: (context) {
+                      final langCode = context.watch<LanguageProvider>().languageCode;
+                      final isRtl = langCode == 'ur' || langCode == 'ar';
+                      String translationText = '';
+
+                      switch (langCode) {
+                        case 'ur':
+                          translationText = hadith.urdu.isNotEmpty ? hadith.urdu : hadith.english;
+                          break;
+                        case 'hi':
+                          translationText = hadith.hindi.isNotEmpty ? hadith.hindi : hadith.english;
+                          break;
+                        case 'ar':
+                          translationText = hadith.arabic;
+                          break;
+                        default:
+                          translationText = hadith.english;
+                      }
+
+                      if (translationText.isEmpty) return const SizedBox.shrink();
+
+                      return Text(
+                        translationText,
+                        style: TextStyle(
+                          fontSize: translationFontSize,
+                          height: 1.5,
+                          color: Colors.black87,
+                          fontFamily: isRtl ? 'Amiri' : null,
+                        ),
+                        textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+                        textAlign: isRtl ? TextAlign.right : TextAlign.left,
+                      );
+                    },
+                  ),
                   if (hadith.reference.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     Text(
-                      '— ${hadith.reference}',
+                      '— ${_translateReference(hadith.reference)}',
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.textHint,
@@ -567,7 +540,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                   onPressed: () => _toggleCardTranslation(cardIndex),
                   icon: Icon(Icons.translate, size: 16, color: AppColors.primary),
                   label: Text(
-                    'Show Translation',
+                    context.tr('show_translation'),
                     style: TextStyle(color: AppColors.primary, fontSize: 12),
                   ),
                 ),
@@ -605,15 +578,49 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
   }
 
   void _copyHadith(HadithModel hadith) {
-    final text = '${hadith.arabic}\n\n${hadith.english}\n\n— ${hadith.reference}';
+    final langCode = context.read<LanguageProvider>().languageCode;
+    String translationText = '';
+
+    switch (langCode) {
+      case 'ur':
+        translationText = hadith.urdu.isNotEmpty ? hadith.urdu : hadith.english;
+        break;
+      case 'hi':
+        translationText = hadith.hindi.isNotEmpty ? hadith.hindi : hadith.english;
+        break;
+      case 'ar':
+        translationText = hadith.arabic;
+        break;
+      default:
+        translationText = hadith.english;
+    }
+
+    final text = '${hadith.arabic}\n\n$translationText\n\n— ${_translateReference(hadith.reference)}\n\n- ${context.tr('from_app')}';
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Copied to clipboard')),
+      SnackBar(content: Text(context.tr('copied'))),
     );
   }
 
   void _shareHadith(HadithModel hadith) {
-    final text = '${hadith.arabic}\n\n${hadith.english}\n\n— ${hadith.reference}';
+    final langCode = context.read<LanguageProvider>().languageCode;
+    String translationText = '';
+
+    switch (langCode) {
+      case 'ur':
+        translationText = hadith.urdu.isNotEmpty ? hadith.urdu : hadith.english;
+        break;
+      case 'hi':
+        translationText = hadith.hindi.isNotEmpty ? hadith.hindi : hadith.english;
+        break;
+      case 'ar':
+        translationText = hadith.arabic;
+        break;
+      default:
+        translationText = hadith.english;
+    }
+
+    final text = '${hadith.arabic}\n\n$translationText\n\n— ${_translateReference(hadith.reference)}\n\n- ${context.tr('shared_from_app')}';
     Share.share(text);
   }
 
@@ -627,6 +634,26 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
       return Colors.red;
     }
     return AppColors.textSecondary;
+  }
+
+  String _translateGrade(String grade) {
+    final lowerGrade = grade.toLowerCase();
+    if (lowerGrade.contains('sahih')) {
+      return context.tr('sahih');
+    } else if (lowerGrade.contains('hasan')) {
+      return context.tr('hasan');
+    } else if (lowerGrade.contains('daif') || lowerGrade.contains('weak')) {
+      return context.tr('daif');
+    }
+    return grade;
+  }
+
+  String _translateReference(String reference) {
+    // Reference format: "Collection Name, Book X, Hadith Y"
+    // Translate "Book" and "Hadith" to current language
+    return reference
+        .replaceAll('Book ', '${context.tr('book')} ')
+        .replaceAll('Hadith ', '${context.tr('hadith')} ');
   }
 
   void _showBookInfo(BuildContext context, HadithCollectionInfo info) {
@@ -671,7 +698,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Compiled by: ${info.compiler}',
+              '${context.tr('compiled_by')}: ${info.compiler}',
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
@@ -682,9 +709,9 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
             const SizedBox(height: 16),
             Row(
               children: [
-                _InfoChip(icon: Icons.book, label: '${info.totalBooks} Books'),
+                _InfoChip(icon: Icons.book, label: '${info.totalBooks} ${context.tr('books')}'),
                 const SizedBox(width: 12),
-                _InfoChip(icon: Icons.format_list_numbered, label: '${info.totalHadith} Hadiths'),
+                _InfoChip(icon: Icons.format_list_numbered, label: '${info.totalHadith} ${context.tr('hadiths')}'),
               ],
             ),
             const SizedBox(height: 20),

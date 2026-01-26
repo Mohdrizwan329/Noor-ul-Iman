@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
+import '../../core/services/geo_restriction_service.dart';
 import '../main/main_screen.dart';
 
 class PermissionsScreen extends StatefulWidget {
@@ -141,23 +144,21 @@ class _PermissionsScreenState extends State<PermissionsScreen>
     if (mounted) {
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Alarm Permission Required'),
-          content: const Text(
-            'To send exact prayer time notifications, please allow "Alarms & reminders" permission in the next screen.\n\nTap "Allow" on the settings page.',
-          ),
+        builder: (dialogContext) => AlertDialog(
+          title: Text(dialogContext.tr('alarm_permission_required')),
+          content: Text(dialogContext.tr('alarm_permission_message')),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(dialogContext.tr('cancel')),
             ),
             TextButton(
               onPressed: () async {
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
                 // This will open the exact alarm settings page
                 await Permission.scheduleExactAlarm.request();
               },
-              child: const Text('Open Settings'),
+              child: Text(dialogContext.tr('open_settings')),
             ),
           ],
         ),
@@ -207,36 +208,51 @@ class _PermissionsScreenState extends State<PermissionsScreen>
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('$permissionName Permission Required'),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(dialogContext.tr('permission_required')),
         content: Text(
-          '$permissionName permission is permanently denied. Please enable it from app settings.',
+          '$permissionName ${dialogContext.tr('permission_denied_message')}',
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(dialogContext.tr('cancel')),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
               openAppSettings();
             },
-            child: const Text('Open Settings'),
+            child: Text(dialogContext.tr('open_settings')),
           ),
         ],
       ),
     );
   }
 
-  void _navigateToNextScreen() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const MainScreen()),
-    );
+  Future<void> _navigateToNextScreen() async {
+    // Check for geographic restrictions before proceeding
+    final isRestricted = await GeoRestrictionService.checkCurrentLocation();
+
+    if (isRestricted) {
+      if (mounted) {
+        GeoRestrictionService.showRestrictionDialog(context);
+      }
+      return;
+    }
+
+    // Location is allowed, proceed to main screen
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const MainScreen()),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final responsive = ResponsiveUtils(context);
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -244,35 +260,35 @@ class _PermissionsScreenState extends State<PermissionsScreen>
         decoration: const BoxDecoration(gradient: AppColors.splashGradient),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: responsive.paddingXLarge,
             child: Column(
               children: [
-                const SizedBox(height: 10),
+                SizedBox(height: responsive.spaceSmall),
                 // Header
                 Container(
-                  width: 100,
-                  height: 100,
+                  width: responsive.iconSize(100),
+                  height: responsive.iconSize(100),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.security_rounded,
-                    size: 50,
+                    size: responsive.iconXXLarge,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 14),
-                const Text(
-                  'App Permissions',
+                SizedBox(height: responsive.spaceMedium),
+                Text(
+                  context.tr('permissions_required'),
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: responsive.textHeading,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                SizedBox(height: responsive.spaceLarge),
                 // Permission Items
                 Expanded(
                   child: _isChecking
@@ -283,47 +299,51 @@ class _PermissionsScreenState extends State<PermissionsScreen>
                           child: Column(
                             children: [
                               _buildPermissionItem(
+                                context: context,
                                 icon: Icons.location_on_rounded,
-                                title: 'Location',
-                                description:
-                                    'For prayer times & Qibla direction',
+                                title: context.tr('location_permission'),
+                                description: context.tr('location_permission_desc'),
                                 isGranted: _locationGranted,
                                 onTap: () =>
                                     _requestPermission(Permission.location),
                               ),
-                              const SizedBox(height: 10),
+                              SizedBox(height: responsive.spaceSmall),
                               _buildPermissionItem(
+                                context: context,
                                 icon: Icons.notifications_rounded,
-                                title: 'Notifications',
-                                description: 'For prayer reminders & updates',
+                                title: context.tr('notification_permission'),
+                                description: context.tr('notification_permission_desc'),
                                 isGranted: _notificationGranted,
                                 onTap: () =>
                                     _requestPermission(Permission.notification),
                               ),
-                              const SizedBox(height: 10),
+                              SizedBox(height: responsive.spaceSmall),
                               _buildPermissionItem(
+                                context: context,
                                 icon: Icons.alarm_rounded,
-                                title: 'Alarm & Reminder',
-                                description: 'For exact prayer time alarms',
+                                title: context.tr('alarm_permission'),
+                                description: context.tr('alarm_permission_desc'),
                                 isGranted: _alarmGranted,
                                 onTap: () => _requestPermission(
                                   Permission.scheduleExactAlarm,
                                 ),
                               ),
-                              const SizedBox(height: 10),
+                              SizedBox(height: responsive.spaceSmall),
                               _buildPermissionItem(
+                                context: context,
                                 icon: Icons.photo_library_rounded,
-                                title: 'Gallery',
-                                description: 'To save & share Islamic content',
+                                title: context.tr('gallery_permission'),
+                                description: context.tr('gallery_permission_desc'),
                                 isGranted: _galleryGranted,
                                 onTap: () =>
                                     _requestPermission(Permission.photos),
                               ),
-                              const SizedBox(height: 10),
+                              SizedBox(height: responsive.spaceSmall),
                               _buildPermissionItem(
+                                context: context,
                                 icon: Icons.contacts_rounded,
-                                title: 'Contacts',
-                                description: 'To share with friends & family',
+                                title: context.tr('contacts_permission'),
+                                description: context.tr('contacts_permission_desc'),
                                 isGranted: _contactsGranted,
                                 onTap: () =>
                                     _requestPermission(Permission.contacts),
@@ -346,32 +366,32 @@ class _PermissionsScreenState extends State<PermissionsScreen>
                       foregroundColor: _allPermissionsGranted
                           ? Colors.white
                           : AppColors.primary,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: responsive.paddingSymmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(responsive.radiusLarge),
                       ),
                       elevation: 0,
                     ),
                     child: Text(
                       _allPermissionsGranted
-                          ? 'Continue'
-                          : 'Grant All Permissions',
-                      style: const TextStyle(
-                        fontSize: 16,
+                          ? context.tr('continue')
+                          : context.tr('grant_permission'),
+                      style: TextStyle(
+                        fontSize: responsive.textRegular,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: responsive.spaceRegular),
                 Text(
-                  'Your privacy is important to us',
+                  context.tr('privacy_notice'),
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: responsive.textSmall,
                     color: Colors.white.withValues(alpha: 0.6),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: responsive.spaceLarge),
               ],
             ),
           ),
@@ -381,19 +401,22 @@ class _PermissionsScreenState extends State<PermissionsScreen>
   }
 
   Widget _buildPermissionItem({
+    required BuildContext context,
     required IconData icon,
     required String title,
     required String description,
     required bool isGranted,
     required VoidCallback onTap,
   }) {
+    final responsive = ResponsiveUtils(context);
+
     return GestureDetector(
       onTap: isGranted ? null : onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: responsive.paddingRegular,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(responsive.radiusLarge),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -405,38 +428,38 @@ class _PermissionsScreenState extends State<PermissionsScreen>
         child: Row(
           children: [
             Container(
-              width: 50,
-              height: 50,
+              width: responsive.iconSize(50),
+              height: responsive.iconSize(50),
               decoration: BoxDecoration(
                 color: isGranted
                     ? AppColors.success.withValues(alpha: 0.1)
                     : AppColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(responsive.radiusMedium),
               ),
               child: Icon(
                 icon,
                 color: isGranted ? AppColors.success : AppColors.primary,
-                size: 26,
+                size: responsive.iconLarge,
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: responsive.spaceRegular),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: TextStyle(
+                      fontSize: responsive.textRegular,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: responsive.spaceXSmall),
                   Text(
                     description,
-                    style: const TextStyle(
-                      fontSize: 12,
+                    style: TextStyle(
+                      fontSize: responsive.textSmall,
                       color: AppColors.textSecondary,
                     ),
                   ),
@@ -444,8 +467,8 @@ class _PermissionsScreenState extends State<PermissionsScreen>
               ),
             ),
             Container(
-              width: 36,
-              height: 36,
+              width: responsive.iconSize(36),
+              height: responsive.iconSize(36),
               decoration: BoxDecoration(
                 color: isGranted
                     ? AppColors.success
@@ -457,7 +480,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
                     ? Icons.check_rounded
                     : Icons.arrow_forward_ios_rounded,
                 color: isGranted ? Colors.white : AppColors.primary,
-                size: isGranted ? 20 : 16,
+                size: isGranted ? responsive.iconSmall : responsive.iconXSmall,
               ),
             ),
           ],

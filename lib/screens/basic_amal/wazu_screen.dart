@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
+import '../../widgets/common/search_bar_widget.dart';
 import 'basic_amal_detail_screen.dart';
 
 class WazuScreen extends StatefulWidget {
@@ -13,19 +16,18 @@ class WazuScreen extends StatefulWidget {
 
 class _WazuScreenState extends State<WazuScreen> {
   String _selectedLanguage = 'english';
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
-  final Map<String, String> _titles = {
-    'english': 'Wudu - Complete Guide',
-    'urdu': 'وضو کا طریقہ - مکمل رہنمائی',
-    'hindi': 'वुज़ू का तरीका - संपूर्ण मार्गदर्शन',
-  };
 
   final List<Map<String, dynamic>> _wazuSteps = [
     {
       'step': 1,
+      'titleKey': 'wazu_1_intention_niyyah',
       'title': 'Intention (Niyyah)',
       'titleUrdu': 'نیت',
       'titleHindi': 'नीयत',
+      'titleArabic': 'النية',
       'icon': Icons.favorite,
       'color': Colors.red,
       'details': {
@@ -77,13 +79,31 @@ Important Points:
 • नीयत हाथ धोने से पहले होनी चाहिए
 • नीयत तहारत के लिए हो, सिर्फ़ धोने के लिए नहीं
 • यह याद रखें कि आप नमाज़ में अल्लाह से मिलने की तैयारी कर रहे हैं''',
+        'arabic': '''الخطوة الأولى: النية
+
+قبل البدء بالوضوء، انوِ في قلبك أنك تتوضأ لإرضاء الله ولتطهير نفسك للعبادة.
+
+قل (اختياري):
+"بِسْمِ اللَّهِ"
+"بسم الله"
+
+النية في القلب - لا تحتاج أن تقولها بصوت عالٍ، لكن قول بسم الله سنة.
+
+قال النبي ﷺ: "إنما الأعمال بالنيات." (صحيح البخاري)
+
+نقاط مهمة:
+• يجب أن تكون النية قبل غسل اليدين
+• النية للطهارة، وليس مجرد الغسل
+• تذكر أنك تستعد لمقابلة الله في الصلاة''',
       },
     },
     {
       'step': 2,
+      'titleKey': 'wazu_2_wash_hands_3_times',
       'title': 'Wash Hands (3 times)',
       'titleUrdu': 'ہاتھ دھونا (3 بار)',
       'titleHindi': 'हाथ धोना (3 बार)',
+      'titleArabic': 'غسل اليدين (3 مرات)',
       'icon': Icons.back_hand,
       'color': Colors.blue,
       'details': {
@@ -147,13 +167,35 @@ Important Points:
 • यक़ीनी बनाएं कि हाथ का कोई हिस्सा ख़ुश्क न रहे
 • अच्छी तरह धोएं लेकिन पानी ज़ाया न करें
 • नबी करीम ﷺ पूरे वुज़ू के लिए तक़रीबन एक मुद (मुट्ठी भर) पानी इस्तेमाल करते थे''',
+        'arabic': '''الخطوة الثانية: غسل اليدين (3 مرات)
+
+اغسل كلتا يديك حتى الرسغين ثلاث مرات. تأكد من وصول الماء بين الأصابع.
+
+الطريقة:
+١. خذ الماء بيدك اليمنى
+٢. اسكب الماء على اليد اليسرى
+٣. افرك اليدين معاً، بما في ذلك بين الأصابع
+٤. اغسل حتى الرسغين وشاملاً لهما
+٥. كرر ذلك ثلاث مرات
+
+الأفعال المسنونة:
+• ابدأ باليد اليمنى
+• تخليل الأصابع بغسل ما بينها
+• أزل الخواتم إذا كانت تمنع وصول الماء إلى الجلد
+
+نقاط مهمة:
+• تأكد من عدم بقاء أي جزء من اليدين جافاً
+• اغسل جيداً لكن لا تسرف في الماء
+• كان النبي ﷺ يستخدم حوالي مُد (حفنة) من الماء للوضوء كاملاً''',
       },
     },
     {
       'step': 3,
+      'titleKey': 'wazu_3_rinse_mouth_3_times',
       'title': 'Rinse Mouth (3 times)',
       'titleUrdu': 'کلی کرنا (3 بار)',
       'titleHindi': 'कुल्ली करना (3 बार)',
+      'titleArabic': 'المضمضة (3 مرات)',
       'icon': Icons.water_drop,
       'color': Colors.cyan,
       'details': {
@@ -223,13 +265,38 @@ Benefits:
 • मुंह साफ़ होता है
 • खाने के ज़र्रात निकल जाते हैं
 • नमाज़ के लिए सांस ताज़ा होती है''',
+        'arabic': '''الخطوة الثالثة: المضمضة (3 مرات)
+
+خذ الماء بيدك اليمنى وتمضمض ثلاث مرات.
+
+الطريقة:
+١. خذ الماء في يدك اليمنى
+٢. ضع الماء في فمك
+٣. حرك الماء في جميع أنحاء فمك
+٤. تمضمض جيداً
+٥. ابصق الماء
+٦. كرر ذلك ثلاث مرات
+
+الأفعال المسنونة:
+• استخدم السواك قبل أو أثناء الوضوء
+• تمضمض جيداً
+• تجنب بلع الماء إذا كنت صائماً
+
+قال النبي ﷺ: "لولا أن أشق على أمتي لأمرتهم بالسواك عند كل صلاة." (صحيح البخاري)
+
+الفوائد:
+• ينظف الفم
+• يزيل بقايا الطعام
+• ينعش النفس للصلاة''',
       },
     },
     {
       'step': 4,
+      'titleKey': 'wazu_4_clean_nose_3_times',
       'title': 'Clean Nose (3 times)',
       'titleUrdu': 'ناک صاف کرنا (3 بار)',
       'titleHindi': 'नाक साफ़ करना (3 बार)',
+      'titleArabic': 'الاستنشاق (3 مرات)',
       'icon': Icons.air,
       'color': Colors.lightBlue,
       'details': {
@@ -299,13 +366,37 @@ Important Points:
 • अगर रोज़े से हों तो आहिस्तगी से पानी चढ़ाएं ताकि हल्क़ में न जाए
 • नथनों के अंदर अच्छी तरह साफ़ करें
 • इससे गर्द और नापाकी दूर होती है''',
+        'arabic': '''الخطوة الرابعة: تنظيف الأنف (الاستنشاق والاستنثار) - 3 مرات
+
+استنشق الماء في الأنف ثم انثره ثلاث مرات.
+
+الطريقة:
+١. خذ الماء بيدك اليمنى
+٢. استنشق الماء في الأنف (الاستنشاق)
+٣. استخدم يدك اليسرى لتنظيف الأنف (الاستنثار)
+٤. نظف الأنف جيداً
+٥. كرر ذلك ثلاث مرات
+
+الأفعال المسنونة:
+• استنشق بعمق (إلا إذا كنت صائماً)
+• استخدم الإصبع الصغير والإبهام من اليد اليسرى لتنظيف داخل الأنف
+• نظف برفق، وليس بقوة
+
+قال النبي ﷺ: "إذا توضأ أحدكم فليجعل في أنفه ماء ثم لينتثر." (صحيح البخاري)
+
+نقاط مهمة:
+• إذا كنت صائماً، استنشق برفق لتجنب دخول الماء إلى الحلق
+• نظف داخل فتحتي الأنف جيداً
+• هذا يزيل الغبار والشوائب''',
       },
     },
     {
       'step': 5,
+      'titleKey': 'wazu_5_wash_face_3_times',
       'title': 'Wash Face (3 times)',
       'titleUrdu': 'چہرہ دھونا (3 بار)',
       'titleHindi': 'चेहरा धोना (3 बार)',
+      'titleArabic': 'غسل الوجه (3 مرات)',
       'icon': Icons.face,
       'color': Colors.orange,
       'details': {
@@ -369,7 +460,7 @@ Important Points:
 १. दोनों हाथों में पानी लें
 २. बालों की जड़ों से ठोड़ी के नीचे तक धोएं
 ३. एक कान से दूसरे कान तक धोएं
-४. यक़ीनी बनाएं कि पानी चेहरे के तमाम हिस्सों तक पहुंचे
+④. यक़ीनी बनाएं कि पानी चेहरे के तमाम हिस्सों तक पहुंचे
 ५. तीन बार दोहराएं
 
 चेहरे की हदूद:
@@ -387,13 +478,41 @@ Important Points:
 • नाक के नीचे धोएं
 • अगर दाढ़ी घनी हो तो गीली उंगलियां उसमें फेरें
 • मुकम्मल तौर पर ढांपना यक़ीनी बनाएं''',
+        'arabic': '''الخطوة الخامسة: غسل الوجه (3 مرات)
+
+اغسل الوجه كاملاً ثلاث مرات - من منبت الشعر إلى ما تحت الذقن، ومن أذن إلى أذن.
+
+الطريقة:
+١. خذ الماء بكلتا يديك
+٢. اغسل من منبت الشعر إلى ما تحت الذقن
+٣. اغسل من أذن إلى أذن
+٤. تأكد من وصول الماء إلى جميع أجزاء الوجه
+٥. كرر ذلك ثلاث مرات
+
+حدود الوجه:
+• من الأعلى: حيث ينبت الشعر عادة
+• من الأسفل: ما تحت الذقن
+• من الجانبين: من أذن إلى أذن
+
+الأفعال المسنونة:
+• مرر أصابعك خلال اللحية إن كانت لديك (التخليل)
+• تأكد من وصول الماء إلى الجلد تحت اللحية
+• اغسل الحاجبين والمنطقة حول العينين
+
+نقاط مهمة:
+• لا تترك زوايا العينين
+• اغسل ما تحت الأنف
+• إذا كانت اللحية كثيفة، مرر الأصابع المبللة خلالها
+• تأكد من تغطية كامل المنطقة''',
       },
     },
     {
       'step': 6,
+      'titleKey': 'wazu_6_wash_arms_3_times',
       'title': 'Wash Arms (3 times)',
       'titleUrdu': 'بازو دھونا (3 بار)',
       'titleHindi': 'बाज़ू धोना (3 बार)',
+      'titleArabic': 'غسل الذراعين (3 مرات)',
       'icon': Icons.pan_tool,
       'color': Colors.green,
       'details': {
@@ -449,7 +568,7 @@ Important Points:
 १. दाएं बाज़ू से शुरू करें
 २. उंगलियों की नोकों से कोहनी तक पानी डालें
 ३. मुकम्मल धुलाई के लिए बाज़ू को मलें
-४. कोहनी शामिल करें (इसे ज़रूर धोना है)
+④. कोहनी शामिल करें (इसे ज़रूर धोना है)
 ५. तीन बार दोहराएं
 ६. फिर बाएं बाज़ू को इसी तरह तीन बार धोएं
 
@@ -463,13 +582,37 @@ Important Points:
 • कोहनी के अंदरूनी हिस्से को न छोड़ें
 • घड़ियां, कड़े या कोई भी चीज़ जो पानी को जिल्द तक पहुंचने से रोके, उतार दें
 • नेल पॉलिश जो रुकावट बने, उतारना ज़रूरी है''',
+        'arabic': '''الخطوة السادسة: غسل الذراعين مع المرفقين (3 مرات)
+
+اغسل كلا الذراعين من أطراف الأصابع إلى المرفقين مع المرفقين، ثلاث مرات لكل ذراع. ابدأ بالذراع الأيمن.
+
+الطريقة:
+١. ابدأ بالذراع الأيمن
+٢. اسكب الماء من أطراف الأصابع إلى المرفق
+٣. افرك الذراع لضمان الغسل الكامل
+٤. اشمل المرفق (يجب غسله)
+٥. كرر ذلك ثلاث مرات
+٦. ثم اغسل الذراع الأيسر بنفس الطريقة ثلاث مرات
+
+الأفعال المسنونة:
+• ابدأ بالذراع الأيمن قبل الأيسر
+• اغسل قليلاً فوق المرفق للتأكد
+• تخليل الأصابع إن لم تفعل ذلك مسبقاً
+
+نقاط مهمة:
+• تأكد من وصول الماء إلى جميع جوانب الذراع
+• لا تترك منطقة المرفق الداخلية
+• أزل الساعات أو الأساور أو أي شيء يمنع وصول الماء إلى الجلد
+• يجب إزالة طلاء الأظافر الذي يشكل حاجزاً''',
       },
     },
     {
       'step': 7,
+      'titleKey': 'wazu_7_wipe_head_masah',
       'title': 'Wipe Head (Masah)',
       'titleUrdu': 'سر کا مسح',
       'titleHindi': 'सर का मसह',
+      'titleArabic': 'مسح الرأس',
       'icon': Icons.person,
       'color': Colors.purple,
       'details': {
@@ -548,13 +691,40 @@ Important Points:
 • मसह एक बार होता है, तीन बार नहीं
 • गीले हाथ इस्तेमाल करें, टपकते हुए नहीं
 • बाज़ आराअ में ख़वातीन आसानी के लिए हिजाब पर मसह कर सकती हैं''',
+        'arabic': '''الخطوة السابعة: مسح الرأس - مرة واحدة
+
+امسح على الرأس بأيدٍ مبللة مرة واحدة.
+
+الطريقة:
+١. بلل كلتا يديك بماء جديد
+٢. ضع أطراف أصابع كلتا يديك على مقدمة الرأس (خط الشعر)
+٣. امسح إلى الخلف حتى مؤخرة العنق
+٤. ثم أعد يديك إلى الأمام
+٥. يُفعل هذا مرة واحدة (وليس ثلاث مرات)
+
+آراء المذاهب المختلفة:
+• الحنفية: امسح على الأقل ربع الرأس (مرة واحدة)
+• الشافعية: امسح على أي جزء من الرأس
+• المالكية/الحنابلة: امسح الرأس كله
+
+الطريقة المسنونة:
+• امسح الرأس كله من الأمام إلى الخلف ومن الخلف إلى الأمام
+• استخدم ماءً جديداً للمسح
+• لا تعصر الماء على الرأس - إنه مسح وليس غسلاً
+
+نقاط مهمة:
+• المسح مرة واحدة، وليس ثلاث مرات
+• استخدم أيدٍ مبللة، وليست مبللة بشكل مفرط
+• يجوز للنساء المسح على الحجاب في بعض الآراء للتيسير''',
       },
     },
     {
       'step': 8,
+      'titleKey': 'wazu_8_wipe_ears',
       'title': 'Wipe Ears',
       'titleUrdu': 'کانوں کا مسح',
       'titleHindi': 'कानों का मसह',
+      'titleArabic': 'مسح الأذنين',
       'icon': Icons.hearing,
       'color': Colors.indigo,
       'details': {
@@ -636,13 +806,41 @@ Important Points:
 • कान सर का हिस्सा समझे जाते हैं
 • कान के सूराख़ों के अंदर मसह करें (बाहरी कान, कान की नली नहीं)
 • कानों के पीछे भी मसह करें''',
+        'arabic': '''الخطوة الثامنة: مسح الأذنين - مرة واحدة
+
+امسح على الأذنين بأصابع مبللة مرة واحدة.
+
+الطريقة:
+١. استخدم نفس الماء من مسح الرأس، أو خذ ماءً جديداً
+٢. أدخل السبابتين في فتحات الأذن
+٣. استخدم الإبهامين للمسح خلف الأذنين
+٤. امسح الطيات الداخلية والأجزاء الخارجية للأذنين
+٥. افعل هذا مرة واحدة
+
+التقنية التفصيلية:
+• السبابتان: امسح داخل طيات الأذن
+• الإبهامان: امسح خلف الأذنين
+• غطِّ جميع أجزاء الأذن
+
+الأفعال المسنونة:
+• امسح الأذنين مع الرأس
+• يقول بعض العلماء ينبغي أخذ ماء جديد
+
+قال النبي ﷺ: "الأذنان من الرأس." (سنن أبي داود)
+
+نقاط مهمة:
+• الأذنان تُعتبران جزءاً من الرأس
+• امسح داخل فتحات الأذن (الأذن الخارجية، وليس قناة الأذن)
+• امسح خلف الأذنين أيضاً''',
       },
     },
     {
       'step': 9,
+      'titleKey': 'wazu_9_wash_feet_3_times',
       'title': 'Wash Feet (3 times)',
       'titleUrdu': 'پاؤں دھونا (3 بار)',
       'titleHindi': 'पांव धोना (3 बार)',
+      'titleArabic': 'غسل الرجلين (3 مرات)',
       'icon': Icons.do_not_step,
       'color': Colors.brown,
       'details': {
@@ -721,13 +919,40 @@ The Prophet ﷺ saw people whose heels were not washed properly and said: "Woe t
 • मोज़े, जूते और कोई भी चीज़ जो पानी को जिल्द तक पहुंचने से रोके, उतार दें
 
 नबी करीम ﷺ ने लोगों ��ो देखा जिनकी एड़ियां ठीक से नहीं धुली थीं और फ़रमाया: "एड़ियों को आग से हलाकत है!" (सहीह बुख़ारी)''',
+        'arabic': '''الخطوة التاسعة: غسل القدمين مع الكعبين (3 مرات)
+
+اغسل كلتا القدمين إلى الكعبين مع الكعبين، ثلاث مرات لكل قدم. ابدأ بالقدم اليمنى.
+
+الطريقة:
+١. ابدأ بالقدم اليمنى
+٢. اسكب الماء على القدم من أطراف الأصابع إلى الكعب
+٣. اغسل بين أصابع القدم بالأصابع (التخليل)
+٤. اشمل عظام الكعب (يجب غسلها)
+٥. كرر ذلاث مرات
+٦. ثم اغسل القدم اليسرى بنفس الطريقة ثلاث مرات
+
+الأفعال المسنونة:
+• ابدأ بالقدم اليمنى
+• استخدم الإصبع الصغير من اليد اليسرى للغسل بين أصابع القدم
+• ابدأ من الإصبع الصغير وانتقل إلى الإصبع الكبير
+• افرك الأعقاب وعظام الكعب جيداً
+
+نقاط مهمة:
+• تأكد من وصول الماء بين جميع أصابع القدم
+• اغسل حول عظام الكعب وفوقها
+• يجب غسل الأعقاب كاملاً
+• أزل الجوارب والأحذية وأي شيء يمنع وصول الماء إلى الجلد
+
+رأى النبي ﷺ أناساً لم تُغسل أعقابهم جيداً فقال: "ويل للأعقاب من النار!" (صحيح البخاري)''',
       },
     },
     {
       'step': 10,
+      'titleKey': 'wazu_10_dua_after_wudu',
       'title': 'Dua After Wudu',
       'titleUrdu': 'وضو کے بعد دعا',
       'titleHindi': 'वुज़ू के बाद दुआ',
+      'titleArabic': 'الدعاء بعد الوضوء',
       'icon': Icons.volunteer_activism,
       'color': Colors.teal,
       'details': {
@@ -800,15 +1025,40 @@ The Prophet ﷺ said: "Whoever performs Wudu like my Wudu, then prays two rakats
 
 2 रकअत नमाज़ पढ़ें (वैकल्पिक):
 नबी करीम ﷺ ने फ़रमाया: "जो शख़्स मेरे वुज़ू की तरह वुज़ू करे, फिर दो रकअत नमाज़ पढ़े जिसमें वो अपने दिल को भटकने न दे, उसके पिछले गुनाह माफ़ कर दिए जाएंगे।" (सहीह बुख़ारी)''',
+        'arabic': '''الخطوة العاشرة: الدعاء بعد الوضوء
+
+بعد إكمال الوضوء، اقرأ دعاء ما بعد الوضوء.
+
+الدعاء:
+"أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ"
+
+"أشهد أن لا إله إلا الله وحده لا شريك له، وأشهد أن محمداً عبده ورسوله"
+
+الترجمة: "أشهد أن لا إله إلا الله وحده لا شريك له، وأشهد أن محمداً عبده ورسوله"
+
+الفضل:
+قال النبي ﷺ: "من توضأ فأحسن الوضوء ثم قال: أشهد أن لا إله إلا الله وحده لا شريك له، وأشهد أن محمداً عبده ورسوله، فُتحت له أبواب الجنة الثمانية يدخل من أيها شاء." (صحيح مسلم)
+
+دعاء إضافي:
+"اللَّهُمَّ اجْعَلْنِي مِنَ التَّوَّابِينَ وَاجْعَلْنِي مِنَ الْمُتَطَهِّرِينَ"
+
+"اللهم اجعلني من التوابين واجعلني من المتطهرين"
+
+الترجمة: "اللهم اجعلني من التوابين واجعلني من المتطهرين"
+
+صلاة ركعتين (اختياري):
+قال النبي ﷺ: "من توضأ نحو وضوئي هذا ثم صلى ركعتين لا يحدث فيهما نفسه، غُفر له ما تقدم من ذنبه." (صحيح البخاري)''',
       },
     },
   ];
 
   final List<Map<String, dynamic>> _additionalInfo = [
     {
+      'titleKey': 'wazu_11_things_that_break_wudu',
       'title': 'Things That Break Wudu',
       'titleUrdu': 'وضو توڑنے والی چیزیں',
       'titleHindi': 'वुज़ू तोड़ने वाली चीज़ें',
+      'titleArabic': 'نواقض الوضوء',
       'icon': Icons.cancel,
       'color': Colors.red,
       'details': {
@@ -884,12 +1134,38 @@ Note: Different schools of thought have slight variations. Follow the guidance o
 ८. नमाज़ में ज़ोर से हंसना (हनफ़ी राय)
 
 नोट: मुख़्तलिफ़ मकातिब-ए-फ़िक्र में मामूली फ़र्क़ है। अपने आलिम या मसलक की रहनुमाई पर अमल करें।''',
+        'arabic': '''نواقض الوضوء
+
+١. الإفرازات الطبيعية من الجسم:
+   • البول
+   • الغائط
+   • خروج الريح
+   • المذي
+   • الودي
+
+٢. النوم العميق (مستلقياً أو متكئاً)
+
+٣. فقدان الوعي
+
+٤. لمس الفرج مباشرة (حسب بعض العلماء)
+
+٥. أكل لحم الإبل (حسب بعض العلماء)
+
+٦. نزول الدم أو القيح من جرح (رأي الحنفية)
+
+٧. القيء بملء الفم (رأي الحنفية)
+
+٨. الضحك بصوت عالٍ في الصلاة (رأي الحنفية)
+
+ملاحظة: هناك اختلافات طفيفة بين المذاهب الفقهية. اتبع إرشادات عالمك أو مذهبك.''',
       },
     },
     {
+      'titleKey': 'wazu_12_wudu_with_socks_masah',
       'title': 'Wudu with Socks (Masah)',
       'titleUrdu': 'موزوں پر مسح',
       'titleHindi': 'मोज़ों पर मसह',
+      'titleArabic': 'المسح على الجوارب',
       'icon': Icons.catching_pokemon,
       'color': Colors.grey,
       'details': {
@@ -974,9 +1250,79 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
 • बड़ी नापाकी (ग़ुस्ल ज़रूरी होना)
 
 नोट: आम सूती मोज़े उलमा के दरमियान इख़्तिलाफ़ी हैं। बाज़ उन पर मसह की इजाज़त देते हैं, बाज़ चमड़े के मोज़े ज़रूरी समझते हैं।''',
+        'arabic': '''المسح على الخفين (الجوارب)
+
+يجوز المسح على الخفين (الجوارب الجلدية) أو الجوارب السميكة بدلاً من غسل القدمين، بشروط معينة.
+
+الشروط:
+١. يجب لبس الجوارب بعد وضوء كامل
+٢. يجب أن تغطي الجوارب القدم كاملة حتى الكعبين
+٣. يجب أن تكون الجوارب سميكة بحيث لا يتسرب الماء بسهولة
+٤. يجب أن يكون المشي فيها ممكناً
+
+المدة:
+• المقيم: ٢٤ ساعة (يوم وليلة)
+• المسافر: ٧٢ ساعة (ثلاثة أيام ولياليها)
+
+طريقة المسح:
+١. بلل يديك
+٢. ضع أصابعك على أطراف أصابع القدم
+٣. امسح صعوداً نحو الكعبين
+٤. امسح ظاهر القدم فقط (وليس الباطن)
+٥. امسح كلتا القدمين
+
+ما يبطل هذا الإذن:
+• خلع الجوارب
+• انتهاء المدة المحددة
+• الحدث الأكبر (الذي يتطلب الغسل)
+
+ملاحظة: الجوارب القطنية العادية محل خلاف بين العلماء. بعضهم يجيز المسح عليها، والبعض يشترط الخفاف الجلدية.''',
       },
     },
   ];
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<Map<String, dynamic>> get filteredWazuSteps {
+    if (_searchQuery.isEmpty) {
+      return _wazuSteps;
+    }
+    final query = _searchQuery.toLowerCase();
+    final langCode = context.languageProvider.languageCode;
+    return _wazuSteps.where((step) {
+      final title = (langCode == 'ur'
+          ? (step['titleUrdu'] ?? step['title'])
+          : langCode == 'hi'
+              ? (step['titleHindi'] ?? step['title'])
+              : langCode == 'ar'
+                  ? (step['titleArabic'] ?? step['title'])
+                  : step['title']).toString().toLowerCase();
+      final stepNumber = step['step'].toString();
+      return title.contains(query) || stepNumber.contains(query);
+    }).toList();
+  }
+
+  List<Map<String, dynamic>> get filteredAdditionalInfo {
+    if (_searchQuery.isEmpty) {
+      return _additionalInfo;
+    }
+    final query = _searchQuery.toLowerCase();
+    final langCode = context.languageProvider.languageCode;
+    return _additionalInfo.where((info) {
+      final title = (langCode == 'ur'
+          ? (info['titleUrdu'] ?? info['title'])
+          : langCode == 'hi'
+              ? (info['titleHindi'] ?? info['title'])
+              : langCode == 'ar'
+                  ? (info['titleArabic'] ?? info['title'])
+                  : info['title']).toString().toLowerCase();
+      return title.contains(query);
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -992,161 +1338,107 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _titles[_selectedLanguage]!,
+          context.tr('wazu'),
           style: const TextStyle(
             color: Colors.white,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _selectedLanguage == 'urdu'
-                    ? 'اردو'
-                    : _selectedLanguage == 'hindi'
-                    ? 'हिंदी'
-                    : 'EN',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-            onSelected: (value) => setState(() => _selectedLanguage = value),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'english',
-                child: Row(
-                  children: [
-                    if (_selectedLanguage == 'english')
-                      Icon(Icons.check, color: AppColors.primary, size: 18)
-                    else
-                      const SizedBox(width: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      'English',
-                      style: TextStyle(
-                        fontWeight: _selectedLanguage == 'english'
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        color: _selectedLanguage == 'english'
-                            ? AppColors.primary
-                            : null,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'urdu',
-                child: Row(
-                  children: [
-                    if (_selectedLanguage == 'urdu')
-                      Icon(Icons.check, color: AppColors.primary, size: 18)
-                    else
-                      const SizedBox(width: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      'اردو',
-                      style: TextStyle(
-                        fontWeight: _selectedLanguage == 'urdu'
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        color: _selectedLanguage == 'urdu'
-                            ? AppColors.primary
-                            : null,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'hindi',
-                child: Row(
-                  children: [
-                    if (_selectedLanguage == 'hindi')
-                      Icon(Icons.check, color: AppColors.primary, size: 18)
-                    else
-                      const SizedBox(width: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      'हिंदी',
-                      style: TextStyle(
-                        fontWeight: _selectedLanguage == 'hindi'
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        color: _selectedLanguage == 'hindi'
-                            ? AppColors.primary
-                            : null,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: context.responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Wudu Steps
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _wazuSteps.length,
-              itemBuilder: (context, index) {
-                final step = _wazuSteps[index];
-                return _buildStepCard(
-                  step,
-                  isDark,
-                );
-              },
-            ),
-
-            const SizedBox(height: 24),
-
-            // Additional Info Title
-            Text(
-              _selectedLanguage == 'english'
-                  ? 'Additional Information'
-                  : _selectedLanguage == 'urdu'
-                  ? 'اضافی معلومات'
-                  : 'इज़ाफ़ी मालूमात',
-              style: TextStyle(
-                color: isDark ? Colors.white : AppColors.primary,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+            // Search Bar
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: SearchBarWidget(
+                controller: _searchController,
+                hintText: context.tr('search_wazu_steps'),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                },
+                onClear: () {
+                  setState(() {
+                    _searchQuery = '';
+                  });
+                },
+                enableVoiceSearch: true,
               ),
-              textDirection: _selectedLanguage == 'urdu'
-                  ? TextDirection.rtl
-                  : TextDirection.ltr,
             ),
-            const SizedBox(height: 16),
 
-            // Additional Info Cards
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _additionalInfo.length,
-              itemBuilder: (context, index) {
-                final info = _additionalInfo[index];
-                return _buildInfoCard(
-                  info,
-                  isDark,
-                );
-              },
-            ),
+            // Wudu Steps
+            filteredWazuSteps.isEmpty && filteredAdditionalInfo.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            context.tr('no_results_found'),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: filteredWazuSteps.length,
+                    itemBuilder: (context, index) {
+                      final step = filteredWazuSteps[index];
+                      return _buildStepCard(
+                        step,
+                        isDark,
+                      );
+                    },
+                  ),
+
+            if (filteredWazuSteps.isNotEmpty || filteredAdditionalInfo.isNotEmpty) ...[
+              const SizedBox(height: 24),
+
+              // Additional Info Title
+              if (filteredAdditionalInfo.isNotEmpty) ...[
+                Text(
+                  context.tr('additional_information'),
+                  style: TextStyle(
+                    color: isDark ? Colors.white : AppColors.primary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Additional Info Cards
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: filteredAdditionalInfo.length,
+                  itemBuilder: (context, index) {
+                    final info = filteredAdditionalInfo[index];
+                    return _buildInfoCard(
+                      info,
+                      isDark,
+                    );
+                  },
+                ),
+              ],
+            ],
           ],
         ),
       ),
@@ -1157,104 +1449,126 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
     Map<String, dynamic> step,
     bool isDark,
   ) {
-    final title = _selectedLanguage == 'english'
-        ? step['title']
-        : _selectedLanguage == 'urdu'
-        ? step['titleUrdu']
-        : step['titleHindi'];
+    final langCode = context.languageProvider.languageCode;
+    final title = context.tr(step['titleKey'] ?? 'wazu');
+    final responsive = context.responsive;
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showStepDetails(step),
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.lightGreenBorder.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.15),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${step['step']}',
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+      margin: responsive.paddingOnly(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () => _showStepDetails(step),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        child: Padding(
+          padding: responsive.paddingAll(14),
+          child: Row(
+            children: [
+              // Step Number Badge
+              Container(
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
+                decoration: BoxDecoration(
+                  color: darkGreen,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    step['icon'] as IconData,
-                    color: AppColors.primary,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
+                child: Center(
                   child: Text(
-                    title,
+                    '${step['step']}',
                     style: TextStyle(
-                      color: isDark ? Colors.white : AppColors.primary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsive.textLarge,
                     ),
-                    textDirection: _selectedLanguage == 'urdu'
-                        ? TextDirection.rtl
-                        : TextDirection.ltr,
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E8F5A),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.white,
-                    size: 14,
-                  ),
+              ),
+              SizedBox(width: responsive.spacing(14)),
+
+              // Step Name and Icon
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Step Title
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: responsive.textLarge,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                      ),
+                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                    ),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Step icon chip
+                    Container(
+                      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            step['icon'] as IconData,
+                            size: responsive.textXSmall + 2,
+                            color: emeraldGreen,
+                          ),
+                          SizedBox(width: responsive.spacing(4)),
+                          Text(
+                            '${context.tr('step')} ${step['step']}',
+                            style: TextStyle(
+                              fontSize: responsive.textXSmall,
+                              fontWeight: FontWeight.w600,
+                              color: emeraldGreen,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+
+              // Arrow Icon
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.textXSmall + 2,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1265,85 +1579,112 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
     Map<String, dynamic> info,
     bool isDark,
   ) {
-    final title = _selectedLanguage == 'english'
-        ? info['title']
-        : _selectedLanguage == 'urdu'
-        ? info['titleUrdu']
-        : info['titleHindi'];
+    final langCode = context.languageProvider.languageCode;
+    final title = context.tr(info['titleKey'] ?? 'wazu');
+    final responsive = context.responsive;
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showInfoDetails(info),
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.lightGreenBorder.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+      margin: responsive.paddingOnly(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () => _showInfoDetails(info),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        child: Padding(
+          padding: responsive.paddingAll(14),
+          child: Row(
+            children: [
+              // Icon Badge
+              Container(
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
+                decoration: BoxDecoration(
+                  color: darkGreen,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.15),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
+                child: Center(
                   child: Icon(
                     info['icon'] as IconData,
-                    color: AppColors.primary,
-                    size: 26,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: isDark ? Colors.white : AppColors.primary,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textDirection: _selectedLanguage == 'urdu'
-                        ? TextDirection.rtl
-                        : TextDirection.ltr,
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E8F5A),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.arrow_forward_ios,
                     color: Colors.white,
-                    size: 14,
+                    size: responsive.textLarge + 4,
                   ),
                 ),
-              ],
-            ),
+              ),
+              SizedBox(width: responsive.spacing(14)),
+
+              // Info Title
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Info Title
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: responsive.textLarge,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                      ),
+                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                    ),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Info chip
+                    Container(
+                      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                      ),
+                      child: Text(
+                        context.tr('additional_information'),
+                        style: TextStyle(
+                          fontSize: responsive.textXSmall,
+                          fontWeight: FontWeight.w600,
+                          color: emeraldGreen,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Arrow Icon
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.textXSmall + 2,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1356,15 +1697,17 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
       context,
       MaterialPageRoute(
         builder: (context) => BasicAmalDetailScreen(
-          title: step['title'],
+          title: step['title'] ?? '',
           titleUrdu: step['titleUrdu'] ?? '',
           titleHindi: step['titleHindi'] ?? '',
+          titleArabic: step['titleArabic'] ?? '',
           contentEnglish: details['english'] ?? '',
           contentUrdu: details['urdu'] ?? '',
           contentHindi: details['hindi'] ?? '',
+          contentArabic: details['arabic'] ?? '',
           color: step['color'] as Color,
           icon: step['icon'] as IconData,
-          category: 'Deen Ki Buniyadi Amal - Wudu',
+          categoryKey: 'category_wazu',
           number: step['step'] as int?,
         ),
       ),
@@ -1373,19 +1716,22 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
 
   void _showInfoDetails(Map<String, dynamic> info) {
     final details = info['details'] as Map<String, String>;
+    final titleKey = info['titleKey'] ?? 'wazu';
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => BasicAmalDetailScreen(
-          title: info['title'],
+          title: info['title'] ?? '',
           titleUrdu: info['titleUrdu'] ?? '',
           titleHindi: info['titleHindi'] ?? '',
+          titleArabic: info['titleArabic'] ?? '',
           contentEnglish: details['english'] ?? '',
           contentUrdu: details['urdu'] ?? '',
           contentHindi: details['hindi'] ?? '',
+          contentArabic: details['arabic'] ?? '',
           color: info['color'] as Color,
           icon: info['icon'] as IconData,
-          category: 'Deen Ki Buniyadi Amal - Wudu',
+          categoryKey: 'category_wazu',
         ),
       ),
     );

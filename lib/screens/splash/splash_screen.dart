@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_assets.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
+import '../../providers/language_provider.dart';
+import '../language_selection/language_selection_screen.dart';
 import '../permissions/permissions_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -40,11 +46,25 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    // Navigate to home after delay
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
+    // Navigate after checking language selection
+    Future.delayed(const Duration(seconds: 3), () async {
+      if (!mounted) return;
+
+      // Check if language is already selected
+      final prefs = await SharedPreferences.getInstance();
+      final hasSelectedLanguage = prefs.getString('selected_language') != null;
+
+      if (!mounted) return;
+
+      if (hasSelectedLanguage) {
+        // Language already selected, go to permissions
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const PermissionsScreen()),
+        );
+      } else {
+        // First time, show language selection
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const LanguageSelectionScreen()),
         );
       }
     });
@@ -58,6 +78,8 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -81,42 +103,51 @@ class _SplashScreenState extends State<SplashScreen>
                       child: Column(
                         children: [
                           Container(
-                            width: 130,
-                            height: 130,
+                            width: responsive.spacing(130),
+                            height: responsive.spacing(130),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: AppColors.appBarColor,
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withValues(alpha: 0.2),
-                                  blurRadius: 25,
-                                  offset: const Offset(0, 10),
+                                  blurRadius: responsive.spacing(25),
+                                  offset: Offset(0, responsive.spacing(10)),
                                 ),
                               ],
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: Image.asset(
-                                AppAssets.appLogo,
-                                fit: BoxFit.contain,
+                              padding: responsive.paddingAll(8),
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                padding: responsive.paddingAll(8),
+                                child: ClipOval(
+                                  child: Image.asset(
+                                    AppAssets.appLogo,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 24),
-                          const Text(
-                            'Jiyan Islamic Academy',
+                          responsive.vSpaceXLarge,
+                          Text(
+                            context.tr('app_name'),
                             style: TextStyle(
-                              fontSize: 28,
+                              fontSize: responsive.textTitle,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                               letterSpacing: 1,
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          responsive.vSpaceSmall,
                           Text(
-                            'Your Complete Islamic Companion',
+                            context.tr('app_subtitle'),
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: responsive.textMedium,
                               color: Colors.white.withValues(alpha: 0.8),
                             ),
                           ),
@@ -136,18 +167,18 @@ class _SplashScreenState extends State<SplashScreen>
                     child: Column(
                       children: [
                         SizedBox(
-                          width: 30,
-                          height: 30,
+                          width: responsive.spacing(30),
+                          height: responsive.spacing(30),
                           child: CircularProgressIndicator(
                             color: AppColors.secondary,
                             strokeWidth: 2,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        responsive.vSpaceRegular,
                         Text(
-                          'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+                          context.tr('bismillah_arabic'),
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: responsive.textLarge,
                             fontFamily: 'Amiri',
                             color: Colors.white.withValues(alpha: 0.9),
                           ),
@@ -157,7 +188,7 @@ class _SplashScreenState extends State<SplashScreen>
                   );
                 },
               ),
-              const SizedBox(height: 48),
+              SizedBox(height: responsive.spaceHuge),
             ],
           ),
         ),

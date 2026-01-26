@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/dua_provider.dart';
+import '../../providers/language_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../data/models/dua_model.dart';
+import '../../widgets/common/search_bar_widget.dart';
 import 'dua_detail_screen.dart';
 
 class DuaCategoryScreen extends StatefulWidget {
@@ -15,161 +19,36 @@ class DuaCategoryScreen extends StatefulWidget {
 
 class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
   final TextEditingController _searchController = TextEditingController();
-  final FlutterTts _flutterTts = FlutterTts();
   String _searchQuery = '';
-
-  // Audio playback state
-  String? _playingCategoryId;
-  bool _isSpeaking = false;
-
-  // Language selection
-  DuaLanguage _selectedLanguage = DuaLanguage.hindi;
-
-  static const Map<DuaLanguage, String> languageNames = {
-    DuaLanguage.hindi: 'Hindi',
-    DuaLanguage.english: 'English',
-    DuaLanguage.urdu: 'Urdu',
-  };
 
   @override
   void initState() {
     super.initState();
-    _initTts();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DuaProvider>().loadCategories();
-    });
-  }
-
-  Future<void> _initTts() async {
-    await _flutterTts.setSharedInstance(true);
-    await _flutterTts.setSpeechRate(0.4);
-    await _flutterTts.setVolume(1.0);
-    await _flutterTts.setPitch(1.0);
-
-    _flutterTts.setCompletionHandler(() {
-      if (mounted) {
-        setState(() {
-          _isSpeaking = false;
-          _playingCategoryId = null;
-        });
-      }
-    });
-
-    _flutterTts.setErrorHandler((error) {
-      if (mounted) {
-        setState(() {
-          _isSpeaking = false;
-          _playingCategoryId = null;
-        });
-      }
-    });
-  }
-
-  Future<void> _playDuaAudio(DuaCategory category) async {
-    if (category.duas.isEmpty) return;
-
-    // If already playing this category, stop it
-    if (_playingCategoryId == category.id && _isSpeaking) {
-      await _stopPlaying();
-      return;
-    }
-
-    // Stop any current playback
-    await _stopPlaying();
-
-    final dua = category.duas.first;
-    String textToSpeak = dua.arabic;
-    String ttsLangCode = await _isLanguageAvailable('ar-SA') ? 'ar-SA' : 'ar';
-
-    if (textToSpeak.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No Arabic text available')),
-        );
-      }
-      return;
-    }
-
-    await _flutterTts.setLanguage(ttsLangCode);
-
-    setState(() {
-      _playingCategoryId = category.id;
-      _isSpeaking = true;
-    });
-
-    await _flutterTts.speak(textToSpeak);
-  }
-
-  Future<bool> _isLanguageAvailable(String langCode) async {
-    try {
-      final result = await _flutterTts.isLanguageAvailable(langCode);
-      return result == 1 || result == true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  Future<void> _stopPlaying() async {
-    await _flutterTts.stop();
-    setState(() {
-      _isSpeaking = false;
-      _playingCategoryId = null;
     });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
-    _flutterTts.stop();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
+    // Watch LanguageProvider to rebuild when language changes
+    context.watch<LanguageProvider>();
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text('Duain'),
-        actions: [
-          PopupMenuButton<DuaLanguage>(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                languageNames[_selectedLanguage]!,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-            onSelected: (DuaLanguage language) {
-              setState(() {
-                _selectedLanguage = language;
-              });
-            },
-            itemBuilder: (context) => DuaLanguage.values.map((language) {
-              return PopupMenuItem<DuaLanguage>(
-                value: language,
-                child: Row(
-                  children: [
-                    if (_selectedLanguage == language)
-                      const Icon(Icons.check, color: AppColors.primary, size: 18)
-                    else
-                      const SizedBox(width: 18),
-                    const SizedBox(width: 8),
-                    Text(languageNames[language]!),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-        ],
+        title: Text(
+          context.tr('duas'),
+          style: TextStyle(fontSize: responsive.textLarge),
+        ),
       ),
       body: Consumer<DuaProvider>(
         builder: (context, provider, child) {
@@ -182,7 +61,7 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
           final categories = provider.categories;
 
           if (categories.isEmpty) {
-            return const Center(child: Text('No duas available'));
+            return Center(child: Text(context.tr('no_duas_available')));
           }
 
           // Filter categories based on search
@@ -209,60 +88,21 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
             children: [
               // Search Bar
               Padding(
-                padding: const EdgeInsets.all(16),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: AppColors.lightGreenBorder,
-                      width: 1.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.08),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (value) {
-                      setState(() {
-                        _searchQuery = value;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Search duas...',
-                      hintStyle: TextStyle(color: AppColors.textHint),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: AppColors.primary,
-                      ),
-                      suffixIcon: _searchQuery.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() {
-                                  _searchQuery = '';
-                                });
-                              },
-                            )
-                          : null,
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                    ),
-                  ),
+                padding: responsive.paddingAll(16),
+                child: SearchBarWidget(
+                  controller: _searchController,
+                  hintText: context.tr('search_duas'),
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value;
+                    });
+                  },
+                  onClear: () {
+                    setState(() {
+                      _searchQuery = '';
+                    });
+                  },
+                  enableVoiceSearch: true,
                 ),
               ),
 
@@ -275,14 +115,14 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
                           children: [
                             Icon(
                               Icons.search_off,
-                              size: 64,
+                              size: responsive.iconHuge,
                               color: Colors.grey.shade400,
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: responsive.spaceRegular),
                             Text(
-                              'No results found',
+                              context.tr('no_results_found'),
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: responsive.textRegular,
                                 color: Colors.grey.shade600,
                               ),
                             ),
@@ -290,7 +130,7 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
                         ),
                       )
                     : ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: responsive.paddingSymmetric(horizontal: 16),
                         itemCount: filteredCategories.length,
                         itemBuilder: (context, index) {
                           final category = filteredCategories[index];
@@ -309,35 +149,59 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
     );
   }
 
+  // Helper method to convert app language to DuaLanguage enum
+  DuaLanguage _getSelectedLanguage(String languageCode) {
+    switch (languageCode) {
+      case 'hi':
+        return DuaLanguage.hindi;
+      case 'ur':
+        return DuaLanguage.urdu;
+      case 'ar':
+        return DuaLanguage.arabic;
+      case 'en':
+      default:
+        return DuaLanguage.english;
+    }
+  }
+
   Widget _buildCategoryWithDuas(
     BuildContext context,
     DuaCategory category,
     DuaProvider provider,
   ) {
+    final responsive = context.responsive;
+    final isDark = context.watch<SettingsProvider>().isDarkMode;
+    final langProvider = context.watch<LanguageProvider>();
+    final selectedLanguage = _getSelectedLanguage(langProvider.languageCode);
+    final languageCode = langProvider.languageCode;
+    const darkGreen = Color(0xFF0A5C36);
+    const lightGreenBorder = Color(0xFF8AAF9A);
     const lightGreenChip = Color(0xFFE8F3ED);
 
-    final categoryName = category.name
-        .replaceAll(RegExp(r'[^\x00-\x7F]+'), '')
-        .trim();
-    final translatedName = category.getName(_selectedLanguage);
-    final isPlaying = _playingCategoryId == category.id && _isSpeaking;
-    final showTranslatedName = _selectedLanguage != DuaLanguage.english &&
-        translatedName != categoryName;
+    // Get display name based on language
+    String displayName;
+    if (selectedLanguage == DuaLanguage.english) {
+      displayName = category.name
+          .replaceAll(RegExp(r'[^\x00-\x7F]+'), '')
+          .trim();
+    } else {
+      displayName = category.getName(selectedLanguage);
+    }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: responsive.paddingOnly(bottom: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         border: Border.all(
-          color: isPlaying ? AppColors.primaryLight : AppColors.lightGreenBorder,
-          width: isPlaying ? 2 : 1.5,
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
           ),
         ],
       ),
@@ -356,73 +220,72 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
             );
           }
         },
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: responsive.paddingAll(14),
           child: Row(
             children: [
-              // Icon
+              // Category Icon Badge (like Surah number badge)
               Container(
-                width: 56,
-                height: 56,
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(14),
+                  color: darkGreen,
+                  shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
                     ),
                   ],
                 ),
                 child: Center(
                   child: Text(
                     category.icon,
-                    style: const TextStyle(fontSize: 28),
+                    style: TextStyle(fontSize: responsive.fontSize(24)),
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: responsive.spacing(14)),
 
-              // Category Info
+              // Category Name and Info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Category Name (Language-based)
                     Text(
-                      categoryName,
+                      displayName,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: responsive.textLarge,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                        fontFamily: languageCode == 'ur'
+                            ? 'NotoNastaliq'
+                            : null,
                       ),
+                      textDirection: languageCode == 'ur'
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
                     ),
-                    if (showTranslatedName) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        translatedName,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.primaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        textDirection: _selectedLanguage == DuaLanguage.urdu
-                            ? TextDirection.rtl
-                            : TextDirection.ltr,
-                      ),
-                    ],
-                    const SizedBox(height: 4),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Duas count chip
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: responsive.paddingSymmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: lightGreenChip,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(
+                          responsive.radiusSmall,
+                        ),
                       ),
                       child: Text(
-                        '${category.duas.length} Duas',
+                        '${category.duas.length} ${context.tr('duas')}',
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: responsive.textXSmall,
                           fontWeight: FontWeight.w600,
                           color: AppColors.primaryLight,
                         ),
@@ -432,40 +295,17 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
                 ),
               ),
 
-              // Audio Play Button
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () => _playDuaAudio(category),
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: isPlaying ? AppColors.primary : lightGreenChip,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      isPlaying ? Icons.stop : Icons.volume_up,
-                      size: 20,
-                      color: isPlaying ? Colors.white : AppColors.primary,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-
-              // Arrow
+              // Arrow Icon
               Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_forward_ios,
-                  size: 12,
                   color: Colors.white,
+                  size: responsive.iconSmall,
                 ),
               ),
             ],

@@ -1,4 +1,4 @@
-# Jiyan Islamic Academy
+# Noor-ul-Huda
 
 A comprehensive Islamic mobile application built with Flutter, providing essential Islamic resources and tools for Muslims worldwide.
 
@@ -53,8 +53,8 @@ A comprehensive Islamic mobile application built with Flutter, providing essenti
 
 1. Clone the repository
 ```bash
-git clone https://github.com/Mohdrizwan329/Jiyan-Islamic-Academy.git
-cd jiyanislamicacademy
+git clone https://github.com/Mohdrizwan329/noorulhuda.git
+cd noorulhuda
 ```
 
 2. Install dependencies

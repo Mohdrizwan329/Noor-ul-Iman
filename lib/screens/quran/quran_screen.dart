@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/quran_provider.dart';
 import '../../data/models/surah_model.dart';
+import '../../widgets/common/search_bar_widget.dart';
 import 'juz_detail_screen.dart';
 
 class QuranScreen extends StatefulWidget {
@@ -13,6 +16,9 @@ class QuranScreen extends StatefulWidget {
 }
 
 class _QuranScreenState extends State<QuranScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
@@ -22,66 +28,49 @@ class _QuranScreenState extends State<QuranScreen> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<JuzInfo> _getFilteredJuz(List<JuzInfo> juzList, QuranProvider provider) {
+    if (_searchQuery.isEmpty) {
+      return juzList;
+    }
+    final query = _searchQuery.toLowerCase();
+    return juzList.where((juz) {
+      // Get surah names for this juz
+      String startSurahName = '';
+      String endSurahName = '';
+      if (provider.surahList.isNotEmpty) {
+        final startSurah = provider.surahList.firstWhere(
+          (s) => s.number == juz.startSurah,
+          orElse: () => provider.surahList.first,
+        );
+        final endSurah = provider.surahList.firstWhere(
+          (s) => s.number == juz.endSurah,
+          orElse: () => provider.surahList.first,
+        );
+        startSurahName = startSurah.englishName.toLowerCase();
+        endSurahName = endSurah.englishName.toLowerCase();
+      }
+
+      return juz.number.toString().contains(query) ||
+          juz.arabicName.contains(query) ||
+          startSurahName.contains(query) ||
+          endSurahName.contains(query);
+    }).toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text('Para'),
-        actions: [
-          // Language Selector Button
-          Consumer<QuranProvider>(
-            builder: (context, provider, child) {
-              return PopupMenuButton<QuranLanguage>(
-                icon: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    QuranProvider.languageNames[provider.selectedLanguage]!,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-                onSelected: (QuranLanguage language) {
-                  provider.setLanguage(language);
-                },
-                itemBuilder: (context) => QuranLanguage.values.map((language) {
-                  final isSelected = provider.selectedLanguage == language;
-                  return PopupMenuItem<QuranLanguage>(
-                    value: language,
-                    child: Row(
-                      children: [
-                        if (isSelected)
-                          Icon(Icons.check, color: AppColors.primary, size: 18)
-                        else
-                          const SizedBox(width: 18),
-                        const SizedBox(width: 8),
-                        Text(
-                          QuranProvider.languageNames[language]!,
-                          style: TextStyle(
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: isSelected ? AppColors.primary : null,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              );
-            },
-          ),
-        ],
+        title: Text(context.tr('para')),
       ),
       body: Consumer<QuranProvider>(
         builder: (context, provider, child) {
@@ -96,26 +85,70 @@ class _QuranScreenState extends State<QuranScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.grey),
-                  const SizedBox(height: 16),
+                  Icon(
+                    Icons.error_outline,
+                    size: responsive.iconHuge,
+                    color: Colors.grey,
+                  ),
+                  responsive.vSpaceRegular,
                   Text(provider.error!),
-                  const SizedBox(height: 16),
+                  responsive.vSpaceRegular,
                   ElevatedButton(
                     onPressed: () => provider.fetchSurahList(),
-                    child: const Text('Retry'),
+                    child: Text(context.tr('retry')),
                   ),
                 ],
               ),
             );
           }
 
-          // Para List
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: provider.juzList.length,
-            itemBuilder: (context, index) {
-              return _buildJuzCard(context, provider.juzList[index], provider);
-            },
+          // Para List with Search
+          final filteredJuz = _getFilteredJuz(provider.juzList, provider);
+
+          return Column(
+            children: [
+              Padding(
+                padding: responsive.paddingOnly(left: 16, top: 12, right: 16),
+                child: SearchBarWidget(
+                  controller: _searchController,
+                  hintText: context.tr('search_para'),
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value;
+                    });
+                  },
+                  onClear: () {
+                    setState(() {
+                      _searchQuery = '';
+                    });
+                  },
+                  enableVoiceSearch: true,
+                ),
+              ),
+              Expanded(
+                child: filteredJuz.isEmpty
+                    ? Center(
+                        child: Text(
+                          context.tr('no_prayer_times_available'),
+                          style: TextStyle(
+                            fontSize: responsive.textMedium,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: responsive.paddingRegular,
+                        itemCount: filteredJuz.length,
+                        itemBuilder: (context, index) {
+                          return _buildJuzCard(
+                            context,
+                            filteredJuz[index],
+                            provider,
+                          );
+                        },
+                      ),
+              ),
+            ],
           );
         },
       ),
@@ -127,35 +160,22 @@ class _QuranScreenState extends State<QuranScreen> {
     JuzInfo juz,
     QuranProvider provider,
   ) {
-    const softGold = Color(0xFFC9A24D);
-
-    // Get surah names for start and end
-    String startSurahName = '';
-    String endSurahName = '';
-    if (provider.surahList.isNotEmpty) {
-      final startSurah = provider.surahList.firstWhere(
-        (s) => s.number == juz.startSurah,
-        orElse: () => provider.surahList.first,
-      );
-      final endSurah = provider.surahList.firstWhere(
-        (s) => s.number == juz.endSurah,
-        orElse: () => provider.surahList.first,
-      );
-      startSurahName = startSurah.englishName;
-      endSurahName = endSurah.englishName;
-    }
+    final responsive = context.responsive;
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: responsive.paddingOnly(bottom: 10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(color: lightGreenBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
           ),
         ],
       ),
@@ -168,38 +188,38 @@ class _QuranScreenState extends State<QuranScreen> {
             ),
           );
         },
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: responsive.paddingAll(14),
           child: Row(
             children: [
               // Juz Number
               Container(
-                width: 50,
-                height: 50,
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
+                  color: darkGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
                     ),
                   ],
                 ),
                 child: Center(
                   child: Text(
                     '${juz.number}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                      fontSize: responsive.textLarge,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: responsive.spacing(14)),
 
               // Juz Info
               Expanded(
@@ -207,51 +227,52 @@ class _QuranScreenState extends State<QuranScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Para ${juz.number}',
+                      '${context.tr('para_label')} ${juz.number}',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: responsive.textSmall,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
+                        color: darkGreen,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '$startSurahName ${juz.startAyah} - $endSurahName ${juz.endAyah}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF6B7F73),
+                    SizedBox(height: responsive.spacing(4)),
+                    Container(
+                      padding: responsive.paddingSymmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(
+                          responsive.radiusSmall,
+                        ),
+                      ),
+                      child: Text(
+                        context.tr('para_${juz.number}'),
+                        style: TextStyle(
+                          fontSize: responsive.textXSmall,
+                          fontWeight: FontWeight.w600,
+                          color: emeraldGreen,
+                          fontFamily: 'Amiri',
+                        ),
+                        textDirection: TextDirection.rtl,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              // Arabic Name with arrow
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    juz.arabicName,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontFamily: 'Amiri',
-                      color: softGold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.arrow_forward_ios,
-                      color: Colors.white,
-                      size: 12,
-                    ),
-                  ),
-                ],
+              // Arrow only
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: emeraldGreen,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.iconSmall,
+                ),
               ),
             ],
           ),

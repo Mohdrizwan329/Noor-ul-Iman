@@ -2,7 +2,7 @@ class AppStrings {
   AppStrings._();
 
   // App Info
-  static const String appName = 'Jiyan Islamic Academy';
+  static const String appName = 'Noor-ul-Huda';
   static const String appTagline = 'Your Complete Islamic Companion';
 
   // Navigation
@@ -163,6 +163,38 @@ class AppStrings {
     'ذوالحجہ',
   ];
 
+  // Islamic Months in Arabic
+  static const List<String> islamicMonthsArabic = [
+    'محرم',
+    'صفر',
+    'ربيع الأول',
+    'ربيع الثاني',
+    'جمادى الأولى',
+    'جمادى الآخرة',
+    'رجب',
+    'شعبان',
+    'رمضان',
+    'شوال',
+    'ذو القعدة',
+    'ذو الحجة',
+  ];
+
+  // Islamic Months in Hindi
+  static const List<String> islamicMonthsHindi = [
+    'मुहर्रम',
+    'सफर',
+    'रबी अल-अव्वल',
+    'रबी अल-थानी',
+    'जुमादा अल-अव्वल',
+    'जुमादा अल-थानी',
+    'रजब',
+    'शाबान',
+    'रमज़ान',
+    'शव्वाल',
+    'ज़ुल क़ादा',
+    'ज़ुल हिज्जा',
+  ];
+
   // Days of Week
   static const List<String> daysOfWeek = [
     'Sunday',
@@ -194,6 +226,50 @@ class AppStrings {
     'جمعرات',
     'جمعہ',
     'ہفتہ',
+  ];
+
+  // Days of Week in Arabic
+  static const List<String> daysOfWeekArabic = [
+    'الأحد',
+    'الإثنين',
+    'الثلاثاء',
+    'الأربعاء',
+    'الخميس',
+    'الجمعة',
+    'السبت',
+  ];
+
+  // Days of Week Short in Arabic
+  static const List<String> daysOfWeekShortArabic = [
+    'أحد',
+    'إثنين',
+    'ثلاثاء',
+    'أربعاء',
+    'خميس',
+    'جمعة',
+    'سبت',
+  ];
+
+  // Days of Week in Hindi
+  static const List<String> daysOfWeekHindi = [
+    'रविवार',
+    'सोमवार',
+    'मंगलवार',
+    'बुधवार',
+    'गुरुवार',
+    'शुक्रवार',
+    'शनिवार',
+  ];
+
+  // Days of Week Short in Hindi
+  static const List<String> daysOfWeekShortHindi = [
+    'रवि',
+    'सोम',
+    'मंगल',
+    'बुध',
+    'गुरु',
+    'शुक्र',
+    'शनि',
   ];
 
   // Urdu numerals
@@ -233,6 +309,38 @@ class AppStrings {
     'اکتوبر',
     'نومبر',
     'دسمبر',
+  ];
+
+  // Gregorian months in Arabic
+  static const List<String> gregorianMonthsArabic = [
+    'يناير',
+    'فبراير',
+    'مارس',
+    'أبريل',
+    'مايو',
+    'يونيو',
+    'يوليو',
+    'أغسطس',
+    'سبتمبر',
+    'أكتوبر',
+    'نوفمبر',
+    'ديسمبر',
+  ];
+
+  // Gregorian months in Hindi
+  static const List<String> gregorianMonthsHindi = [
+    'जनवरी',
+    'फ़रवरी',
+    'मार्च',
+    'अप्रैल',
+    'मई',
+    'जून',
+    'जुलाई',
+    'अगस्त',
+    'सितंबर',
+    'अक्टूबर',
+    'नवंबर',
+    'दिसंबर',
   ];
 
   // Search Strings

@@ -6,21 +6,15 @@ import '../data/models/hadith_model.dart';
 import '../services/translation_service.dart';
 
 // Hadith Language enum
-enum HadithLanguage { english, urdu, hindi }
+enum HadithLanguage { english, urdu, hindi, arabic }
 
 // Hadith Collection enum
-enum HadithCollection {
-  bukhari,
-  muslim,
-  nasai,
-  abudawud,
-  tirmidhi,
-  ibnmajah,
-}
+enum HadithCollection { bukhari, muslim, nasai, abudawud, tirmidhi, ibnmajah }
 
 class HadithProvider with ChangeNotifier {
   // API base URLs
-  static const String _hadithApiUrl = 'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1';
+  static const String _hadithApiUrl =
+      'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1';
 
   // Saved preferences keys
   static const String _favoritesKey = 'hadith_favorites';
@@ -58,7 +52,8 @@ class HadithProvider with ChangeNotifier {
       compilerArabic: 'الإمام محمد البخاري',
       totalHadith: 7563,
       totalBooks: 96,
-      description: 'Sahih al-Bukhari is considered the most authentic collection of Hadith. Imam Bukhari spent 16 years compiling it.',
+      description:
+          'Sahih al-Bukhari is considered the most authentic collection of Hadith. Imam Bukhari spent 16 years compiling it.',
     ),
     HadithCollection.muslim: HadithCollectionInfo(
       id: 'muslim',
@@ -68,7 +63,8 @@ class HadithProvider with ChangeNotifier {
       compilerArabic: 'الإمام مسلم بن الحجاج',
       totalHadith: 7500,
       totalBooks: 56,
-      description: 'Sahih Muslim is the second most authentic collection of Hadith after Sahih Bukhari.',
+      description:
+          'Sahih Muslim is the second most authentic collection of Hadith after Sahih Bukhari.',
     ),
     HadithCollection.nasai: HadithCollectionInfo(
       id: 'nasai',
@@ -78,7 +74,8 @@ class HadithProvider with ChangeNotifier {
       compilerArabic: 'الإمام أحمد النسائي',
       totalHadith: 5761,
       totalBooks: 38,
-      description: 'Sunan an-Nasai is one of the Kutub al-Sittah (six major hadith collections).',
+      description:
+          'Sunan an-Nasai is one of the Kutub al-Sittah (six major hadith collections).',
     ),
     HadithCollection.abudawud: HadithCollectionInfo(
       id: 'abudawud',
@@ -88,7 +85,8 @@ class HadithProvider with ChangeNotifier {
       compilerArabic: 'الإمام أبو داود',
       totalHadith: 5274,
       totalBooks: 28,
-      description: 'Sunan Abu Dawud is one of the six canonical hadith collections. It contains hadiths on a wide range of Islamic topics.',
+      description:
+          'Sunan Abu Dawud is one of the six canonical hadith collections. It contains hadiths on a wide range of Islamic topics.',
     ),
     HadithCollection.tirmidhi: HadithCollectionInfo(
       id: 'tirmidhi',
@@ -98,7 +96,8 @@ class HadithProvider with ChangeNotifier {
       compilerArabic: 'الإمام الترمذي',
       totalHadith: 3956,
       totalBooks: 33,
-      description: 'Jami at-Tirmidhi is one of the six major hadith collections, known for its unique classifications.',
+      description:
+          'Jami at-Tirmidhi is one of the six major hadith collections, known for its unique classifications.',
     ),
     HadithCollection.ibnmajah: HadithCollectionInfo(
       id: 'ibnmajah',
@@ -108,7 +107,8 @@ class HadithProvider with ChangeNotifier {
       compilerArabic: 'الإمام ابن ماجه',
       totalHadith: 4341,
       totalBooks: 37,
-      description: 'Sunan Ibn Majah is one of the six major hadith collections.',
+      description:
+          'Sunan Ibn Majah is one of the six major hadith collections.',
     ),
   };
 
@@ -117,6 +117,7 @@ class HadithProvider with ChangeNotifier {
     HadithLanguage.english: 'English',
     HadithLanguage.urdu: 'اردو',
     HadithLanguage.hindi: 'हिंदी',
+    HadithLanguage.arabic: 'العربية',
   };
 
   // Initialize
@@ -141,6 +142,28 @@ class HadithProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Error loading hadith preferences: $e');
+    }
+  }
+
+  // Sync hadith language with app language
+  void syncWithAppLanguage(String appLanguageCode) {
+    HadithLanguage newLanguage;
+    switch (appLanguageCode) {
+      case 'ur':
+        newLanguage = HadithLanguage.urdu;
+        break;
+      case 'hi':
+        newLanguage = HadithLanguage.hindi;
+        break;
+      case 'ar':
+        newLanguage = HadithLanguage.arabic;
+        break;
+      default:
+        newLanguage = HadithLanguage.english;
+    }
+
+    if (_selectedLanguage != newLanguage) {
+      setLanguage(newLanguage);
     }
   }
 
@@ -199,7 +222,10 @@ class HadithProvider with ChangeNotifier {
   }
 
   // Fetch hadiths for a chapter
-  Future<void> fetchChapterHadiths(HadithCollection collection, int chapter) async {
+  Future<void> fetchChapterHadiths(
+    HadithCollection collection,
+    int chapter,
+  ) async {
     _isLoading = true;
     _error = null;
     _currentCollection = collection;
@@ -213,8 +239,10 @@ class HadithProvider with ChangeNotifier {
       // For Urdu, we fetch Urdu directly
       final langCode = _selectedLanguage == HadithLanguage.urdu ? 'urd' : 'eng';
 
-      final url = '$_hadithApiUrl/editions/$langCode-$collectionId/sections/$chapter.json';
-      final arabicUrl = '$_hadithApiUrl/editions/ara-$collectionId/sections/$chapter.json';
+      final url =
+          '$_hadithApiUrl/editions/$langCode-$collectionId/sections/$chapter.json';
+      final arabicUrl =
+          '$_hadithApiUrl/editions/ara-$collectionId/sections/$chapter.json';
 
       debugPrint('Fetching hadiths from: $url');
 
@@ -232,7 +260,8 @@ class HadithProvider with ChangeNotifier {
             for (var hadith in arabicData['hadiths']) {
               final hadithNum = hadith['hadithnumber'];
               if (hadithNum != null) {
-                arabicTexts[hadithNum.toString()] = hadith['text']?.toString() ?? '';
+                arabicTexts[hadithNum.toString()] =
+                    hadith['text']?.toString() ?? '';
               }
             }
           }
@@ -262,19 +291,28 @@ class HadithProvider with ChangeNotifier {
                   }
                 }
 
-                final hadithNumInt = hadithNum is int ? hadithNum : int.tryParse(hadithNum.toString()) ?? 0;
+                final hadithNumInt = hadithNum is int
+                    ? hadithNum
+                    : int.tryParse(hadithNum.toString()) ?? 0;
 
-                hadithsList.add(HadithModel(
-                  id: hadithNumInt,
-                  hadithNumber: hadithNum.toString(),
-                  arabic: arabicTexts[hadithNum.toString()] ?? '',
-                  english: (_selectedLanguage == HadithLanguage.english || _selectedLanguage == HadithLanguage.hindi) ? text : '',
-                  urdu: _selectedLanguage == HadithLanguage.urdu ? text : '',
-                  narrator: _extractNarrator(text),
-                  grade: grade,
-                  reference: '${collectionInfo[collection]!.name}, Book $chapter, Hadith $hadithNum',
-                  isFavorite: _favorites.contains('$collectionId:$hadithNum'),
-                ));
+                hadithsList.add(
+                  HadithModel(
+                    id: hadithNumInt,
+                    hadithNumber: hadithNum.toString(),
+                    arabic: arabicTexts[hadithNum.toString()] ?? '',
+                    english:
+                        (_selectedLanguage == HadithLanguage.english ||
+                            _selectedLanguage == HadithLanguage.hindi)
+                        ? text
+                        : '',
+                    urdu: _selectedLanguage == HadithLanguage.urdu ? text : '',
+                    narrator: _extractNarrator(text),
+                    grade: grade,
+                    reference:
+                        '${collectionInfo[collection]!.name}, Book $chapter, Hadith $hadithNum',
+                    isFavorite: _favorites.contains('$collectionId:$hadithNum'),
+                  ),
+                );
               } catch (e) {
                 debugPrint('Error parsing hadith: $e');
               }
@@ -314,22 +352,34 @@ class HadithProvider with ChangeNotifier {
     for (final hadith in hadiths) {
       if (hadith.english.isNotEmpty && hadith.hindi.isEmpty) {
         try {
-          final hindiText = await TranslationService.translateToHindi(hadith.english);
+          final hindiText = await TranslationService.translateToHindi(
+            hadith.english,
+          );
           // Find the hadith in current list by hadith number and update it
-          final index = _currentHadiths.indexWhere((h) => h.hadithNumber == hadith.hadithNumber);
+          final index = _currentHadiths.indexWhere(
+            (h) => h.hadithNumber == hadith.hadithNumber,
+          );
           if (index != -1 && index < _currentHadiths.length) {
-            _currentHadiths[index] = _currentHadiths[index].copyWith(hindi: hindiText);
+            _currentHadiths[index] = _currentHadiths[index].copyWith(
+              hindi: hindiText,
+            );
             notifyListeners();
           }
         } catch (e) {
-          debugPrint('Hindi translation error for hadith ${hadith.hadithNumber}: $e');
+          debugPrint(
+            'Hindi translation error for hadith ${hadith.hadithNumber}: $e',
+          );
         }
       }
     }
   }
 
   // Fetch all hadiths for a collection (paginated)
-  Future<void> fetchAllHadiths(HadithCollection collection, {int page = 1, int limit = 50}) async {
+  Future<void> fetchAllHadiths(
+    HadithCollection collection, {
+    int page = 1,
+    int limit = 50,
+  }) async {
     _isLoading = true;
     _error = null;
     _currentCollection = collection;
@@ -349,7 +399,9 @@ class HadithProvider with ChangeNotifier {
 
       // Fetch hadiths
       final response = await http.get(
-        Uri.parse('$_hadithApiUrl/editions/$langCode-$collectionId/$start-$end.json'),
+        Uri.parse(
+          '$_hadithApiUrl/editions/$langCode-$collectionId/$start-$end.json',
+        ),
       );
 
       // Also fetch Arabic text
@@ -387,17 +439,24 @@ class HadithProvider with ChangeNotifier {
               }
             }
 
-            final hadithNumInt = hadithNum is int ? hadithNum : int.tryParse(hadithNum.toString()) ?? 0;
+            final hadithNumInt = hadithNum is int
+                ? hadithNum
+                : int.tryParse(hadithNum.toString()) ?? 0;
 
             return HadithModel(
               id: hadithNumInt,
               hadithNumber: hadithNum.toString(),
               arabic: arabicTexts[hadithNum.toString()] ?? '',
-              english: (_selectedLanguage == HadithLanguage.english || _selectedLanguage == HadithLanguage.hindi) ? text : '',
+              english:
+                  (_selectedLanguage == HadithLanguage.english ||
+                      _selectedLanguage == HadithLanguage.hindi)
+                  ? text
+                  : '',
               urdu: _selectedLanguage == HadithLanguage.urdu ? text : '',
               narrator: _extractNarrator(text),
               grade: grade,
-              reference: '${collectionInfo[collection]!.name}, Hadith $hadithNum',
+              reference:
+                  '${collectionInfo[collection]!.name}, Hadith $hadithNum',
               isFavorite: _favorites.contains('$collectionId:$hadithNum'),
             );
           }).toList();
@@ -444,7 +503,10 @@ class HadithProvider with ChangeNotifier {
       }
 
       // Check for Abu pattern separately (no capturing group)
-      final abuPattern = RegExp(r'^(Abu\s+\w+)\s+reported:', caseSensitive: false);
+      final abuPattern = RegExp(
+        r'^(Abu\s+\w+)\s+reported:',
+        caseSensitive: false,
+      );
       final abuMatch = abuPattern.firstMatch(text);
       if (abuMatch != null && abuMatch.groupCount >= 1) {
         final narrator = abuMatch.group(1);
@@ -460,7 +522,10 @@ class HadithProvider with ChangeNotifier {
   }
 
   // Toggle favorite
-  Future<void> toggleFavorite(HadithCollection collection, String hadithNumber) async {
+  Future<void> toggleFavorite(
+    HadithCollection collection,
+    String hadithNumber,
+  ) async {
     final collectionId = collectionInfo[collection]!.id;
     final key = '$collectionId:$hadithNumber';
 

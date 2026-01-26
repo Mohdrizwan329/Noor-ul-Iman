@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
+import '../../core/utils/hadith_reference_translator.dart';
 import '../../data/models/hadith_model.dart';
+import '../../providers/language_provider.dart';
 
 class HadithScreen extends StatefulWidget {
   const HadithScreen({super.key});
@@ -12,13 +17,13 @@ class HadithScreen extends StatefulWidget {
 }
 
 class _HadithScreenState extends State<HadithScreen> {
-  String _selectedBook = 'Sahih Bukhari';
+  String _selectedBook = 'sahih_bukhari';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hadith Collection'),
+        title: Text(context.tr('hadith_collection')),
       ),
       body: Column(
         children: [
@@ -36,27 +41,29 @@ class _HadithScreenState extends State<HadithScreen> {
 
   Widget _buildBookSelector() {
     final books = [
-      'Sahih Bukhari',
-      'Sahih Muslim',
-      'Sunan Abu Dawud',
-      'Jami at-Tirmidhi',
+      'sahih_bukhari',
+      'sahih_muslim',
+      'sunan_abu_dawud',
+      'jami_tirmidhi',
     ];
 
+    final responsive = context.responsive;
+
     return Container(
-      height: 60,
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      height: responsive.spacing(60),
+      padding: responsive.paddingSymmetric(vertical: 8),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: responsive.paddingSymmetric(horizontal: 12),
         itemCount: books.length,
         itemBuilder: (context, index) {
           final book = books[index];
           final isSelected = book == _selectedBook;
 
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: responsive.paddingSymmetric(horizontal: 4),
             child: ChoiceChip(
-              label: Text(book),
+              label: Text(context.tr(book)),
               selected: isSelected,
               onSelected: (selected) {
                 if (selected) {
@@ -67,6 +74,7 @@ class _HadithScreenState extends State<HadithScreen> {
               },
               selectedColor: AppColors.primary,
               labelStyle: TextStyle(
+                fontSize: responsive.textMedium,
                 color: isSelected ? Colors.white : AppColors.textPrimary,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
@@ -80,8 +88,10 @@ class _HadithScreenState extends State<HadithScreen> {
   Widget _buildHadithList() {
     final hadiths = _getHadithsForBook(_selectedBook);
 
+    final responsive = context.responsive;
+
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: responsive.paddingAll(16),
       itemCount: hadiths.length,
       itemBuilder: (context, index) {
         return _HadithCard(hadith: hadiths[index]);
@@ -92,11 +102,11 @@ class _HadithScreenState extends State<HadithScreen> {
   List<HadithModel> _getHadithsForBook(String book) {
     // Sample Hadiths - In production, this would come from local JSON or API
     switch (book) {
-      case 'Sahih Bukhari':
+      case 'sahih_bukhari':
         return _bukhariHadiths;
-      case 'Sahih Muslim':
+      case 'sahih_muslim':
         return _muslimHadiths;
-      case 'Sunan Abu Dawud':
+      case 'sunan_abu_dawud':
         return _abuDawudHadiths;
       default:
         return _tirmidhiHadiths;
@@ -111,16 +121,18 @@ class _HadithCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: responsive.paddingOnly(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
           ),
         ],
       ),
@@ -129,40 +141,40 @@ class _HadithCard extends StatelessWidget {
         children: [
           // Header
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: responsive.paddingAll(12),
             decoration: BoxDecoration(
               color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(responsive.radiusLarge),
               ),
             ),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
+                  padding: responsive.paddingSymmetric(
                     horizontal: 10,
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(responsive.radiusMedium),
                   ),
                   child: Text(
                     '#${hadith.hadithNumber}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
-                      fontSize: 12,
+                      fontSize: responsive.textSmall,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: responsive.spaceSmall),
                 Expanded(
                   child: Text(
                     hadith.narrator,
                     style: TextStyle(
                       color: AppColors.textSecondary,
-                      fontSize: 12,
+                      fontSize: responsive.textSmall,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -170,19 +182,19 @@ class _HadithCard extends StatelessWidget {
                 ),
                 if (hadith.grade.isNotEmpty)
                   Container(
-                    padding: const EdgeInsets.symmetric(
+                    padding: responsive.paddingSymmetric(
                       horizontal: 8,
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
                       color: _getGradeColor(hadith.grade),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(responsive.radiusSmall),
                     ),
                     child: Text(
                       hadith.grade,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 10,
+                        fontSize: responsive.textXSmall,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -193,7 +205,7 @@ class _HadithCard extends StatelessWidget {
 
           // Content
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: responsive.paddingAll(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -201,8 +213,8 @@ class _HadithCard extends StatelessWidget {
                 if (hadith.arabic.isNotEmpty) ...[
                   Text(
                     hadith.arabic,
-                    style: const TextStyle(
-                      fontSize: 20,
+                    style: TextStyle(
+                      fontSize: responsive.textLarge,
                       fontFamily: 'Amiri',
                       height: 2,
                       color: AppColors.arabicText,
@@ -210,25 +222,25 @@ class _HadithCard extends StatelessWidget {
                     textAlign: TextAlign.right,
                     textDirection: TextDirection.rtl,
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: responsive.spaceRegular),
                 ],
 
                 // English Translation
                 Text(
                   hadith.english,
-                  style: const TextStyle(
-                    fontSize: 14,
+                  style: TextStyle(
+                    fontSize: responsive.textMedium,
                     height: 1.6,
                   ),
                 ),
 
                 // Reference
                 if (hadith.reference.isNotEmpty) ...[
-                  const SizedBox(height: 12),
+                  SizedBox(height: responsive.spaceMedium),
                   Text(
-                    '— ${hadith.reference}',
+                    '— ${translateHadithReference(context, hadith.reference)}',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: responsive.textSmall,
                       color: AppColors.textHint,
                       fontStyle: FontStyle.italic,
                     ),
@@ -240,7 +252,7 @@ class _HadithCard extends StatelessWidget {
 
           // Actions
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: responsive.paddingSymmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               border: Border(
                 top: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
@@ -250,21 +262,53 @@ class _HadithCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.copy, size: 20),
+                  icon: Icon(Icons.copy, size: responsive.iconSmall),
                   onPressed: () {
+                    final langCode = context.read<LanguageProvider>().languageCode;
+                    String translation;
+                    switch (langCode) {
+                      case 'ur':
+                        translation = hadith.urdu.isNotEmpty ? hadith.urdu : hadith.english;
+                        break;
+                      case 'hi':
+                        translation = hadith.hindi.isNotEmpty ? hadith.hindi : hadith.english;
+                        break;
+                      case 'ar':
+                        translation = hadith.arabic;
+                        break;
+                      default:
+                        translation = hadith.english;
+                    }
+                    final translatedRef = translateHadithReference(context, hadith.reference);
                     Clipboard.setData(ClipboardData(
-                      text: '${hadith.arabic}\n\n${hadith.english}\n\n— ${hadith.reference}',
+                      text: '${hadith.arabic}\n\n$translation\n\n— $translatedRef',
                     ));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Copied to clipboard')),
+                      SnackBar(content: Text(context.tr('copied'))),
                     );
                   },
                 ),
                 IconButton(
-                  icon: const Icon(Icons.share, size: 20),
+                  icon: Icon(Icons.share, size: responsive.iconSmall),
                   onPressed: () {
+                    final langCode = context.read<LanguageProvider>().languageCode;
+                    String translation;
+                    switch (langCode) {
+                      case 'ur':
+                        translation = hadith.urdu.isNotEmpty ? hadith.urdu : hadith.english;
+                        break;
+                      case 'hi':
+                        translation = hadith.hindi.isNotEmpty ? hadith.hindi : hadith.english;
+                        break;
+                      case 'ar':
+                        translation = hadith.arabic;
+                        break;
+                      default:
+                        translation = hadith.english;
+                    }
+                    final translatedRef = translateHadithReference(context, hadith.reference);
                     Share.share(
-                      '${hadith.arabic}\n\n${hadith.english}\n\n— ${hadith.reference}',
+                      '${hadith.arabic}\n\n$translation\n\n— $translatedRef',
                     );
                   },
                 ),

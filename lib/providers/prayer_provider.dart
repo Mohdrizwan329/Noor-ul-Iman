@@ -16,7 +16,7 @@ class PrayerProvider with ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   Position? _currentPosition;
-  int _calculationMethod = 1; // Default: Karachi
+  int _calculationMethod = 1; // Default: india
   Timer? _countdownTimer;
 
   // Getters
@@ -98,8 +98,9 @@ class PrayerProvider with ChangeNotifier {
     if (_todayPrayerTimes == null) return;
 
     _nextPrayer = _prayerTimeService.getNextPrayer(_todayPrayerTimes!);
-    _timeUntilNextPrayer =
-        _prayerTimeService.getTimeUntilNextPrayer(_todayPrayerTimes!);
+    _timeUntilNextPrayer = _prayerTimeService.getTimeUntilNextPrayer(
+      _todayPrayerTimes!,
+    );
     notifyListeners();
   }
 

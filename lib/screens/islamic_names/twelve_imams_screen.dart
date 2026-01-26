@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/language_provider.dart';
+import '../../widgets/common/search_bar_widget.dart';
 import 'islamic_name_detail_screen.dart';
 
 class TwelveImamsScreen extends StatefulWidget {
@@ -23,6 +27,8 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
       'titleUrdu': 'امیر المومنین',
       'titleHindi': 'अमीरुल मोमिनीन',
       'kunya': 'Abu al-Hasan',
+      'kunyaUrdu': 'ابو الحسن',
+      'kunyaHindi': 'अबू अल-हसन',
       'description':
           'Imam Ali (AS) was the cousin and son-in-law of Prophet Muhammad ﷺ, married to Fatimah Az-Zahra. He was the first male to accept Islam and was known as Asadullah (Lion of Allah) for his bravery. The Prophet said "I am the city of knowledge and Ali is its gate." He was the fourth Caliph and is renowned for his wisdom, justice, eloquence, and piety. His sermons are compiled in Nahj al-Balagha.',
       'descriptionUrdu':
@@ -47,6 +53,8 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
       'titleUrdu': 'المجتبیٰ (منتخب)',
       'titleHindi': 'अल-मुजतबा (चुना हुआ)',
       'kunya': 'Abu Muhammad',
+      'kunyaUrdu': 'ابو محمد',
+      'kunyaHindi': 'अबू मुहम्मद',
       'description':
           'Imam Hasan (AS) was the elder grandson of Prophet Muhammad ﷺ and son of Ali and Fatimah. The Prophet called him and his brother "leaders of the youth of Paradise." He was known for his generosity, piety, and resemblance to the Prophet. He made peace with Muawiyah to prevent Muslim bloodshed, fulfilling a prophecy of the Prophet about him bringing peace between two groups.',
       'descriptionUrdu':
@@ -71,6 +79,8 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
       'titleUrdu': 'سید الشہداء',
       'titleHindi': 'सय्यिदुश्शुहदा',
       'kunya': 'Abu Abdullah',
+      'kunyaUrdu': 'ابو عبداللہ',
+      'kunyaHindi': 'अबू अब्दुल्लाह',
       'description':
           'Imam Husayn (AS) was the younger grandson of Prophet Muhammad ﷺ. The Prophet said "Husayn is from me and I am from Husayn." He stood against tyranny at Karbala in 680 CE, refusing to give allegiance to Yazid. He and 72 companions were martyred on the 10th of Muharram (Ashura). His sacrifice is commemorated as a symbol of standing for truth against oppression.',
       'descriptionUrdu':
@@ -95,6 +105,8 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
       'titleUrdu': 'زین العابدین (عبادت گزاروں کا زیور)',
       'titleHindi': 'ज़ैनुल आबिदीन (इबादत करने वालों का ज़ेवर)',
       'kunya': 'Abu Muhammad',
+      'kunyaUrdu': 'ابو محمد',
+      'kunyaHindi': 'अबू मुहम्मद',
       'description':
           'Imam Zayn al-Abidin (AS) was the son of Husayn and survived Karbala due to illness. He was known for his exceptional worship, often called "Sajjad" (the one who prostrates much). He spent nights in prayer and was extremely generous to the poor, secretly delivering food at night. His supplications are compiled in "Sahifa Sajjadiyya," considered a masterpiece of Islamic spirituality.',
       'descriptionUrdu':
@@ -119,6 +131,8 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
       'titleUrdu': 'الباقر (علم کو کھولنے والے)',
       'titleHindi': 'अल-बाक़िर (इल्म को खोलने वाले)',
       'kunya': 'Abu Ja\'far',
+      'kunyaUrdu': 'ابو جعفر',
+      'kunyaHindi': 'अबू जाफ़र',
       'description':
           'Imam Muhammad al-Baqir (AS) was given his title because he "split open" knowledge - making it accessible. He was a great scholar who taught many students including the founders of Islamic schools of thought. He explained complex theological and legal matters and is credited with establishing many principles of Islamic jurisprudence. His teachings spread far and wide during a relatively peaceful period.',
       'descriptionUrdu':
@@ -143,6 +157,8 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
       'titleUrdu': 'الصادق (سچے)',
       'titleHindi': 'अस-सादिक़ (सच्चे)',
       'kunya': 'Abu Abdullah',
+      'kunyaUrdu': 'ابو عبداللہ',
+      'kunyaHindi': 'अबू अब्दुल्लाह',
       'description':
           'Imam Ja\'far al-Sadiq (AS) was one of the most influential Islamic scholars. He taught thousands of students including Abu Hanifa and Malik ibn Anas (founders of Sunni schools). He made significant contributions to theology, jurisprudence, and sciences including chemistry. The Ja\'fari school of jurisprudence is named after him. He lived during a transition period between Umayyad and Abbasid rule.',
       'descriptionUrdu':
@@ -168,6 +184,8 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
       'titleUrdu': 'الکاظم (غصہ پینے والے)',
       'titleHindi': 'अल-काज़िम (ग़ुस्सा पीने वाले)',
       'kunya': 'Abu al-Hasan',
+      'kunyaUrdu': 'ابو الحسن',
+      'kunyaHindi': 'अबू अल-हसन',
       'description':
           'Imam Musa al-Kazim (AS) was known for his patience, forbearance, and suppression of anger, hence his title. He spent many years imprisoned by the Abbasid caliphs but continued teaching. He was known for his night prayers and charitable acts. He would secretly help the poor of Madinah. He was poisoned in prison in Baghdad and is buried in Kadhimiya.',
       'descriptionUrdu':
@@ -192,6 +210,8 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
       'titleUrdu': 'الرضا (پسندیدہ)',
       'titleHindi': 'अर-रिज़ा (पसंदीदा)',
       'kunya': 'Abu al-Hasan',
+      'kunyaUrdu': 'ابو الحسن',
+      'kunyaHindi': 'अबू अल-हसन',
       'description':
           'Imam Ali al-Rida (AS) was appointed as heir to Caliph Ma\'mun but was poisoned before ascending. He was known for his debates with scholars of different religions and his vast knowledge. He authored works on medicine and jurisprudence. His shrine in Mashhad, Iran is one of the largest in the world and visited by millions annually. He is known for his kindness and wisdom.',
       'descriptionUrdu':
@@ -216,6 +236,8 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
       'titleUrdu': 'الجواد (سخی)',
       'titleHindi': 'अल-जवाद (सख़ी)',
       'kunya': 'Abu Ja\'far',
+      'kunyaUrdu': 'ابو جعفر',
+      'kunyaHindi': 'अबू जाफ़र',
       'description':
           'Imam Muhammad al-Jawad (AS) became Imam at age 7, the youngest of the Imams. Despite his young age, he displayed remarkable knowledge, debating scholars in Ma\'mun\'s court. He was known for his generosity, giving away whatever he had. He married Ma\'mun\'s daughter but was later poisoned in Baghdad at age 25. He is buried near his grandfather in Kadhimiya.',
       'descriptionUrdu':
@@ -241,6 +263,8 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
       'titleUrdu': 'الہادی (ہدایت دینے والے)',
       'titleHindi': 'अल-हादी (हिदायत देने वाले)',
       'kunya': 'Abu al-Hasan',
+      'kunyaUrdu': 'ابو الحسن',
+      'kunyaHindi': 'अबू अल-हसन',
       'description':
           'Imam Ali al-Hadi (AS) became Imam at age 8 after his father\'s martyrdom. He spent most of his life under surveillance in Samarra by Abbasid caliphs. Despite restrictions, he continued guiding the community through representatives. He established the system of deputyship that would later be important. He is known for the Ziyarat al-Jami\'a, a comprehensive visitation prayer for the Prophet\'s family.',
       'descriptionUrdu':
@@ -265,6 +289,8 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
       'titleUrdu': 'العسکری (فوجی چھاؤنی والے)',
       'titleHindi': 'अल-अस्करी (फ़ौजी छावनी वाले)',
       'kunya': 'Abu Muhammad',
+      'kunyaUrdu': 'ابو محمد',
+      'kunyaHindi': 'अबू मुहम्मद',
       'description':
           'Imam Hasan al-Askari (AS) was named "al-Askari" because he lived in Samarra, a military garrison city, under house arrest. He had limited contact with his followers but maintained guidance through representatives. He is the father of the 12th Imam. He was poisoned at age 28 and is buried alongside his father in Samarra. His shrine is a major pilgrimage site.',
       'descriptionUrdu':
@@ -290,6 +316,8 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
       'titleUrdu': 'المہدی (ہدایت یافتہ)',
       'titleHindi': 'अल-महदी (हिदायत याफ़्ता)',
       'kunya': 'Abu al-Qasim',
+      'kunyaUrdu': 'ابو القاسم',
+      'kunyaHindi': 'अबू अल-क़ासिम',
       'description':
           'Imam Muhammad al-Mahdi (AS) is believed to be in occultation since 874 CE. He is awaited as the one who will return with Prophet Isa (Jesus) to establish justice on Earth. During the Minor Occultation (874-941 CE), he communicated through deputies. Now in Major Occultation, believers await his return. He is also called Sahib al-Zaman (Master of the Age) and his return is anticipated across Islamic traditions.',
       'descriptionUrdu':
@@ -312,7 +340,11 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
     super.initState();
     _filteredNames = _imamNames;
     _searchController.addListener(_filterNames);
+
+    // Listen to language changes to force rebuild
   }
+
+  @override
 
   @override
   void dispose() {
@@ -340,88 +372,117 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
     });
   }
 
+  String _transliterateToHindi(String text) {
+    final Map<String, String> map = {
+      'Ali ibn Abi Talib': 'अली बिन अबी तालिब',
+      'Hasan ibn Ali': 'हसन बिन अली',
+      'Husayn ibn Ali': 'हुसैन बिन अली',
+      'Ali ibn Husayn': 'अली बिन हुसैन',
+      'Muhammad ibn Ali': 'मुहम्मद बिन अली',
+      'Ja\'far ibn Muhammad': 'जाफ़र बिन मुहम्मद',
+      'Musa ibn Ja\'far': 'मूसा बिन जाफ़र',
+      'Ali ibn Musa': 'अली बिन मूसा',
+      'Ali ibn Muhammad': 'अली बिन मुहम्मद',
+      'Muhammad ibn Hasan': 'मुहम्मद बिन हसन',
+    };
+    return map[text] ?? text;
+  }
+
+  String _transliterateToUrdu(String text) {
+    final Map<String, String> map = {
+      'Ali ibn Abi Talib': 'علی بن ابی طالب',
+      'Hasan ibn Ali': 'حسن بن علی',
+      'Husayn ibn Ali': 'حسین بن علی',
+      'Ali ibn Husayn': 'علی بن حسین',
+      'Muhammad ibn Ali': 'محمد بن علی',
+      'Ja\'far ibn Muhammad': 'جعفر بن محمد',
+      'Musa ibn Ja\'far': 'موسیٰ بن جعفر',
+      'Ali ibn Musa': 'علی بن موسیٰ',
+      'Ali ibn Muhammad': 'علی بن محمد',
+      'Muhammad ibn Hasan': 'محمد بن حسن',
+    };
+    return map[text] ?? text;
+  }
+
+  String _getDisplayName(Map<String, dynamic> name, String languageCode) {
+    final transliteration = name['transliteration']!;
+
+    switch (languageCode) {
+      case 'ar':
+        return name['name']!;
+      case 'ur':
+        return _transliterateToUrdu(transliteration);
+      case 'hi':
+        return _transliterateToHindi(transliteration);
+      case 'en':
+      default:
+        return transliteration;
+    }
+  }
+
+  String _getDisplayTitle(Map<String, dynamic> name, String languageCode) {
+    switch (languageCode) {
+      case 'ar':
+        return name['titleUrdu'] ?? name['title']!;
+      case 'ur':
+        return name['titleUrdu'] ?? name['title']!;
+      case 'hi':
+        return name['titleHindi'] ?? name['title']!;
+      case 'en':
+      default:
+        return name['title']!;
+    }
+  }
+
+  String _getDisplayKunya(Map<String, dynamic> name, String languageCode) {
+    switch (languageCode) {
+      case 'ar':
+        return name['kunyaUrdu'] ?? name['kunya']!;
+      case 'ur':
+        return name['kunyaUrdu'] ?? name['kunya']!;
+      case 'hi':
+        return name['kunyaHindi'] ?? name['kunya']!;
+      case 'en':
+      default:
+        return name['kunya']!;
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<SettingsProvider>().isDarkMode;
+    final langProvider = context.watch<LanguageProvider>();
+    final responsive = context.responsive;
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text('Twelve Imams'),
+        title: Text(context.tr('twelve_imams')),
       ),
       body: Column(
         children: [
           // Search Bar
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
+            padding: responsive.paddingRegular,
+            child: SearchBarWidget(
               controller: _searchController,
-              style: TextStyle(
-                color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-              ),
-              decoration: InputDecoration(
-                hintText: 'Search Imams by name or title...',
-                hintStyle: TextStyle(
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.textHint,
-                  fontSize: 14,
-                ),
-                prefixIcon: Icon(
-                  Icons.search_rounded,
-                  color: AppColors.primary,
-                  size: 22,
-                ),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: Icon(
-                          Icons.clear,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
-                        ),
-                        onPressed: () {
-                          _searchController.clear();
-                        },
-                      )
-                    : null,
-                filled: true,
-                fillColor: isDark ? AppColors.darkCard : Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide(
-                    color: isDark ? Colors.grey.shade700 : const Color(0xFF8AAF9A),
-                    width: 1.5,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide(
-                    color: isDark ? Colors.grey.shade700 : const Color(0xFF8AAF9A),
-                    width: 1.5,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide(
-                    color: AppColors.primary,
-                    width: 2,
-                  ),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-              ),
+              hintText: context.tr('search_by_name_meaning'),
+              onClear: () => _searchController.clear(),
+              enableVoiceSearch: true,
             ),
           ),
 
           // Results count
           if (_searchController.text.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: responsive.paddingSymmetric(horizontal: 16),
               child: Text(
-                'Found ${_filteredNames.length} result${_filteredNames.length != 1 ? 's' : ''}',
+                '${context.tr('found')} ${_filteredNames.length} ${_filteredNames.length != 1 ? context.tr('results') : context.tr('result')}',
                 style: TextStyle(
                   color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
-                  fontSize: 12,
+                  fontSize: responsive.textSmall,
                 ),
               ),
             ),
@@ -434,22 +495,22 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
                       children: [
                         Icon(
                           Icons.search_off,
-                          size: 64,
+                          size: responsive.iconXXLarge,
                           color: isDark ? Colors.grey.shade700 : Colors.grey.shade400,
                         ),
-                        const SizedBox(height: 16),
+                        responsive.vSpaceRegular,
                         Text(
-                          'No Imams found',
+                          context.tr('no_imams_found'),
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: responsive.textRegular,
                             color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        responsive.vSpaceSmall,
                         Text(
-                          'Try a different search term',
+                          context.tr('try_different_search'),
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: responsive.textMedium,
                             color: isDark ? Colors.grey.shade600 : Colors.grey.shade500,
                           ),
                         ),
@@ -457,11 +518,24 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                    key: ValueKey(langProvider.languageCode), // Force rebuild when language changes
+                    padding: responsive.paddingRegular,
                     itemCount: _filteredNames.length,
                     itemBuilder: (context, index) {
-                      final originalIndex = _imamNames.indexOf(_filteredNames[index]) + 1;
-                      return _buildNameCard(_filteredNames[index], originalIndex, isDark);
+                      final name = _filteredNames[index];
+                      final originalIndex = _imamNames.indexOf(name) + 1;
+                      final displayName = _getDisplayName(name, langProvider.languageCode);
+                      final displayTitle = _getDisplayTitle(name, langProvider.languageCode);
+                      final displayKunya = _getDisplayKunya(name, langProvider.languageCode);
+                      return _buildNameCard(
+                        name: name,
+                        index: originalIndex,
+                        isDark: isDark,
+                        displayName: displayName,
+                        displayTitle: displayTitle,
+                        displayKunya: displayKunya,
+                        languageCode: langProvider.languageCode,
+                      );
                     },
                   ),
           ),
@@ -470,11 +544,20 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
     );
   }
 
-  Widget _buildNameCard(Map<String, dynamic> name, int index, bool isDark) {
+  Widget _buildNameCard({
+    required Map<String, dynamic> name,
+    required int index,
+    required bool isDark,
+    required String displayName,
+    required String displayTitle,
+    required String displayKunya,
+    required String languageCode,
+  }) {
     const darkGreen = Color(0xFF0A5C36);
     const emeraldGreen = Color(0xFF1E8F5A);
     const lightGreenBorder = Color(0xFF8AAF9A);
     const softGold = Color(0xFFC9A24D);
+    final responsive = context.responsive;
 
     return GestureDetector(
       onTap: () {
@@ -511,10 +594,10 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
         );
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
+        margin: responsive.paddingOnly(bottom: 10),
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkCard : Colors.white,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(responsive.radiusLarge),
           border: Border.all(
             color: isDark ? Colors.grey.shade700 : lightGreenBorder,
             width: 1.5,
@@ -524,106 +607,115 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
               : [
                   BoxShadow(
                     color: darkGreen.withValues(alpha: 0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
+                    blurRadius: responsive.spacing(10),
+                    offset: Offset(0, responsive.spacing(2)),
                   ),
                 ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: isDark ? emeraldGreen : darkGreen,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: (isDark ? emeraldGreen : darkGreen).withValues(
-                        alpha: 0.3,
-                      ),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => IslamicNameDetailScreen(
+                  arabicName: name['name']!,
+                  transliteration: name['transliteration']!,
+                  meaning: '${name['title']!} (${name['kunya']!})',
+                  meaningUrdu:
+                      '${name['titleUrdu'] ?? name['title']!} (${name['kunya']!})',
+                  meaningHindi:
+                      '${name['titleHindi'] ?? name['title']!} (${name['kunya']!})',
+                  description: name['description']!,
+                  descriptionUrdu: name['descriptionUrdu'] ?? '',
+                  descriptionHindi: name['descriptionHindi'] ?? '',
+                  category: 'Imam of Ahlul Bayt',
+                  number: index,
+                  icon: Icons.stars,
+                  color: Colors.purple,
+                  fatherName: name['fatherName'],
+                  motherName: name['motherName'],
+                  birthDate: name['birthDate'],
+                  birthPlace: name['birthPlace'],
+                  deathDate: name['deathDate'],
+                  deathPlace: name['deathPlace'],
+                  spouse: name['spouse'],
+                  children: name['children'],
+                  era: name['era'],
+                  knownFor: name['knownFor'],
                 ),
-                child: Center(
-                  child: Text(
-                    '$index',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+              ),
+            );
+          },
+          borderRadius: BorderRadius.circular(responsive.radiusLarge),
+          child: Padding(
+            padding: responsive.paddingAll(14),
+            child: Row(
+              children: [
+                // Number Badge (circular)
+                Container(
+                  width: responsive.spacing(50),
+                  height: responsive.spacing(50),
+                  decoration: BoxDecoration(
+                    color: isDark ? emeraldGreen : darkGreen,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: (isDark ? emeraldGreen : darkGreen).withValues(
+                          alpha: 0.3,
+                        ),
+                        blurRadius: responsive.spacing(8),
+                        offset: Offset(0, responsive.spacing(2)),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      '$index',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: responsive.textLarge,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name['transliteration']!,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
-                      ),
+                SizedBox(width: responsive.spacing(14)),
+
+                // Imam Name
+                Expanded(
+                  child: Text(
+                    displayName,
+                    style: TextStyle(
+                      fontSize: responsive.textLarge,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                      fontFamily: languageCode == 'ar'
+                          ? 'Amiri'
+                          : (languageCode == 'ur' ? 'NotoNastaliq' : null),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      name['title']!,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? AppColors.secondary : softGold,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.grey.shade800
-                            : const Color(0xFFE8F3ED),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        name['kunya']!,
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          color: isDark
-                              ? AppColors.darkTextSecondary
-                              : emeraldGreen,
-                        ),
-                      ),
-                    ),
-                  ],
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textDirection: (languageCode == 'ar' || languageCode == 'ur')
+                        ? TextDirection.rtl
+                        : TextDirection.ltr,
+                  ),
                 ),
-              ),
-              Text(
-                name['name']!,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontFamily: 'Amiri',
-                  color: isDark ? AppColors.secondary : softGold,
+
+                // Forward Arrow in Circle
+                Container(
+                  padding: responsive.paddingAll(6),
+                  decoration: const BoxDecoration(
+                    color: emeraldGreen,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.white,
+                    size: responsive.iconSmall,
+                  ),
                 ),
-                textDirection: TextDirection.rtl,
-              ),
-              const SizedBox(width: 8),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: isDark ? AppColors.darkTextSecondary : emeraldGreen,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

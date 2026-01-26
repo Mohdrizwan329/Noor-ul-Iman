@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,17 +16,13 @@ class AzanScreen extends StatefulWidget {
 class _AzanScreenState extends State<AzanScreen> {
   String _selectedLanguage = 'english';
 
-  final Map<String, String> _titles = {
-    'english': 'Azan - Complete Guide',
-    'urdu': 'اذان کا طریقہ - مکمل رہنمائی',
-    'hindi': 'अज़ान का तरीक़ा - संपूर्ण मार्गदर्शन',
-  };
-
   final List<Map<String, dynamic>> _sections = [
     {
+      'titleKey': 'azan_1_complete_azan_text',
       'title': 'Complete Azan Text',
       'titleUrdu': 'مکمل اذان',
       'titleHindi': 'मुकम्मल अज़ान',
+      'titleArabic': 'نص الأذان الكامل',
       'icon': Icons.record_voice_over,
       'color': Colors.green,
       'details': {
@@ -193,12 +191,69 @@ As-Salatu khayrum minan-nawm
 अस-सलातु ख़ैरुम मिनन-नौम
 (नमाज़ नींद से बेहतर है)
 (दो बार पढ़ें)''',
+        'arabic': '''نص الأذان الكامل
+
+اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ
+الله أكبر، الله أكبر
+(الله هو الأعظم، الله هو الأعظم)
+
+اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ
+الله أكبر، الله أكبر
+(الله هو الأعظم، الله هو الأعظم)
+
+أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا اللَّهُ
+أشهد أن لا إله إلا الله
+(أشهد أنه لا إله إلا الله)
+
+أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا اللَّهُ
+أشهد أن لا إله إلا الله
+(أشهد أنه لا إله إلا الله)
+
+أَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ اللَّهِ
+أشهد أن محمدًا رسول الله
+(أشهد أن محمدًا رسول الله)
+
+أَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ اللَّهِ
+أشهد أن محمدًا رسول الله
+(أشهد أن محمدًا رسول الله)
+
+حَيَّ عَلَى الصَّلَاةِ
+حي على الصلاة
+(هلموا إلى الصلاة)
+
+حَيَّ عَلَى الصَّلَاةِ
+حي على الصلاة
+(هلموا إلى الصلاة)
+
+حَيَّ عَلَى الْفَلَاحِ
+حي على الفلاح
+(هلموا إلى الفلاح)
+
+حَيَّ عَلَى الْفَلَاحِ
+حي على الفلاح
+(هلموا إلى الفلاح)
+
+اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ
+الله أكبر، الله أكبر
+(الله هو الأعظم، الله هو الأعظم)
+
+لَا إِلَٰهَ إِلَّا اللَّهُ
+لا إله إلا الله
+(لا إله إلا الله)
+
+لأذان الفجر - أضف بعد "حي على الفلاح":
+الصَّلَاةُ خَيْرٌ مِنَ النَّوْمِ
+الصلاة خير من النوم
+(الصلاة خير من النوم)
+(اقرأها مرتين)''',
       },
     },
     {
+      'titleKey': 'azan_2_how_to_give_azan',
       'title': 'How to Give Azan',
       'titleUrdu': 'اذان دینے کا طریقہ',
       'titleHindi': 'अज़ान देने का तरीक़ा',
+      'titleArabic': 'كيفية إقامة الأذان',
       'icon': Icons.school,
       'color': Colors.blue,
       'details': {
@@ -346,12 +401,62 @@ After Azan:
 अज़ान के बाद:
 • अज़ान के बाद की दुआ पढ़ें
 • नमाज़ शुरू करने से ��हले इक़ामत का इंतेज़ार करें''',
+        'arabic': '''كيفية إقامة الأذان - خطوة بخطوة
+
+قبل الأذان:
+١. توضأ (الوضوء)
+٢. استقبل القبلة (اتجاه مكة)
+٣. قف في مكان مرتفع إن أمكن
+٤. ضع أصابع السبابة في أذنيك (سنة)
+
+أثناء الأذان:
+١. ابدأ بالتكبير:
+   • قل "الله أكبر" أربع مرات
+   • كل زوج معًا، ثم توقف
+
+٢. الشهادة - لا إله إلا الله:
+   • أدر رأسك قليلاً إلى اليمين عند قول الشهادة الأولى
+   • قلها مرتين
+
+٣. الشهادة - محمد رسول الله:
+   • قلها مرتين
+
+٤. حي على الصلاة:
+   • أدر رأسك إلى اليمين
+   • قلها مرتين
+
+٥. حي على الفلاح:
+   • أدر رأسك إلى اليسار
+   • قلها مرتين
+
+٦. للفجر فقط:
+   • أضف "الصلاة خير من النوم" مرتين
+   • بعد حي على الفلاح
+
+٧. التكبير الأخير:
+   • "الله أكبر" مرتين
+
+٨. اختم بالتهليل:
+   • "لا إله إلا الله" مرة واحدة
+
+إرشادات الصوت:
+• اقرأ بصوت عالٍ وواضح
+• مد الكلمات بشكل مناسب
+• حافظ على نبرة عذبة ولكن وقورة
+• لا تغني أو تكون موسيقيًا بشكل مفرط
+• توقف قليلاً بين العبارات
+
+بعد الأذان:
+• اقرأ الدعاء بعد الأذان
+• انتظر الإقامة قبل بدء الصلاة''',
       },
     },
     {
+      'titleKey': 'azan_3_iqamah_second_call',
       'title': 'Iqamah (Second Call)',
       'titleUrdu': 'اقامت',
       'titleHindi': 'इक़ामत',
+      'titleArabic': 'الإقامة (النداء الثاني)',
       'icon': Icons.play_arrow,
       'color': Colors.orange,
       'details': {
@@ -502,12 +607,63 @@ When to Give Iqamah:
 • जब जमाअत तैयार हो
 • सफ़ें सीधी करने के बाद
 • इमाम के नमाज़ शुरू करने से बिल्कुल पहले''',
+        'arabic': '''الإقامة - النداء الثاني للصلاة
+
+تُقام الإقامة مباشرة قبل بدء صلاة الجماعة.
+
+الإقامة الكاملة:
+
+اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ
+الله أكبر، الله أكبر
+(الله هو الأعظم، الله هو الأعظم)
+
+أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا اللَّهُ
+أشهد أن لا إله إلا الله
+(أشهد أنه لا إله إلا الله)
+
+أَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ اللَّهِ
+أشهد أن محمدًا رسول الله
+(أشهد أن محمدًا رسول الله)
+
+حَيَّ عَلَى الصَّلَاةِ
+حي على الصلاة
+(هلموا إلى الصلاة)
+
+حَيَّ عَلَى الْفَلَاحِ
+حي على الفلاح
+(هلموا إلى الفلاح)
+
+قَدْ قَامَتِ الصَّلَاةُ قَدْ قَامَتِ الصَّلَاةُ
+قد قامت الصلاة، قد قامت الصلاة
+(قد أقيمت الصلاة، قد أقيمت الصلاة)
+
+اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ
+الله أكبر، الله أكبر
+(الله هو الأعظم، الله هو الأعظم)
+
+لَا إِلَٰهَ إِلَّا اللَّهُ
+لا إله إلا الله
+(لا إله إلا الله)
+
+الفرق عن الأذان:
+• كل عبارة تُقال مرة واحدة (وليس مرتين) ماعدا التكبير
+• تُضاف "قد قامت الصلاة" (مرتين)
+• تُقرأ أسرع من الأذان
+• تُقال بصوت أخفض من الأذان
+• تُقام داخل المسجد
+
+متى تُقام الإقامة:
+• عندما تكون الجماعة مستعدة
+• بعد تسوية الصفوف
+• مباشرة قبل أن يبدأ الإمام الصلاة''',
       },
     },
     {
+      'titleKey': 'azan_4_response_to_azan',
       'title': 'Response to Azan',
       'titleUrdu': 'اذان کا جواب',
       'titleHindi': 'अज़ान का जवाब',
+      'titleArabic': 'الرد على الأذان',
       'icon': Icons.hearing,
       'color': Colors.purple,
       'details': {
@@ -618,12 +774,51 @@ The Prophet ﷺ said: "Whoever says this dua after hearing the Azan, my interces
 
 सवाब:
 नबी करीम ﷺ ने फ़रमाया: "जो शख़्स अज़ान सुनने के बाद यह दुआ पढ़े, क़यामत के दिन उसके लिए मेरी शफ़ाअत यक़ीनी हो गी।" (सहीह बुख़ारी)''',
+        'arabic': '''الرد على الأذان (الدعاء بعد الأذان)
+
+عندما تسمع الأذان:
+
+١. توقف عما تفعل:
+   • استمع باهتمام
+   • يُكره التحدث أثناء الأذان
+
+٢. كرر وراء المؤذن:
+   • قل ما يقوله، ماعدا:
+
+   عندما يقول "حي على الصلاة":
+   قل أنت: "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ"
+   "لا حول ولا قوة إلا بالله"
+   (لا حول ولا قوة إلا بالله)
+
+   عندما يقول "حي على الفلاح":
+   قل أنت: "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ"
+   "لا حول ولا قوة إلا بالله"
+
+   للفجر - عندما يقول "الصلاة خير من النوم":
+   قل أنت: "صَدَقْتَ وَبَرِرْتَ"
+   "صدقت وبررت"
+   (صدقت وبررت)
+
+٣. بعد انتهاء الأذان - قل الصلاة على النبي:
+"اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ"
+
+٤. ثم اقرأ هذا الدعاء:
+"اللَّهُمَّ رَبَّ هَٰذِهِ الدَّعْوَةِ التَّامَّةِ وَالصَّلَاةِ الْقَائِمَةِ آتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ"
+
+"اللهم رب هذه الدعوة التامة والصلاة القائمة آت محمدًا الوسيلة والفضيلة وابعثه مقامًا محمودًا الذي وعدته"
+
+"اللهم يا رب هذه الدعوة الكاملة والصلاة القائمة، أعط محمدًا الوسيلة والفضيلة، وابعثه المقام المحمود الذي وعدته."
+
+الثواب:
+قال النبي ﷺ: "من قال هذا الدعاء بعد سماع الأذان، حلت له شفاعتي يوم القيامة." (صحيح البخاري)''',
       },
     },
     {
+      'titleKey': 'azan_5_virtues_of_azan',
       'title': 'Virtues of Azan',
       'titleUrdu': 'اذان کی فضیلت',
       'titleHindi': 'अज़ान की फ़ज़ीलत',
+      'titleArabic': 'فضائل الأذان',
       'icon': Icons.star,
       'color': Colors.amber,
       'details': {
@@ -720,6 +915,37 @@ Note: Giving Azan is a great honor and responsibility. The Muazzin calls people 
 • जो पाकीज़गी की हालत में हो
 
 नोट: अज़ान देना अज़ीम एज़ाज़ और ज़िम्मेदारी है। मुअज़्ज़िन लोगों को अल्लाह की इबादत की तरफ़ बुलाता है।''',
+        'arabic': '''فضائل وثواب الأذان
+
+١. الشيطان يهرب:
+قال النبي ﷺ: "إذا نودي للصلاة أدبر الشيطان وله ضراط حتى لا يسمع التأذين." (صحيح البخاري)
+
+٢. الشهادة يوم القيامة:
+قال النبي ﷺ: "المؤذنون أطول الناس أعناقًا يوم القيامة." (صحيح مسلم)
+(أي: سيُكرمون ويُميزون)
+
+٣. المغفرة:
+قال النبي ﷺ: "يُغفر للمؤذن مدى صوته، ويصدقه كل رطب ويابس." (سنن النسائي)
+
+٤. الثواب العظيم:
+قال النبي ﷺ: "لو يعلم الناس ما في النداء والصف الأول ثم لم يجدوا إلا أن يستهموا عليه لاستهموا." (صحيح البخاري)
+
+٥. الحماية من النار:
+رُوي أن من أذن اثنتي عشرة سنة وجبت له الجنة.
+
+٦. الظل يوم القيامة:
+المؤذن يكون في ظل عرش الله.
+
+٧. الدعاء مستجاب:
+قال النبي ﷺ: "الدعاء بين الأذان والإقامة لا يُرد." (سنن أبي داود)
+
+من ينبغي أن يؤذن:
+• من له صوت عالٍ وجميل
+• من يعرف أوقات الصلاة
+• شخص موثوق
+• من هو على طهارة
+
+ملاحظة: الأذان شرف عظيم ومسؤولية. المؤذن يدعو الناس إلى عبادة الله.''',
       },
     },
   ];
@@ -740,113 +966,16 @@ Note: Giving Azan is a great honor and responsibility. The Muazzin calls people 
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _titles[_selectedLanguage]!,
-          style: const TextStyle(
+          context.tr('azan'),
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: context.responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 8),
-            child: PopupMenuButton<String>(
-              icon: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.3),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.language, color: Colors.white, size: 18),
-                    const SizedBox(width: 4),
-                    Text(
-                      _selectedLanguage == 'english'
-                          ? 'EN'
-                          : _selectedLanguage == 'urdu'
-                          ? 'UR'
-                          : 'HI',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              onSelected: (value) => setState(() => _selectedLanguage = value),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'english',
-                  child: Row(
-                    children: [
-                      Icon(
-                        _selectedLanguage == 'english'
-                            ? Icons.check_circle
-                            : Icons.circle_outlined,
-                        color: _selectedLanguage == 'english'
-                            ? AppColors.primary
-                            : Colors.grey,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('English'),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'urdu',
-                  child: Row(
-                    children: [
-                      Icon(
-                        _selectedLanguage == 'urdu'
-                            ? Icons.check_circle
-                            : Icons.circle_outlined,
-                        color: _selectedLanguage == 'urdu'
-                            ? AppColors.primary
-                            : Colors.grey,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('اردو'),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'hindi',
-                  child: Row(
-                    children: [
-                      Icon(
-                        _selectedLanguage == 'hindi'
-                            ? Icons.check_circle
-                            : Icons.circle_outlined,
-                        color: _selectedLanguage == 'hindi'
-                            ? AppColors.primary
-                            : Colors.grey,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('हिंदी'),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: context.responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -854,10 +983,8 @@ Note: Giving Azan is a great honor and responsibility. The Muazzin calls people 
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _sections.length,
-              itemBuilder: (context, index) => _buildCard(
-                _sections[index],
-                isDark,
-              ),
+              itemBuilder: (context, index) =>
+                  _buildCard(_sections[index], isDark),
             ),
           ],
         ),
@@ -865,85 +992,134 @@ Note: Giving Azan is a great honor and responsibility. The Muazzin calls people 
     );
   }
 
-  Widget _buildCard(
-    Map<String, dynamic> item,
-    bool isDark,
-  ) {
-    final title = _selectedLanguage == 'english'
-        ? item['title']
-        : _selectedLanguage == 'urdu'
-        ? item['titleUrdu']
-        : item['titleHindi'];
+  Widget _buildCard(Map<String, dynamic> item, bool isDark) {
+    final langCode = context.languageProvider.languageCode;
+    final title = context.tr(item['titleKey'] ?? 'azan');
+    final responsive = context.responsive;
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showDetails(item),
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.lightGreenBorder.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+      margin: responsive.paddingOnly(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: darkGreen.withValues(alpha: 0.08),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () => _showDetails(item),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        child: Padding(
+          padding: responsive.paddingAll(14),
+          child: Row(
+            children: [
+              // Number Badge
+              Container(
+                width: responsive.spacing(50),
+                height: responsive.spacing(50),
+                decoration: BoxDecoration(
+                  color: darkGreen,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: darkGreen.withValues(alpha: 0.3),
+                      blurRadius: responsive.spacing(8),
+                      offset: Offset(0, responsive.spacing(2)),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.15),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    item['icon'] as IconData,
-                    color: AppColors.primary,
-                    size: 26,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
+                child: Center(
                   child: Text(
-                    title,
+                    '${item['number']}',
                     style: TextStyle(
-                      color: isDark ? Colors.white : AppColors.primary,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsive.textLarge,
                     ),
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF1E8F5A),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.white,
-                    size: 14,
-                  ),
+              ),
+              SizedBox(width: responsive.spacing(14)),
+
+              // Title and Icon chip
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: responsive.textLarge,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                      ),
+                      textDirection: langCode == 'ur'
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
+                    ),
+                    SizedBox(height: responsive.spacing(4)),
+                    // Icon chip
+                    Container(
+                      padding: responsive.paddingSymmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F3ED),
+                        borderRadius: BorderRadius.circular(
+                          responsive.radiusSmall,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            item['icon'] as IconData,
+                            size: responsive.textXSmall + 2,
+                            color: emeraldGreen,
+                          ),
+                          SizedBox(width: responsive.spacing(4)),
+                          Text(
+                            context.tr('azan'),
+                            style: TextStyle(
+                              fontSize: responsive.textXSmall,
+                              fontWeight: FontWeight.w600,
+                              color: emeraldGreen,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+
+              // Arrow Icon
+              Container(
+                padding: responsive.paddingAll(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E8F5A),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: responsive.textXSmall + 2,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -956,15 +1132,17 @@ Note: Giving Azan is a great honor and responsibility. The Muazzin calls people 
       context,
       MaterialPageRoute(
         builder: (context) => BasicAmalDetailScreen(
-          title: item['title'],
+          title: item['title'] ?? '',
           titleUrdu: item['titleUrdu'] ?? '',
           titleHindi: item['titleHindi'] ?? '',
+          titleArabic: item['titleArabic'] ?? '',
           contentEnglish: details['english'] ?? '',
           contentUrdu: details['urdu'] ?? '',
           contentHindi: details['hindi'] ?? '',
+          contentArabic: details['arabic'] ?? '',
           color: item['color'] as Color,
           icon: item['icon'] as IconData,
-          category: 'Deen Ki Buniyadi Amal - Azan',
+          categoryKey: 'category_azan',
         ),
       ),
     );

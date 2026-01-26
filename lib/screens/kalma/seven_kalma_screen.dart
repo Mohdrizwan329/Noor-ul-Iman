@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/language_provider.dart';
+import '../../core/utils/localization_helper.dart';
 
 class SevenKalmaScreen extends StatefulWidget {
   const SevenKalmaScreen({super.key});
@@ -11,20 +14,21 @@ class SevenKalmaScreen extends StatefulWidget {
 }
 
 class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
-  String _selectedLanguage = 'urdu';
-
   final List<Map<String, dynamic>> _kalmas = [
     {
       'number': 1,
       'name': 'Kalma Tayyab (First Kalma)',
       'nameUrdu': 'کلمہ طیب (پہلا کلمہ)',
       'nameHindi': 'कलमा तय्यब (पहला कलमा)',
+      'nameArabic': 'كلمة الطيبة (الكلمة الأولى)',
       'arabic': 'لَا إِلٰهَ إِلَّا اللهُ مُحَمَّدٌ رَسُولُ اللهِ',
       'transliteration': 'La ilaha illallahu Muhammadur Rasulullah',
       'translationUrdu':
           'اللہ کے سوا کوئی معبود نہیں، محمد (ﷺ) اللہ کے رسول ہیں۔',
       'translationHindi':
           'अल्लाह के सिवा कोई माबूद नहीं, मुहम्मद (ﷺ) अल्लाह के रसूल हैं।',
+      'translationArabic':
+          'لا إله إلا الله، محمد (ﷺ) رسول الله.',
       'translationEnglish':
           'There is no god but Allah, Muhammad (ﷺ) is the Messenger of Allah.',
       'color': Colors.green,
@@ -34,6 +38,7 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
       'name': 'Kalma Shahadat (Second Kalma)',
       'nameUrdu': 'کلمہ شہادت (دوسرا کلمہ)',
       'nameHindi': 'कलमा शहादत (दूसरा कलमा)',
+      'nameArabic': 'كلمة الشهادة (الكلمة الثانية)',
       'arabic':
           'أَشْهَدُ أَنْ لَا إِلٰهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ',
       'transliteration':
@@ -42,6 +47,8 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
           'میں گواہی دیتا ہوں کہ اللہ کے سوا کوئی معبود نہیں، وہ اکیلا ہے، اس کا کوئی شریک نہیں، اور میں گواہی دیتا ہوں کہ محمد (ﷺ) اللہ کے بندے اور رسول ہیں۔',
       'translationHindi':
           'मैं गवाही देता हूं कि अल्लाह के सिवा कोई माबूद नहीं, वो अकेला है, उसका कोई शरीक नहीं, और मैं गवाही देता हूं कि मुहम्मद (ﷺ) अल्लाह के बंदे और रसूल हैं।',
+      'translationArabic':
+          'أشهد أن لا إله إلا الله وحده لا شريك له، وأشهد أن محمداً (ﷺ) عبده ورسوله.',
       'translationEnglish':
           'I bear witness that there is no god but Allah, alone without partner, and I bear witness that Muhammad (ﷺ) is His servant and Messenger.',
       'color': Colors.blue,
@@ -51,6 +58,7 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
       'name': 'Kalma Tamjeed (Third Kalma)',
       'nameUrdu': 'کلمہ تمجید (تیسرا کلمہ)',
       'nameHindi': 'कलमा तमजीद (तीसरा कलमा)',
+      'nameArabic': 'كلمة التمجيد (الكلمة الثالثة)',
       'arabic':
           'سُبْحَانَ اللهِ وَالْحَمْدُ لِلّٰهِ وَلَا إِلٰهَ إِلَّا اللهُ وَاللهُ أَكْبَرُ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ الْعَلِيِّ الْعَظِيمِ',
       'transliteration':
@@ -59,6 +67,8 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
           'اللہ پاک ہے، تمام تعریف اللہ کے لیے ہے، اللہ کے سوا کوئی معبود نہیں، اللہ سب سے بڑا ہے، اور اللہ کے سوا کوئی طاقت اور قوت نہیں جو بلند اور عظیم ہے۔',
       'translationHindi':
           'अल्लाह पाक है, तमाम तारीफ़ अल्लाह के लिए है, अल्लाह के सिवा कोई माबूद नहीं, अल्लाह सबसे बड़ा है, और अल्लाह के सिवा कोई ताक़त और क़ुव्वत नहीं जो बुलंद और अज़ीम है।',
+      'translationArabic':
+          'سبحان الله، والحمد لله، ولا إله إلا الله، والله أكبر، ولا حول ولا قوة إلا بالله العلي العظيم.',
       'translationEnglish':
           'Glory be to Allah, all praise is for Allah, there is no god but Allah, Allah is the Greatest, and there is no power nor might except with Allah, the Most High, the Most Great.',
       'color': Colors.purple,
@@ -68,6 +78,7 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
       'name': 'Kalma Tauheed (Fourth Kalma)',
       'nameUrdu': 'کلمہ توحید (چوتھا کلمہ)',
       'nameHindi': 'कलमा तौहीद (चौथा कलमा)',
+      'nameArabic': 'كلمة التوحيد (الكلمة الرابعة)',
       'arabic':
           'لَا إِلٰهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، يُحْيِي وَيُمِيتُ، وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ',
       'transliteration':
@@ -76,6 +87,8 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
           'اللہ کے سوا کوئی معبود نہیں، وہ اکیلا ہے، اس کا کوئی شریک نہیں، اسی کی بادشاہی ہے، اسی کے لیے تمام تعریف ہے، وہ زندہ کرتا ہے اور مارتا ہے، اور وہ ہر چیز پر قادر ہے۔',
       'translationHindi':
           'अल्लाह के सिवा कोई माबूद नहीं, वो अकेला है, उसका कोई शरीक नहीं, उसी की बादशाही है, उसी के लिए तमाम तारीफ़ है, वो ज़िंदा करता है और मारता है, और वो हर चीज़ पर क़ादिर है।',
+      'translationArabic':
+          'لا إله إلا الله وحده لا شريك له، له الملك وله الحمد، يحيي ويميت، وهو على كل شيء قدير.',
       'translationEnglish':
           'There is no god but Allah, alone without partner. His is the dominion and His is the praise. He gives life and causes death, and He has power over all things.',
       'color': Colors.orange,
@@ -85,6 +98,7 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
       'name': 'Kalma Astaghfar (Fifth Kalma)',
       'nameUrdu': 'کلمہ استغفار (پانچواں کلمہ)',
       'nameHindi': 'कलमा इस्तिग़फ़ार (पांचवां कलमा)',
+      'nameArabic': 'كلمة الاستغفار (الكلمة الخامسة)',
       'arabic':
           'أَسْتَغْفِرُ اللهَ رَبِّي مِنْ كُلِّ ذَنْبٍ أَذْنَبْتُهُ عَمَدًا أَوْ خَطَأً، سِرًّا أَوْ عَلَانِيَةً، وَأَتُوبُ إِلَيْهِ مِنَ الذَّنْبِ الَّذِي أَعْلَمُ وَمِنَ الذَّنْبِ الَّذِي لَا أَعْلَمُ، إِنَّكَ أَنْتَ عَلَّامُ الْغُيُوبِ وَسَتَّارُ الْعُيُوبِ وَغَفَّارُ الذُّنُوبِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ الْعَلِيِّ الْعَظِيمِ',
       'transliteration':
@@ -93,6 +107,8 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
           'میں اللہ سے اپنے رب سے معافی مانگتا ہوں ہر اس گناہ سے جو میں نے کیا جان بوجھ کر یا بھول کر، چھپ کر یا کھلے عام، اور میں اس سے توبہ کرتا ہوں اس گناہ سے جو میں جانتا ہوں اور اس گناہ سے جو میں نہیں جانتا، بیشک تو غیب کا جاننے والا، عیبوں کو چھپانے والا، اور گناہوں کو معاف ک��نے والا ہے، اور اللہ کے سوا کوئی طاقت اور قوت نہیں جو بلند اور عظیم ہے۔',
       'translationHindi':
           'मैं अल्लाह से अपने रब से माफ़ी मांगता हूं हर उस गुनाह से जो मैंने किया जान बूझकर या भूल कर, छुपकर या खुले आम, और मैं उससे तौबा करता हूं उस गुनाह से जो मैं जानता हूं और उस गुनाह से जो मैं नहीं जानता, बेशक तू ग़ैब का जानने वाला, ऐबों को छुपाने वाला, और गुनाहों को माफ़ करने वाला है, और अल्लाह के सिवा कोई ताक़त और क़ुव्वत नहीं जो बुलंद और अज़ीम है।',
+      'translationArabic':
+          'أستغفر الله ربي من كل ذنب أذنبته عمداً أو خطأً، سراً أو علانيةً، وأتوب إليه من الذنب الذي أعلم ومن الذنب الذي لا أعلم، إنك أنت علام الغيوب وستار العيوب وغفار الذنوب، ولا حول ولا قوة إلا بالله العلي العظيم.',
       'translationEnglish':
           'I seek forgiveness from Allah, my Lord, from every sin I committed knowingly or unknowingly, secretly or openly, and I turn to Him in repentance from the sin which I know and from the sin which I do not know. Verily, You are the Knower of the unseen, the Concealer of faults, and the Forgiver of sins, and there is no power nor might except with Allah, the Most High, the Most Great.',
       'color': Colors.teal,
@@ -102,6 +118,7 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
       'name': 'Kalma Radde Kufr (Sixth Kalma)',
       'nameUrdu': 'کلمہ ردِ کفر (چھٹا کلمہ)',
       'nameHindi': 'कलमा रद्दे कुफ़्र (छठा कलमा)',
+      'nameArabic': 'كلمة رد الكفر (الكلمة السادسة)',
       'arabic':
           'اَللّٰهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ أَنْ أُشْرِكَ بِكَ شَيْئًا وَأَنَا أَعْلَمُ، وَأَسْتَغْفِرُكَ لِمَا لَا أَعْلَمُ، تُبْتُ عَنْهُ وَتَبَرَّأْتُ مِنَ الْكُفْرِ وَالشِّرْكِ وَالْكِذْبِ وَالْغِيبَةِ وَالْبِدْعَةِ وَالنَّمِيمَةِ وَالْفَوَاحِشِ وَالْبُهْتَانِ وَالْمَعَاصِي كُلِّهَا، وَأَسْلَمْتُ وَأَقُولُ لَا إِلٰهَ إِلَّا اللهُ مُحَمَّدٌ رَسُولُ اللهِ',
       'transliteration':
@@ -119,6 +136,7 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
       'name': 'Kalma Iman-e-Mufassal (Seventh Kalma)',
       'nameUrdu': 'کلمہ ایمانِ مفصل (ساتواں کلمہ)',
       'nameHindi': 'कलमा ईमान-ए-मुफ़स्सल (सातवां कलमा)',
+      'nameArabic': 'كلمة الإيمان المفصل (الكلمة السابعة)',
       'arabic':
           'آمَنْتُ بِاللهِ وَمَلَائِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ وَالْيَوْمِ الْآخِرِ وَبِالْقَدَرِ خَيْرِهِ وَشَرِّهِ مِنَ اللهِ تَعَالَىٰ وَالْبَعْثِ بَعْدَ الْمَوْتِ',
       'transliteration':
@@ -127,6 +145,8 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
           'میں ایمان لایا اللہ پر، اس کے فرشتوں پر، اس کی کتابوں پر، اس کے رسولوں پر، آخرت کے دن پر، اور تقدیر پر کہ اس کی بھلائی اور برائی اللہ تعالیٰ کی طرف سے ہے، اور موت کے بعد دوبارہ زندہ ہونے پر۔',
       'translationHindi':
           'मैं ईमान लाया अल्लाह पर, उसके फ़रिश्तों पर, उसकी किताबों पर, उसके रसूलों पर, आख़िरत के दिन पर, और तक़दीर पर कि उसकी भलाई और बुराई अल्लाह तआला की तरफ़ से है, और मौत के बाद दोबारा ज़िंदा होने पर।',
+      'translationArabic':
+          'آمنت بالله وملائكته وكتبه ورسله واليوم الآخر وبالقدر خيره وشره من الله تعالى والبعث بعد الموت.',
       'translationEnglish':
           'I believe in Allah, His Angels, His Books, His Messengers, the Last Day, and in the Divine Decree - that its good and evil are from Allah the Exalted, and in resurrection after death.',
       'color': Colors.indigo,
@@ -136,6 +156,7 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<SettingsProvider>(context).isDarkMode;
+    final responsive = ResponsiveUtils(context);
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
@@ -143,53 +164,20 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
         backgroundColor: AppColors.primary,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Colors.white, size: responsive.iconMedium),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _selectedLanguage == 'urdu'
-              ? 'سات کلمے'
-              : _selectedLanguage == 'hindi'
-              ? '7 कलमे'
-              : '7 Kalmas',
-          style: const TextStyle(
+          context.tr('seven_kalma'),
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _selectedLanguage == 'urdu'
-                    ? 'اردو'
-                    : _selectedLanguage == 'hindi'
-                    ? 'हिंदी'
-                    : 'EN',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-            onSelected: (value) => setState(() => _selectedLanguage = value),
-            itemBuilder: (context) => [
-              _buildLanguageMenuItem('english', 'English'),
-              _buildLanguageMenuItem('urdu', 'اردو'),
-              _buildLanguageMenuItem('hindi', 'हिंदी'),
-            ],
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: responsive.paddingRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -200,7 +188,7 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
               itemCount: _kalmas.length,
               itemBuilder: (context, index) {
                 final kalma = _kalmas[index];
-                return _buildKalmaCard(kalma, isDark);
+                return _buildKalmaCard(context, kalma, isDark);
               },
             ),
           ],
@@ -209,48 +197,31 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
     );
   }
 
-  PopupMenuItem<String> _buildLanguageMenuItem(String value, String label) {
-    return PopupMenuItem(
-      value: value,
-      child: Row(
-        children: [
-          if (_selectedLanguage == value)
-            Icon(Icons.check, color: AppColors.primary, size: 18)
-          else
-            const SizedBox(width: 18),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: _selectedLanguage == value
-                  ? FontWeight.bold
-                  : FontWeight.normal,
-              color: _selectedLanguage == value ? AppColors.primary : null,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildKalmaCard(BuildContext context, Map<String, dynamic> kalma, bool isDark) {
+    final responsive = ResponsiveUtils(context);
+    final langCode = context.watch<LanguageProvider>().languageCode;
 
-  Widget _buildKalmaCard(Map<String, dynamic> kalma, bool isDark) {
-    final name = _selectedLanguage == 'english'
+    final name = langCode == 'en'
         ? kalma['name']
-        : _selectedLanguage == 'urdu'
+        : langCode == 'ur'
         ? kalma['nameUrdu']
+        : langCode == 'ar'
+        ? kalma['nameArabic']
         : kalma['nameHindi'];
 
-    final translation = _selectedLanguage == 'english'
+    final translation = langCode == 'en'
         ? kalma['translationEnglish']
-        : _selectedLanguage == 'urdu'
+        : langCode == 'ur'
         ? kalma['translationUrdu']
+        : langCode == 'ar'
+        ? kalma['translationArabic']
         : kalma['translationHindi'];
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: responsive.spaceRegular),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         border: Border.all(
           color: (kalma['color'] as Color).withValues(alpha: 0.3),
           width: 2,
@@ -270,19 +241,19 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
         children: [
           // Header
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: responsive.paddingRegular,
             decoration: BoxDecoration(
               color: (kalma['color'] as Color).withValues(alpha: 0.1),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(responsive.radiusLarge),
+                topRight: Radius.circular(responsive.radiusLarge),
               ),
             ),
             child: Row(
               children: [
                 Container(
-                  width: 50,
-                  height: 50,
+                  width: responsive.iconSize(50),
+                  height: responsive.iconSize(50),
                   decoration: BoxDecoration(
                     color: kalma['color'] as Color,
                     shape: BoxShape.circle,
@@ -290,24 +261,24 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
                   child: Center(
                     child: Text(
                       '${kalma['number']}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 24,
+                        fontSize: responsive.textXXLarge,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: responsive.spaceMedium),
                 Expanded(
                   child: Text(
                     name,
                     style: TextStyle(
                       color: isDark ? Colors.white : AppColors.textPrimary,
-                      fontSize: 16,
+                      fontSize: responsive.textRegular,
                       fontWeight: FontWeight.bold,
                     ),
-                    textDirection: _selectedLanguage == 'urdu'
+                    textDirection: langCode == 'ur' || langCode == 'ar'
                         ? TextDirection.rtl
                         : TextDirection.ltr,
                   ),
@@ -318,13 +289,13 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
 
           // Arabic Text
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: responsive.paddingLarge,
             child: Text(
               kalma['arabic'],
               textAlign: TextAlign.center,
               textDirection: TextDirection.rtl,
               style: TextStyle(
-                fontSize: 24,
+                fontSize: responsive.textXXLarge,
                 fontWeight: FontWeight.w600,
                 color: isDark ? Colors.white : AppColors.primary,
                 height: 2.0,
@@ -334,17 +305,17 @@ class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
 
           // Translation
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: responsive.paddingLarge,
             child: Text(
               translation,
-              textAlign: _selectedLanguage == 'urdu'
+              textAlign: langCode == 'ur' || langCode == 'ar'
                   ? TextAlign.right
                   : TextAlign.left,
-              textDirection: _selectedLanguage == 'urdu'
+              textDirection: langCode == 'ur' || langCode == 'ar'
                   ? TextDirection.rtl
                   : TextDirection.ltr,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: responsive.textMedium,
                 color: isDark
                     ? AppColors.darkTextSecondary
                     : AppColors.textSecondary,

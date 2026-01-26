@@ -1,15 +1,191 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/localization_helper.dart';
 import '../../providers/prayer_provider.dart';
 import '../../providers/adhan_provider.dart';
 import '../../data/models/prayer_time_model.dart';
 
-class PrayerTimesScreen extends StatelessWidget {
+class PrayerTimesScreen extends StatefulWidget {
   const PrayerTimesScreen({super.key});
 
   @override
+  State<PrayerTimesScreen> createState() => _PrayerTimesScreenState();
+}
+
+class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
+  final ScrollController _scrollController = ScrollController();
+  String _lastNextPrayer = '';
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToNextPrayer(String nextPrayer, List<PrayerItem> prayerList) {
+    if (nextPrayer == _lastNextPrayer || nextPrayer.isEmpty) return;
+    _lastNextPrayer = nextPrayer;
+
+    // Find the index of the next prayer
+    final index = prayerList.indexWhere(
+      (prayer) => prayer.name.toLowerCase() == nextPrayer.toLowerCase(),
+    );
+
+    if (index != -1 && _scrollController.hasClients) {
+      // Calculate scroll position (each card is approximately 80px height + spacing)
+      final cardHeight = 90.0;
+      final scrollPosition = index * cardHeight;
+
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            scrollPosition,
+            duration: const Duration(milliseconds: 800),
+            curve: Curves.easeInOut,
+          );
+        }
+      });
+    }
+  }
+
+  String _translatePrayerName(BuildContext context, String prayerName) {
+    // Convert prayer name to lowercase key for translation
+    final key = prayerName.toLowerCase();
+    return context.tr(key);
+  }
+
+  String _translateEnglishDate(BuildContext context, String englishDate) {
+    // Format: "25 Jan 2026" or "25 January 2026"
+    final parts = englishDate.split(' ');
+    if (parts.length != 3) return englishDate;
+
+    final day = parts[0];
+    final monthName = parts[1];
+    final year = parts[2];
+
+    // Month name mapping
+    final monthMap = {
+      'Jan': 'january',
+      'January': 'january',
+      'Feb': 'february',
+      'February': 'february',
+      'Mar': 'march',
+      'March': 'march',
+      'Apr': 'april',
+      'April': 'april',
+      'May': 'may',
+      'Jun': 'june',
+      'June': 'june',
+      'Jul': 'july',
+      'July': 'july',
+      'Aug': 'august',
+      'August': 'august',
+      'Sep': 'september',
+      'September': 'september',
+      'Oct': 'october',
+      'October': 'october',
+      'Nov': 'november',
+      'November': 'november',
+      'Dec': 'december',
+      'December': 'december',
+    };
+
+    final monthKey = monthMap[monthName];
+    if (monthKey != null) {
+      final translatedMonth = context.tr(monthKey);
+      return '$day $translatedMonth $year';
+    }
+
+    return englishDate;
+  }
+
+  String _translateTimeRemaining(BuildContext context, String timeString) {
+    // Format: "0s", "5m 23s", "2h 15m"
+    String translated = timeString;
+
+    // Replace time units with translated versions
+    translated = translated.replaceAll('h', ' ${context.tr('hours_short')}');
+    translated = translated.replaceAll('m', ' ${context.tr('minutes_short')}');
+    translated = translated.replaceAll('s', ' ${context.tr('seconds_short')}');
+
+    return translated.trim();
+  }
+
+  String _translateHijriDate(BuildContext context, String hijriDate) {
+    // Parse the Hijri date string (format: "6 Sha'aban 1447")
+    final parts = hijriDate.split(' ');
+    if (parts.length != 3) return hijriDate;
+
+    final day = parts[0];
+    final monthName = parts[1];
+    final year = parts[2];
+
+    // Normalize Unicode characters to ASCII equivalents
+    String normalizedMonth = '';
+    for (int i = 0; i < monthName.length; i++) {
+      final char = monthName[i];
+      final code = char.codeUnitAt(0);
+
+      // Handle common Unicode vowel variations (convert to base ASCII)
+      if (char == 'ā' || char == 'ă' || char == 'à' || char == 'á' || char == 'â' || char == 'ã' || char == 'ä' || char == 'å' || code == 0x0101 || code == 0x0103) {
+        normalizedMonth += 'a';
+      } else if (char == 'ē' || char == 'ĕ' || char == 'è' || char == 'é' || char == 'ê' || char == 'ë' || code == 0x0113 || code == 0x0115) {
+        normalizedMonth += 'e';
+      } else if (char == 'ī' || char == 'ĭ' || char == 'ì' || char == 'í' || char == 'î' || char == 'ï' || code == 0x012B || code == 0x012D) {
+        normalizedMonth += 'i';
+      } else if (char == 'ō' || char == 'ŏ' || char == 'ò' || char == 'ó' || char == 'ô' || char == 'õ' || char == 'ö' || char == 'ø' || code == 0x014D || code == 0x014F) {
+        normalizedMonth += 'o';
+      } else if (char == 'ū' || char == 'ŭ' || char == 'ù' || char == 'ú' || char == 'û' || char == 'ü' || code == 0x016B || code == 0x016D) {
+        normalizedMonth += 'u';
+      } else if (code >= 65 && code <= 90) { // A-Z
+        normalizedMonth += char.toLowerCase();
+      } else if (code >= 97 && code <= 122) { // a-z
+        normalizedMonth += char;
+      }
+      // Skip all other characters (apostrophes, spaces, diacritics, etc.)
+    }
+
+    // Match based on cleaned substring to handle any variations
+    String translationKey;
+    if (normalizedMonth.contains('muharram')) {
+      translationKey = 'month_muharram';
+    } else if (normalizedMonth.contains('safar')) {
+      translationKey = 'month_safar';
+    } else if (normalizedMonth.contains('rabi') && (normalizedMonth.contains('awwal') || normalizedMonth.contains('al-awwal'))) {
+      translationKey = 'month_rabi_ul_awwal';
+    } else if (normalizedMonth.contains('rabi') && (normalizedMonth.contains('thani') || normalizedMonth.contains('aakhir') || normalizedMonth.contains('akhir'))) {
+      translationKey = 'month_rabi_ul_aakhir';
+    } else if (normalizedMonth.contains('jumada') && (normalizedMonth.contains('awwal') || normalizedMonth.contains('ula'))) {
+      translationKey = 'month_jumada_ul_ula';
+    } else if (normalizedMonth.contains('jumada') && (normalizedMonth.contains('thani') || normalizedMonth.contains('akhir'))) {
+      translationKey = 'month_jumada_ul_aakhira';
+    } else if (normalizedMonth.contains('rajab')) {
+      translationKey = 'month_rajab';
+    } else if (normalizedMonth.contains('shaban') || normalizedMonth.contains('shaaban') || normalizedMonth.contains('shabn')) {
+      translationKey = 'month_shaban';
+    } else if (normalizedMonth.contains('ramadan') || normalizedMonth.contains('ramadhan')) {
+      translationKey = 'month_ramadan';
+    } else if (normalizedMonth.contains('shawwal')) {
+      translationKey = 'month_shawwal';
+    } else if (normalizedMonth.contains('dhu') && (normalizedMonth.contains('qidah') || normalizedMonth.contains('qadah'))) {
+      translationKey = 'month_dhul_qadah';
+    } else if (normalizedMonth.contains('dhu') && (normalizedMonth.contains('hijja') || normalizedMonth.contains('hijjah'))) {
+      translationKey = 'month_dhul_hijjah';
+    } else {
+      // Fallback: return original month name if no match
+      return '$day $monthName $year ${context.tr('ah')}';
+    }
+
+    final translatedMonth = context.tr(translationKey);
+    return '$day $translatedMonth $year ${context.tr('ah')}';
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
+
     // Schedule notifications when prayer times are loaded
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final prayerProvider = context.read<PrayerProvider>();
@@ -22,7 +198,7 @@ class PrayerTimesScreen extends StatelessWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Prayer Times')),
+      appBar: AppBar(title: Text(context.tr('prayer_times'))),
       body: Consumer<PrayerProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
@@ -34,13 +210,17 @@ class PrayerTimesScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.location_off, size: 64, color: Colors.grey),
-                  const SizedBox(height: 16),
+                  Icon(
+                    Icons.location_off,
+                    size: responsive.iconHuge,
+                    color: Colors.grey,
+                  ),
+                  responsive.vSpaceRegular,
                   Text(provider.error!),
-                  const SizedBox(height: 16),
+                  responsive.vSpaceRegular,
                   ElevatedButton(
                     onPressed: () => provider.initialize(),
-                    child: const Text('Retry'),
+                    child: Text(context.tr('retry')),
                   ),
                 ],
               ),
@@ -49,25 +229,33 @@ class PrayerTimesScreen extends StatelessWidget {
 
           final prayerTimes = provider.todayPrayerTimes;
           if (prayerTimes == null) {
-            return const Center(child: Text('No prayer times available'));
+            return Center(child: Text(context.tr('no_prayer_times_available')));
           }
 
+          final prayerList = prayerTimes.toPrayerList();
+
+          // Auto-scroll to next prayer when it changes
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _scrollToNextPrayer(provider.nextPrayer, prayerList);
+          });
+
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            controller: _scrollController,
+            padding: responsive.paddingRegular,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Next Prayer Card with Date
                 _buildNextPrayerCard(context, provider, prayerTimes),
-                const SizedBox(height: 20),
+                responsive.vSpaceLarge,
 
                 // Prayer Times List
                 Text(
-                  "Today's Prayer Times",
+                  context.tr('today_prayer_times'),
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                const SizedBox(height: 12),
-                ...prayerTimes.toPrayerList().map(
+                responsive.vSpaceMedium,
+                ...prayerList.map(
                   (prayer) => _buildPrayerTimeCard(
                     context,
                     prayer,
@@ -87,94 +275,83 @@ class PrayerTimesScreen extends StatelessWidget {
     PrayerProvider provider,
     PrayerTimeModel prayerTimes,
   ) {
+    final responsive = context.responsive;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: responsive.paddingLarge,
       decoration: BoxDecoration(
         gradient: AppColors.headerGradient,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(responsive.radiusXXLarge),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
         children: [
-          const SizedBox(height: 16),
+          Text(
+            context.tr('next_prayer'),
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: responsive.textRegular,
+            ),
+          ),
+          responsive.vSpaceRegular,
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               // Date and Hijri Date
               Text(
-                prayerTimes.date,
-                style: const TextStyle(
+                _translateEnglishDate(context, prayerTimes.date),
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 18,
+                  fontSize: responsive.textLarge,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  prayerTimes.hijriDate,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
+              SizedBox(width: responsive.spaceSmall),
+              Text(
+                _translateHijriDate(context, prayerTimes.hijriDate),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: responsive.textLarge,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: 16),
-          // Next Prayer
-          const Text(
-            'Next Prayer',
-            style: TextStyle(color: Colors.white70, fontSize: 16),
-          ),
-          const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Text(
-                provider.nextPrayer,
-                style: const TextStyle(
+                _translatePrayerName(context, provider.nextPrayer),
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 28,
+                  fontSize: responsive.textLarge,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.timer, color: Colors.white, size: 18),
-                    const SizedBox(height: 8),
-                    Text(
-                      provider.formattedTimeRemaining,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+              responsive.vSpaceSmall,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.timer,
+                    color: Colors.white,
+                    size: responsive.iconSmall,
+                  ),
+                  responsive.vSpaceSmall,
+                  Text(
+                    _translateTimeRemaining(context, provider.formattedTimeRemaining),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: responsive.textLarge,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -188,17 +365,18 @@ class PrayerTimesScreen extends StatelessWidget {
     PrayerItem prayer,
     bool isNext,
   ) {
+    final responsive = context.responsive;
     const darkGreen = Color(0xFF0A5C36);
     const emeraldGreen = Color(0xFF1E8F5A);
     const lightGreenBorder = Color(0xFF8AAF9A);
     const lightGreenChip = Color(0xFFE8F3ED);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: responsive.paddingOnly(bottom: 12),
+      padding: responsive.paddingRegular,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
         border: Border.all(
           color: isNext ? emeraldGreen : lightGreenBorder,
           width: isNext ? 2 : 1.5,
@@ -206,16 +384,16 @@ class PrayerTimesScreen extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            width: 50,
-            height: 50,
+            width: responsive.spacing(50),
+            height: responsive.spacing(50),
             decoration: BoxDecoration(
               color: isNext ? darkGreen : lightGreenChip,
               shape: BoxShape.circle,
@@ -223,44 +401,49 @@ class PrayerTimesScreen extends StatelessWidget {
                   ? [
                       BoxShadow(
                         color: darkGreen.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
+                        blurRadius: responsive.spacing(8),
+                        offset: Offset(0, responsive.spacing(2)),
                       ),
                     ]
                   : null,
             ),
             child: Center(
-              child: Text(prayer.icon, style: const TextStyle(fontSize: 24)),
+              child: Text(
+                prayer.icon,
+                style: TextStyle(fontSize: responsive.textXXLarge),
+              ),
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: responsive.spaceRegular),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  prayer.name,
+                  _translatePrayerName(context, prayer.name),
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: responsive.textLarge,
                     fontWeight: FontWeight.w600,
                     color: isNext ? darkGreen : darkGreen,
                   ),
                 ),
                 if (isNext)
                   Container(
-                    margin: const EdgeInsets.only(top: 4),
-                    padding: const EdgeInsets.symmetric(
+                    margin: responsive.paddingOnly(top: 4),
+                    padding: responsive.paddingSymmetric(
                       horizontal: 8,
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
                       color: lightGreenChip,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(
+                        responsive.radiusSmall,
+                      ),
                     ),
-                    child: const Text(
-                      'Next Prayer',
+                    child: Text(
+                      context.tr('next_prayer'),
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: responsive.textXSmall,
                         fontWeight: FontWeight.w600,
                         color: emeraldGreen,
                       ),
@@ -272,7 +455,7 @@ class PrayerTimesScreen extends StatelessWidget {
           Text(
             prayer.time,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: responsive.textRegular,
               fontWeight: FontWeight.bold,
               color: isNext ? emeraldGreen : darkGreen,
             ),
