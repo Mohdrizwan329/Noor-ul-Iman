@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/prayer_provider.dart';
 import '../../data/models/prayer_time_model.dart';
-import '../../core/utils/localization_helper.dart';
 
 class MonthlyTimetableScreen extends StatefulWidget {
   const MonthlyTimetableScreen({super.key});
@@ -154,7 +153,7 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
                             children: [
                               Icon(
                                 Icons.calendar_today,
-                                size: responsive.iconSize(64),
+                                size: responsive.iconXXLarge,
                                 color: Colors.grey,
                               ),
                               SizedBox(height: responsive.spaceRegular),

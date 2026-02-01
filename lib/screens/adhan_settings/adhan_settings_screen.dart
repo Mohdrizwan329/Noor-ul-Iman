@@ -1,12 +1,35 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/adhan_provider.dart';
-import '../../core/utils/localization_helper.dart';
 
-class AdhanSettingsScreen extends StatelessWidget {
+class AdhanSettingsScreen extends StatefulWidget {
   const AdhanSettingsScreen({super.key});
+
+  @override
+  State<AdhanSettingsScreen> createState() => _AdhanSettingsScreenState();
+}
+
+class _AdhanSettingsScreenState extends State<AdhanSettingsScreen> {
+  bool _batteryOptimizationDisabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkBatteryOptimization();
+  }
+
+  Future<void> _checkBatteryOptimization() async {
+    final adhanProvider = context.read<AdhanProvider>();
+    final isDisabled = await adhanProvider.isBatteryOptimizationDisabled();
+    if (mounted) {
+      setState(() {
+        _batteryOptimizationDisabled = isDisabled;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +76,13 @@ class AdhanSettingsScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: responsive.spaceRegular),
+
+              // Battery Optimization Warning (Android only)
+              if (Platform.isAndroid && !_batteryOptimizationDisabled)
+                _buildBatteryWarningCard(context, adhanProvider),
+
+              if (Platform.isAndroid && !_batteryOptimizationDisabled)
+                SizedBox(height: responsive.spaceRegular),
 
               // Individual Prayer Notifications
               if (adhanProvider.notificationsEnabled)
@@ -110,25 +140,37 @@ class AdhanSettingsScreen extends StatelessWidget {
 
               SizedBox(height: responsive.spaceLarge),
 
+              // Test Notification Button
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await adhanProvider.showTestNotification();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(context.tr('test_notification_sent')),
+                        backgroundColor: AppColors.primary,
+                      ),
+                    );
+                  }
+                },
+                icon: Icon(Icons.notifications_active, size: responsive.iconMedium),
+                label: Text(
+                  context.tr('test_notification'),
+                  style: TextStyle(fontSize: responsive.textRegular),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  padding: responsive.paddingRegular,
+                ),
+              ),
+              SizedBox(height: responsive.spaceRegular),
+
               // Test Adhan Button
               if (adhanProvider.adhanSoundEnabled)
                 ElevatedButton.icon(
                   onPressed: () {
                     adhanProvider.playAdhan();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          context.tr('playing_adhan'),
-                          style: TextStyle(fontSize: responsive.textMedium),
-                        ),
-                        action: SnackBarAction(
-                          label: context.tr('stop'),
-                          onPressed: () {
-                            adhanProvider.stopAdhan();
-                          },
-                        ),
-                      ),
-                    );
                   },
                   icon: Icon(Icons.volume_up, size: responsive.iconMedium),
                   label: Text(
@@ -172,6 +214,74 @@ class AdhanSettingsScreen extends StatelessWidget {
           ),
           child,
         ],
+      ),
+    );
+  }
+
+  Widget _buildBatteryWarningCard(
+    BuildContext context,
+    AdhanProvider adhanProvider,
+  ) {
+    final responsive = ResponsiveUtils(context);
+
+    return Card(
+      color: Colors.orange.shade50,
+      child: Padding(
+        padding: responsive.paddingRegular,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.battery_alert,
+                  color: Colors.orange.shade700,
+                  size: responsive.iconMedium,
+                ),
+                SizedBox(width: responsive.spaceSmall),
+                Expanded(
+                  child: Text(
+                    context.tr('battery_optimization'),
+                    style: TextStyle(
+                      fontSize: responsive.textRegular,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.orange.shade700,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: responsive.spaceSmall),
+            Text(
+              context.tr('battery_optimization_message'),
+              style: TextStyle(
+                fontSize: responsive.textSmall,
+                color: Colors.orange.shade900,
+              ),
+            ),
+            SizedBox(height: responsive.spaceRegular),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await adhanProvider.requestDisableBatteryOptimization();
+                  // Check again after returning from settings
+                  Future.delayed(const Duration(seconds: 1), () {
+                    _checkBatteryOptimization();
+                  });
+                },
+                icon: const Icon(Icons.settings),
+                label: Text(context.tr('disable_battery_optimization')),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange.shade700,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

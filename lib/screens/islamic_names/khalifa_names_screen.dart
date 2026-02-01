@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/language_provider.dart';
 import 'islamic_name_detail_screen.dart';
@@ -285,8 +284,8 @@ class _KhalifaNamesScreenState extends State<KhalifaNamesScreen> {
             : [
                 BoxShadow(
                   color: darkGreen.withValues(alpha: 0.08),
-                  blurRadius: responsive.spacing(10),
-                  offset: Offset(0, responsive.spacing(2)),
+                  blurRadius: 10.0,
+                  offset: Offset(0, 2.0),
                 ),
               ],
       ),
@@ -331,8 +330,8 @@ class _KhalifaNamesScreenState extends State<KhalifaNamesScreen> {
             children: [
               // Number Badge (circular)
               Container(
-                width: responsive.spacing(50),
-                height: responsive.spacing(50),
+                width: responsive.iconLarge * 1.5,
+                height: responsive.iconLarge * 1.5,
                 decoration: BoxDecoration(
                   color: isDark ? emeraldGreen : darkGreen,
                   shape: BoxShape.circle,
@@ -341,8 +340,8 @@ class _KhalifaNamesScreenState extends State<KhalifaNamesScreen> {
                       color: (isDark ? emeraldGreen : darkGreen).withValues(
                         alpha: 0.3,
                       ),
-                      blurRadius: responsive.spacing(8),
-                      offset: Offset(0, responsive.spacing(2)),
+                      blurRadius: 8,
+                      offset: Offset(0, 2.0),
                     ),
                   ],
                 ),
@@ -357,7 +356,7 @@ class _KhalifaNamesScreenState extends State<KhalifaNamesScreen> {
                   ),
                 ),
               ),
-              SizedBox(width: responsive.spacing(14)),
+              responsive.hSpaceSmall,
 
               // Caliph Name
               Expanded(
@@ -368,8 +367,8 @@ class _KhalifaNamesScreenState extends State<KhalifaNamesScreen> {
                     fontWeight: FontWeight.bold,
                     color: isDark ? AppColors.darkTextPrimary : darkGreen,
                     fontFamily: languageCode == 'ar'
-                        ? 'Amiri'
-                        : (languageCode == 'ur' ? 'NotoNastaliq' : null),
+                        ? 'Poppins'
+                        : (languageCode == 'ur' ? 'Poppins' : null),
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

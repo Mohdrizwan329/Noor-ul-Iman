@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/settings_provider.dart';
 import '../../widgets/common/search_bar_widget.dart';
 import 'basic_amal_detail_screen.dart';
@@ -15,13 +14,13 @@ class FatihaScreen extends StatefulWidget {
 }
 
 class _FatihaScreenState extends State<FatihaScreen> {
-  String _selectedLanguage = 'english';
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
 
   final List<Map<String, dynamic>> _fatihaTypes = [
     {
+      'number': 1,
       'titleKey': 'fatiha_1_fatiha_for_deceased',
       'title': 'Fatiha for Deceased',
       'titleUrdu': 'مرحوم کے لیے فاتحہ',
@@ -203,6 +202,7 @@ Step-by-Step Method:
       },
     },
     {
+      'number': 2,
       'titleKey': 'fatiha_2_gyarhween_shareef',
       'title': 'Gyarhween Shareef',
       'titleUrdu': 'گیارہویں شریف',
@@ -376,6 +376,7 @@ Virtues:
       },
     },
     {
+      'number': 3,
       'titleKey': 'fatiha_3_fatiha_on_thursday',
       'title': 'Fatiha on Thursday',
       'titleUrdu': 'جمعرات کی فاتحہ',
@@ -541,6 +542,7 @@ Special Additions for Thursday:
       },
     },
     {
+      'number': 4,
       'titleKey': 'fatiha_4_ursdeath_anniversary',
       'title': 'Urs/Death Anniversary',
       'titleUrdu': 'عرس / برسی',
@@ -747,6 +749,7 @@ Special Additions for Urs of Saints:
       },
     },
     {
+      'number': 5,
       'titleKey': 'fatiha_5_khatamequran_fatiha',
       'title': 'Khatam-e-Quran Fatiha',
       'titleUrdu': 'ختم قرآن کی فاتحہ',
@@ -960,6 +963,7 @@ Virtues:
       },
     },
     {
+      'number': 6,
       'titleKey': 'fatiha_6_fatiha_after_burial',
       'title': 'Fatiha After Burial',
       'titleUrdu': 'تدفین کے بعد فاتحہ',
@@ -1133,6 +1137,7 @@ Leaving the Graveyard:
       },
     },
     {
+      'number': 7,
       'titleKey': 'fatiha_7_shabebarat_fatiha',
       'title': 'Shab-e-Barat Fatiha',
       'titleUrdu': 'شب برات کی فاتحہ',
@@ -1365,6 +1370,7 @@ Special Worship:
       },
     },
     {
+      'number': 8,
       'titleKey': 'fatiha_8_niyazlangar_fatiha',
       'title': 'Niyaz/Langar Fatiha',
       'titleUrdu': 'نیاز / لنگر کی فاتحہ',
@@ -1619,6 +1625,7 @@ Virtues:
       },
     },
     {
+      'number': 9,
       'titleKey': 'fatiha_9_chatti_6th_day_fatiha',
       'title': 'Chatti (6th Day) Fatiha',
       'titleUrdu': 'چھٹی کی فاتحہ',
@@ -1743,6 +1750,7 @@ Complete Method:
       },
     },
     {
+      'number': 10,
       'titleKey': 'fatiha_10_daswan_10th_day_fatiha',
       'title': 'Daswan (10th Day) Fatiha',
       'titleUrdu': 'دسواں کی فاتحہ',
@@ -1865,6 +1873,7 @@ Complete Method:
       },
     },
     {
+      'number': 11,
       'titleKey': 'fatiha_11_chehlum_40th_day_fatiha',
       'title': 'Chehlum (40th Day) Fatiha',
       'titleUrdu': 'چہلم کی فاتحہ',
@@ -2022,6 +2031,7 @@ Complete Method:
       },
     },
     {
+      'number': 12,
       'titleKey': 'fatiha_12_bismillah_fatiha',
       'title': 'Bismillah Fatiha',
       'titleUrdu': 'بسم اللہ کی فاتحہ',
@@ -2190,6 +2200,7 @@ Complete Method:
       },
     },
     {
+      'number': 13,
       'titleKey': 'fatiha_13_aqeeqah_fatiha',
       'title': 'Aqeeqah Fatiha',
       'titleUrdu': 'عقیقہ کی فاتحہ',
@@ -2363,6 +2374,7 @@ Complete Method:
       },
     },
     {
+      'number': 14,
       'titleKey': 'fatiha_14_shadinikah_fatiha',
       'title': 'Shadi/Nikah Fatiha',
       'titleUrdu': 'شادی/نکاح کی فاتحہ',
@@ -2608,11 +2620,15 @@ Dua for Newlyweds:
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: context.responsive.paddingRegular,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: Builder(
+        builder: (context) {
+          final langCode = context.languageProvider.languageCode;
+          final isRtl = langCode == 'ur' || langCode == 'ar';
+          return SingleChildScrollView(
+            padding: context.responsive.paddingRegular,
+            child: Column(
+              crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
             // Search Bar
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
@@ -2637,19 +2653,19 @@ Dua for Newlyweds:
             filteredFatihaTypes.isEmpty
                 ? Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(32),
+                      padding: context.responsive.paddingAll(32),
                       child: Column(
                         children: [
                           Icon(
                             Icons.search_off,
-                            size: 64,
+                            size: context.responsive.iconLarge * 2,
                             color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
                           ),
-                          const SizedBox(height: 16),
+                          context.responsive.vSpaceRegular,
                           Text(
                             context.tr('no_results_found'),
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: context.responsive.textRegular,
                               color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                             ),
                             textAlign: TextAlign.center,
@@ -2672,6 +2688,8 @@ Dua for Newlyweds:
                   ),
           ],
         ),
+      );
+        },
       ),
     );
   }
@@ -2695,8 +2713,8 @@ return Container(
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
-            offset: Offset(0, responsive.spacing(2)),
+            blurRadius: 10.0,
+            offset: Offset(0, 2.0),
           ),
         ],
       ),
@@ -2709,33 +2727,38 @@ return Container(
             children: [
               // Number Badge (if has number field)
               Container(
-                width: responsive.spacing(50),
-                height: responsive.spacing(50),
+                width: responsive.iconLarge * 1.5,
+                height: responsive.iconLarge * 1.5,
                 decoration: BoxDecoration(
                   color: darkGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
                       color: darkGreen.withValues(alpha: 0.3),
-                      blurRadius: responsive.spacing(8),
-                      offset: Offset(0, responsive.spacing(2)),
+                      blurRadius: 8,
+                      offset: Offset(0, 2.0),
                     ),
                   ],
                 ),
                 child: Center(
-                  child: Icon(
-                    fatiha['icon'] as IconData,
-                    color: Colors.white,
-                    size: responsive.textLarge,
+                  child: Text(
+                    '${fatiha['number'] ?? ''}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsive.textLarge,
+                    ),
                   ),
                 ),
               ),
-              SizedBox(width: responsive.spacing(14)),
+              responsive.hSpaceSmall,
 
               // Title and Icon chip
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: (langCode == 'ur' || langCode == 'ar')
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
                   children: [
                     // Title
                     Text(
@@ -2745,9 +2768,11 @@ return Container(
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : darkGreen,
                       ),
-                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                      textDirection: (langCode == 'ur' || langCode == 'ar') ? TextDirection.rtl : TextDirection.ltr,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: responsive.spacing(4)),
+                    responsive.vSpaceXSmall,
                     // Icon chip
                     Container(
                       padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
@@ -2763,13 +2788,17 @@ return Container(
                             size: responsive.textXSmall + 2,
                             color: emeraldGreen,
                           ),
-                          SizedBox(width: responsive.spacing(4)),
-                          Text(
-                            context.tr('fatiha'),
-                            style: TextStyle(
-                              fontSize: responsive.textXSmall,
-                              fontWeight: FontWeight.w600,
-                              color: emeraldGreen,
+                          responsive.hSpaceXSmall,
+                          Flexible(
+                            child: Text(
+                              context.tr('fatiha'),
+                              style: TextStyle(
+                                fontSize: responsive.textXSmall,
+                                fontWeight: FontWeight.w600,
+                                color: emeraldGreen,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],

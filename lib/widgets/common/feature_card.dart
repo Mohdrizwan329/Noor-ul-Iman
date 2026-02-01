@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_dimens.dart';
-import '../../core/utils/spacing.dart';
+import '../../core/utils/app_utils.dart';
 import 'app_card.dart';
 
 /// Reusable feature card widget for grid layouts.
@@ -36,16 +35,17 @@ class FeatureCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppCard(
-      padding: const EdgeInsets.all(AppDimens.paddingSmall),
+      padding: responsive.paddingAll(12),
       onTap: onTap,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(AppDimens.paddingMedium),
+            padding: responsive.paddingAll(16),
             decoration: BoxDecoration(
               color: isDark
                   ? color.withValues(alpha: 0.2)
@@ -54,11 +54,11 @@ class FeatureCard extends StatelessWidget {
             ),
             child: Icon(
               icon,
-              size: size ?? AppDimens.iconSizeLarge,
+              size: size ?? responsive.iconLarge,
               color: isDark ? color.withValues(alpha: 0.8) : color,
             ),
           ),
-          VSpace.medium,
+          SizedBox(height: responsive.spaceMedium),
           Text(
             title,
             textAlign: TextAlign.center,
@@ -72,10 +72,12 @@ class FeatureCard extends StatelessWidget {
                 ),
           ),
           if (subtitle != null) ...[
-            VSpace.small,
+            SizedBox(height: responsive.spaceSmall),
             Text(
               subtitle!,
               textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: isDark
                         ? AppColors.darkTextSecondary

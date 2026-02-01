@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
+import '../../core/services/location_service.dart';
 import '../../providers/prayer_provider.dart';
 import '../../providers/adhan_provider.dart';
 import '../../data/models/prayer_time_model.dart';
@@ -34,8 +34,9 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
     );
 
     if (index != -1 && _scrollController.hasClients) {
-      // Calculate scroll position (each card is approximately 80px height + spacing)
-      final cardHeight = 90.0;
+      // Calculate scroll position (each card is approximately 90 spacing units height + spacing)
+      final responsive = context.responsive;
+      final cardHeight = responsive.spacing(90);
       final scrollPosition = index * cardHeight;
 
       Future.delayed(const Duration(milliseconds: 500), () {
@@ -191,6 +192,18 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
       final prayerProvider = context.read<PrayerProvider>();
       final adhanProvider = context.read<AdhanProvider>();
       if (prayerProvider.todayPrayerTimes != null) {
+        // Update AdhanProvider with current location for location-aware notifications
+        final locationService = LocationService();
+        final position = prayerProvider.currentPosition;
+        if (position != null) {
+          final city = locationService.currentCity ?? '';
+          adhanProvider.updateLocation(
+            city: city,
+            latitude: position.latitude,
+            longitude: position.longitude,
+          );
+        }
+
         adhanProvider.schedulePrayerNotifications(
           prayerProvider.todayPrayerTimes!,
         );
@@ -198,7 +211,13 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
     });
 
     return Scaffold(
-      appBar: AppBar(title: Text(context.tr('prayer_times'))),
+      appBar: AppBar(
+        title: Text(
+          context.tr('prayer_times'),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
       body: Consumer<PrayerProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
@@ -239,30 +258,38 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
             _scrollToNextPrayer(provider.nextPrayer, prayerList);
           });
 
-          return SingleChildScrollView(
-            controller: _scrollController,
-            padding: responsive.paddingRegular,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Next Prayer Card with Date
-                _buildNextPrayerCard(context, provider, prayerTimes),
-                responsive.vSpaceLarge,
+          return RefreshIndicator(
+            onRefresh: () async {
+              // Re-initialize to get fresh location and prayer times
+              await provider.initialize();
+            },
+            color: const Color(0xFF0A5C36),
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: responsive.paddingRegular,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Next Prayer Card with Date
+                  _buildNextPrayerCard(context, provider, prayerTimes),
+                  responsive.vSpaceLarge,
 
-                // Prayer Times List
-                Text(
-                  context.tr('today_prayer_times'),
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                responsive.vSpaceMedium,
-                ...prayerList.map(
-                  (prayer) => _buildPrayerTimeCard(
-                    context,
-                    prayer,
-                    provider.nextPrayer == prayer.name,
+                  // Prayer Times List
+                  Text(
+                    context.tr('today_prayer_times'),
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
-                ),
-              ],
+                  responsive.vSpaceMedium,
+                  ...prayerList.map(
+                    (prayer) => _buildPrayerTimeCard(
+                      context,
+                      prayer,
+                      provider.nextPrayer == prayer.name,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -297,57 +324,65 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
             ),
           ),
           responsive.vSpaceRegular,
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          // Date and Hijri Date Row - wrapped to prevent overflow
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: responsive.spacing(8),
+            runSpacing: responsive.spacing(4),
             children: [
-              // Date and Hijri Date
               Text(
                 _translateEnglishDate(context, prayerTimes.date),
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: responsive.textLarge,
+                  fontSize: responsive.fontSize(14),
                   fontWeight: FontWeight.bold,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              SizedBox(width: responsive.spaceSmall),
               Text(
                 _translateHijriDate(context, prayerTimes.hijriDate),
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: responsive.textLarge,
+                  fontSize: responsive.fontSize(14),
                   fontWeight: FontWeight.bold,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
-
+          responsive.vSpaceSmall,
+          // Next Prayer and Time Remaining Row
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                _translatePrayerName(context, provider.nextPrayer),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: responsive.textLarge,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  _translatePrayerName(context, provider.nextPrayer),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: responsive.fontSize(18),
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              responsive.vSpaceSmall,
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     Icons.timer,
                     color: Colors.white,
-                    size: responsive.iconSmall,
+                    size: responsive.iconSize(18),
                   ),
-                  responsive.vSpaceSmall,
+                  SizedBox(width: responsive.spacing(4)),
                   Text(
                     _translateTimeRemaining(context, provider.formattedTimeRemaining),
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: responsive.textLarge,
+                      fontSize: responsive.fontSize(16),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -384,8 +419,8 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
-            offset: Offset(0, responsive.spacing(2)),
+            blurRadius: 10.0,
+            offset: Offset(0, 2.0),
           ),
         ],
       ),
@@ -401,7 +436,7 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                   ? [
                       BoxShadow(
                         color: darkGreen.withValues(alpha: 0.3),
-                        blurRadius: responsive.spacing(8),
+                        blurRadius: 8,
                         offset: Offset(0, responsive.spacing(2)),
                       ),
                     ]
@@ -410,7 +445,7 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
             child: Center(
               child: Text(
                 prayer.icon,
-                style: TextStyle(fontSize: responsive.textXXLarge),
+                style: TextStyle(fontSize: responsive.fontSize(28)),
               ),
             ),
           ),
@@ -422,10 +457,12 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                 Text(
                   _translatePrayerName(context, prayer.name),
                   style: TextStyle(
-                    fontSize: responsive.textLarge,
+                    fontSize: responsive.fontSize(18),
                     fontWeight: FontWeight.w600,
-                    color: isNext ? darkGreen : darkGreen,
+                    color: darkGreen,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 if (isNext)
                   Container(
@@ -447,6 +484,8 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                         fontWeight: FontWeight.w600,
                         color: emeraldGreen,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
               ],

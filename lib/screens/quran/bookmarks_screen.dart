@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/quran_provider.dart';
+import '../../widgets/common/empty_state_widget.dart';
 import 'surah_detail_screen.dart';
 
 class BookmarksScreen extends StatelessWidget {
@@ -22,34 +22,9 @@ class BookmarksScreen extends StatelessWidget {
           final bookmarks = provider.bookmarks.toList();
 
           if (bookmarks.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.bookmark_border,
-                    size: responsive.iconHuge,
-                    color: Colors.grey[400],
-                  ),
-                  responsive.vSpaceRegular,
-                  Text(
-                    context.tr('no_bookmarks'),
-                    style: TextStyle(
-                      fontSize: responsive.textXLarge,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  responsive.vSpaceSmall,
-                  Text(
-                    context.tr('bookmark_hint'),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.grey[500],
-                    ),
-                  ),
-                ],
-              ),
+            return EmptyStateWidget(
+              icon: Icons.bookmark_border,
+              message: '${context.tr('no_bookmarks')}\n${context.tr('bookmark_hint')}',
             );
           }
 
@@ -179,7 +154,7 @@ class BookmarksScreen extends StatelessWidget {
                 arabicName,
                 style: TextStyle(
                   fontSize: responsive.textXLarge,
-                  fontFamily: 'Amiri',
+                  fontFamily: 'Poppins',
                   color: AppColors.primary,
                 ),
               ),
@@ -229,12 +204,6 @@ class BookmarksScreen extends StatelessWidget {
             onPressed: () {
               provider.toggleBookmark(surahNumber, ayahNumber);
               Navigator.pop(dialogContext);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(context.tr('bookmark_removed')),
-                  duration: const Duration(seconds: 2),
-                ),
-              );
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: Text(dialogContext.tr('remove')),

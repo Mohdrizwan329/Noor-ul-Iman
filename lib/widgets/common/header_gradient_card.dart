@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_dimens.dart';
-import '../../core/utils/spacing.dart';
+import '../../core/utils/app_utils.dart';
 
 /// Header card with gradient background and icon.
 /// Used in category screens like Dua list, Hadith, etc.
@@ -30,6 +30,8 @@ class HeaderGradientCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
+
     return Container(
       margin: const EdgeInsets.all(AppDimens.paddingMedium),
       padding: const EdgeInsets.all(AppDimens.paddingLarge),
@@ -40,11 +42,11 @@ class HeaderGradientCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 60,
-            height: 60,
+            width: responsive.iconXLarge,
+            height: responsive.iconXLarge,
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(responsive.radiusMedium),
             ),
             child: Center(
               child: Text(
@@ -65,6 +67,8 @@ class HeaderGradientCard extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 VSpace.small,
                 Text(
@@ -73,6 +77,8 @@ class HeaderGradientCard extends StatelessWidget {
                     fontSize: 14,
                     color: Colors.white70,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

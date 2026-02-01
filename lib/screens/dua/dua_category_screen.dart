@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/dua_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/settings_provider.dart';
@@ -261,11 +260,11 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
                         fontSize: responsive.textLarge,
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : darkGreen,
-                        fontFamily: languageCode == 'ur'
-                            ? 'NotoNastaliq'
-                            : null,
+                        fontFamily: 'Poppins',
                       ),
-                      textDirection: languageCode == 'ur'
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textDirection: (languageCode == 'ur' || languageCode == 'ar')
                           ? TextDirection.rtl
                           : TextDirection.ltr,
                     ),
@@ -289,6 +288,8 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
                           fontWeight: FontWeight.w600,
                           color: AppColors.primaryLight,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],

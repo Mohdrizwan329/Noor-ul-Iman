@@ -4,8 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/language_provider.dart';
 
 enum HajjLanguage { english, urdu, hindi, arabic }
@@ -428,32 +427,44 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
         icon: Icons.check_circle,
         color: Colors.green,
         steps: [
-          'Take a bath (Ghusl) before Ihram',
-          'Wear Ihram clothing (2 white sheets for men)',
-          'Women wear normal modest clothing',
+          'Take a bath (Ghusl) before Ihram - Sunnah',
+          'Trim nails, remove unwanted hair before Ihram',
+          'Wear Ihram clothing (2 white unsewn sheets for men)',
+          'Women wear normal modest clothing covering body',
+          'Apply non-alcoholic perfume before Ihram (Sunnah)',
+          'Pray 2 Rakats of Ihram (optional)',
           'Make intention at Miqat: "Labbayk Allahumma Umrah"',
-          'Recite Talbiyah continuously',
+          'Recite Talbiyah loudly and continuously',
         ],
         stepsUrdu: [
-          'احرام سے پہلے غسل کریں',
-          'احرام کے کپڑے پہنیں (مردوں کے لیے 2 سفید چادریں)',
-          'خواتین معمول کے پردے والے کپڑے پہنیں',
+          'احرام سے پہلے غسل کریں - سنت',
+          'احرام سے پہلے ناخن کٹوائیں، زیر ناف بال صاف کریں',
+          'احرام کے کپڑے پہنیں (مردوں کے لیے 2 سفید بغیر سلے چادریں)',
+          'خواتین معمول کے پردے والے کپڑے پہنیں جو جسم ڈھانپیں',
+          'احرام سے پہلے غیر الکحل خوشبو لگائیں (سنت)',
+          'احرام کی 2 رکعت نماز پڑھیں (اختیاری)',
           'میقات پر نیت کریں: لبیک اللہم عمرۃ',
-          'تلبیہ پڑھتے رہیں',
+          'تلبیہ بلند آواز سے پڑھتے رہیں',
         ],
         stepsHindi: [
-          'इहराम से पहले ग़ुस्ल करें',
-          'इहराम के कपड़े पहनें (मर्दों के लिए 2 सफ़ेद चादरें)',
-          'औरतें आम पर्दे वाले कपड़े पहनें',
+          'इहराम से पहले ग़ुस्ल करें - सुन्नत',
+          'इहराम से पहले नाखून काटें, ज़ेर-ए-नाफ़ बाल साफ़ करें',
+          'इहराम के कपड़े पहनें (मर्दों के लिए 2 सफ़ेद बिना सिली चादरें)',
+          'औरतें आम पर्दे वाले कपड़े पहनें जो जिस्म ढांपें',
+          'इहराम से पहले ग़ैर-अल्कोहल ख़ुशबू लगाएं (सुन्नत)',
+          'इहराम की 2 रकात नमाज़ पढ़ें (इख़्तियारी)',
           'मीक़ात पर नियत करें: लब्बैक अल्लाहुम्मा उमरा',
-          'तल्बियह पढ़ते रहें',
+          'तल्बियह बुलंद आवाज़ से पढ़ते रहें',
         ],
         stepsArabic: [
-          'اغتسل قبل الإحرام',
-          'ارتدِ ملابس الإحرام (إزارين أبيضين للرجال)',
-          'ترتدي النساء ملابس عادية محتشمة',
+          'اغتسل قبل الإحرام - سنة',
+          'قص الأظافر وأزل الشعر غير المرغوب قبل الإحرام',
+          'ارتدِ ملابس الإحرام (إزارين أبيضين غير مخيطين للرجال)',
+          'ترتدي النساء ملابس عادية محتشمة تغطي الجسم',
+          'ضع عطراً غير كحولي قبل الإحرام (سنة)',
+          'صلِّ ركعتي الإحرام (اختياري)',
           'اعقد النية عند الميقات: لبيك اللهم عمرة',
-          'ردد التلبية باستمرار',
+          'ردد التلبية بصوت عالٍ باستمرار',
         ],
       ),
       HajjStep(
@@ -468,36 +479,64 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
         icon: Icons.autorenew,
         color: Colors.blue,
         steps: [
-          'Enter Masjid al-Haram with right foot',
-          'Begin Tawaf from the Black Stone',
+          'Enter Masjid al-Haram with right foot saying Dua of entry',
+          'Stop reciting Talbiyah when seeing the Kaaba',
+          'Begin Tawaf from the Black Stone line (green light)',
+          'Say "Bismillahi Allahu Akbar" at Black Stone',
+          'Kiss, touch or point to Black Stone each round',
+          'Men: Raml (brisk walk) in first 3 rounds',
+          'Men: Idtiba (expose right shoulder) throughout',
           'Circle Kaaba 7 times counter-clockwise',
-          'Men: Idtiba (expose right shoulder) in first 3 rounds',
-          'After Tawaf, pray 2 Rakats behind Maqam Ibrahim',
-          'Drink Zamzam water',
+          'Make Dua freely - any language is accepted',
+          'Recite "Rabbana atina..." between Yemeni corner and Black Stone',
+          'After Tawaf, cover both shoulders',
+          'Pray 2 Rakats behind Maqam Ibrahim (recite Surah Kafirun & Ikhlas)',
+          'Drink Zamzam water and make Dua',
         ],
         stepsUrdu: [
-          'دائیں پاؤں سے مسجد الحرام میں داخل ہوں',
-          'حجر اسود سے طواف شروع کریں',
+          'دائیں پاؤں سے دعا پڑھتے ہوئے مسجد الحرام میں داخل ہوں',
+          'کعبہ دیکھتے ہی تلبیہ بند کریں',
+          'حجر اسود کی لکیر (سبز روشنی) سے طواف شروع کریں',
+          'حجر اسود پر "بسم اللہ اللہ اکبر" کہیں',
+          'ہر چکر میں حجر اسود کو بوسہ دیں، چھوئیں یا اشارہ کریں',
+          'مرد: پہلے 3 چکروں میں رمل (تیز چال)',
+          'مرد: پورے طواف میں اضطباع کریں',
           'کعبہ کے 7 چکر لگائیں (خلاف گھڑی)',
-          'مرد: پہلے 3 چکروں میں اضطباع کریں',
-          'طواف کے بعد مقام ابراہیم کے پیچھے 2 رکعت پڑھیں',
-          'زمزم کا پانی پئیں',
+          'آزادانہ دعا کریں - کوئی بھی زبان قبول ہے',
+          'رکن یمانی اور حجر اسود کے درمیان "ربنا آتنا..." پڑھیں',
+          'طواف کے بعد دونوں کندھے ڈھانپیں',
+          'مقام ابراہیم کے پیچھے 2 رکعت پڑھیں (سورہ کافرون و اخلاص)',
+          'زمزم کا پانی پئیں اور دعا کریں',
         ],
         stepsHindi: [
-          'दाएं पैर से मस्जिद अल-हराम में दाख़िल हों',
-          'हज्र-ए-अस्वद से तवाफ़ शुरू करें',
+          'दाएं पैर से दुआ पढ़ते हुए मस्जिद अल-हराम में दाख़िल हों',
+          'काबा देखते ही तल्बियह बंद करें',
+          'हज्र-ए-अस्वद की लाइन (हरी रौशनी) से तवाफ़ शुरू करें',
+          'हज्र-ए-अस्वद पर "बिस्मिल्लाहि अल्लाहु अकबर" कहें',
+          'हर चक्कर में हज्र-ए-अस्वद को बोसा दें, छूएं या इशारा करें',
+          'मर्द: पहले 3 चक्करों में रमल (तेज़ चाल)',
+          'मर्द: पूरे तवाफ़ में इज़तिबा करें',
           'काबा के 7 चक्कर लगाएं (घड़ी के विपरीत)',
-          'मर्द: पहले 3 चक्करों में इज़तिबा करें',
-          'तवाफ़ के बाद मक़ाम इब्राहीम के पीछे 2 रकात पढ़ें',
-          'ज़मज़म का पानी पिएं',
+          'आज़ादी से दुआ करें - कोई भी ज़बान क़बूल है',
+          'रुक्न यमानी और हज्र-ए-अस्वद के बीच "रब्बना आतिना..." पढ़ें',
+          'तवाफ़ के बाद दोनों कंधे ढांपें',
+          'मक़ाम इब्राहीम के पीछे 2 रकात पढ़ें (सूरह काफ़िरून व इख़्लास)',
+          'ज़मज़म का पानी पिएं और दुआ करें',
         ],
         stepsArabic: [
-          'ادخل المسجد الحرام بالقدم اليمنى',
-          'ابدأ الطواف من الحجر الأسود',
+          'ادخل المسجد الحرام بالقدم اليمنى مع قراءة دعاء الدخول',
+          'توقف عن التلبية عند رؤية الكعبة',
+          'ابدأ الطواف من خط الحجر الأسود (الضوء الأخضر)',
+          'قل "بسم الله الله أكبر" عند الحجر الأسود',
+          'قبّل أو المس أو أشر إلى الحجر الأسود في كل شوط',
+          'الرجال: الرمل (المشي السريع) في أول 3 أشواط',
+          'الرجال: الاضطباع طوال الطواف',
           'طُف حول الكعبة 7 أشواط عكس عقارب الساعة',
-          'الرجال: الاضطباع (كشف الكتف الأيمن) في أول 3 أشواط',
-          'بعد الطواف، صلِّ ركعتين خلف مقام إبراهيم',
-          'اشرب ماء زمزم',
+          'ادعُ بحرية - أي لغة مقبولة',
+          'اقرأ "ربنا آتنا..." بين الركن اليماني والحجر الأسود',
+          'بعد الطواف، غطِّ كلا الكتفين',
+          'صلِّ ركعتين خلف مقام إبراهيم (اقرأ سورة الكافرون والإخلاص)',
+          'اشرب ماء زمزم وادعُ',
         ],
       ),
       HajjStep(
@@ -512,36 +551,64 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
         icon: Icons.directions_walk,
         color: Colors.orange,
         steps: [
-          'Go to Mount Safa',
-          'Face Kaaba and make Dua',
-          'Walk towards Marwa',
-          'Men: Run between green lights',
-          'Complete 7 laps (ending at Marwa)',
-          'Make Dua and Dhikr throughout',
+          'Proceed to Safa hill (start point)',
+          'Climb Safa and face the Kaaba',
+          'Recite: "Indeed, Safa and Marwa are from the symbols of Allah"',
+          'Say Takbir 3 times and make Dua',
+          'Walk towards Marwa (this is lap 1)',
+          'Men: Run/jog between green marker lights',
+          'Women: Walk normally throughout',
+          'Reach Marwa, face Kaaba, make Dua',
+          'Walk back to Safa (this is lap 2)',
+          'Complete 7 laps total (Safa to Marwa = 1 lap)',
+          'Sa\'i ends at Marwa (lap 7)',
+          'Make abundant Dua and Dhikr throughout',
+          'No specific Dua required - pray in any language',
         ],
         stepsUrdu: [
-          'کوہ صفا جائیں',
-          'کعبہ کی طرف منہ کریں اور دعا کریں',
-          'مروہ کی طرف چلیں',
-          'مرد: سبز بتیوں کے درمیان دوڑیں',
-          '7 چکر مکمل کریں (مروہ پر ختم)',
-          'دوران سعی دعا اور ذکر کرتے رہیں',
+          'کوہ صفا جائیں (شروع کی جگہ)',
+          'صفا پر چڑھیں اور کعبہ کی طرف منہ کریں',
+          'پڑھیں: "بے شک صفا اور مروہ اللہ کی نشانیوں میں سے ہیں"',
+          '3 بار تکبیر کہیں اور دعا کریں',
+          'مروہ کی طرف چلیں (یہ 1 چکر ہے)',
+          'مرد: سبز بتیوں کے درمیان دوڑیں/تیز چلیں',
+          'خواتین: پورے سعی میں معمول سے چلیں',
+          'مروہ پہنچیں، کعبہ کی طرف منہ کریں، دعا کریں',
+          'واپس صفا جائیں (یہ 2 چکر ہے)',
+          'کل 7 چکر مکمل کریں',
+          'سعی مروہ پر ختم ہوتی ہے (7 چکر)',
+          'پوری سعی میں کثرت سے دعا اور ذکر کریں',
+          'کوئی مخصوص دعا ضروری نہیں - کسی بھی زبان میں دعا کریں',
         ],
         stepsHindi: [
-          'कोह सफ़ा जाएं',
-          'काबा की तरफ़ मुंह करें और दुआ करें',
-          'मरवा की तरफ़ चलें',
-          'मर्द: हरी बत्तियों के बीच दौड़ें',
-          '7 चक्कर पूरे करें (मरवा पर ख़त्म)',
-          'सई के दौरान दुआ और ज़िक्र करते रहें',
+          'कोह सफ़ा जाएं (शुरू की जगह)',
+          'सफ़ा पर चढ़ें और काबा की तरफ़ मुंह करें',
+          'पढ़ें: "बेशक सफ़ा और मरवा अल्लाह की निशानियों में से हैं"',
+          '3 बार तकबीर कहें और दुआ करें',
+          'मरवा की तरफ़ चलें (यह 1 चक्कर है)',
+          'मर्द: हरी बत्तियों के बीच दौड़ें/तेज़ चलें',
+          'औरतें: पूरी सई में आम तौर पर चलें',
+          'मरवा पहुंचें, काबा की तरफ़ मुंह करें, दुआ करें',
+          'वापस सफ़ा जाएं (यह 2 चक्कर है)',
+          'कुल 7 चक्कर मुकम्मल करें',
+          'सई मरवा पर ख़त्म होती है (7 चक्कर)',
+          'पूरी सई में कसरत से दुआ और ज़िक्र करें',
+          'कोई मख़्सूस दुआ ज़रूरी नहीं - किसी भी ज़बान में दुआ करें',
         ],
         stepsArabic: [
-          'اذهب إلى جبل الصفا',
-          'استقبل الكعبة وادعُ',
-          'امشِ نحو المروة',
+          'اذهب إلى جبل الصفا (نقطة البداية)',
+          'اصعد الصفا واستقبل الكعبة',
+          'اقرأ: "إِنَّ الصَّفَا وَالْمَرْوَةَ مِنْ شَعَائِرِ اللَّهِ"',
+          'كبّر 3 مرات وادعُ',
+          'امشِ نحو المروة (هذا هو الشوط 1)',
           'الرجال: اهرول بين العلمين الأخضرين',
-          'أكمل 7 أشواط (تنتهي عند المروة)',
-          'ادعُ واذكر الله طوال السعي',
+          'النساء: امشِ بشكل طبيعي طوال السعي',
+          'وصلت إلى المروة، استقبل الكعبة، وادعُ',
+          'ارجع إلى الصفا (هذا هو الشوط 2)',
+          'أكمل 7 أشواط إجمالاً',
+          'ينتهي السعي عند المروة (الشوط 7)',
+          'ادعُ واذكر الله بكثرة طوال السعي',
+          'لا يوجد دعاء محدد مطلوب - ادعُ بأي لغة',
         ],
       ),
       HajjStep(
@@ -556,36 +623,56 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
         icon: Icons.content_cut,
         color: Colors.purple,
         steps: [
-          'Men: Shave head completely (Halq) - preferred',
-          'Or trim hair at least (Taqsir)',
-          'Women: Cut a fingertip length of hair',
-          'This marks the end of Ihram',
+          'Go to a barber shop near the Haram',
+          'Men: Shave head completely (Halq) - more reward',
+          'Or Men: Trim hair all over (Taqsir) - at least 1 inch',
+          'Women: Cut only a fingertip length of hair',
+          'Women should NOT shave their heads',
+          'This marks the official end of Ihram state',
           'All Ihram restrictions are now lifted',
-          'Your Umrah is complete! Alhamdulillah',
+          'You can now wear normal clothes and perfume',
+          'Say Alhamdulillah - Your Umrah is complete!',
+          'Recommended: Pray 2 Rakats of thanks',
+          'Stay in Makkah and pray in Masjid al-Haram',
         ],
         stepsUrdu: [
-          'مرد: سر مکمل منڈوائیں (حلق) - افضل',
-          'یا بال کٹوائیں (تقصیر)',
-          'خواتین: انگلی کے پور کی لمبائی کے بال کاٹیں',
-          'یہ احرام کا اختتام ہے',
+          'حرم کے قریب حجام کی دکان جائیں',
+          'مرد: سر مکمل منڈوائیں (حلق) - زیادہ ثواب',
+          'یا مرد: سارے بال کٹوائیں (تقصیر) - کم از کم 1 انچ',
+          'خواتین: صرف انگلی کے پور کی لمبائی کے بال کاٹیں',
+          'خواتین سر نہ منڈوائیں',
+          'یہ احرام کی حالت کا باضابطہ اختتام ہے',
           'اب احرام کی تمام پابندیاں ختم ہیں',
-          'آپ کا عمرہ مکمل ہوا! الحمد للہ',
+          'اب آپ عام کپڑے اور خوشبو استعمال کر سکتے ہیں',
+          'الحمد للہ کہیں - آپ کا عمرہ مکمل ہوا!',
+          'مستحب: شکرانے کی 2 رکعت پڑھیں',
+          'مکہ میں رہیں اور مسجد الحرام میں نماز پڑھیں',
         ],
         stepsHindi: [
-          'मर्द: सर पूरा मुंडवाएं (हल्क़) - अफ़ज़ल',
-          'या बाल कटवाएं (तक़्सीर)',
-          'औरतें: उंगली के पोर की लंबाई के बाल काटें',
-          'यह इहराम का अंत है',
+          'हरम के क़रीब हज्जाम की दुकान जाएं',
+          'मर्द: सर पूरा मुंडवाएं (हल्क़) - ज़्यादा सवाब',
+          'या मर्द: सारे बाल कटवाएं (तक़्सीर) - कम से कम 1 इंच',
+          'औरतें: सिर्फ़ उंगली के पोर की लंबाई के बाल काटें',
+          'औरतें सर न मुंडवाएं',
+          'यह इहराम की हालत का बाक़ायदा अंत है',
           'अब इहराम की सभी पाबंदियां ख़त्म हैं',
-          'आपका उमरा मुकम्मल हुआ! अल्हम्दुलिल्लाह',
+          'अब आप आम कपड़े और ख़ुशबू इस्तेमाल कर सकते हैं',
+          'अल्हम्दुलिल्लाह कहें - आपका उमरा मुकम्मल हुआ!',
+          'मुस्तहब: शुक्राने की 2 रकात पढ़ें',
+          'मक्का में रहें और मस्जिद अल-हराम में नमाज़ पढ़ें',
         ],
         stepsArabic: [
-          'الرجال: احلق رأسك بالكامل (الحلق) - الأفضل',
-          'أو قصر شعرك على الأقل (التقصير)',
-          'النساء: اقطع قدر أنملة من الشعر',
-          'هذا يمثل نهاية الإحرام',
+          'اذهب إلى محل حلاقة بالقرب من الحرم',
+          'الرجال: احلق رأسك بالكامل (الحلق) - أجر أكثر',
+          'أو الرجال: قصر شعرك (التقصير) - بوصة واحدة على الأقل',
+          'النساء: اقطع قدر أنملة فقط من الشعر',
+          'لا ينبغي للنساء حلق رؤوسهن',
+          'هذا يمثل النهاية الرسمية لحالة الإحرام',
           'جميع محظورات الإحرام أصبحت مرفوعة الآن',
-          'عمرتك مكتملة! الحمد لله',
+          'يمكنك الآن ارتداء الملابس العادية والعطر',
+          'قل الحمد لله - عمرتك مكتملة!',
+          'مستحب: صلِّ ركعتي الشكر',
+          'ابقَ في مكة وصلِّ في المسجد الحرام',
         ],
       ),
     ];
@@ -602,11 +689,11 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildIntroCard(type),
-          SizedBox(height: responsive.spaceRegular),
+          responsive.vSpaceRegular,
           ...steps.map((step) => _buildStepCard(step)),
-          SizedBox(height: responsive.spaceRegular),
+          responsive.vSpaceRegular,
           _buildDuasCard(type),
-          SizedBox(height: responsive.spaceRegular),
+          responsive.vSpaceRegular,
           _buildProhibitionsCard(),
         ],
       ),
@@ -652,17 +739,17 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
       ),
       child: Column(
         children: [
-          Icon(Icons.mosque, color: Colors.white, size: responsive.iconXXLarge),
-          SizedBox(height: responsive.spaceMedium),
+          Icon(Icons.mosque, color: Colors.white, size: responsive.iconSize(48)),
+          responsive.vSpaceMedium,
           Text(
             title,
             style: TextStyle(
               color: Colors.white,
-              fontSize: responsive.textXXLarge,
+              fontSize: responsive.fontSize(28),
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: responsive.spaceSmall),
+          responsive.vSpaceSmall,
           Text(
             subtitle,
             style: TextStyle(
@@ -706,15 +793,15 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
         : step.steps;
 
     return Container(
-      margin: EdgeInsets.only(bottom: responsive.spaceMedium),
+      margin: responsive.paddingOnly(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
-        border: Border.all(color: lightGreenBorder, width: 1.5),
+        border: Border.all(color: lightGreenBorder, width: responsive.spacing(1.5)),
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
+            blurRadius: 10.0,
             offset: const Offset(0, 2),
           ),
         ],
@@ -723,7 +810,7 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           leading: Container(
-            padding: EdgeInsets.all(responsive.spaceSmall),
+            padding: responsive.paddingAll(8),
             decoration: BoxDecoration(
               color: step.color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
@@ -751,13 +838,13 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
               child: Column(
                 children: steps.asMap().entries.map((entry) {
                   return Padding(
-                    padding: EdgeInsets.only(bottom: responsive.spaceSmall),
+                    padding: responsive.paddingOnly(bottom: 8),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          width: responsive.iconMedium,
-                          height: responsive.iconMedium,
+                          width: responsive.spacing(24),
+                          height: responsive.spacing(24),
                           decoration: BoxDecoration(
                             color: step.color.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
@@ -773,7 +860,7 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
                             ),
                           ),
                         ),
-                        SizedBox(width: responsive.spaceMedium),
+                        responsive.hSpaceMedium,
                         Expanded(
                           child: Text(
                             entry.value,
@@ -849,6 +936,193 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
         translationArabic:
             'لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير.',
       ),
+      HajjDua(
+        id: '4',
+        title: 'Dua when seeing the Kaaba',
+        titleUrdu: 'کعبہ دیکھنے کی دعا',
+        titleHindi: 'काबा देखने की दुआ',
+        titleArabic: 'دعاء رؤية الكعبة',
+        arabic:
+            'اللَّهُمَّ زِدْ هَذَا الْبَيْتَ تَشْرِيفًا وَتَعْظِيمًا وَتَكْرِيمًا وَمَهَابَةً، وَزِدْ مَنْ شَرَّفَهُ وَكَرَّمَهُ مِمَّنْ حَجَّهُ أَوِ اعْتَمَرَهُ تَشْرِيفًا وَتَكْرِيمًا وَتَعْظِيمًا وَبِرًّا',
+        translationEn:
+            'O Allah, increase this House in honor, reverence, nobility and awe. And increase those who honor it and glorify it, from those who perform Hajj or Umrah, in honor, nobility, reverence and righteousness.',
+        translationUrdu:
+            'اے اللہ! اس گھر کی عزت، تعظیم، تکریم اور ہیبت میں اضافہ فرما۔ اور جو لوگ اس کی عزت اور تکریم کرتے ہیں جو حج یا عمرہ کرتے ہیں ان کی عزت، تکریم، تعظیم اور نیکی میں اضافہ فرما۔',
+        translationHindi:
+            'ऐ अल्लाह! इस घर की इज़्ज़त, ताज़ीम, तकरीम और हैबत में इज़ाफ़ा फ़रमा। और जो लोग इसकी इज़्ज़त और तकरीम करते हैं जो हज या उमरा करते हैं उनकी इज़्ज़त, तकरीम, ताज़ीम और नेकी में इज़ाफ़ा फ़रमा।',
+        translationArabic:
+            'اللهم زد هذا البيت تشريفاً وتعظيماً وتكريماً ومهابة، وزد من شرّفه وكرّمه ممن حجه أو اعتمره تشريفاً وتكريماً وتعظيماً وبراً.',
+      ),
+      HajjDua(
+        id: '5',
+        title: 'Dua at Maqam Ibrahim',
+        titleUrdu: 'مقام ابراہیم پر دعا',
+        titleHindi: 'मक़ाम इब्राहीम पर दुआ',
+        titleArabic: 'دعاء عند مقام إبراهيم',
+        arabic:
+            'وَاتَّخِذُوا مِن مَّقَامِ إِبْرَاهِيمَ مُصَلًّى',
+        translationEn:
+            'And take the standing place of Ibrahim as a place of prayer.',
+        translationUrdu:
+            'اور مقام ابراہیم کو نماز کی جگہ بناؤ۔',
+        translationHindi:
+            'और मक़ाम इब्राहीम को नमाज़ की जगह बनाओ।',
+        translationArabic:
+            'واتخذوا من مقام إبراهيم مصلى.',
+      ),
+      HajjDua(
+        id: '6',
+        title: 'Dua at Arafah',
+        titleUrdu: 'عرفات کی دعا',
+        titleHindi: 'अरफ़ात की दुआ',
+        titleArabic: 'دعاء يوم عرفة',
+        arabic:
+            'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، بِيَدِهِ الْخَيْرُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ',
+        translationEn:
+            'There is no god but Allah alone, with no partner. His is the dominion and His is the praise. In His hand is all good, and He is able to do all things.',
+        translationUrdu:
+            'اللہ کے سوا کوئی معبود نہیں، وہ اکیلا ہے، اس کا کوئی شریک نہیں۔ بادشاہی اسی کی ہے اور تعریف اسی کے لیے ہے۔ اس کے ہاتھ میں تمام بھلائی ہے اور وہ ہر چیز پر قادر ہے۔',
+        translationHindi:
+            'अल्लाह के सिवा कोई माबूद नहीं, वो अकेला है, उसका कोई शरीक नहीं। बादशाही उसी की है और तारीफ़ उसी के लिए है। उसके हाथ में तमाम भलाई है और वो हर चीज़ पर क़ादिर है।',
+        translationArabic:
+            'لا إله إلا الله وحده لا شريك له، له الملك وله الحمد، بيده الخير، وهو على كل شيء قدير.',
+      ),
+      HajjDua(
+        id: '7',
+        title: 'Dua at Muzdalifah',
+        titleUrdu: 'مزدلفہ کی دعا',
+        titleHindi: 'मुज़्दलिफ़ा की दुआ',
+        titleArabic: 'دعاء المزدلفة',
+        arabic:
+            'اللَّهُمَّ إِنِّي أَسْأَلُكَ أَنْ تَرْزُقَنِي جَوَامِعَ الْخَيْرِ، وَأَعُوذُ بِكَ مِنْ جَوَامِعِ الشَّرِّ',
+        translationEn:
+            'O Allah, I ask You to grant me all forms of goodness, and I seek refuge in You from all forms of evil.',
+        translationUrdu:
+            'اے اللہ! میں تجھ سے سواگتا ہوں کہ تو مجھے تمام بھلائیاں عطا فرما اور میں تیری پناہ مانگتا ہوں تمام برائیوں سے۔',
+        translationHindi:
+            'ऐ अल्लाह! मैं तुझसे सवाल करता हूं कि तू मुझे तमाम भलाइयां अता फ़रमा और मैं तेरी पनाह मांगता हूं तमाम बुराइयों से।',
+        translationArabic:
+            'اللهم إني أسألك أن ترزقني جوامع الخير، وأعوذ بك من جوامع الشر.',
+      ),
+      HajjDua(
+        id: '8',
+        title: 'Dua when throwing Jamarat',
+        titleUrdu: 'جمرات پر کنکریاں مارنے کی دعا',
+        titleHindi: 'जमरात पर कंकरियां मारने की दुआ',
+        titleArabic: 'دعاء رمي الجمرات',
+        arabic:
+            'اللَّهُ أَكْبَرُ، اللَّهُمَّ اجْعَلْهُ حَجًّا مَبْرُورًا وَسَعْيًا مَشْكُورًا وَذَنْبًا مَغْفُورًا',
+        translationEn:
+            'Allah is the Greatest. O Allah, make it an accepted Hajj, an appreciated effort, and a forgiven sin.',
+        translationUrdu:
+            'اللہ سب سے بڑا ہے۔ اے اللہ! اسے مقبول حج بنا، قبول شدہ کوشش بنا اور معاف شدہ گناہ بنا۔',
+        translationHindi:
+            'अल्लाह सबसे बड़ा है। ऐ अल्लाह! इसे मक़बूल हज बना, क़बूल शुदा कोशिश बना और माफ़ शुदा गुनाह बना।',
+        translationArabic:
+            'الله أكبر، اللهم اجعله حجاً مبروراً وسعياً مشكوراً وذنباً مغفوراً.',
+      ),
+      HajjDua(
+        id: '9',
+        title: 'Dua when drinking Zamzam',
+        titleUrdu: 'زمزم پینے کی دعا',
+        titleHindi: 'ज़मज़म पीने की दुआ',
+        titleArabic: 'دعاء شرب ماء زمزم',
+        arabic:
+            'اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا وَرِزْقًا وَاسِعًا وَشِفَاءً مِنْ كُلِّ دَاءٍ',
+        translationEn:
+            'O Allah, I ask You for beneficial knowledge, abundant provision, and healing from every disease.',
+        translationUrdu:
+            'اے اللہ! میں تجھ سے نفع بخش علم، وسیع رزق اور ہر بیماری سے شفا مانگتا ہوں۔',
+        translationHindi:
+            'ऐ अल्लाह! मैं तुझसे फ़ायदेमंद इल्म, वसीअ रिज़्क़ और हर बीमारी से शिफ़ा मांगता हूं।',
+        translationArabic:
+            'اللهم إني أسألك علماً نافعاً ورزقاً واسعاً وشفاء من كل داء.',
+      ),
+      HajjDua(
+        id: '10',
+        title: 'Dua for Sacrifice (Qurbani)',
+        titleUrdu: 'قربانی کی دعا',
+        titleHindi: 'क़ुर्बानी की दुआ',
+        titleArabic: 'دعاء الذبح',
+        arabic:
+            'بِسْمِ اللَّهِ وَاللَّهُ أَكْبَرُ، اللَّهُمَّ مِنْكَ وَلَكَ، اللَّهُمَّ تَقَبَّلْ مِنِّي',
+        translationEn:
+            'In the name of Allah, Allah is the Greatest. O Allah, this is from You and for You. O Allah, accept it from me.',
+        translationUrdu:
+            'اللہ کے نام سے، اللہ سب سے بڑا ہے۔ اے اللہ! یہ تیری طرف سے ہے اور تیرے لیے ہے۔ اے اللہ! میری طرف سے قبول فرما۔',
+        translationHindi:
+            'अल्लाह के नाम से, अल्लाह सबसे बड़ा है। ऐ अल्लाह! यह तेरी तरफ़ से है और तेरे लिए है। ऐ अल्लाह! मेरी तरफ़ से क़बूल फ़रमा।',
+        translationArabic:
+            'بسم الله والله أكبر، اللهم منك ولك، اللهم تقبل مني.',
+      ),
+      HajjDua(
+        id: '11',
+        title: 'Dua for entering Ihram',
+        titleUrdu: 'احرام باندھنے کی دعا',
+        titleHindi: 'इहराम बांधने की दुआ',
+        titleArabic: 'دعاء الإحرام',
+        arabic:
+            'لَبَّيْكَ اللَّهُمَّ حَجًّا (أَوْ عُمْرَةً)',
+        translationEn:
+            'Here I am, O Allah, for Hajj (or Umrah).',
+        translationUrdu:
+            'حاضر ہوں اے اللہ! حج (یا عمرہ) کے لیے۔',
+        translationHindi:
+            'हाज़िर हूं ऐ अल्लाह! हज (या उमरा) के लिए।',
+        translationArabic:
+            'لبيك اللهم حجاً (أو عمرة).',
+      ),
+      HajjDua(
+        id: '12',
+        title: 'Dua when starting Tawaf',
+        titleUrdu: 'طواف شروع کرنے کی دعا',
+        titleHindi: 'तवाफ़ शुरू करने की दुआ',
+        titleArabic: 'دعاء بداية الطواف',
+        arabic:
+            'بِسْمِ اللَّهِ وَاللَّهُ أَكْبَرُ، اللَّهُمَّ إِيمَانًا بِكَ وَتَصْدِيقًا بِكِتَابِكَ وَوَفَاءً بِعَهْدِكَ وَاتِّبَاعًا لِسُنَّةِ نَبِيِّكَ مُحَمَّدٍ ﷺ',
+        translationEn:
+            'In the name of Allah, Allah is the Greatest. O Allah, with faith in You, belief in Your Book, fulfillment of Your covenant, and following the Sunnah of Your Prophet Muhammad ﷺ.',
+        translationUrdu:
+            'اللہ کے نام سے، اللہ سب سے بڑا ہے۔ اے اللہ! تجھ پر ایمان، تیری کتاب کی تصدیق، تیرے عہد کی وفا اور تیرے نبی محمد ﷺ کی سنت کی پیروی کرتے ہوئے۔',
+        translationHindi:
+            'अल्लाह के नाम से, अल्लाह सबसे बड़ा है। ऐ अल्लाह! तुझ पर ईमान, तेरी किताब की तस्दीक़, तेरे अहद की वफ़ा और तेरे नबी मुहम्मद ﷺ की सुन्नत की पैरवी करते हुए।',
+        translationArabic:
+            'بسم الله والله أكبر، اللهم إيماناً بك وتصديقاً بكتابك ووفاءً بعهدك واتباعاً لسنة نبيك محمد ﷺ.',
+      ),
+      HajjDua(
+        id: '13',
+        title: 'Dua after completing Tawaf',
+        titleUrdu: 'طواف مکمل کرنے کی دعا',
+        titleHindi: 'तवाफ़ पूरा करने की दुआ',
+        titleArabic: 'دعاء بعد الطواف',
+        arabic:
+            'اللَّهُمَّ اغْفِرْ وَارْحَمْ وَاعْفُ عَمَّا تَعْلَمُ إِنَّكَ أَنْتَ الْأَعَزُّ الْأَكْرَمُ',
+        translationEn:
+            'O Allah, forgive, have mercy, and pardon what You know. Indeed, You are the Most Mighty, the Most Generous.',
+        translationUrdu:
+            'اے اللہ! معاف فرما، رحم فرما اور جو تو جانتا ہے اس سے درگزر فرما۔ بے شک تو ہی سب سے عزت والا، سب سے کرم والا ہے۔',
+        translationHindi:
+            'ऐ अल्लाह! माफ़ फ़रमा, रहम फ़रमा और जो तू जानता है उससे दरगुज़र फ़रमा। बेशक तू ही सबसे इज़्ज़त वाला, सबसे करम वाला है।',
+        translationArabic:
+            'اللهم اغفر وارحم واعف عما تعلم إنك أنت الأعز الأكرم.',
+      ),
+      HajjDua(
+        id: '14',
+        title: 'Farewell Dua when leaving Haram',
+        titleUrdu: 'حرم سے رخصت کی دعا',
+        titleHindi: 'हरम से रुख़्सत की दुआ',
+        titleArabic: 'دعاء الوداع',
+        arabic:
+            'اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ، اللَّهُمَّ اجْعَلْ هَذَا حَجًّا مَبْرُورًا وَذَنْبًا مَغْفُورًا وَعَمَلًا مَقْبُولًا',
+        translationEn:
+            'O Allah, I ask You from Your bounty. O Allah, make this an accepted Hajj, a forgiven sin, and an accepted deed.',
+        translationUrdu:
+            'اے اللہ! میں تجھ سے تیرے فضل سے سوال کرتا ہوں۔ اے اللہ! اسے مقبول حج، معاف شدہ گناہ اور قبول شدہ عمل بنا۔',
+        translationHindi:
+            'ऐ अल्लाह! मैं तुझसे तेरे फ़ज़्ल से सवाल करता हूं। ऐ अल्लाह! इसे मक़बूल हज, माफ़ शुदा गुनाह और क़बूल शुदा अमल बना।',
+        translationArabic:
+            'اللهم إني أسألك من فضلك، اللهم اجعل هذا حجاً مبروراً وذنباً مغفوراً وعملاً مقبولاً.',
+      ),
     ];
 
     String sectionTitle;
@@ -873,11 +1147,11 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
-        border: Border.all(color: lightGreenBorder, width: 1.5),
+        border: Border.all(color: lightGreenBorder, width: responsive.spacing(1.5)),
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
+            blurRadius: 10.0,
             offset: const Offset(0, 2),
           ),
         ],
@@ -894,7 +1168,7 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
                   color: darkGreen,
                   size: responsive.iconMedium,
                 ),
-                SizedBox(width: responsive.spaceSmall),
+                responsive.hSpaceSmall,
                 Text(
                   sectionTitle,
                   style: TextStyle(
@@ -905,7 +1179,7 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
                 ),
               ],
             ),
-            SizedBox(height: responsive.spaceRegular),
+            responsive.vSpaceRegular,
             ...duas.map((dua) => _buildDuaItem(dua)),
           ],
         ),
@@ -955,7 +1229,7 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
     }
 
     return Container(
-      margin: EdgeInsets.only(bottom: responsive.spaceRegular),
+      margin: responsive.paddingOnly(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
@@ -966,8 +1240,8 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
-            offset: Offset(0, responsive.spacing(2)),
+            blurRadius: 10.0,
+            offset: Offset(0, 2.0),
           ),
         ],
       ),
@@ -1071,7 +1345,7 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
                 children: [
                   if (isPlayingArabic)
                     Padding(
-                      padding: EdgeInsets.only(
+                      padding: responsive.paddingOnly(
                         right: responsive.spaceSmall,
                         top: responsive.spaceSmall,
                       ),
@@ -1085,7 +1359,7 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
                     child: Text(
                       dua.arabic,
                       style: TextStyle(
-                        fontFamily: 'Amiri',
+                        fontFamily: 'Poppins',
                         fontSize: responsive.fontSize(26),
                         height: 2.0,
                         color: isPlayingArabic
@@ -1128,7 +1402,7 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
                   children: [
                     if (isPlayingTranslation)
                       Padding(
-                        padding: EdgeInsets.only(
+                        padding: responsive.paddingOnly(
                           right: responsive.spaceSmall,
                           top: responsive.spaceXSmall,
                         ),
@@ -1149,18 +1423,22 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
                                 size: responsive.iconSmall,
                                 color: AppColors.primary,
                               ),
-                              SizedBox(width: responsive.spaceSmall),
-                              Text(
-                                '${context.tr('translation')} ($languageLabel)',
-                                style: TextStyle(
-                                  fontSize: responsive.textSmall,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.primary,
+                              responsive.hSpaceSmall,
+                              Flexible(
+                                child: Text(
+                                  '${context.tr('translation')} ($languageLabel)',
+                                  style: TextStyle(
+                                    fontSize: responsive.textSmall,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primary,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(height: responsive.spaceMedium),
+                          responsive.vSpaceMedium,
                           Text(
                             translation,
                             style: TextStyle(
@@ -1169,10 +1447,7 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
                               color: isPlayingTranslation
                                   ? AppColors.primary
                                   : Colors.black87,
-                              fontFamily:
-                                  _selectedLanguage == HajjLanguage.arabic
-                                  ? 'Amiri'
-                                  : null,
+                              fontFamily: 'Poppins',
                             ),
                             textDirection:
                                 (_selectedLanguage == HajjLanguage.urdu ||
@@ -1219,7 +1494,7 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
                 size: responsive.iconSize(22),
                 color: isActive ? Colors.white : AppColors.primary,
               ),
-              SizedBox(height: responsive.spaceXSmall),
+              responsive.vSpaceXSmall,
               Text(
                 label,
                 style: TextStyle(
@@ -1269,12 +1544,6 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
   void _copyDua(HajjDua dua, String title, String translation) {
     Clipboard.setData(
       ClipboardData(text: '$title\n\n${dua.arabic}\n\n$translation'),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.tr('copied')),
-        backgroundColor: AppColors.primary,
-      ),
     );
   }
 
@@ -1348,11 +1617,11 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
-        border: Border.all(color: lightGreenBorder, width: 1.5),
+        border: Border.all(color: lightGreenBorder, width: responsive.spacing(1.5)),
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
+            blurRadius: 10.0,
             offset: const Offset(0, 2),
           ),
         ],
@@ -1369,7 +1638,7 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
                   color: Colors.red,
                   size: responsive.iconMedium,
                 ),
-                SizedBox(width: responsive.spaceSmall),
+                responsive.hSpaceSmall,
                 Text(
                   sectionTitle,
                   style: TextStyle(

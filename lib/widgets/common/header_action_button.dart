@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/app_utils.dart';
 
 /// Reusable header action button widget used in detail screens
 /// Supports both light and dark themes automatically
@@ -24,6 +25,7 @@ class HeaderActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final responsive = context.responsive;
     final buttonColor = isActive
         ? (activeColor ?? AppColors.primary)
         : (inactiveColor ??
@@ -31,12 +33,12 @@ class HeaderActionButton extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(responsive.radiusMedium),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: responsive.paddingSymmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: buttonColor,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(responsive.radiusMedium),
           boxShadow: isActive && !isDark
               ? [
                   BoxShadow(
@@ -54,16 +56,14 @@ class HeaderActionButton extends StatelessWidget {
             Icon(
               icon,
               color: isActive || isDark ? Colors.white : Colors.grey.shade700,
-              size: 20,
+              size: responsive.iconSmall,
             ),
             const SizedBox(height: 4),
             Text(
               label,
-              style: TextStyle(
-                fontSize: 10,
+              style: AppTextStyles.caption(context).copyWith(
                 fontWeight: FontWeight.w600,
-                color:
-                    isActive || isDark ? Colors.white : Colors.grey.shade700,
+                color: isActive || isDark ? Colors.white : Colors.grey.shade700,
               ),
             ),
           ],

@@ -3,23 +3,66 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Allow read/write access to otps collection for OTP verification
-    // Note: In production, you may want to add more specific rules
-    match /otps/{email} {
-      // Allow anyone to create/update OTP (for sending OTP)
-      allow create, update: if true;
-
-      // Allow anyone to read OTP (for verification)
-      allow read: if true;
-
-      // Allow anyone to delete OTP (for cleanup after verification)
-      allow delete: if true;
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
     }
 
-    // Default rule for other collections
-    // Require authentication for all other data
+    // Helper function to check if user is owner
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      // Anyone can read user data (for profile display)
+      allow read: if true;
+
+      // Only authenticated users can create their own document
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+
+      // Only the user can update their own data
+      allow update: if isOwner(userId);
+
+      // Only the user can delete their own data
+      allow delete: if isOwner(userId);
+    }
+
+    // OTPs collection (for password reset)
+    match /otps/{email} {
+      // Allow read/write for OTP verification
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Prayer requests collection
+    match /prayerRequests/{requestId} {
+      // Anyone can read prayer requests
+      allow read: if true;
+
+      // Only authenticated users can create requests
+      allow create: if isAuthenticated();
+
+      // Only owner can update/delete their requests
+      allow update, delete: if isAuthenticated() &&
+                                resource.data.userId == request.auth.uid;
+    }
+
+    // Bookmarks collection
+    match /bookmarks/{userId} {
+      // Only owner can read/write their bookmarks
+      allow read, write: if isOwner(userId);
+    }
+
+    // Tasbih counter collection
+    match /tasbih/{userId} {
+      // Only owner can read/write their tasbih data
+      allow read, write: if isOwner(userId);
+    }
+
+    // Default deny all other collections
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if false;
     }
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_dimens.dart';
+import '../../core/utils/app_utils.dart';
 import 'app_card.dart';
 
 /// Reusable search bar widget with voice search and waveform animation.
@@ -76,16 +76,6 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
       onError: (error) {
         setState(() => _isListening = false);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error: ${error.errorMsg}'),
-              backgroundColor: AppColors.error,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          );
         }
       },
     );
@@ -108,25 +98,13 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
       );
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
-              'Speech recognition not available. Please enable microphone permission.',
-            ),
-            backgroundColor: AppColors.error,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
       }
     }
   }
 
   Widget _buildWaveformAnimation() {
     return SizedBox(
-      width: 44,
+      width: context.responsive.iconXLarge,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: List.generate(3, (index) {
@@ -148,6 +126,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppCard(
@@ -159,12 +138,11 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
           widget.onChanged?.call(value);
         },
         textInputAction: TextInputAction.search,
-        style: TextStyle(
-          color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-        ),
+        style: AppTextStyles.bodyLarge(context),
         decoration: InputDecoration(
           hintText: _isListening ? 'Listening...' : widget.hintText,
-          hintStyle: TextStyle(
+          hintStyle: AppTextStyles.bodyMedium(
+            context,
             color: _isListening
                 ? AppColors.primary
                 : (isDark ? AppColors.darkTextSecondary : AppColors.textHint),
@@ -174,17 +152,17 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
               : const Icon(Icons.search, color: AppColors.primary),
           suffixIcon: widget.enableVoiceSearch
               ? Container(
-                  margin: const EdgeInsets.all(6),
+                  margin: responsive.paddingAll(6),
                   decoration: BoxDecoration(
                     color: _isListening ? Colors.red : AppColors.primary,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(responsive.radiusSmall),
                   ),
                   child: IconButton(
                     onPressed: _onMicPressed,
                     icon: Icon(
                       _isListening ? Icons.stop_rounded : Icons.mic_rounded,
                       color: Colors.white,
-                      size: 20,
+                      size: responsive.iconSize(20),
                     ),
                     padding: EdgeInsets.zero,
                     constraints:
@@ -209,12 +187,12 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
           filled: true,
           fillColor: isDark ? AppColors.darkCard : Colors.white,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppDimens.borderRadiusLarge),
+            borderRadius: BorderRadius.circular(responsive.radiusLarge),
             borderSide: BorderSide.none,
           ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: AppDimens.paddingLarge,
-            vertical: AppDimens.paddingMedium,
+          contentPadding: responsive.paddingSymmetric(
+            horizontal: 16,
+            vertical: 14,
           ),
         ),
       ),

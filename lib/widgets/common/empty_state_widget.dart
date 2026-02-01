@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
-import '../../core/utils/spacing.dart';
+import '../../core/utils/app_utils.dart';
 
 /// Reusable empty state widget.
 /// Displays icon, message, and optional action button.
@@ -29,6 +28,7 @@ class EmptyStateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final responsive = context.responsive;
 
     return Center(
       child: Column(
@@ -36,19 +36,14 @@ class EmptyStateWidget extends StatelessWidget {
         children: [
           Icon(
             icon,
-            size: 64,
+            size: responsive.iconXXLarge,
             color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
           ),
           VSpace.large,
           Text(
             message,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              color: isDark
-                  ? AppColors.darkTextSecondary
-                  : AppColors.textSecondary,
-            ),
+            style: AppTextStyles.bodyLarge(context),
           ),
           if (actionText != null && onAction != null) ...[
             VSpace.large,

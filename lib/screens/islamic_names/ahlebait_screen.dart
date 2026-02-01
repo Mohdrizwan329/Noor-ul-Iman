@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/common/search_bar_widget.dart';
@@ -538,8 +537,8 @@ class _AhlebaitScreenState extends State<AhlebaitScreen> {
                 : [
                     BoxShadow(
                       color: darkGreen.withValues(alpha: 0.08),
-                      blurRadius: responsive.spacing(10),
-                      offset: Offset(0, responsive.spacing(2)),
+                      blurRadius: 10.0,
+                      offset: Offset(0, 2.0),
                     ),
                   ],
           ),
@@ -584,8 +583,8 @@ class _AhlebaitScreenState extends State<AhlebaitScreen> {
                 children: [
                   // Circular badge
                   Container(
-                    width: responsive.spacing(50),
-                    height: responsive.spacing(50),
+                    width: responsive.iconLarge * 1.5,
+                    height: responsive.iconLarge * 1.5,
                     decoration: BoxDecoration(
                       color: isDark ? emeraldGreen : darkGreen,
                       shape: BoxShape.circle,
@@ -601,7 +600,7 @@ class _AhlebaitScreenState extends State<AhlebaitScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(width: responsive.spacing(14)),
+                  responsive.hSpaceSmall,
                   // Name
                   Expanded(
                     child: Text(
@@ -611,9 +610,11 @@ class _AhlebaitScreenState extends State<AhlebaitScreen> {
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : darkGreen,
                         fontFamily: languageCode == 'ar'
-                            ? 'Amiri'
-                            : (languageCode == 'ur' ? 'NotoNastaliq' : null),
+                            ? 'Poppins'
+                            : (languageCode == 'ur' ? 'Poppins' : null),
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       textDirection:
                           (languageCode == 'ar' || languageCode == 'ur')
                           ? TextDirection.rtl
@@ -622,8 +623,8 @@ class _AhlebaitScreenState extends State<AhlebaitScreen> {
                   ),
                   // Circular forward arrow
                   Container(
-                    width: responsive.spacing(32),
-                    height: responsive.spacing(32),
+                    width: 32,
+                    height: 32,
                     decoration: BoxDecoration(
                       color: isDark
                           ? emeraldGreen.withValues(alpha: 0.2)

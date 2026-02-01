@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/app_utils.dart';
 
 /// Reusable grid builder for feature cards with responsive design
 /// Automatically adjusts columns based on screen size and orientation
@@ -58,6 +58,7 @@ class FeatureGridItem {
   final Color color;
   final VoidCallback onTap;
   final String? emoji;
+  final String? translationKey; // Used for multi-language search
 
   const FeatureGridItem({
     required this.icon,
@@ -65,6 +66,7 @@ class FeatureGridItem {
     required this.color,
     required this.onTap,
     this.emoji,
+    this.translationKey,
   });
 }
 
@@ -99,8 +101,8 @@ class _FeatureGridCard extends StatelessWidget {
               : [
                   BoxShadow(
                     color: AppColors.primary.withValues(alpha: 0.08),
-                    blurRadius: responsive.spacing(10),
-                    offset: Offset(0, responsive.spacing(2)),
+                    blurRadius: 10.0,
+                    offset: Offset(0, 2.0),
                   ),
                 ],
         ),
@@ -119,8 +121,8 @@ class _FeatureGridCard extends StatelessWidget {
                     : [
                         BoxShadow(
                           color: AppColors.primary.withValues(alpha: 0.3),
-                          blurRadius: responsive.spacing(8),
-                          offset: Offset(0, responsive.spacing(2)),
+                          blurRadius: 8,
+                          offset: Offset(0, 2.0),
                         ),
                       ],
               ),
@@ -144,7 +146,7 @@ class _FeatureGridCard extends StatelessWidget {
                 color: isDark ? AppColors.darkTextPrimary : AppColors.primary,
               ),
               textAlign: TextAlign.center,
-              maxLines: responsive.isTablet ? 2 : 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ],

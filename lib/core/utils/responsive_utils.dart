@@ -196,6 +196,55 @@ class ResponsiveUtils {
   SizedBox get hSpaceLarge => SizedBox(width: spaceLarge);
   SizedBox get hSpaceXLarge => SizedBox(width: spaceXLarge);
   SizedBox get hSpaceXXLarge => SizedBox(width: spaceXXLarge);
+
+  // Fixed (non-responsive) values for maintaining exact UI dimensions
+  // Use these when you want consistent sizes across all screen sizes
+
+  // Fixed text sizes
+  double get fixedTextXSmall => 10;
+  double get fixedTextSmall => 12;
+  double get fixedTextMedium => 14;
+  double get fixedTextRegular => 16;
+  double get fixedTextLarge => 18;
+  double get fixedTextXLarge => 20;
+  double get fixedTextXXLarge => 24;
+  double get fixedTextHeading => 26;
+  double get fixedTextTitle => 28;
+
+  // Fixed icon sizes
+  double get fixedIconXSmall => 16.0;
+  double get fixedIconSmall => 20.0;
+  double get fixedIconMedium => 24.0;
+  double get fixedIconLarge => 28.0;
+  double get fixedIconXLarge => 60.0;  // For header cards
+  double get fixedIconXXLarge => 48.0;
+  double get fixedIconHuge => 100.0;   // For logos
+
+  // Fixed spacing
+  double get fixedSpaceXSmall => 4.0;
+  double get fixedSpaceSmall => 8.0;
+  double get fixedSpaceMedium => 12.0;
+  double get fixedSpaceRegular => 16.0;
+  double get fixedSpaceLarge => 20.0;
+  double get fixedSpaceXLarge => 24.0;
+  double get fixedSpaceXXLarge => 32.0;
+
+  // Fixed border radius
+  double get fixedRadiusSmall => 4.0;
+  double get fixedRadiusMedium => 15.0;  // For header cards
+  double get fixedRadiusLarge => 12.0;
+  double get fixedRadiusXLarge => 16.0;
+  double get fixedRadiusCard => 24.0;    // For main containers
+
+  // Fixed padding helpers
+  EdgeInsets fixedPaddingAll(double value) => EdgeInsets.all(value);
+
+  EdgeInsets fixedPaddingSymmetric({double horizontal = 0, double vertical = 0}) {
+    return EdgeInsets.symmetric(
+      horizontal: horizontal,
+      vertical: vertical,
+    );
+  }
 }
 
 /// Extension to easily access ResponsiveUtils from BuildContext

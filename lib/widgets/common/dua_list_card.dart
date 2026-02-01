@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_dimens.dart';
-import '../../core/utils/spacing.dart';
+import '../../core/utils/app_utils.dart';
 import 'app_card.dart';
 
 /// Reusable card for displaying duas in a list.

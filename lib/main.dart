@@ -8,6 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'core/theme/app_theme.dart';
 import 'core/services/background_location_service.dart';
+import 'core/services/azan_background_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/prayer_provider.dart';
 import 'providers/settings_provider.dart';
@@ -49,6 +50,14 @@ void main() async {
   final backgroundLocationService = BackgroundLocationService();
   await backgroundLocationService.startLocationTracking();
 
+  // Initialize Azan background service for playing Azan when app is closed
+  try {
+    await AzanBackgroundService.initialize();
+  } catch (e) {
+    debugPrint('Azan background service initialization failed: $e');
+    // Continue app startup even if alarm manager fails
+  }
+
   runApp(const MyApp());
 }
 
@@ -64,10 +73,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => SettingsProvider()..loadSettings(),
         ),
-        ChangeNotifierProvider(create: (_) => PrayerProvider()),
+        ChangeNotifierProvider(create: (_) => PrayerProvider()..initialize()),
         ChangeNotifierProvider(create: (_) => QuranProvider()),
         ChangeNotifierProvider(create: (_) => TasbihProvider()..loadSettings()),
-        ChangeNotifierProvider(create: (_) => AdhanProvider()),
+        ChangeNotifierProvider(create: (_) => AdhanProvider()..initialize()),
         ChangeNotifierProvider(create: (_) => HadithProvider()..initialize()),
         ChangeNotifierProvider(create: (_) => DuaProvider()..loadCategories()),
       ],

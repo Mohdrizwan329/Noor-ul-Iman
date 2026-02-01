@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_assets.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
-import '../../core/utils/validators.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/auth/auth_text_field.dart';
+import '../../widgets/auth/phone_number_field.dart';
 import '../../screens/main/main_screen.dart';
 import 'login_screen.dart';
 
@@ -22,16 +21,44 @@ class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _mobileController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
+  String _completePhoneNumber = '';
+  bool _isPhoneInput = false;
+  bool _isTransitioning = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.addListener(_detectInputType);
+  }
 
   @override
   void dispose() {
+    _emailController.removeListener(_detectInputType);
     _nameController.dispose();
     _emailController.dispose();
+    _mobileController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  void _detectInputType() {
+    final text = _emailController.text.trim();
+    final startsWithNumber =
+        text.isNotEmpty && RegExp(r'^[0-9+]').hasMatch(text);
+    if (startsWithNumber && !_isPhoneInput && !_isTransitioning) {
+      _emailController.removeListener(_detectInputType);
+      _isTransitioning = true;
+      _emailController.clear();
+      setState(() {
+        _isPhoneInput = true;
+      });
+      _emailController.addListener(_detectInputType);
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _isTransitioning = false;
+      });
+    }
   }
 
   Future<void> _signUpWithEmail() async {
@@ -40,10 +67,18 @@ class _SignupScreenState extends State<SignupScreen> {
     final authProvider = context.read<AuthProvider>();
     final languageProvider = context.read<LanguageProvider>();
 
+    // Clear any previous errors
+    authProvider.clearError();
+
+    final name = _nameController.text.trim();
+    final emailOrPhone = _isPhoneInput
+        ? _completePhoneNumber
+        : _emailController.text.trim();
+
     final success = await authProvider.signUpWithEmail(
-      email: _emailController.text.trim(),
+      email: emailOrPhone,
       password: _passwordController.text,
-      name: _nameController.text.trim(),
+      name: name,
       context: context,
       language: languageProvider.languageCode,
     );
@@ -56,26 +91,20 @@ class _SignupScreenState extends State<SignupScreen> {
 
       if (!mounted) return;
 
-      // Show success message and redirect to login
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.tr('signup_success_please_login')),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 4),
-        ),
-      );
-
       // Navigate to login screen
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
     } else {
-      // Show error
+      // Error is automatically set in AuthProvider and will be displayed
+      // Show snackbar for additional feedback
       if (authProvider.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(authProvider.error!),
             backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 4),
           ),
         );
       }
@@ -93,40 +122,30 @@ class _SignupScreenState extends State<SignupScreen> {
         MaterialPageRoute(builder: (_) => const MainScreen()),
         (route) => false,
       );
-    } else if (authProvider.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(authProvider.error!),
-          backgroundColor: Colors.red,
-        ),
-      );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
     final responsive = ResponsiveUtils(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: responsive.spacing(32),
+              height: responsive.spacing(32),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
               ),
-              padding: const EdgeInsets.all(4),
+              padding: responsive.paddingAll(4),
               child: Image.asset(AppAssets.appLogo, fit: BoxFit.contain),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: responsive.spacing(8)),
             Text(context.tr('sign_up')),
           ],
         ),
@@ -135,25 +154,7 @@ class _SignupScreenState extends State<SignupScreen> {
         child: SingleChildScrollView(
           padding: responsive.paddingAll(24),
           child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: isDark
-                    ? [const Color(0xFF5C6BC0), const Color(0xFF7986CB)]
-                    : [const Color(0xFF81C784), const Color(0xFF66BB6A)],
-              ),
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: isDark
-                      ? const Color(0x40000000)
-                      : const Color(0x3081C784),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
+            decoration: AppDecorations.gradient(context),
             padding: responsive.paddingAll(32),
             child: Form(
               key: _formKey,
@@ -163,221 +164,217 @@ class _SignupScreenState extends State<SignupScreen> {
                   // Logo
                   Center(
                     child: Container(
-                      width: responsive.iconSize(100),
-                      height: responsive.iconSize(100),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(50),
-                            blurRadius: 15,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(4),
+                      width: responsive.iconHuge,
+                      height: responsive.iconHuge,
+                      decoration: AppDecorations.circularIcon(context),
+                      padding: responsive.paddingAll(4),
                       child: ClipOval(
                         child: Image.asset(
-                          'assets/images/Applogo.png',
+                          AppAssets.appLogo,
                           fit: BoxFit.cover,
                         ),
                       ),
                     ),
                   ),
-                SizedBox(height: responsive.spaceLarge),
-                // Create Account
-                Center(
-                  child: Text(
-                    context.tr('create_account'),
-                    style: TextStyle(
-                      fontSize: responsive.textXXLarge,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: responsive.spaceLarge),
-                // Name Field
-                AuthTextField(
-                  controller: _nameController,
-                  hintText: context.tr('enter_name'),
-                  labelText: context.tr('full_name'),
-                  prefixIcon: Icons.person_outline,
-                  textCapitalization: TextCapitalization.words,
-                  validator: (value) => Validators.validateName(value, context),
-                ),
-                SizedBox(height: responsive.spaceMedium),
-                // Email Field
-                AuthTextField(
-                  controller: _emailController,
-                  hintText: context.tr('enter_email'),
-                  labelText: context.tr('email'),
-                  prefixIcon: Icons.email_outlined,
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) =>
-                      Validators.validateEmail(value, context),
-                ),
-                SizedBox(height: responsive.spaceMedium),
-                // Password Field
-                AuthTextField(
-                  controller: _passwordController,
-                  hintText: context.tr('enter_password'),
-                  labelText: context.tr('password'),
-                  prefixIcon: Icons.lock_outline,
-                  isPassword: true,
-                  validator: (value) =>
-                      Validators.validatePassword(value, context),
-                ),
-                SizedBox(height: responsive.spaceMedium),
-                // Confirm Password Field
-                AuthTextField(
-                  controller: _confirmPasswordController,
-                  hintText: context.tr('enter_password'),
-                  labelText: context.tr('confirm_password'),
-                  prefixIcon: Icons.lock_outline,
-                  isPassword: true,
-                  validator: (value) => Validators.validateConfirmPassword(
-                    value,
-                    _passwordController.text,
-                    context,
-                  ),
-                ),
-                SizedBox(height: responsive.spaceLarge),
-                // Sign Up Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: authProvider.isLoading ? null : _signUpWithEmail,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: authProvider.isLoading
-                          ? const Color(0xFFFFD700)
-                          : (isDark ? const Color(0xFF5C6BC0) : const Color(0xFF4CAF50)),
-                      elevation: 8,
-                      shadowColor: Colors.black.withAlpha(80),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        side: authProvider.isLoading
-                            ? const BorderSide(
-                                color: Color(0xFFFFD700),
-                                width: 2,
-                              )
-                            : BorderSide.none,
-                      ),
-                    ),
-                    child: authProvider.isLoading
-                        ? const CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 3,
-                          )
-                        : Text(
-                            context.tr('sign_up'),
-                            style: TextStyle(
-                              fontSize: responsive.textLarge,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                  ),
-                ),
-                SizedBox(height: responsive.spaceLarge),
-                // Divider with "Or"
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Divider(
-                        color: Color(0x80FFFFFF),
-                        thickness: 1.5,
-                      ),
-                    ),
-                    Padding(
-                      padding: responsive.paddingSymmetric(horizontal: 16),
-                      child: Text(
-                        context.tr('or_continue_with'),
-                        style: TextStyle(
-                          color: const Color(0xE6FFFFFF),
-                          fontSize: responsive.textSmall,
-                        ),
-                      ),
-                    ),
-                    const Expanded(
-                      child: Divider(
-                        color: Color(0x80FFFFFF),
-                        thickness: 1.5,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: responsive.spaceLarge),
-                // Social Sign In Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: OutlinedButton.icon(
-                    onPressed: authProvider.isLoading
-                        ? null
-                        : _signInWithGoogle,
-                    style: OutlinedButton.styleFrom(
-                      padding: responsive.paddingSymmetric(vertical: 12),
-                      backgroundColor: Colors.white.withAlpha(25),
-                      side: const BorderSide(color: Colors.white, width: 2),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    icon: const Icon(
-                      Icons.g_mobiledata,
-                      size: 24,
-                      color: Colors.white,
-                    ),
-                    label: const Text(
-                      'Google',
+                  SizedBox(height: responsive.spacing(20)),
+                  // Create Account
+                  Center(
+                    child: Text(
+                      context.tr('create_account'),
                       style: TextStyle(
+                        fontSize: responsive.fontSize(24),
+                        fontWeight: FontWeight.bold,
                         color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                ),
-                SizedBox(height: responsive.spaceLarge),
-                // Sign In Link
-                Center(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LoginScreen()),
-                      );
+
+                  SizedBox(height: responsive.spacing(20)),
+                  // Name Field
+                  AuthTextField(
+                    controller: _nameController,
+                    hintText: context.tr('enter_name'),
+                    labelText: context.tr('name'),
+                    prefixIcon: Icons.person_outline,
+                    textCapitalization: TextCapitalization.words,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return context.tr('name_required');
+                      }
+                      return null;
                     },
-                    child: RichText(
-                      text: TextSpan(
-                        style: TextStyle(
-                          fontSize: responsive.textMedium,
+                  ),
+                  SizedBox(height: responsive.spacing(12)),
+                  // Smart Email/Phone Field
+                  if (_isPhoneInput)
+                    Builder(
+                      builder: (ctx) {
+                        final mobileRequired = ctx.tr('mobile_required');
+                        final invalidMobile = ctx.tr('invalid_mobile');
+                        return PhoneNumberField(
+                          controller: _mobileController,
+                          labelText: ctx.tr('mobile_number'),
+                          hintText: ctx.tr('enter_mobile'),
+                          onChanged: (completeNumber) {
+                            _completePhoneNumber = completeNumber;
+                            if (_mobileController.text.isEmpty &&
+                                !_isTransitioning) {
+                              setState(() {
+                                _isPhoneInput = false;
+                                _completePhoneNumber = '';
+                              });
+                            }
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return mobileRequired;
+                            }
+                            if (value.length < 10) {
+                              return invalidMobile;
+                            }
+                            return null;
+                          },
+                        );
+                      },
+                    )
+                  else
+                    AuthTextField(
+                      controller: _emailController,
+                      hintText: context.tr('enter_email_or_phone'),
+                      labelText: context.tr('email'),
+                      prefixIcon: Icons.email_outlined,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return context.tr('email_or_phone_required');
+                        }
+                        return Validators.validateEmail(value, context);
+                      },
+                    ),
+                  SizedBox(height: responsive.spacing(12)),
+                  // Password Field
+                  AuthTextField(
+                    controller: _passwordController,
+                    hintText: context.tr('enter_password'),
+                    labelText: context.tr('password'),
+                    prefixIcon: Icons.lock_outline,
+                    isPassword: true,
+                    validator: (value) =>
+                        Validators.validatePassword(value, context),
+                  ),
+                  SizedBox(height: responsive.spacing(20)),
+                  // Sign Up Button
+                  Consumer<AuthProvider>(
+                    builder: (context, authProvider, _) => SizedBox(
+                      width: double.infinity,
+                      height: responsive.spacing(56),
+                      child: ElevatedButton(
+                        onPressed: authProvider.isLoading
+                            ? null
+                            : _signUpWithEmail,
+                        style: AppButtonStyles.white(
+                          context,
+                          border: authProvider.isLoading
+                              ? const BorderSide(
+                                  color: Color(0xFFFFD700),
+                                  width: 2,
+                                )
+                              : null,
+                        ),
+                        child: authProvider.isLoading
+                            ? CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: responsive.spacing(3),
+                              )
+                            : Text(
+                                context.tr('sign_up'),
+                                style: TextStyle(
+                                  fontSize: responsive.fontSize(18),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: responsive.spacing(20)),
+                  // Divider with "Or"
+                  AppDecorations.dividerWithText(
+                    context,
+                    text: context.tr('or_continue_with'),
+                  ),
+                  SizedBox(height: responsive.spacing(20)),
+                  // Social Sign In Button
+                  Consumer<AuthProvider>(
+                    builder: (context, authProvider, _) => SizedBox(
+                      width: double.infinity,
+                      height: responsive.spacing(56),
+                      child: OutlinedButton.icon(
+                        onPressed: authProvider.isLoading
+                            ? null
+                            : _signInWithGoogle,
+                        style: AppButtonStyles.outlined(
+                          context,
+                          borderColor: Colors.white,
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.white.withAlpha(25),
+                        ),
+                        icon: Icon(
+                          Icons.g_mobiledata,
+                          size: responsive.iconSize(24),
                           color: Colors.white,
                         ),
-                        children: [
-                          TextSpan(text: "${context.tr('already_have_account_question')} "),
-                          TextSpan(
-                            text: context.tr('sign_in'),
-                            style: const TextStyle(
-                              color: Colors.yellowAccent,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        label: Text(
+                          'Google',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: responsive.fontSize(16),
+                            fontWeight: FontWeight.w600,
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(height: responsive.spacing(20)),
+                  // Sign In Link
+                  Center(
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const LoginScreen(),
+                          ),
+                        );
+                      },
+                      child: RichText(
+                        text: TextSpan(
+                          style: TextStyle(
+                            fontSize: responsive.fontSize(16),
+                            color: Colors.white,
+                          ),
+                          children: [
+                            TextSpan(
+                              text:
+                                  "${context.tr('already_have_account_question')} ",
+                            ),
+                            TextSpan(
+                              text: context.tr('sign_in'),
+                              style: const TextStyle(
+                                color: Colors.yellowAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
     );
   }
 }

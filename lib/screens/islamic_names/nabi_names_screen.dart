@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/common/search_bar_widget.dart';
@@ -730,8 +729,8 @@ class _NabiNamesScreenState extends State<NabiNamesScreen> {
             : [
                 BoxShadow(
                   color: darkGreen.withValues(alpha: 0.08),
-                  blurRadius: responsive.spacing(10),
-                  offset: Offset(0, responsive.spacing(2)),
+                  blurRadius: 10.0,
+                  offset: Offset(0, 2.0),
                 ),
               ],
       ),
@@ -776,16 +775,16 @@ class _NabiNamesScreenState extends State<NabiNamesScreen> {
             children: [
               // Number Badge (circular)
               Container(
-                width: responsive.spacing(50),
-                height: responsive.spacing(50),
+                width: responsive.iconLarge * 1.5,
+                height: responsive.iconLarge * 1.5,
                 decoration: BoxDecoration(
                   color: isDark ? emeraldGreen : darkGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
                       color: (isDark ? emeraldGreen : darkGreen).withValues(alpha: 0.3),
-                      blurRadius: responsive.spacing(8),
-                      offset: Offset(0, responsive.spacing(2)),
+                      blurRadius: 8,
+                      offset: Offset(0, 2.0),
                     ),
                   ],
                 ),
@@ -800,7 +799,7 @@ class _NabiNamesScreenState extends State<NabiNamesScreen> {
                   ),
                 ),
               ),
-              SizedBox(width: responsive.spacing(14)),
+              responsive.hSpaceSmall,
 
               // Prophet Name
               Expanded(
@@ -811,9 +810,11 @@ class _NabiNamesScreenState extends State<NabiNamesScreen> {
                     fontWeight: FontWeight.bold,
                     color: isDark ? AppColors.darkTextPrimary : darkGreen,
                     fontFamily: languageCode == 'ar'
-                        ? 'Amiri'
-                        : (languageCode == 'ur' ? 'NotoNastaliq' : null),
+                        ? 'Poppins'
+                        : (languageCode == 'ur' ? 'Poppins' : null),
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   textDirection: (languageCode == 'ar' || languageCode == 'ur')
                       ? TextDirection.rtl
                       : TextDirection.ltr,

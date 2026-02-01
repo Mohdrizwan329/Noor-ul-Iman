@@ -4,9 +4,8 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/app_utils.dart';
 import '../../data/models/allah_name_model.dart';
-import '../../core/utils/localization_helper.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/settings_provider.dart';
 
@@ -210,9 +209,6 @@ class _NameOfAllahDetailScreenState extends State<NameOfAllahDetailScreen> {
 
     if (textToSpeak.isEmpty) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.tr('no_audio_available'))),
-        );
       }
       return;
     }
@@ -259,9 +255,6 @@ $meaning
 $description
 ''';
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(context.tr('copied'))));
   }
 
   void _shareNameDetail() {
@@ -298,9 +291,7 @@ $description
           style: TextStyle(
             fontSize: responsive.textLarge,
             fontWeight: FontWeight.bold,
-            fontFamily: langProvider.languageCode == 'ar'
-                ? 'Amiri'
-                : (langProvider.languageCode == 'ur' ? 'NotoNastaliq' : null),
+            fontFamily: 'Poppins',
           ),
         ),
       ),
@@ -348,8 +339,8 @@ $description
                       children: [
                         // Number Badge
                         Container(
-                          width: responsive.iconSize(40),
-                          height: responsive.iconSize(40),
+                          width: responsive.spacing(40),
+                          height: responsive.spacing(40),
                           decoration: BoxDecoration(
                             color: const Color(0xFF0A5C36),
                             shape: BoxShape.circle,
@@ -379,9 +370,7 @@ $description
                             style: TextStyle(
                               fontSize: responsive.textRegular,
                               fontWeight: FontWeight.w600,
-                              fontFamily: langProvider.languageCode == 'ar'
-                                  ? 'Amiri'
-                                  : (langProvider.languageCode == 'ur' ? 'NotoNastaliq' : null),
+                              fontFamily: 'Poppins',
                             ),
                             textDirection: (langProvider.languageCode == 'ar' || langProvider.languageCode == 'ur')
                                 ? TextDirection.rtl
@@ -425,15 +414,7 @@ $description
                 ),
               ),
               // Arabic Name
-              GestureDetector(
-                onTap: () {
-                  if (_isSpeaking && _isPlayingArabic) {
-                    _stopPlaying();
-                  } else {
-                    _playAudio(true);
-                  }
-                },
-                child: Container(
+              Container(
                   margin: responsive.paddingSymmetric(
                     horizontal: 12,
                     vertical: 8,
@@ -466,7 +447,7 @@ $description
                             Text(
                               widget.name.name,
                               style: TextStyle(
-                                fontFamily: 'Amiri',
+                                fontFamily: 'Poppins',
                                 fontSize: responsive.fontSize(56),
                                 height: 1.5,
                                 color: (_isSpeaking && _isPlayingArabic)
@@ -481,9 +462,7 @@ $description
                               _getDisplayName(langProvider.languageCode),
                               style: TextStyle(
                                 fontSize: responsive.textXLarge,
-                                fontFamily: langProvider.languageCode == 'ar'
-                                    ? 'Amiri'
-                                    : (langProvider.languageCode == 'ur' ? 'NotoNastaliq' : null),
+                                fontFamily: 'Poppins',
                               ),
                               textAlign: TextAlign.center,
                               textDirection: (langProvider.languageCode == 'ar' || langProvider.languageCode == 'ur')
@@ -496,18 +475,9 @@ $description
                     ],
                   ),
                 ),
-              ),
               // Translation/Description (toggle)
               if (_showTranslation)
-                GestureDetector(
-                  onTap: () {
-                    if (_isSpeaking && !_isPlayingArabic) {
-                      _stopPlaying();
-                    } else {
-                      _playAudio(false);
-                    }
-                  },
-                  child: Container(
+                Container(
                     margin: responsive.paddingSymmetric(
                       horizontal: 12,
                       vertical: 8,
@@ -565,9 +535,7 @@ $description
                                   color: (_isSpeaking && !_isPlayingArabic)
                                       ? AppColors.primary
                                       : (isDark ? AppColors.darkTextPrimary : Colors.black87),
-                                  fontFamily: selectedLanguage == AllahNameLanguage.urdu
-                                      ? 'NotoNastaliq'
-                                      : null,
+                                  fontFamily: 'Poppins',
                                 ),
                                 textDirection:
                                     selectedLanguage == AllahNameLanguage.urdu
@@ -580,7 +548,6 @@ $description
                       ],
                     ),
                   ),
-                ),
               SizedBox(height: responsive.spaceMedium),
             ],
           ),
@@ -616,7 +583,7 @@ $description
             children: [
               Icon(
                 icon,
-                size: responsive.iconSize(22),
+                size: 22.0,
                 color: isActive ? Colors.white : darkGreen,
               ),
               SizedBox(height: responsive.spaceXSmall),

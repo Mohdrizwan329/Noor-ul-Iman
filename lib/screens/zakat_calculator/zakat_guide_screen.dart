@@ -4,7 +4,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/language_provider.dart';
 
@@ -22,13 +22,6 @@ class _ZakatGuideScreenState extends State<ZakatGuideScreen> {
   bool _isSpeaking = false;
   int? _playingSectionIndex;
   late ZakatGuideLanguage _selectedLanguage;
-
-  static const Map<ZakatGuideLanguage, String> languageNames = {
-    ZakatGuideLanguage.hindi: 'Hindi',
-    ZakatGuideLanguage.english: 'English',
-    ZakatGuideLanguage.urdu: 'Urdu',
-    ZakatGuideLanguage.arabic: 'Arabic',
-  };
 
   final List<Map<String, dynamic>> _sections = [
     {
@@ -124,6 +117,20 @@ The Prophet ﷺ said:
 رسول اللہ ﷺ نے فرمایا:
 "جو شخص اپنی زکات خوشی سے دیتا ہے، اس کے لیے جنت واجب ہو جاتی ہے۔"
 (صحیح بخاری)''',
+      'contentArabic':
+          '''1. عبادة واجبة: الزكاة هي الركن الثالث من أركان الإسلام. إنكارها كفر.
+
+2. تطهير المال: الزكاة تطهر المال وتجلب البركة في الكسب الحلال.
+
+3. القضاء على الفقر: الزكاة تقلل الفقر في المجتمع وتوزع الثروة.
+
+4. النجاح في الآخرة: الذين يؤدون الزكاة موعودون بالجنة.
+
+5. تطهير القلب: تزيل الطمع والبخل، وتخلق الرحمة في القلب.
+
+قال النبي ﷺ:
+"من أدى زكاته طيبة بها نفسه، وجبت له الجنة."
+(صحيح البخاري)''',
     },
     {
       'icon': Icons.person,
@@ -184,6 +191,24 @@ Zakat is Not Obligatory:
 - بچوں پر (بالغ ہونے تک)
 - پاگل پر
 - مقروض (جس پر قرض ہو جو نصاب سے زیادہ ہو)''',
+      'contentArabic': '''الزكاة واجبة على من يملك:
+
+✓ النصاب: الحد الأدنى من المال المطلوب للزكاة
+   - الذهب: 87.48 جرام (7.5 تولة)
+   - الفضة: 612.36 جرام (52.5 تولة)
+
+✓ سنة كاملة: يجب أن يبقى النصاب لسنة قمرية كاملة
+
+✓ الملكية: يجب أن يكون المالك الكامل للمال
+
+✓ العاقل البالغ: يجب أن يكون سليم العقل وبالغاً
+
+✓ الحر: ليس عبداً
+
+لا تجب الزكاة:
+- على الأطفال (حتى البلوغ)
+- على المجنون
+- على المدين (إذا كان الدين يتجاوز النصاب)''',
     },
     {
       'icon': Icons.people,
@@ -250,6 +275,26 @@ Zakat is Not Obligatory:
 8. ابن السبیل: مسافر جو سفر میں اٹک گیا ہو
 
 (سورۃ التوبۃ: 60)''',
+      'contentArabic':
+          '''ذكر الله في القرآن 8 أصناف من الناس يستحقون الزكاة:
+
+1. الفقراء: الذين لا يستطيعون تلبية احتياجاتهم الأساسية
+
+2. المساكين: الذين هم في حاجة ماسة
+
+3. العاملون عليها: الذين يجمعون الزكاة ويوزعونها
+
+4. المؤلفة قلوبهم: المسلمون الجدد الذين يحتاجون إلى تأليف قلوبهم
+
+5. في الرقاب: لتحرير العبيد
+
+6. الغارمون: المثقلون بالديون
+
+7. في سبيل الله: في سبيل الله (الدفاع، الدعوة)
+
+8. ابن السبيل: المسافرون العالقون في رحلتهم
+
+(سورة التوبة: 60)''',
     },
     {
       'icon': Icons.block,
@@ -313,6 +358,25 @@ Zakat Can Be Given To:
 زکات دے سکتے ہیں:
 - بھائی، بہن، چاچا، ماموں، خالہ، پھوپھی کو (اگر ضرورت مند ہوں)
 - غریب رشتہ داروں کو دینا افضل ہے (دوگنا ثواب)''',
+      'contentArabic': '''هؤلاء لا يستحقون الزكاة:
+
+✗ الأغنياء: الذين يملكون النصاب
+
+✗ الأصول: الوالدان، الأجداد
+
+✗ الفروع: الأبناء، الأحفاد
+
+✗ الزوجان: الزوج لزوجته أو الزوجة لزوجها
+
+✗ بنو هاشم: ذرية النبي ﷺ (الصدقة محرمة عليهم)
+
+✗ غير المسلمين: الكفار أو المشركين
+
+✗ بناء المساجد: لا يجوز استخدام الزكاة لبناء المساجد
+
+يمكن إعطاء الزكاة إلى:
+- الإخوة والأخوات والأعمام والعمات (إذا كانوا محتاجين)
+- إعطاء الأقارب الفقراء أفضل (أجر مضاعف)''',
     },
     {
       'icon': Icons.account_balance_wallet,
@@ -382,6 +446,27 @@ Zakat is Not Due On:
 👔 پہننے کے کپڑے
 📱 ذاتی استعمال کی چیزیں
 🛠️ کام کے اوزار/مشینری''',
+      'contentArabic': '''تجب الزكاة على:
+
+💰 النقد: الرصيد البنكي، النقد، المدخرات
+
+🥇 الذهب والفضة: المجوهرات، العملات، السبائك (حتى الملبوسة)
+
+📈 الاستثمارات: الأسهم، الصناديق المشتركة، السندات
+
+🏪 عروض التجارة: مخزون الأعمال، البضائع
+
+🌾 المحاصيل: المنتجات الزراعية (العشر - 10% أو 5%)
+
+🐪 الماشية: الحيوانات (نصاب محدد)
+
+لا تجب الزكاة على:
+
+🏠 المسكن الشخصي
+🚗 السيارة الشخصية
+👔 الملابس الشخصية
+📱 الأغراض الشخصية
+🛠️ أدوات العمل/الآلات''',
     },
     {
       'icon': Icons.calculate,
@@ -466,6 +551,32 @@ Zakat: ₹4,50,000 × 2.5% = ₹11,250''',
 قرض: ₹50,000
 خالص دولت: ₹4,50,000
 زکات: ₹4,50,000 × 2.5% = ₹11,250''',
+      'contentArabic': '''الخطوة 1: اجمع جميع أصولك
+- النقد + الرصيد البنكي
+- قيمة الذهب والفضة
+- الاستثمارات
+- مخزون الأعمال
+
+الخطوة 2: اطرح ديونك
+- القروض المستحقة عليك
+- الفواتير المستحقة
+
+الخطوة 3: احسب صافي الثروة
+صافي الثروة = إجمالي الأصول - إجمالي الالتزامات
+
+الخطوة 4: تحقق من النصاب
+إذا كانت صافي الثروة ≥ النصاب، فالزكاة واجبة
+
+الخطوة 5: احسب 2.5%
+الزكاة = صافي الثروة × 2.5%
+أو
+الزكاة = صافي الثروة ÷ 40
+
+مثال:
+إجمالي الأصول: ₹5,00,000
+الديون: ₹50,000
+صافي الثروة: ₹4,50,000
+الزكاة: ₹4,50,000 × 2.5% = ₹11,250''',
     },
     {
       'icon': Icons.lightbulb,
@@ -520,6 +631,22 @@ Zakat: ₹4,50,000 × 2.5% = ₹11,250''',
 🎁 بتا کر دینا: لینے والے کو بتانا ضروری نہیں، لیکن بتا سکتے ہیں۔
 
 📊 ریکارڈ رکھیں: حساب کتاب رکھنا بہتر ہے۔''',
+      'contentArabic':
+          '''📅 وقت الزكاة: بعد إتمام سنة كاملة. إخراجها في رمضان أفضل.
+
+🎯 النية مطلوبة: يجب أن تكون هناك نية في القلب عند إخراج الزكاة.
+
+🤫 السرية أفضل: من الأفضل إخراج الزكاة سراً (إذا لم يكن هناك ضرر).
+
+💝 الإعطاء بسعادة: أعط بسعادة دون إظهار المنة.
+
+🔄 التوكيل جائز: يمكنك توكيل شخص آخر للإخراج نيابة عنك.
+
+⏰ لا تؤخر: أدِّ فوراً عندما تصبح واجبة.
+
+🎁 إخبار المستلم: ليس مطلوباً إخبار المستلم، لكن يمكنك ذلك.
+
+📊 احتفظ بالسجلات: من الأفضل الاحتفاظ بالحسابات.''',
     },
   ];
 
@@ -691,9 +818,6 @@ ${section['contentHindi']}''';
     }
 
     Clipboard.setData(ClipboardData(text: content));
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(context.tr('copied'))));
   }
 
   void _shareSection(int sectionIndex) {
@@ -753,27 +877,27 @@ ${section['contentHindi']}
         title: Text(context.tr('zakat_guide')),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(ResponsiveUtils(context).spacing(16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header Card
             _buildHeaderCard(isDark),
-            const SizedBox(height: 24),
+            SizedBox(height: ResponsiveUtils(context).spacing(24)),
 
             // Sections
             ...List.generate(_sections.length, (index) {
               return Column(
                 children: [
                   _buildSection(isDark: isDark, sectionIndex: index),
-                  const SizedBox(height: 20),
+                  SizedBox(height: ResponsiveUtils(context).spacing(20)),
                 ],
               );
             }),
 
             // Hadith about Zakat
             _buildHadithCard(isDark),
-            const SizedBox(height: 32),
+            SizedBox(height: ResponsiveUtils(context).spacing(32)),
           ],
         ),
       ),
@@ -781,32 +905,33 @@ ${section['contentHindi']}
   }
 
   Widget _buildHeaderCard(bool isDark) {
+    final responsive = ResponsiveUtils(context);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: responsive.paddingAll(20),
       decoration: BoxDecoration(
         gradient: AppColors.headerGradient,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+            blurRadius: responsive.spacing(15),
+            offset: Offset(0, responsive.spacing(8)),
           ),
         ],
       ),
       child: Column(
         children: [
-          const Text(
+          Text(
             'الزَّكَاةُ',
             style: TextStyle(
-              fontSize: 48,
-              fontFamily: 'Amiri',
+              fontSize: responsive.fontSize(48),
+              fontFamily: 'Poppins',
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: responsive.spacing(8)),
           Text(
             _selectedLanguage == ZakatGuideLanguage.english
                 ? 'ZAKAT'
@@ -815,14 +940,14 @@ ${section['contentHindi']}
                 : _selectedLanguage == ZakatGuideLanguage.arabic
                 ? 'الزكاة'
                 : 'ज़कात',
-            style: const TextStyle(
-              fontSize: 24,
+            style: TextStyle(
+              fontSize: responsive.fontSize(24),
               fontWeight: FontWeight.bold,
               color: Colors.white,
               letterSpacing: 4,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: responsive.spacing(8)),
           Text(
             _selectedLanguage == ZakatGuideLanguage.english
                 ? 'The Third Pillar of Islam'
@@ -832,16 +957,16 @@ ${section['contentHindi']}
                 ? 'الركن الثالث من أركان الإسلام'
                 : 'इस्लाम का तीसरा रुक्न',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: responsive.fontSize(14),
               color: Colors.white.withValues(alpha: 0.9),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: responsive.spacing(16)),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: responsive.paddingSymmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
             ),
             child: Text(
               _selectedLanguage == ZakatGuideLanguage.english
@@ -851,8 +976,8 @@ ${section['contentHindi']}
                   : _selectedLanguage == ZakatGuideLanguage.arabic
                   ? '2.5% = 1/40 من الثروة'
                   : '2.5% = 1/40 संपत्ति का',
-              style: const TextStyle(
-                fontSize: 14,
+              style: TextStyle(
+                fontSize: responsive.fontSize(14),
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
@@ -864,6 +989,7 @@ ${section['contentHindi']}
   }
 
   Widget _buildSection({required bool isDark, required int sectionIndex}) {
+    final responsive = ResponsiveUtils(context);
     final section = _sections[sectionIndex];
     final isPlaying = _playingSectionIndex == sectionIndex && _isSpeaking;
 
@@ -894,7 +1020,7 @@ ${section['contentHindi']}
       width: double.infinity,
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.borderRadius(18)),
         border: Border.all(
           color: isPlaying
               ? AppColors.primary
@@ -906,8 +1032,8 @@ ${section['contentHindi']}
             : [
                 BoxShadow(
                   color: darkGreen.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+                  blurRadius: responsive.spacing(10),
+                  offset: Offset(0, responsive.spacing(2)),
                 ),
               ],
       ),
@@ -916,12 +1042,12 @@ ${section['contentHindi']}
         children: [
           // Header with title and actions
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: responsive.paddingAll(16),
             decoration: BoxDecoration(
               color: isDark ? Colors.grey.shade800 : const Color(0xFFE8F3ED),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(responsive.borderRadius(16)),
+                topRight: Radius.circular(responsive.borderRadius(16)),
               ),
             ),
             child: Column(
@@ -929,23 +1055,23 @@ ${section['contentHindi']}
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: responsive.paddingAll(10),
                       decoration: BoxDecoration(
                         color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(responsive.borderRadius(12)),
                       ),
                       child: Icon(
                         section['icon'],
                         color: AppColors.primary,
-                        size: 24,
+                        size: responsive.iconSize(24),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: responsive.spacing(12)),
                     Expanded(
                       child: Text(
                         title,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: responsive.fontSize(16),
                           fontWeight: FontWeight.bold,
                           color: isDark
                               ? AppColors.darkTextPrimary
@@ -954,7 +1080,7 @@ ${section['contentHindi']}
                               (_selectedLanguage == ZakatGuideLanguage.urdu ||
                                   _selectedLanguage ==
                                       ZakatGuideLanguage.arabic)
-                              ? 'Amiri'
+                              ? 'Poppins'
                               : null,
                         ),
                         textDirection:
@@ -966,7 +1092,7 @@ ${section['contentHindi']}
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: responsive.spacing(12)),
                 // Action buttons row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -997,11 +1123,11 @@ ${section['contentHindi']}
 
           // Content
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: responsive.paddingAll(16),
             child: Text(
               content.trim(),
               style: TextStyle(
-                fontSize: 14,
+                fontSize: responsive.fontSize(14),
                 height: 1.6,
                 color: isDark
                     ? AppColors.darkTextSecondary
@@ -1025,6 +1151,7 @@ ${section['contentHindi']}
     required VoidCallback onTap,
     required bool isActive,
   }) {
+    final responsive = ResponsiveUtils(context);
     const darkGreen = Color(0xFF0A5C36);
     const emeraldGreen = Color(0xFF1E8F5A);
     const lightGreenChip = Color(0xFFE8F3ED);
@@ -1033,22 +1160,22 @@ ${section['contentHindi']}
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: responsive.paddingSymmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: isActive ? emeraldGreen : lightGreenChip,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 22, color: isActive ? Colors.white : darkGreen),
-              const SizedBox(height: 2),
+              Icon(icon, size: responsive.iconSize(22), color: isActive ? Colors.white : darkGreen),
+              SizedBox(height: responsive.spacing(2)),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: responsive.fontSize(10),
                   color: isActive ? Colors.white : darkGreen,
                   fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
                 ),
@@ -1061,6 +1188,7 @@ ${section['contentHindi']}
   }
 
   Widget _buildHadithCard(bool isDark) {
+    final responsive = ResponsiveUtils(context);
     String hadithTranslation = '"सदक़ा (ज़कात) से माल कम नहीं होता"';
     if (_selectedLanguage == ZakatGuideLanguage.english) {
       hadithTranslation = '"Charity (Zakat) does not decrease wealth"';
@@ -1072,30 +1200,30 @@ ${section['contentHindi']}
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: responsive.paddingAll(20),
       decoration: BoxDecoration(
         gradient: AppColors.goldGradient,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(responsive.borderRadius(16)),
       ),
       child: Column(
         children: [
-          const Icon(Icons.format_quote, color: Colors.white, size: 32),
-          const SizedBox(height: 12),
-          const Text(
+          Icon(Icons.format_quote, color: Colors.white, size: responsive.iconSize(32)),
+          SizedBox(height: responsive.spacing(12)),
+          Text(
             'مَا نَقَصَتْ صَدَقَةٌ مِنْ مَالٍ',
             style: TextStyle(
-              fontSize: 24,
-              fontFamily: 'Amiri',
+              fontSize: responsive.fontSize(24),
+              fontFamily: 'Poppins',
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: responsive.spacing(12)),
           Text(
             hadithTranslation,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: responsive.fontSize(16),
               color: Colors.white.withValues(alpha: 0.95),
               fontStyle: FontStyle.italic,
             ),
@@ -1106,7 +1234,7 @@ ${section['contentHindi']}
                 ? TextDirection.rtl
                 : TextDirection.ltr,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: responsive.spacing(8)),
           Text(
             _selectedLanguage == ZakatGuideLanguage.english
                 ? '— Sahih Muslim'
@@ -1116,7 +1244,7 @@ ${section['contentHindi']}
                 ? '— صحيح مسلم'
                 : '— सहीह मुस्लिम',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: responsive.fontSize(12),
               color: Colors.white.withValues(alpha: 0.8),
             ),
           ),

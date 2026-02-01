@@ -3,8 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../core/utils/hadith_reference_translator.dart';
 import '../../data/models/hadith_model.dart';
 import '../../providers/language_provider.dart';
@@ -131,8 +130,8 @@ class _HadithCard extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: responsive.spacing(10),
-            offset: Offset(0, responsive.spacing(2)),
+            blurRadius: 10.0,
+            offset: Offset(0, 2.0),
           ),
         ],
       ),
@@ -215,7 +214,7 @@ class _HadithCard extends StatelessWidget {
                     hadith.arabic,
                     style: TextStyle(
                       fontSize: responsive.textLarge,
-                      fontFamily: 'Amiri',
+                      fontFamily: 'Poppins',
                       height: 2,
                       color: AppColors.arabicText,
                     ),
@@ -283,9 +282,6 @@ class _HadithCard extends StatelessWidget {
                     Clipboard.setData(ClipboardData(
                       text: '${hadith.arabic}\n\n$translation\n\n— $translatedRef',
                     ));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(context.tr('copied'))),
-                    );
                   },
                 ),
                 IconButton(

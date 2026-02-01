@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/constants.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/dua_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../data/models/dua_model.dart';
@@ -96,12 +95,10 @@ class _DuaListScreenState extends State<DuaListScreen> {
           categoryDisplayName,
           style: TextStyle(
             fontSize: responsive.textLarge,
-            fontFamily: selectedLanguage == DuaLanguage.urdu
-                ? 'NotoNastaliq'
-                : selectedLanguage == DuaLanguage.arabic
-                    ? 'Amiri'
-                    : null,
+            fontFamily: 'Poppins',
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           textDirection: (selectedLanguage == DuaLanguage.urdu ||
                          selectedLanguage == DuaLanguage.arabic)
               ? TextDirection.rtl

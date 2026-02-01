@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../core/utils/app_utils.dart';
 import 'package:nooruliman/core/constants/app_colors.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:path_provider/path_provider.dart';
@@ -28,11 +28,25 @@ GreetingLanguage _getGreetingLanguage(String languageCode) {
   }
 }
 
-class GreetingCardsScreen extends StatelessWidget {
+class GreetingCardsScreen extends StatefulWidget {
   const GreetingCardsScreen({super.key});
 
   @override
+  State<GreetingCardsScreen> createState() => _GreetingCardsScreenState();
+}
+
+class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
+  late HijriCalendar _currentHijriDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentHijriDate = HijriCalendar.now();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     final languageProvider = context.watch<LanguageProvider>();
     final language = _getGreetingLanguage(languageProvider.languageCode);
 
@@ -44,7 +58,7 @@ class GreetingCardsScreen extends StatelessWidget {
           language == GreetingLanguage.urdu
               ? 'تہوار کے کارڈز'
               : language == GreetingLanguage.hindi
-              ? 'ग्रीटिंग कار्ड्स'
+              ? 'ग्रीटिंग कार्ड्स'
               : language == GreetingLanguage.arabic
               ? 'بطاقات التهنئة'
               : 'Greeting Cards',
@@ -58,13 +72,458 @@ class GreetingCardsScreen extends StatelessWidget {
       ),
       body: Container(
         color: const Color(0xFFF6F8F6), // Soft Off-White background
-        child: ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: _islamicMonths.length,
-          itemBuilder: (context, index) {
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            _buildCurrentMonthBanner(language, responsive),
+            _buildUpcomingEventsSection(language, responsive),
+            _buildMonthsSection(language, responsive),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCurrentMonthBanner(GreetingLanguage language, responsive) {
+    const darkGreen = Color(0xFF0A5C36);
+    const lightGreen = Color(0xFFE8F3ED);
+
+    final currentMonthName = language == GreetingLanguage.urdu
+        ? _islamicMonths[_currentHijriDate.hMonth - 1].nameUrdu
+        : language == GreetingLanguage.hindi
+        ? _islamicMonths[_currentHijriDate.hMonth - 1].nameHindi
+        : language == GreetingLanguage.arabic
+        ? _islamicMonths[_currentHijriDate.hMonth - 1].arabicName
+        : _islamicMonths[_currentHijriDate.hMonth - 1].name;
+
+    final dateLabel = language == GreetingLanguage.urdu
+        ? 'آج کی اسلامی تاریخ'
+        : language == GreetingLanguage.hindi
+        ? 'आज की इस्लामी तारीख'
+        : language == GreetingLanguage.arabic
+        ? 'التاريخ الإسلامي اليوم'
+        : 'Today\'s Islamic Date';
+
+    return Container(
+      margin: responsive.paddingAll(16.0),
+      padding: responsive.paddingAll(16.0),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [lightGreen, Colors.white],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(responsive.borderRadius(18.0)),
+        border: Border.all(color: darkGreen, width: 2.0),
+        boxShadow: [
+          BoxShadow(
+            color: darkGreen.withValues(alpha: 0.2),
+            blurRadius: 10.0,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: responsive.paddingAll(12.0),
+            decoration: BoxDecoration(color: darkGreen, shape: BoxShape.circle),
+            child: Icon(
+              Icons.calendar_today,
+              color: Colors.white,
+              size: responsive.iconSize(28.0),
+            ),
+          ),
+          SizedBox(width: responsive.spacing(16.0)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    dateLabel,
+                    style: TextStyle(
+                      color: darkGreen.withValues(alpha: 0.8),
+                      fontSize: responsive.fontSize(12.0),
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                  ),
+                ),
+                SizedBox(height: responsive.spacing(4.0)),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '${_currentHijriDate.hDay} $currentMonthName ${_currentHijriDate.hYear}',
+                    style: TextStyle(
+                      color: darkGreen,
+                      fontSize: responsive.fontSize(18.0),
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUpcomingEventsSection(GreetingLanguage language, responsive) {
+    // Get events for the current month and next 30 days
+    final upcomingEvents = _getUpcomingEvents();
+
+    if (upcomingEvents.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final sectionTitle = language == GreetingLanguage.urdu
+        ? 'آنے والے اسلامی واقعات'
+        : language == GreetingLanguage.hindi
+        ? 'आने वाले इस्लामी कार्यक्रम'
+        : language == GreetingLanguage.arabic
+        ? 'الأحداث الإسلامية القادمة'
+        : 'Upcoming Islamic Events';
+
+    return Container(
+      margin: responsive.paddingSymmetric(horizontal: 16.0, vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: responsive.paddingOnly(left: 4.0, bottom: 12.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.event_note,
+                  color: AppColors.primary,
+                  size: responsive.iconSize(24.0),
+                ),
+                SizedBox(width: responsive.spacing(8.0)),
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      sectionTitle,
+                      style: TextStyle(
+                        fontSize: responsive.fontSize(20.0),
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                      maxLines: 1,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ...upcomingEvents.map(
+            (event) => _buildEventCard(event, language, responsive),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMonthsSection(GreetingLanguage language, responsive) {
+    final sectionTitle = language == GreetingLanguage.urdu
+        ? 'اسلامی مہینے'
+        : language == GreetingLanguage.hindi
+        ? 'इस्लामी महीने'
+        : language == GreetingLanguage.arabic
+        ? 'الأشهر الإسلامية'
+        : 'Islamic Months';
+
+    return Container(
+      margin: responsive.paddingSymmetric(horizontal: 16.0, vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: responsive.paddingOnly(left: 4.0, bottom: 12.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_month,
+                  color: AppColors.primary,
+                  size: responsive.iconSize(24.0),
+                ),
+                SizedBox(width: responsive.spacing(8.0)),
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      sectionTitle,
+                      style: TextStyle(
+                        fontSize: responsive.fontSize(20.0),
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                      maxLines: 1,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ...List.generate(_islamicMonths.length, (index) {
             final month = _islamicMonths[index];
-            return _MonthCard(month: month, language: language);
+            final isCurrentMonth =
+                month.monthNumber == _currentHijriDate.hMonth;
+            return _MonthCard(
+              month: month,
+              language: language,
+              isCurrentMonth: isCurrentMonth,
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  List<IslamicEvent> _getUpcomingEvents() {
+    final currentMonth = _currentHijriDate.hMonth;
+    final currentDay = _currentHijriDate.hDay;
+
+    // Get events from current month and next month
+    final upcomingEvents = <IslamicEvent>[];
+
+    for (var event in _islamicEvents) {
+      // Check if event is today or in the future within the next 2 months
+      if (event.month == currentMonth && event.day >= currentDay) {
+        upcomingEvents.add(event);
+      } else if (event.month == currentMonth + 1 ||
+          (currentMonth == 12 && event.month == 1)) {
+        upcomingEvents.add(event);
+      }
+    }
+
+    // Limit to next 5 events
+    return upcomingEvents.take(5).toList();
+  }
+
+  Widget _buildEventCard(
+    IslamicEvent event,
+    GreetingLanguage language,
+    responsive,
+  ) {
+    final isToday =
+        event.month == _currentHijriDate.hMonth &&
+        event.day == _currentHijriDate.hDay;
+
+    // Use consistent green color scheme like the month cards
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreen = Color(0xFFE8F3ED);
+    const lightGreenBorder = Color(0xFF8AAF9A);
+
+    // Get the month for this event (needed for navigation)
+    final eventMonth = _islamicMonths[event.month - 1];
+
+    return Container(
+      margin: responsive.paddingOnly(bottom: 14.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(responsive.borderRadius(18.0)),
+        boxShadow: [
+          BoxShadow(
+            color: isToday
+                ? emeraldGreen.withValues(alpha: 0.3)
+                : darkGreen.withValues(alpha: 0.15),
+            blurRadius: isToday ? 16.0 : 12.0,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            // Find matching greeting card from the month
+            GreetingCard? matchingCard;
+            for (var card in eventMonth.cards) {
+              if (card.title.toLowerCase().contains(
+                    event.title.toLowerCase(),
+                  ) ||
+                  event.title.toLowerCase().contains(
+                    card.title.toLowerCase(),
+                  ) ||
+                  card.titleHindi.contains(event.titleHindi) ||
+                  card.titleUrdu.contains(event.titleUrdu)) {
+                matchingCard = card;
+                break;
+              }
+            }
+
+            if (matchingCard != null) {
+              // Navigate to StatusCardScreen with the matching greeting card
+              final cardToShow = matchingCard;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StatusCardScreen(
+                    card: cardToShow,
+                    month: eventMonth,
+                    language: language,
+                  ),
+                ),
+              );
+            } else if (eventMonth.cards.isNotEmpty) {
+              // If no matching card, show first card of the month
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StatusCardScreen(
+                    card: eventMonth.cards.first,
+                    month: eventMonth,
+                    language: language,
+                  ),
+                ),
+              );
+            } else {
+              // If no cards available, show month cards screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      MonthCardsScreen(month: eventMonth, language: language),
+                ),
+              );
+            }
           },
+          borderRadius: BorderRadius.circular(responsive.borderRadius(18.0)),
+          child: Container(
+            padding: responsive.paddingAll(16.0),
+            decoration: BoxDecoration(
+              color: isToday ? lightGreen : Colors.white,
+              borderRadius: BorderRadius.circular(
+                responsive.borderRadius(18.0),
+              ),
+              border: Border.all(
+                color: isToday ? emeraldGreen : lightGreenBorder,
+                width: responsive.spacing(isToday ? 2.0 : 1.5),
+              ),
+            ),
+            child: Row(
+              children: [
+                // Event icon circle - Dark Green
+                Container(
+                  width: responsive.spacing(58.0),
+                  height: responsive.spacing(58.0),
+                  decoration: BoxDecoration(
+                    color: darkGreen,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: darkGreen.withValues(alpha: 0.3),
+                        blurRadius: 8.0,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Icon(
+                      event.icon,
+                      color: Colors.white,
+                      size: responsive.iconSize(28.0),
+                    ),
+                  ),
+                ),
+                SizedBox(width: responsive.spacing(14.0)),
+                // Event details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Event title - Dark Green (bigger text on top)
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          event.getTitle(language),
+                          style: TextStyle(
+                            fontSize: responsive.fontSize(18.0),
+                            fontWeight: FontWeight.bold,
+                            color: darkGreen,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      SizedBox(height: responsive.spacing(4.0)),
+                      // Event date - Dark Green (smaller text below)
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '${event.day} ${_islamicMonths[event.month - 1].getName(language)}',
+                          style: TextStyle(
+                            fontSize: responsive.fontSize(11.0),
+                            color: emeraldGreen,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                        ),
+                      ),
+                      // TODAY badge if today
+                      if (isToday)
+                        Container(
+                          padding: responsive.paddingSymmetric(
+                            horizontal: 8.0,
+                            vertical: 4.0,
+                          ),
+                          margin: responsive.paddingOnly(top: 6.0),
+                          decoration: BoxDecoration(
+                            color: emeraldGreen,
+                            borderRadius: BorderRadius.circular(
+                              responsive.borderRadius(6.0),
+                            ),
+                          ),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              language == GreetingLanguage.urdu
+                                  ? 'آج'
+                                  : language == GreetingLanguage.hindi
+                                  ? 'आज'
+                                  : language == GreetingLanguage.arabic
+                                  ? 'اليوم'
+                                  : 'TODAY',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: responsive.fontSize(10.0),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                // Arrow button - Emerald Green
+                Container(
+                  padding: responsive.paddingAll(8.0),
+                  decoration: BoxDecoration(
+                    color: emeraldGreen,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.white,
+                    size: responsive.iconSize(14.0),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -74,23 +533,32 @@ class GreetingCardsScreen extends StatelessWidget {
 class _MonthCard extends StatelessWidget {
   final IslamicMonth month;
   final GreetingLanguage language;
+  final bool isCurrentMonth;
 
-  const _MonthCard({required this.month, required this.language});
+  const _MonthCard({
+    required this.month,
+    required this.language,
+    this.isCurrentMonth = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     // Islamic Color Scheme Constants
     const darkGreen = Color(0xFF0A5C36);
     const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreen = Color(0xFFE8F3ED);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: responsive.paddingOnly(bottom: 14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.borderRadius(18)),
         boxShadow: [
           BoxShadow(
-            color: darkGreen.withValues(alpha: 0.15),
-            blurRadius: 12,
+            color: isCurrentMonth
+                ? emeraldGreen.withValues(alpha: 0.3)
+                : darkGreen.withValues(alpha: 0.15),
+            blurRadius: isCurrentMonth ? 16.0 : 12.0,
             offset: const Offset(0, 4),
           ),
         ],
@@ -107,23 +575,31 @@ class _MonthCard extends StatelessWidget {
               ),
             );
           },
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(responsive.borderRadius(18)),
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: responsive.paddingAll(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFFFFF), // White card background
-              borderRadius: BorderRadius.circular(18),
+              color: isCurrentMonth
+                  ? lightGreen
+                  : const Color(
+                      0xFFFFFFFF,
+                    ), // Light green for current month, white otherwise
+              borderRadius: BorderRadius.circular(responsive.borderRadius(18)),
               border: Border.all(
-                color: const Color(0xFF8AAF9A), // Light Green border
-                width: 1.5,
+                color: isCurrentMonth
+                    ? emeraldGreen
+                    : const Color(
+                        0xFF8AAF9A,
+                      ), // Emerald green border for current month
+                width: responsive.spacing(isCurrentMonth ? 2.0 : 1.5),
               ),
             ),
             child: Row(
               children: [
                 // Month Number Circle - Dark Green background
                 Container(
-                  width: 58,
-                  height: 58,
+                  width: responsive.spacing(58),
+                  height: responsive.spacing(58),
                   decoration: BoxDecoration(
                     color: darkGreen, // Dark Green circle
                     shape: BoxShape.circle,
@@ -138,45 +614,52 @@ class _MonthCard extends StatelessWidget {
                   child: Center(
                     child: Text(
                       '${month.monthNumber}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Color(0xFFFFFFFF), // White text
-                        fontSize: 24,
+                        fontSize: responsive.fontSize(24),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: responsive.spacing(14)),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Month Name - Dark Green Bold
-                      Text(
-                        month.getName(language),
-                        style: const TextStyle(
-                          color: darkGreen, // Dark Green
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.3,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          month.getName(language),
+                          style: TextStyle(
+                            color: darkGreen, // Dark Green
+                            fontSize: responsive.fontSize(18),
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.3,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       if (month.getSpecialOccasion(language) != null) ...[
-                        const SizedBox(height: 6),
+                        SizedBox(height: responsive.spacing(6)),
                         // Event Chip - Light Green bg, Emerald text
                         Container(
-                          padding: const EdgeInsets.symmetric(
+                          padding: responsive.paddingSymmetric(
                             horizontal: 10,
                             vertical: 4,
                           ),
-
                           child: Text(
                             month.getSpecialOccasion(language)!,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: emeraldGreen, // Emerald Green text
-                              fontSize: 11,
+                              fontSize: responsive.fontSize(11),
                               fontWeight: FontWeight.w600,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -184,18 +667,18 @@ class _MonthCard extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(width: 8),
+                SizedBox(width: responsive.spacing(8)),
                 // Arrow button - Emerald Green circle
                 Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
+                  padding: responsive.paddingAll(8),
+                  decoration: BoxDecoration(
                     color: emeraldGreen, // Emerald Green circle
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.arrow_forward_ios,
                     color: Color(0xFFFFFFFF), // White arrow
-                    size: 16,
+                    size: responsive.iconSize(16),
                   ),
                 ),
               ],
@@ -204,6 +687,2174 @@ class _MonthCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// Event Card Full Screen Viewer with Templates and Themes
+class EventCardScreen extends StatefulWidget {
+  final IslamicEvent event;
+  final IslamicMonth month;
+  final GreetingLanguage language;
+
+  const EventCardScreen({
+    super.key,
+    required this.event,
+    required this.month,
+    required this.language,
+  });
+
+  @override
+  State<EventCardScreen> createState() => _EventCardScreenState();
+}
+
+class _EventCardScreenState extends State<EventCardScreen> {
+  final ScreenshotController _screenshotController = ScreenshotController();
+  int _selectedThemeIndex = -1; // -1 means None (original colors)
+  int _selectedTemplateIndex = 0; // Default to first template
+  String _customTitle = '';
+  String _customDescription = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _customTitle = widget.event.getTitle(widget.language);
+    _customDescription = widget.event.getDescription(widget.language);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = context.responsive;
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            _customTitle,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color(0xFFFFFFFF),
+            ),
+          ),
+        ),
+        backgroundColor: AppColors.primary,
+        iconTheme: const IconThemeData(color: Color(0xFFFFFFFF)),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: responsive.paddingAll(16),
+          child: Column(
+            children: [
+              // Main Card Display (wrapped with Screenshot) - Uses Selected Template
+              Screenshot(
+                controller: _screenshotController,
+                child: Container(
+                  height: responsive.spacing(570.0),
+                  width: double.infinity,
+                  margin: responsive.paddingSymmetric(horizontal: 16.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                      responsive.borderRadius(20.0),
+                    ),
+                    child: _buildEventCardVariation(
+                      _selectedTemplateIndex,
+                      isPreview: false,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: responsive.spacing(10)),
+
+              // 9 Different Card Design Templates
+              SizedBox(
+                height: responsive.spacing(80),
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 9,
+                  itemBuilder: (context, index) {
+                    final isSelected = _selectedTemplateIndex == index;
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedTemplateIndex = index;
+                        });
+                      },
+                      child: Container(
+                        width: responsive.spacing(80),
+                        margin: responsive.paddingSymmetric(horizontal: 4),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(
+                            responsive.borderRadius(12),
+                          ),
+                          border: Border.all(
+                            color: isSelected
+                                ? const Color(0xFFD4AF37)
+                                : Colors.transparent,
+                            width: responsive.spacing(3),
+                          ),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFFD4AF37,
+                                    ).withValues(alpha: 0.5),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ]
+                              : [],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            responsive.borderRadius(10),
+                          ),
+                          child: FittedBox(
+                            child: SizedBox(
+                              width: responsive.spacing(300),
+                              height: responsive.spacing(400),
+                              child: _buildEventCardVariation(
+                                index,
+                                isPreview: true,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: responsive.spacing(10)),
+
+              // Color Theme Selector with None button
+              SizedBox(
+                height: responsive.spacing(60),
+                child: Row(
+                  children: [
+                    // None Button
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedThemeIndex = -1;
+                        });
+                      },
+                      child: Container(
+                        width: responsive.spacing(70),
+                        margin: responsive.paddingSymmetric(horizontal: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0E2A2A),
+                          borderRadius: BorderRadius.circular(
+                            responsive.borderRadius(12),
+                          ),
+                          border: Border.all(
+                            color: _selectedThemeIndex == -1
+                                ? const Color(0xFFD4AF37)
+                                : Colors.transparent,
+                            width: responsive.spacing(3),
+                          ),
+                          boxShadow: _selectedThemeIndex == -1
+                              ? [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFFD4AF37,
+                                    ).withValues(alpha: 0.5),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ]
+                              : [],
+                        ),
+                        child: Center(
+                          child: Text(
+                            widget.language == GreetingLanguage.urdu
+                                ? 'اصل'
+                                : widget.language == GreetingLanguage.hindi
+                                ? 'मूल'
+                                : widget.language == GreetingLanguage.arabic
+                                ? 'أصلي'
+                                : 'None',
+                            style: TextStyle(
+                              color: Color(0xFFD4AF37),
+                              fontSize: responsive.fontSize(12),
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Color themes list
+                    Expanded(
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _colorThemes.length,
+                        itemBuilder: (context, index) {
+                          final theme = _colorThemes[index];
+                          final isSelected = _selectedThemeIndex == index;
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _selectedThemeIndex = index;
+                              });
+                            },
+                            child: Container(
+                              width: responsive.spacing(60),
+                              margin: responsive.paddingSymmetric(
+                                horizontal: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    theme.headerColor,
+                                    theme.footerColor,
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  responsive.borderRadius(12),
+                                ),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? theme.accentColor
+                                      : Colors.transparent,
+                                  width: responsive.spacing(3),
+                                ),
+                                boxShadow: isSelected
+                                    ? [
+                                        BoxShadow(
+                                          color: theme.accentColor.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                    : [],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  theme.getName(widget.language),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: responsive.fontSize(8),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: responsive.spacing(10)),
+
+              // Action Buttons Row - Edit, Share, Download
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // Edit Button
+                  Expanded(
+                    child: Padding(
+                      padding: responsive.paddingSymmetric(horizontal: 4),
+                      child: ElevatedButton.icon(
+                        onPressed: _showEditDialog,
+                        icon: Icon(Icons.edit, size: responsive.iconSize(18)),
+                        label: Text(
+                          widget.language == GreetingLanguage.urdu
+                              ? 'ترمیم'
+                              : widget.language == GreetingLanguage.hindi
+                              ? 'संपादित'
+                              : widget.language == GreetingLanguage.arabic
+                              ? 'تعديل'
+                              : 'Edit',
+                          style: TextStyle(fontSize: responsive.fontSize(13)),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                            0xFF0A5C36,
+                          ), // Fixed Islamic Green
+                          foregroundColor: Colors.white,
+                          padding: responsive.paddingSymmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              responsive.borderRadius(30),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Share Button
+                  Expanded(
+                    child: Padding(
+                      padding: responsive.paddingSymmetric(horizontal: 4),
+                      child: ElevatedButton.icon(
+                        onPressed: () => _shareEventCard(context),
+                        icon: Icon(Icons.share, size: responsive.iconSize(18)),
+                        label: Text(
+                          widget.language == GreetingLanguage.urdu
+                              ? 'شیئر'
+                              : widget.language == GreetingLanguage.hindi
+                              ? 'शेयर'
+                              : widget.language == GreetingLanguage.arabic
+                              ? 'مشاركة'
+                              : 'Share',
+                          style: TextStyle(fontSize: responsive.fontSize(13)),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                            0xFF1E8F5A,
+                          ), // Fixed Emerald Green
+                          foregroundColor: Colors.white,
+                          padding: responsive.paddingSymmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              responsive.borderRadius(30),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Download Button
+                  Expanded(
+                    child: Padding(
+                      padding: responsive.paddingSymmetric(horizontal: 4),
+                      child: ElevatedButton.icon(
+                        onPressed: _downloadEventCard,
+                        icon: Icon(
+                          Icons.download,
+                          size: responsive.iconSize(18),
+                        ),
+                        label: Text(
+                          widget.language == GreetingLanguage.urdu
+                              ? 'ڈاؤن لوڈ'
+                              : widget.language == GreetingLanguage.hindi
+                              ? 'डाउनलोड'
+                              : widget.language == GreetingLanguage.arabic
+                              ? 'تحميل'
+                              : 'Download',
+                          style: TextStyle(fontSize: responsive.fontSize(13)),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                            0xFF1E8F5A,
+                          ), // Fixed Emerald Green
+                          foregroundColor: Colors.white,
+                          padding: responsive.paddingSymmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              responsive.borderRadius(30),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: responsive.spacing(6)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Build event card variations - 9 different premium Islamic templates
+  Widget _buildEventCardVariation(int index, {bool isPreview = false}) {
+    // Remap indices: Original premium card (was index 8) is now at index 0
+    const indexMap = [8, 0, 1, 2, 3, 4, 5, 6, 7];
+    index = indexMap[index];
+
+    final responsive = context.responsive;
+    final Color darkTealBg;
+    final Color deepGreen;
+    final Color goldenBorder;
+    final Color softGoldText;
+    final Color warmGold;
+    const creamText = Color(0xFFF5F1E6);
+    final Color lanternGlow;
+    final Color shadowGreen;
+
+    // If it's a preview card (small thumbnail), always use original colors
+    // If None is selected (_selectedThemeIndex == -1), use original colors
+    // Otherwise, use selected theme colors
+    if (isPreview || _selectedThemeIndex == -1) {
+      // Original hardcoded colors for preview thumbnails or when None is selected
+      darkTealBg = const Color(0xFF0E2A2A);
+      deepGreen = const Color(0xFF123838);
+      goldenBorder = const Color(0xFFD4AF37);
+      softGoldText = const Color(0xFFE6C87A);
+      warmGold = const Color(0xFFBFA24A);
+      lanternGlow = const Color(0xFFFFD36A);
+      shadowGreen = const Color(0xFF081C1C);
+    } else {
+      // Use selected theme colors for main top card
+      final currentTheme = _colorThemes[_selectedThemeIndex];
+      darkTealBg = currentTheme.headerColor;
+      deepGreen = currentTheme.footerColor;
+      goldenBorder = currentTheme.accentColor;
+      softGoldText = currentTheme.accentColor.withValues(alpha: 0.8);
+      warmGold = currentTheme.accentColor;
+      lanternGlow = currentTheme.accentColor;
+      shadowGreen = currentTheme.headerColor.withValues(alpha: 0.5);
+    }
+
+    switch (index) {
+      case 0:
+        // Design 1: Classic Ornate Islamic Event Card with Diamond Pattern
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [deepGreen, darkTealBg],
+            ),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
+            border: Border.all(
+              color: goldenBorder,
+              width: responsive.spacing(3),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: shadowGreen.withValues(alpha: 0.5),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // Diamond pattern background
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: DiamondPatternPainter(
+                    color: goldenBorder.withValues(alpha: 0.1),
+                  ),
+                ),
+              ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(
+                  responsive.borderRadius(20),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: Padding(
+                          padding: responsive.paddingAll(20.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                widget.event.icon,
+                                color: goldenBorder,
+                                size: responsive.iconSize(40.0),
+                              ),
+                              SizedBox(height: responsive.spacing(16.0)),
+                              Flexible(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    _customTitle,
+                                    style: TextStyle(
+                                      color: warmGold,
+                                      fontSize: responsive.fontSize(18.0),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: responsive.spacing(12.0)),
+                              Flexible(
+                                child: Padding(
+                                  padding: responsive.paddingSymmetric(
+                                    horizontal: 20.0,
+                                  ),
+                                  child: Text(
+                                    _customDescription,
+                                    style: TextStyle(
+                                      color: creamText,
+                                      fontSize: responsive.fontSize(14.0),
+                                      height: 1.5,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 6,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    _buildAppFooter(
+                      textColor: creamText,
+                      backgroundColor: deepGreen,
+                      accentColor: goldenBorder,
+                      responsive: responsive,
+                      showStars: true,
+                      showBorder: true,
+                      borderColor: goldenBorder,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+
+      case 1:
+        // Design 2: Golden Frame Style with Ornate Border
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [darkTealBg, deepGreen],
+            ),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
+            boxShadow: [
+              BoxShadow(
+                color: shadowGreen.withValues(alpha: 0.4),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // Islamic pattern background
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: IslamicPatternPainter(
+                    color: goldenBorder.withValues(alpha: 0.08),
+                  ),
+                ),
+              ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(
+                  responsive.borderRadius(20),
+                ),
+                child: Column(
+                  children: [
+                    // Header
+                    Container(
+                      width: double.infinity,
+                      padding: responsive.paddingSymmetric(
+                        vertical: 16.0,
+                        horizontal: 20.0,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: goldenBorder.withValues(alpha: 0.3),
+                            width: responsive.spacing(2.0),
+                          ),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildCornerOrnament(goldenBorder),
+                          SizedBox(width: responsive.spacing(10)),
+                          Icon(
+                            widget.event.icon,
+                            color: goldenBorder,
+                            size: responsive.iconSize(28.0),
+                          ),
+                          SizedBox(width: responsive.spacing(10)),
+                          _buildCornerOrnament(goldenBorder),
+                        ],
+                      ),
+                    ),
+                    // Body
+                    Expanded(
+                      child: Padding(
+                        padding: responsive.paddingAll(24.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  _customTitle,
+                                  style: TextStyle(
+                                    color: warmGold,
+                                    fontSize: responsive.fontSize(20.0),
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.0,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: responsive.spacing(16.0)),
+                            _buildGoldenBorder(goldenBorder, responsive),
+                            SizedBox(height: responsive.spacing(16.0)),
+                            Flexible(
+                              child: Text(
+                                _customDescription,
+                                style: TextStyle(
+                                  color: creamText,
+                                  fontSize: responsive.fontSize(13.0),
+                                  height: 1.6,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 5,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    _buildAppFooter(
+                      textColor: softGoldText,
+                      backgroundColor: deepGreen.withValues(alpha: 0.5),
+                      accentColor: goldenBorder,
+                      responsive: responsive,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+
+      case 2:
+        // Design 3: Elegant Mandala Pattern Style
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
+            boxShadow: [
+              BoxShadow(
+                color: shadowGreen.withValues(alpha: 0.4),
+                blurRadius: 15,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
+            child: Stack(
+              children: [
+                // Gradient background
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topRight,
+                      end: Alignment.bottomLeft,
+                      colors: [deepGreen, darkTealBg],
+                    ),
+                  ),
+                ),
+                // Mandala pattern
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: MandalaPatternPainter(
+                      color: goldenBorder.withValues(alpha: 0.12),
+                    ),
+                  ),
+                ),
+                Column(
+                  children: [
+                    // Top section with icon
+                    Container(
+                      padding: responsive.paddingAll(24.0),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: responsive.paddingAll(16.0),
+                            decoration: BoxDecoration(
+                              color: goldenBorder.withValues(alpha: 0.2),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: goldenBorder,
+                                width: responsive.spacing(2.0),
+                              ),
+                            ),
+                            child: Icon(
+                              widget.event.icon,
+                              color: goldenBorder,
+                              size: responsive.iconSize(32.0),
+                            ),
+                          ),
+                          SizedBox(height: responsive.spacing(16.0)),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              _customTitle,
+                              style: TextStyle(
+                                color: warmGold,
+                                fontSize: responsive.fontSize(19.0),
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Middle divider
+                    Padding(
+                      padding: responsive.paddingSymmetric(horizontal: 32.0),
+                      child: Container(
+                        height: responsive.spacing(2.0),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.transparent,
+                              goldenBorder,
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Description
+                    Expanded(
+                      child: Padding(
+                        padding: responsive.paddingAll(24.0),
+                        child: Center(
+                          child: Text(
+                            _customDescription,
+                            style: TextStyle(
+                              color: creamText,
+                              fontSize: responsive.fontSize(13.0),
+                              height: 1.6,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 6,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ),
+                    _buildAppFooter(
+                      textColor: creamText,
+                      backgroundColor: darkTealBg.withValues(alpha: 0.8),
+                      accentColor: goldenBorder,
+                      responsive: responsive,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+
+      case 3:
+        // Design 4: Geometric Islamic Pattern Style
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [darkTealBg, deepGreen, darkTealBg],
+            ),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
+            border: Border.all(
+              color: goldenBorder,
+              width: responsive.spacing(3.0),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: shadowGreen.withValues(alpha: 0.5),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // Geometric pattern
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: GeometricPatternPainter(
+                    color: goldenBorder.withValues(alpha: 0.1),
+                  ),
+                ),
+              ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(
+                  responsive.borderRadius(20),
+                ),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: responsive.paddingAll(24.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Icon with decorative border
+                            Container(
+                              padding: responsive.paddingAll(14.0),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: goldenBorder,
+                                  width: responsive.spacing(2.5),
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  responsive.borderRadius(12.0),
+                                ),
+                              ),
+                              child: Icon(
+                                widget.event.icon,
+                                color: goldenBorder,
+                                size: responsive.iconSize(36.0),
+                              ),
+                            ),
+                            SizedBox(height: responsive.spacing(20.0)),
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  _customTitle,
+                                  style: TextStyle(
+                                    color: warmGold,
+                                    fontSize: responsive.fontSize(19.0),
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.8,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: responsive.spacing(16.0)),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: responsive.spacing(30.0),
+                                  height: responsive.spacing(1.5),
+                                  color: goldenBorder,
+                                ),
+                                SizedBox(width: responsive.spacing(8.0)),
+                                _buildStar(goldenBorder, 8.0),
+                                SizedBox(width: responsive.spacing(8.0)),
+                                Container(
+                                  width: responsive.spacing(30.0),
+                                  height: responsive.spacing(1.5),
+                                  color: goldenBorder,
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: responsive.spacing(16.0)),
+                            Flexible(
+                              child: Text(
+                                _customDescription,
+                                style: TextStyle(
+                                  color: creamText,
+                                  fontSize: responsive.fontSize(13.0),
+                                  height: 1.6,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 5,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    _buildAppFooter(
+                      textColor: softGoldText,
+                      backgroundColor: deepGreen.withValues(alpha: 0.6),
+                      accentColor: goldenBorder,
+                      responsive: responsive,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+
+      case 4:
+        // Design 5: Hanging Lanterns Style
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [darkTealBg, deepGreen],
+            ),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
+            boxShadow: [
+              BoxShadow(
+                color: shadowGreen.withValues(alpha: 0.4),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
+            child: Column(
+              children: [
+                // Top section with lanterns
+                Container(
+                  padding: responsive.paddingSymmetric(
+                    vertical: 20.0,
+                    horizontal: 16.0,
+                  ),
+                  child: Column(
+                    children: [
+                      // Lanterns
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildLantern(warmGold, lanternGlow, 0.5, responsive),
+                          Icon(
+                            widget.event.icon,
+                            color: goldenBorder,
+                            size: responsive.iconSize(40.0),
+                          ),
+                          _buildLantern(warmGold, lanternGlow, 0.5, responsive),
+                        ],
+                      ),
+                      SizedBox(height: responsive.spacing(16.0)),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          _customTitle,
+                          style: TextStyle(
+                            color: warmGold,
+                            fontSize: responsive.fontSize(19.0),
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Divider
+                Container(
+                  margin: responsive.paddingSymmetric(horizontal: 24.0),
+                  height: responsive.spacing(2.0),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.transparent,
+                        goldenBorder,
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+                // Description
+                Expanded(
+                  child: Padding(
+                    padding: responsive.paddingAll(24.0),
+                    child: Center(
+                      child: Text(
+                        _customDescription,
+                        style: TextStyle(
+                          color: creamText,
+                          fontSize: responsive.fontSize(13.0),
+                          height: 1.6,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 6,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ),
+                _buildAppFooter(
+                  textColor: creamText,
+                  backgroundColor: deepGreen.withValues(alpha: 0.7),
+                  accentColor: goldenBorder,
+                  responsive: responsive,
+                ),
+              ],
+            ),
+          ),
+        );
+
+      case 5:
+        // Design 6: Elegant Frame with Corner Ornaments
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [deepGreen, darkTealBg],
+            ),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
+            border: Border.all(
+              color: goldenBorder,
+              width: responsive.spacing(2.5),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: shadowGreen.withValues(alpha: 0.4),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // Corner ornaments
+              Positioned(
+                top: responsive.spacing(12.0),
+                left: responsive.spacing(12.0),
+                child: _buildCornerOrnament(goldenBorder),
+              ),
+              Positioned(
+                top: responsive.spacing(12.0),
+                right: responsive.spacing(12.0),
+                child: Transform.rotate(
+                  angle: 1.5708, // 90 degrees
+                  child: _buildCornerOrnament(goldenBorder),
+                ),
+              ),
+              Positioned(
+                bottom: responsive.spacing(12.0),
+                left: responsive.spacing(12.0),
+                child: Transform.rotate(
+                  angle: -1.5708, // -90 degrees
+                  child: _buildCornerOrnament(goldenBorder),
+                ),
+              ),
+              Positioned(
+                bottom: responsive.spacing(12.0),
+                right: responsive.spacing(12.0),
+                child: Transform.rotate(
+                  angle: 3.14159, // 180 degrees
+                  child: _buildCornerOrnament(goldenBorder),
+                ),
+              ),
+              // Main content
+              ClipRRect(
+                borderRadius: BorderRadius.circular(
+                  responsive.borderRadius(20),
+                ),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: responsive.paddingAll(32.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              widget.event.icon,
+                              color: goldenBorder,
+                              size: responsive.iconSize(40.0),
+                            ),
+                            SizedBox(height: responsive.spacing(20.0)),
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  _customTitle,
+                                  style: TextStyle(
+                                    color: warmGold,
+                                    fontSize: responsive.fontSize(19.0),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: responsive.spacing(16.0)),
+                            Container(
+                              width: responsive.spacing(60.0),
+                              height: responsive.spacing(2.0),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.transparent,
+                                    goldenBorder,
+                                    Colors.transparent,
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: responsive.spacing(16.0)),
+                            Flexible(
+                              child: Text(
+                                _customDescription,
+                                style: TextStyle(
+                                  color: creamText,
+                                  fontSize: responsive.fontSize(13.0),
+                                  height: 1.6,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 5,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    _buildAppFooter(
+                      textColor: creamText,
+                      backgroundColor: darkTealBg.withValues(alpha: 0.8),
+                      accentColor: goldenBorder,
+                      responsive: responsive,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+
+      case 6:
+        // Design 7: Premium Celebration with Arch Pattern
+        return Container(
+          decoration: BoxDecoration(
+            color: Color(0xFF0C4C3C),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(22)),
+            border: Border.all(
+              color: goldenBorder,
+              width: responsive.spacing(3.0),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: shadowGreen.withValues(alpha: 0.6),
+                blurRadius: 18,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // Arch pattern background
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: ArchPatternPainter(
+                    color: goldenBorder.withValues(alpha: 0.1),
+                  ),
+                ),
+              ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(
+                  responsive.borderRadius(22),
+                ),
+                child: Column(
+                  children: [
+                    // Top decorative section
+                    Container(
+                      padding: responsive.paddingSymmetric(
+                        vertical: 16.0,
+                        horizontal: 20.0,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: goldenBorder,
+                            width: responsive.spacing(2.0),
+                          ),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildStar(goldenBorder, 10.0),
+                          SizedBox(width: responsive.spacing(12.0)),
+                          Icon(
+                            widget.event.icon,
+                            color: goldenBorder,
+                            size: responsive.iconSize(32.0),
+                          ),
+                          SizedBox(width: responsive.spacing(12.0)),
+                          _buildStar(goldenBorder, 10.0),
+                        ],
+                      ),
+                    ),
+                    // Main content
+                    Expanded(
+                      child: Padding(
+                        padding: responsive.paddingAll(28.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  _customTitle,
+                                  style: TextStyle(
+                                    color: warmGold,
+                                    fontSize: responsive.fontSize(20.0),
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.2,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: responsive.spacing(20.0)),
+                            _buildGoldenBorder(goldenBorder, responsive),
+                            SizedBox(height: responsive.spacing(20.0)),
+                            Flexible(
+                              child: Text(
+                                _customDescription,
+                                style: TextStyle(
+                                  color: creamText,
+                                  fontSize: responsive.fontSize(13.0),
+                                  height: 1.7,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 5,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    _buildAppFooter(
+                      textColor: softGoldText,
+                      backgroundColor: Color(0xFF0A3A2E),
+                      accentColor: goldenBorder,
+                      responsive: responsive,
+                      showStars: true,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+
+      case 7:
+        // Design 8: Modern Turquoise Elegance
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [deepGreen.withValues(alpha: 0.9), darkTealBg],
+            ),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
+            boxShadow: [
+              BoxShadow(
+                color: shadowGreen.withValues(alpha: 0.4),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // Corner ornament details
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: CornerOrnamentDetailPainter(
+                    color: goldenBorder.withValues(alpha: 0.15),
+                  ),
+                ),
+              ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(
+                  responsive.borderRadius(20),
+                ),
+                child: Column(
+                  children: [
+                    // Header with gradient
+                    Container(
+                      width: double.infinity,
+                      padding: responsive.paddingSymmetric(
+                        vertical: 20.0,
+                        horizontal: 24.0,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            goldenBorder.withValues(alpha: 0.2),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: responsive.paddingAll(12.0),
+                            decoration: BoxDecoration(
+                              color: goldenBorder.withValues(alpha: 0.15),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              widget.event.icon,
+                              color: goldenBorder,
+                              size: responsive.iconSize(36.0),
+                            ),
+                          ),
+                          SizedBox(height: responsive.spacing(16.0)),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              _customTitle,
+                              style: TextStyle(
+                                color: warmGold,
+                                fontSize: responsive.fontSize(19.0),
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Description
+                    Expanded(
+                      child: Padding(
+                        padding: responsive.paddingAll(24.0),
+                        child: Center(
+                          child: Text(
+                            _customDescription,
+                            style: TextStyle(
+                              color: creamText,
+                              fontSize: responsive.fontSize(13.0),
+                              height: 1.6,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 6,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ),
+                    _buildAppFooter(
+                      textColor: creamText,
+                      backgroundColor: deepGreen.withValues(alpha: 0.6),
+                      accentColor: goldenBorder,
+                      responsive: responsive,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+
+      case 8:
+        // Design 9: Original Premium Islamic Card with Hanging Lanterns
+        return Container(
+          margin: responsive.paddingSymmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: shadowGreen,
+            borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
+            boxShadow: [
+              BoxShadow(
+                color: shadowGreen.withValues(alpha: 0.6),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
+            child: Stack(
+              children: [
+                // Background ornament pattern
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: OrnamentPainter(
+                      color: goldenBorder.withValues(alpha: 0.08),
+                    ),
+                  ),
+                ),
+                Column(
+                  children: [
+                    // Top hanging lanterns
+                    Container(
+                      padding: responsive.paddingSymmetric(
+                        vertical: 12.0,
+                        horizontal: 16.0,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildLantern(warmGold, lanternGlow, 0.6, responsive),
+                          _buildLantern(warmGold, lanternGlow, 0.5, responsive),
+                          _buildLantern(warmGold, lanternGlow, 0.6, responsive),
+                        ],
+                      ),
+                    ),
+                    // Main content
+                    Expanded(
+                      child: Container(
+                        margin: responsive.paddingAll(16.0),
+                        padding: responsive.paddingAll(20.0),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [darkTealBg, deepGreen],
+                          ),
+                          borderRadius: BorderRadius.circular(
+                            responsive.borderRadius(16.0),
+                          ),
+                          border: Border.all(
+                            color: goldenBorder,
+                            width: responsive.spacing(2.5),
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              widget.event.icon,
+                              color: goldenBorder,
+                              size: responsive.iconSize(40.0),
+                            ),
+                            SizedBox(height: responsive.spacing(16.0)),
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  _customTitle,
+                                  style: TextStyle(
+                                    color: warmGold,
+                                    fontSize: responsive.fontSize(19.0),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: responsive.spacing(16.0)),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _buildStar(lanternGlow, 8.0),
+                                SizedBox(width: responsive.spacing(12.0)),
+                                Container(
+                                  width: responsive.spacing(50.0),
+                                  height: responsive.spacing(2.0),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.transparent,
+                                        goldenBorder,
+                                        Colors.transparent,
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: responsive.spacing(12.0)),
+                                _buildStar(lanternGlow, 8.0),
+                              ],
+                            ),
+                            SizedBox(height: responsive.spacing(16.0)),
+                            Flexible(
+                              child: Text(
+                                _customDescription,
+                                style: TextStyle(
+                                  color: creamText,
+                                  fontSize: responsive.fontSize(12.0),
+                                  height: 1.6,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 5,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Footer
+                    Container(
+                      padding: responsive.paddingSymmetric(vertical: 10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildStar(lanternGlow, 6),
+                          SizedBox(width: responsive.spacing(10)),
+                          Text(
+                            'Noor-ul-Iman',
+                            style: TextStyle(
+                              color: creamText,
+                              fontSize: responsive.fontSize(12),
+                              letterSpacing: 1.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(width: responsive.spacing(10)),
+                          _buildStar(lanternGlow, 6),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: responsive.spacing(8)),
+                    _buildGoldenBorder(goldenBorder, responsive),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+
+      default:
+        return Container();
+    }
+  }
+
+  void _showEditDialog() {
+    final responsive = context.responsive;
+    final titleController = TextEditingController(text: _customTitle);
+    final descriptionController = TextEditingController(
+      text: _customDescription,
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
+          side: BorderSide(
+            color: Color(0xFF0A5C36),
+            width: responsive.spacing(3),
+          ),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.edit,
+              color: Color(0xFF0A5C36),
+              size: responsive.iconSize(28),
+            ),
+            SizedBox(width: responsive.spacing(12)),
+            Expanded(
+              child: Text(
+                widget.language == GreetingLanguage.urdu
+                    ? 'ایونٹ میں ترمیم کریں'
+                    : widget.language == GreetingLanguage.hindi
+                    ? 'इवेंट संपादित करें'
+                    : widget.language == GreetingLanguage.arabic
+                    ? 'تعديل الحدث'
+                    : 'Edit Event',
+                style: const TextStyle(
+                  color: Color(0xFF0A5C36),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: InputDecoration(
+                  labelText: widget.language == GreetingLanguage.urdu
+                      ? 'عنوان'
+                      : widget.language == GreetingLanguage.hindi
+                      ? 'शीर्षक'
+                      : widget.language == GreetingLanguage.arabic
+                      ? 'العنوان'
+                      : 'Title',
+                  labelStyle: const TextStyle(color: Color(0xFF0A5C36)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(
+                      responsive.borderRadius(12),
+                    ),
+                    borderSide: BorderSide(
+                      color: Color(0xFF0A5C36),
+                      width: responsive.spacing(2),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(
+                      responsive.borderRadius(12),
+                    ),
+                    borderSide: BorderSide(
+                      color: Color(0xFF8AAF9A),
+                      width: responsive.spacing(1.5),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(
+                      responsive.borderRadius(12),
+                    ),
+                    borderSide: BorderSide(
+                      color: Color(0xFF0A5C36),
+                      width: responsive.spacing(2),
+                    ),
+                  ),
+                ),
+                maxLines: 2,
+              ),
+              SizedBox(height: responsive.spacing(16)),
+              TextField(
+                controller: descriptionController,
+                decoration: InputDecoration(
+                  labelText: widget.language == GreetingLanguage.urdu
+                      ? 'تفصیل'
+                      : widget.language == GreetingLanguage.hindi
+                      ? 'विवरण'
+                      : widget.language == GreetingLanguage.arabic
+                      ? 'الوصف'
+                      : 'Description',
+                  labelStyle: const TextStyle(color: Color(0xFF0A5C36)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(
+                      responsive.borderRadius(12),
+                    ),
+                    borderSide: BorderSide(
+                      color: Color(0xFF0A5C36),
+                      width: responsive.spacing(2),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(
+                      responsive.borderRadius(12),
+                    ),
+                    borderSide: BorderSide(
+                      color: Color(0xFF8AAF9A),
+                      width: responsive.spacing(1.5),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(
+                      responsive.borderRadius(12),
+                    ),
+                    borderSide: BorderSide(
+                      color: Color(0xFF0A5C36),
+                      width: responsive.spacing(2),
+                    ),
+                  ),
+                ),
+                maxLines: 5,
+                minLines: 3,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              widget.language == GreetingLanguage.urdu
+                  ? 'منسوخ کریں'
+                  : widget.language == GreetingLanguage.hindi
+                  ? 'रद्द करें'
+                  : widget.language == GreetingLanguage.arabic
+                  ? 'إلغاء'
+                  : 'Cancel',
+              style: const TextStyle(color: Colors.grey),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _customTitle = titleController.text;
+                _customDescription = descriptionController.text;
+              });
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF0A5C36),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  responsive.borderRadius(12),
+                ),
+              ),
+            ),
+            child: Text(
+              widget.language == GreetingLanguage.urdu
+                  ? 'محفوظ کریں'
+                  : widget.language == GreetingLanguage.hindi
+                  ? 'सहेजें'
+                  : widget.language == GreetingLanguage.arabic
+                  ? 'حفظ'
+                  : 'Save',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Premium Islamic Design Helper Methods for Event Cards
+  Widget _buildLantern(
+    Color bodyColor,
+    Color glowColor,
+    double scale,
+    ResponsiveUtils responsive,
+  ) {
+    return Transform.scale(
+      scale: scale,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Hanging chain
+          Container(
+            width: responsive.spacing(2),
+            height: responsive.spacing(15),
+            color: bodyColor.withValues(alpha: 0.6),
+          ),
+          // Lantern top
+          Container(
+            width: responsive.spacing(30),
+            height: responsive.spacing(8),
+            decoration: BoxDecoration(
+              color: bodyColor,
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(responsive.borderRadius(4)),
+              ),
+            ),
+          ),
+          // Lantern body with glow
+          Container(
+            width: responsive.spacing(35),
+            height: responsive.spacing(40),
+            decoration: BoxDecoration(
+              gradient: RadialGradient(colors: [glowColor, bodyColor]),
+              borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
+              boxShadow: [
+                BoxShadow(
+                  color: glowColor.withValues(alpha: 0.6),
+                  blurRadius: 12,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Center(
+              child: Icon(
+                Icons.wb_incandescent,
+                color: glowColor,
+                size: responsive.iconSize(20),
+              ),
+            ),
+          ),
+          // Lantern bottom
+          Container(
+            width: responsive.spacing(30),
+            height: responsive.spacing(8),
+            decoration: BoxDecoration(
+              color: bodyColor,
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(responsive.borderRadius(4)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGoldenBorder(Color color, ResponsiveUtils responsive) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          width: responsive.spacing(40),
+          height: responsive.spacing(2),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.transparent, color, color],
+            ),
+          ),
+        ),
+        SizedBox(width: responsive.spacing(8)),
+        Container(
+          width: responsive.spacing(8),
+          height: responsive.spacing(8),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        SizedBox(width: responsive.spacing(8)),
+        Container(
+          width: responsive.spacing(30),
+          height: responsive.spacing(2),
+          color: color,
+        ),
+        SizedBox(width: responsive.spacing(8)),
+        Icon(Icons.circle, color: color, size: responsive.iconSize(6)),
+        SizedBox(width: responsive.spacing(8)),
+        Container(
+          width: responsive.spacing(30),
+          height: responsive.spacing(2),
+          color: color,
+        ),
+        SizedBox(width: responsive.spacing(8)),
+        Container(
+          width: responsive.spacing(8),
+          height: responsive.spacing(8),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        SizedBox(width: responsive.spacing(8)),
+        Container(
+          width: responsive.spacing(40),
+          height: responsive.spacing(2),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [color, color, Colors.transparent],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStar(Color color, double size) {
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.5),
+            blurRadius: 4,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: Icon(Icons.star, color: color, size: size),
+    );
+  }
+
+  Widget _buildCornerOrnament(Color color) {
+    return CustomPaint(
+      size: const Size(24, 24),
+      painter: CornerOrnamentPainter(color: color),
+    );
+  }
+
+  Widget _buildAppFooter({
+    required Color textColor,
+    required Color backgroundColor,
+    required Color accentColor,
+    required ResponsiveUtils responsive,
+    bool showStars = true,
+    bool showBorder = false,
+    Color? borderColor,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: responsive.paddingSymmetric(vertical: 10.0),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        border: showBorder && borderColor != null
+            ? Border(
+                top: BorderSide(
+                  color: borderColor,
+                  width: responsive.spacing(2.0),
+                ),
+              )
+            : null,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (showStars) ...[
+            _buildStar(accentColor, 6.0),
+            SizedBox(width: responsive.spacing(8.0)),
+          ],
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              'Noor-ul-Iman',
+              style: TextStyle(
+                color: textColor,
+                fontSize: responsive.fontSize(12.0),
+                letterSpacing: 1.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          if (showStars) ...[
+            SizedBox(width: responsive.spacing(8.0)),
+            _buildStar(accentColor, 6.0),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Future<void> _downloadEventCard() async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    try {
+      if (!mounted) return;
+
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const SizedBox(
+                width: 20.0,
+                height: 20.0,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.0,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+              const SizedBox(width: 16.0),
+              Expanded(
+                child: Text(
+                  widget.language == GreetingLanguage.urdu
+                      ? 'ڈاؤن لوڈ ہو رہا ہے...'
+                      : widget.language == GreetingLanguage.hindi
+                      ? 'डाउनलोड हो रहा है...'
+                      : widget.language == GreetingLanguage.arabic
+                      ? 'جاري التحميل...'
+                      : 'Downloading...',
+                ),
+              ),
+            ],
+          ),
+          duration: const Duration(seconds: 2),
+          backgroundColor: AppColors.primary,
+        ),
+      );
+
+      // Wait for widgets to fully render
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Capture at high quality (3x pixel ratio for retina quality)
+      final image = await _screenshotController.capture(
+        pixelRatio: 3.0,
+        delay: const Duration(milliseconds: 50),
+      );
+
+      if (image == null) {
+        if (!mounted) return;
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 16.0),
+                Expanded(
+                  child: Text(
+                    widget.language == GreetingLanguage.urdu
+                        ? 'ڈاؤن لوڈ ناکام ہو گیا'
+                        : widget.language == GreetingLanguage.hindi
+                        ? 'डाउनलोड विफल हो गया'
+                        : widget.language == GreetingLanguage.arabic
+                        ? 'فشل التحميل'
+                        : 'Download failed',
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        return;
+      }
+
+      final directory = await getTemporaryDirectory();
+      final imagePath =
+          '${directory.path}/islamic_event_${DateTime.now().millisecondsSinceEpoch}.png';
+      final imageFile = File(imagePath);
+      await imageFile.writeAsBytes(image);
+
+      await Gal.putImage(imagePath, album: 'Noor-ul-Iman');
+      await imageFile.delete();
+
+      if (!mounted) return;
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle_outline, color: Colors.white),
+              const SizedBox(width: 16.0),
+              Expanded(
+                child: Text(
+                  widget.language == GreetingLanguage.urdu
+                      ? 'ڈاؤن لوڈ کامیاب! گیلری میں محفوظ ہو گیا'
+                      : widget.language == GreetingLanguage.hindi
+                      ? 'डाउनलोड सफल! गैलरी में सहेजा गया'
+                      : widget.language == GreetingLanguage.arabic
+                      ? 'تم التحميل بنجاح! تم الحفظ في المعرض'
+                      : 'Download successful! Saved to gallery',
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 16.0),
+              Expanded(
+                child: Text(
+                  widget.language == GreetingLanguage.urdu
+                      ? 'ڈاؤن لوڈ میں خرابی: ${e.toString()}'
+                      : widget.language == GreetingLanguage.hindi
+                      ? 'डाउनलोड में त्रुटि: ${e.toString()}'
+                      : widget.language == GreetingLanguage.arabic
+                      ? 'خطأ في التحميل: ${e.toString()}'
+                      : 'Download error: ${e.toString()}',
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
+  }
+
+  Future<void> _shareEventCard(BuildContext context) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    try {
+      if (!mounted) return;
+
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const SizedBox(
+                width: 20.0,
+                height: 20.0,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.0,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+              const SizedBox(width: 16.0),
+              Expanded(
+                child: Text(
+                  widget.language == GreetingLanguage.urdu
+                      ? 'شیئر کے لیے تیار ہو رہا ہے...'
+                      : widget.language == GreetingLanguage.hindi
+                      ? 'शेयर के लिए तैयार हो रहा है...'
+                      : widget.language == GreetingLanguage.arabic
+                      ? 'جاري التحضير للمشاركة...'
+                      : 'Preparing to share...',
+                ),
+              ),
+            ],
+          ),
+          duration: const Duration(seconds: 2),
+          backgroundColor: AppColors.primary,
+        ),
+      );
+
+      // Wait for widgets to fully render
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Capture at high quality (3x pixel ratio for retina quality)
+      final image = await _screenshotController.capture(
+        pixelRatio: 3.0,
+        delay: const Duration(milliseconds: 50),
+      );
+
+      if (image == null) {
+        if (!mounted) return;
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 16.0),
+                Expanded(
+                  child: Text(
+                    widget.language == GreetingLanguage.urdu
+                        ? 'شیئر ناکام ہو گیا'
+                        : widget.language == GreetingLanguage.hindi
+                        ? 'शेयर विफल हो गया'
+                        : widget.language == GreetingLanguage.arabic
+                        ? 'فشلت المشاركة'
+                        : 'Share failed',
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        return;
+      }
+
+      final directory = await getTemporaryDirectory();
+      final imagePath =
+          '${directory.path}/islamic_event_${DateTime.now().millisecondsSinceEpoch}.png';
+      final imageFile = File(imagePath);
+      await imageFile.writeAsBytes(image);
+
+      await Share.shareXFiles(
+        [XFile(imagePath)],
+        text: widget.language == GreetingLanguage.urdu
+            ? 'نور الایمان سے اسلامی تقریب کا کارڈ'
+            : widget.language == GreetingLanguage.hindi
+            ? 'नूर-उल-ईमान से इस्लामी कार्यक्रम कार्ड'
+            : widget.language == GreetingLanguage.arabic
+            ? 'بطاقة حدث إسلامي من نور الإيمان'
+            : 'Islamic Event Card from Noor-ul-Iman',
+      );
+
+      Future.delayed(const Duration(seconds: 5), () {
+        if (imageFile.existsSync()) {
+          imageFile.delete();
+        }
+      });
+    } catch (e) {
+      if (!mounted) return;
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 16.0),
+              Expanded(
+                child: Text(
+                  widget.language == GreetingLanguage.urdu
+                      ? 'شیئر میں خرابی: ${e.toString()}'
+                      : widget.language == GreetingLanguage.hindi
+                      ? 'शेयर में त्रुटि: ${e.toString()}'
+                      : widget.language == GreetingLanguage.arabic
+                      ? 'خطأ في المشاركة: ${e.toString()}'
+                      : 'Share error: ${e.toString()}',
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
   }
 }
 
@@ -219,6 +2870,7 @@ class MonthCardsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     // Islamic Color Scheme Constants
     const darkGreen = Color(0xFF0A5C36);
     const softOffWhite = Color(0xFFF6F8F6);
@@ -243,18 +2895,18 @@ class MonthCardsScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(20),
+                      padding: responsive.paddingAll(20),
                       decoration: BoxDecoration(
                         color: darkGreen.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.card_giftcard,
-                        size: 64,
+                        size: responsive.iconSize(64),
                         color: darkGreen,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: responsive.spacing(16)),
                     Text(
                       language == GreetingLanguage.urdu
                           ? 'اس مہینے کے لیے کوئی خاص کارڈ نہیں'
@@ -263,13 +2915,16 @@ class MonthCardsScreen extends StatelessWidget {
                           : language == GreetingLanguage.arabic
                           ? 'لا توجد بطاقات خاصة لهذا الشهر'
                           : 'No special cards for this month',
-                      style: const TextStyle(color: darkGreen, fontSize: 16),
+                      style: TextStyle(
+                        color: darkGreen,
+                        fontSize: responsive.fontSize(16),
+                      ),
                     ),
                   ],
                 ),
               )
             : ListView.builder(
-                padding: const EdgeInsets.all(16),
+                padding: responsive.paddingAll(16),
                 itemCount: month.cards.length,
                 itemBuilder: (context, index) {
                   return _GreetingCardTile(
@@ -297,6 +2952,7 @@ class _GreetingCardTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     // Islamic Color Scheme Constants
     const darkGreen = Color(0xFF0A5C36);
     const emeraldGreen = Color(0xFF1E8F5A);
@@ -304,9 +2960,9 @@ class _GreetingCardTile extends StatelessWidget {
     const lightGreenChip = Color(0xFFE8F3ED);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: responsive.paddingOnly(bottom: 14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.borderRadius(18)),
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
@@ -319,20 +2975,23 @@ class _GreetingCardTile extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () => _showCardPreview(context),
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(responsive.borderRadius(18)),
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: responsive.paddingAll(16),
             decoration: BoxDecoration(
               color: const Color(0xFFFFFFFF),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: lightGreenBorder, width: 1.5),
+              borderRadius: BorderRadius.circular(responsive.borderRadius(18)),
+              border: Border.all(
+                color: lightGreenBorder,
+                width: responsive.spacing(1.5),
+              ),
             ),
             child: Row(
               children: [
                 // Icon with dark green circle
                 Container(
-                  width: 58,
-                  height: 58,
+                  width: responsive.spacing(58),
+                  height: responsive.spacing(58),
                   decoration: BoxDecoration(
                     color: darkGreen,
                     shape: BoxShape.circle,
@@ -348,11 +3007,11 @@ class _GreetingCardTile extends StatelessWidget {
                     child: Icon(
                       card.icon,
                       color: const Color(0xFFFFFFFF),
-                      size: 28,
+                      size: responsive.iconSize(28),
                     ),
                   ),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: responsive.spacing(14)),
                 // Card title and subtitle
                 Expanded(
                   child: Column(
@@ -360,24 +3019,26 @@ class _GreetingCardTile extends StatelessWidget {
                     children: [
                       Text(
                         card.getTitle(language),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: darkGreen,
-                          fontSize: 16,
+                          fontSize: responsive.fontSize(16),
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.3,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 6),
+                      SizedBox(height: responsive.spacing(6)),
                       Container(
-                        padding: const EdgeInsets.symmetric(
+                        padding: responsive.paddingSymmetric(
                           horizontal: 10,
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
                           color: lightGreenChip,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(
+                            responsive.borderRadius(8),
+                          ),
                         ),
                         child: Text(
                           language == GreetingLanguage.urdu
@@ -387,9 +3048,9 @@ class _GreetingCardTile extends StatelessWidget {
                               : language == GreetingLanguage.arabic
                               ? 'اضغط للعرض'
                               : 'Tap to view',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: emeraldGreen,
-                            fontSize: 11,
+                            fontSize: responsive.fontSize(11),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -397,18 +3058,18 @@ class _GreetingCardTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: responsive.spacing(8)),
                 // Arrow button
                 Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
+                  padding: responsive.paddingAll(8),
+                  decoration: BoxDecoration(
                     color: emeraldGreen,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.arrow_forward_ios,
                     color: Color(0xFFFFFFFF),
-                    size: 16,
+                    size: responsive.iconSize(16),
                   ),
                 ),
               ],
@@ -563,7 +3224,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
   int _selectedTemplateIndex = 0; // Default to original premium Islamic card
   String _customTitle = '';
   String _customMessage = '';
-  bool _isEdited = false;
+  bool _showTemplates = true; // true = show templates, false = show colors
 
   @override
   void initState() {
@@ -574,6 +3235,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -582,202 +3244,337 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: responsive.paddingAll(16),
           child: Column(
             children: [
               // Main Card Display (wrapped with Screenshot) - Uses Selected Template
               Screenshot(
                 controller: _screenshotController,
                 child: Container(
-                  height: 570,
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _buildCardVariation(
-                    _selectedTemplateIndex,
-                    isPreview: false,
+                  height: responsive.spacing(570.0),
+                  width: double.infinity,
+                  margin: responsive.paddingSymmetric(horizontal: 16.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                      responsive.borderRadius(20.0),
+                    ),
+                    child: _buildCardVariation(
+                      _selectedTemplateIndex,
+                      isPreview: false,
+                    ),
                   ),
                 ),
               ), // Screenshot widget
-              const SizedBox(height: 10),
+              SizedBox(height: responsive.spacing(10)),
 
-              // 9 Different Card Design Templates
-              Container(
-                height: 80,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 9,
-                  itemBuilder: (context, index) {
-                    final isSelected = _selectedTemplateIndex == index;
-                    return GestureDetector(
+              // Template and Color Toggle Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
                       onTap: () {
                         setState(() {
-                          _selectedTemplateIndex = index;
+                          _showTemplates = true;
                         });
                       },
                       child: Container(
-                        width: 80,
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: responsive.paddingSymmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: isSelected
-                                ? const Color(0xFFD4AF37)
-                                : Colors.transparent,
-                            width: 3,
+                          color: _showTemplates
+                              ? const Color(0xFF1E8F5A)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(
+                            responsive.borderRadius(10),
                           ),
-                          boxShadow: isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: const Color(
-                                      0xFFD4AF37,
-                                    ).withValues(alpha: 0.5),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ]
-                              : [],
+                          border: Border.all(
+                            color: _showTemplates
+                                ? const Color(0xFF0A5C36)
+                                : const Color(0xFF1E8F5A),
+                            width: 2,
+                          ),
                         ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: FittedBox(
-                            child: SizedBox(
-                              width: 300,
-                              height: 400,
-                              child: _buildCardVariation(
-                                index,
-                                isPreview: true,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.dashboard,
+                              color: _showTemplates
+                                  ? Colors.white
+                                  : Colors.black,
+                              size: responsive.iconSize(18),
+                            ),
+                            SizedBox(width: responsive.spacing(6)),
+                            Text(
+                              widget.language == GreetingLanguage.urdu
+                                  ? 'ٹیمپلیٹ'
+                                  : widget.language == GreetingLanguage.hindi
+                                  ? 'टेम्पलेट'
+                                  : widget.language == GreetingLanguage.arabic
+                                  ? 'قالب'
+                                  : 'Template',
+                              style: TextStyle(
+                                color: _showTemplates
+                                    ? Colors.white
+                                    : Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: responsive.fontSize(14),
                               ),
                             ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              // Color Theme Selector with None button
-              Container(
-                height: 60,
-                child: Row(
-                  children: [
-                    // None Button
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedThemeIndex = -1;
-                        });
-                      },
-                      child: Container(
-                        width: 70,
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0E2A2A),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: _selectedThemeIndex == -1
-                                ? const Color(0xFFD4AF37)
-                                : Colors.transparent,
-                            width: 3,
-                          ),
-                          boxShadow: _selectedThemeIndex == -1
-                              ? [
-                                  BoxShadow(
-                                    color: const Color(
-                                      0xFFD4AF37,
-                                    ).withValues(alpha: 0.5),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ]
-                              : [],
-                        ),
-                        child: Center(
-                          child: Text(
-                            widget.language == GreetingLanguage.urdu
-                                ? 'اصل'
-                                : widget.language == GreetingLanguage.hindi
-                                ? 'मूल'
-                                : widget.language == GreetingLanguage.arabic
-                                ? 'أصلي'
-                                : 'None',
-                            style: const TextStyle(
-                              color: Color(0xFFD4AF37),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+                          ],
                         ),
                       ),
                     ),
-                    // Color themes list
-                    Expanded(
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _colorThemes.length,
-                        itemBuilder: (context, index) {
-                          final theme = _colorThemes[index];
-                          final isSelected = _selectedThemeIndex == index;
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _selectedThemeIndex = index;
-                              });
-                            },
-                            child: Container(
-                              width: 60,
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    theme.headerColor,
-                                    theme.footerColor,
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: isSelected
-                                      ? theme.accentColor
-                                      : Colors.transparent,
-                                  width: 3,
-                                ),
-                                boxShadow: isSelected
-                                    ? [
-                                        BoxShadow(
-                                          color: theme.accentColor.withValues(
-                                            alpha: 0.5,
-                                          ),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ]
-                                    : [],
-                              ),
-                              child: Center(
-                                child: Text(
-                                  theme.getName(widget.language),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                  ),
+                  SizedBox(width: responsive.spacing(10)),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _showTemplates = false;
+                        });
+                      },
+                      child: Container(
+                        padding: responsive.paddingSymmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: !_showTemplates
+                              ? const Color(0xFF1E8F5A)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(
+                            responsive.borderRadius(10),
+                          ),
+                          border: Border.all(
+                            color: !_showTemplates
+                                ? const Color(0xFF0A5C36)
+                                : const Color(0xFF1E8F5A),
+                            width: 2,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.palette,
+                              color: !_showTemplates
+                                  ? Colors.white
+                                  : Colors.black,
+                              size: responsive.iconSize(18),
+                            ),
+                            SizedBox(width: responsive.spacing(6)),
+                            Text(
+                              widget.language == GreetingLanguage.urdu
+                                  ? 'رنگ'
+                                  : widget.language == GreetingLanguage.hindi
+                                  ? 'रंग'
+                                  : widget.language == GreetingLanguage.arabic
+                                  ? 'لون'
+                                  : 'Color',
+                              style: TextStyle(
+                                color: !_showTemplates
+                                    ? Colors.white
+                                    : Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: responsive.fontSize(14),
                               ),
                             ),
-                          );
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: responsive.spacing(10)),
+
+              // Show Templates or Colors based on selection
+              if (_showTemplates)
+                // 9 Different Card Design Templates
+                SizedBox(
+                  height: responsive.spacing(80),
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 9,
+                    itemBuilder: (context, index) {
+                      final isSelected = _selectedTemplateIndex == index;
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedTemplateIndex = index;
+                          });
                         },
+                        child: Container(
+                          width: responsive.spacing(80),
+                          margin: responsive.paddingSymmetric(horizontal: 4),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(
+                              responsive.borderRadius(12),
+                            ),
+                            border: Border.all(
+                              color: isSelected
+                                  ? const Color(0xFFD4AF37)
+                                  : Colors.transparent,
+                              width: responsive.spacing(3),
+                            ),
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: const Color(
+                                        0xFFD4AF37,
+                                      ).withValues(alpha: 0.5),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ]
+                                : [],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                              responsive.borderRadius(10),
+                            ),
+                            child: FittedBox(
+                              child: SizedBox(
+                                width: responsive.spacing(300),
+                                height: responsive.spacing(400),
+                                child: _buildCardVariation(
+                                  index,
+                                  isPreview: true,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                )
+              else
+                // Color Theme Selector with None button
+                SizedBox(
+                  height: responsive.spacing(60),
+                  child: Row(
+                    children: [
+                      // None Button
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedThemeIndex = -1;
+                          });
+                        },
+                        child: Container(
+                          width: responsive.spacing(70),
+                          margin: responsive.paddingSymmetric(horizontal: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0E2A2A),
+                            borderRadius: BorderRadius.circular(
+                              responsive.borderRadius(12),
+                            ),
+                            border: Border.all(
+                              color: _selectedThemeIndex == -1
+                                  ? const Color(0xFFD4AF37)
+                                  : Colors.transparent,
+                              width: responsive.spacing(3),
+                            ),
+                            boxShadow: _selectedThemeIndex == -1
+                                ? [
+                                    BoxShadow(
+                                      color: const Color(
+                                        0xFFD4AF37,
+                                      ).withValues(alpha: 0.5),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ]
+                                : [],
+                          ),
+                          child: Center(
+                            child: Text(
+                              widget.language == GreetingLanguage.urdu
+                                  ? 'اصل'
+                                  : widget.language == GreetingLanguage.hindi
+                                  ? 'मूल'
+                                  : widget.language == GreetingLanguage.arabic
+                                  ? 'أصلي'
+                                  : 'None',
+                              style: TextStyle(
+                                color: Color(0xFFD4AF37),
+                                fontSize: responsive.fontSize(12),
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                      // Color themes list
+                      Expanded(
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _colorThemes.length,
+                          itemBuilder: (context, index) {
+                            final theme = _colorThemes[index];
+                            final isSelected = _selectedThemeIndex == index;
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedThemeIndex = index;
+                                });
+                              },
+                              child: Container(
+                                width: responsive.spacing(60),
+                                margin: responsive.paddingSymmetric(
+                                  horizontal: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      theme.headerColor,
+                                      theme.footerColor,
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(
+                                    responsive.borderRadius(12),
+                                  ),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? theme.accentColor
+                                        : Colors.transparent,
+                                    width: responsive.spacing(3),
+                                  ),
+                                  boxShadow: isSelected
+                                      ? [
+                                          BoxShadow(
+                                            color: theme.accentColor.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ]
+                                      : [],
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    theme.getName(widget.language),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: responsive.fontSize(8),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
+              SizedBox(height: responsive.spacing(10)),
 
               // Action Buttons Row - Edit, Share, Download
               Row(
@@ -786,10 +3583,10 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                   // Edit Button
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      padding: responsive.paddingSymmetric(horizontal: 4),
                       child: ElevatedButton.icon(
                         onPressed: _showEditDialog,
-                        icon: const Icon(Icons.edit, size: 18),
+                        icon: Icon(Icons.edit, size: responsive.iconSize(18)),
                         label: Text(
                           widget.language == GreetingLanguage.urdu
                               ? 'ترمیم'
@@ -798,16 +3595,18 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                               : widget.language == GreetingLanguage.arabic
                               ? 'تعديل'
                               : 'Edit',
-                          style: const TextStyle(fontSize: 13),
+                          style: TextStyle(fontSize: responsive.fontSize(13)),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
                             0xFF0A5C36,
                           ), // Fixed Islamic Green
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: responsive.paddingSymmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                            borderRadius: BorderRadius.circular(
+                              responsive.borderRadius(30),
+                            ),
                           ),
                         ),
                       ),
@@ -816,10 +3615,10 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                   // Share Button
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      padding: responsive.paddingSymmetric(horizontal: 4),
                       child: ElevatedButton.icon(
                         onPressed: () => _shareCard(context),
-                        icon: const Icon(Icons.share, size: 18),
+                        icon: Icon(Icons.share, size: responsive.iconSize(18)),
                         label: Text(
                           widget.language == GreetingLanguage.urdu
                               ? 'شیئر'
@@ -828,16 +3627,18 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                               : widget.language == GreetingLanguage.arabic
                               ? 'مشاركة'
                               : 'Share',
-                          style: const TextStyle(fontSize: 13),
+                          style: TextStyle(fontSize: responsive.fontSize(13)),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
                             0xFF1E8F5A,
                           ), // Fixed Emerald Green
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: responsive.paddingSymmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                            borderRadius: BorderRadius.circular(
+                              responsive.borderRadius(30),
+                            ),
                           ),
                         ),
                       ),
@@ -846,10 +3647,13 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                   // Download Button
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      padding: responsive.paddingSymmetric(horizontal: 4),
                       child: ElevatedButton.icon(
                         onPressed: _downloadCard,
-                        icon: const Icon(Icons.download, size: 18),
+                        icon: Icon(
+                          Icons.download,
+                          size: responsive.iconSize(18),
+                        ),
                         label: Text(
                           widget.language == GreetingLanguage.urdu
                               ? 'ڈاؤن لوڈ'
@@ -858,16 +3662,18 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                               : widget.language == GreetingLanguage.arabic
                               ? 'تحميل'
                               : 'Download',
-                          style: const TextStyle(fontSize: 13),
+                          style: TextStyle(fontSize: responsive.fontSize(13)),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
                             0xFF1E8F5A,
                           ), // Fixed Emerald Green
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: responsive.paddingSymmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                            borderRadius: BorderRadius.circular(
+                              responsive.borderRadius(30),
+                            ),
                           ),
                         ),
                       ),
@@ -875,7 +3681,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: responsive.spacing(6)),
             ],
           ),
         ),
@@ -884,7 +3690,12 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
   }
 
   // Premium Islamic Design Helper Methods
-  Widget _buildLantern(Color bodyColor, Color glowColor, double scale) {
+  Widget _buildLantern(
+    Color bodyColor,
+    Color glowColor,
+    double scale,
+    ResponsiveUtils responsive,
+  ) {
     return Transform.scale(
       scale: scale,
       child: Column(
@@ -892,28 +3703,28 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
         children: [
           // Hanging chain
           Container(
-            width: 2,
-            height: 15,
+            width: responsive.spacing(2),
+            height: responsive.spacing(15),
             color: bodyColor.withValues(alpha: 0.6),
           ),
           // Lantern top
           Container(
-            width: 30,
-            height: 8,
+            width: responsive.spacing(30),
+            height: responsive.spacing(8),
             decoration: BoxDecoration(
               color: bodyColor,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(4),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(responsive.borderRadius(4)),
               ),
             ),
           ),
           // Lantern body with glow
           Container(
-            width: 35,
-            height: 40,
+            width: responsive.spacing(35),
+            height: responsive.spacing(40),
             decoration: BoxDecoration(
               gradient: RadialGradient(colors: [glowColor, bodyColor]),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
               boxShadow: [
                 BoxShadow(
                   color: glowColor.withValues(alpha: 0.6),
@@ -923,17 +3734,21 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               ],
             ),
             child: Center(
-              child: Icon(Icons.wb_incandescent, color: glowColor, size: 20),
+              child: Icon(
+                Icons.wb_incandescent,
+                color: glowColor,
+                size: responsive.iconSize(20),
+              ),
             ),
           ),
           // Lantern bottom
           Container(
-            width: 30,
-            height: 8,
+            width: responsive.spacing(30),
+            height: responsive.spacing(8),
             decoration: BoxDecoration(
               color: bodyColor,
-              borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(4),
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(responsive.borderRadius(4)),
               ),
             ),
           ),
@@ -942,41 +3757,49 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
     );
   }
 
-  Widget _buildGoldenBorder(Color color) {
+  Widget _buildGoldenBorder(Color color, ResponsiveUtils responsive) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          width: 40,
-          height: 2,
+          width: responsive.spacing(40),
+          height: responsive.spacing(2),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.transparent, color, color],
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: responsive.spacing(8)),
         Container(
-          width: 8,
-          height: 8,
+          width: responsive.spacing(8),
+          height: responsive.spacing(8),
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        const SizedBox(width: 8),
-        Container(width: 30, height: 2, color: color),
-        const SizedBox(width: 8),
-        Icon(Icons.circle, color: color, size: 6),
-        const SizedBox(width: 8),
-        Container(width: 30, height: 2, color: color),
-        const SizedBox(width: 8),
+        SizedBox(width: responsive.spacing(8)),
         Container(
-          width: 8,
-          height: 8,
+          width: responsive.spacing(30),
+          height: responsive.spacing(2),
+          color: color,
+        ),
+        SizedBox(width: responsive.spacing(8)),
+        Icon(Icons.circle, color: color, size: responsive.iconSize(6)),
+        SizedBox(width: responsive.spacing(8)),
+        Container(
+          width: responsive.spacing(30),
+          height: responsive.spacing(2),
+          color: color,
+        ),
+        SizedBox(width: responsive.spacing(8)),
+        Container(
+          width: responsive.spacing(8),
+          height: responsive.spacing(8),
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: responsive.spacing(8)),
         Container(
-          width: 40,
-          height: 2,
+          width: responsive.spacing(40),
+          height: responsive.spacing(2),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [color, color, Colors.transparent],
@@ -1009,12 +3832,64 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
     );
   }
 
+  Widget _buildAppFooter({
+    required Color textColor,
+    required Color backgroundColor,
+    required Color accentColor,
+    required ResponsiveUtils responsive,
+    bool showStars = true,
+    bool showBorder = false,
+    Color? borderColor,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: responsive.paddingSymmetric(vertical: 10.0),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        border: showBorder && borderColor != null
+            ? Border(
+                top: BorderSide(
+                  color: borderColor,
+                  width: responsive.spacing(2.0),
+                ),
+              )
+            : null,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (showStars) ...[
+            _buildStar(accentColor, 6.0),
+            SizedBox(width: responsive.spacing(8.0)),
+          ],
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              'Noor-ul-Iman',
+              style: TextStyle(
+                color: textColor,
+                fontSize: responsive.fontSize(12.0),
+                letterSpacing: 1.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          if (showStars) ...[
+            SizedBox(width: responsive.spacing(8.0)),
+            _buildStar(accentColor, 6.0),
+          ],
+        ],
+      ),
+    );
+  }
+
   // Build 9 Different Card Design Variations
   Widget _buildCardVariation(int index, {bool isPreview = false}) {
     // Remap indices: Original premium card (was index 8) is now at index 0
     const indexMap = [8, 0, 1, 2, 3, 4, 5, 6, 7];
     index = indexMap[index];
 
+    final responsive = context.responsive;
     final Color darkTealBg;
     final Color deepGreen;
     final Color goldenBorder;
@@ -1058,8 +3933,11 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               end: Alignment.bottomRight,
               colors: [deepGreen, darkTealBg],
             ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: goldenBorder, width: 3),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
+            border: Border.all(
+              color: goldenBorder,
+              width: responsive.spacing(3),
+            ),
             boxShadow: [
               BoxShadow(
                 color: shadowGreen.withValues(alpha: 0.5),
@@ -1078,36 +3956,76 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                   ),
                 ),
               ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.brightness_2, color: goldenBorder, size: 40),
-                  const SizedBox(height: 16),
-                  Text(
-                    _customTitle,
-                    style: TextStyle(
-                      color: warmGold,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      _customMessage,
-                      style: const TextStyle(
-                        color: creamText,
-                        fontSize: 14,
-                        height: 1.5,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(
+                  responsive.borderRadius(20),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: Padding(
+                          padding: responsive.paddingAll(20.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.brightness_2,
+                                color: goldenBorder,
+                                size: responsive.iconSize(40.0),
+                              ),
+                              SizedBox(height: responsive.spacing(16.0)),
+                              Flexible(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    _customTitle,
+                                    style: TextStyle(
+                                      color: warmGold,
+                                      fontSize: responsive.fontSize(18.0),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: responsive.spacing(12.0)),
+                              Flexible(
+                                child: Padding(
+                                  padding: responsive.paddingSymmetric(
+                                    horizontal: 20.0,
+                                  ),
+                                  child: Text(
+                                    _customMessage,
+                                    style: TextStyle(
+                                      color: creamText,
+                                      fontSize: responsive.fontSize(14.0),
+                                      height: 1.5,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 6,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      textAlign: TextAlign.center,
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
+                    _buildAppFooter(
+                      textColor: creamText,
+                      backgroundColor: deepGreen,
+                      accentColor: goldenBorder,
+                      responsive: responsive,
+                      showStars: true,
+                      showBorder: true,
+                      borderColor: goldenBorder,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -1122,7 +4040,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               end: Alignment.bottomCenter,
               colors: [deepGreen, darkTealBg],
             ),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
             border: Border.all(color: goldenBorder, width: 4),
             boxShadow: [
               BoxShadow(
@@ -1165,8 +4083,8 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                 children: [
                   // Top ornament
                   Container(
-                    width: 60,
-                    height: 60,
+                    width: responsive.spacing(60),
+                    height: responsive.spacing(60),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
@@ -1180,20 +4098,20 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                         ),
                       ],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.brightness_2,
                       color: Color(0xFF0A2A1A),
-                      size: 32,
+                      size: responsive.iconSize(32),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: responsive.spacing(20)),
                   // Golden decorative line
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        width: 50,
-                        height: 2,
+                        width: responsive.spacing(50),
+                        height: responsive.spacing(2),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [Colors.transparent, goldenBorder],
@@ -1201,17 +4119,17 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                         ),
                       ),
                       Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 10),
-                        width: 8,
-                        height: 8,
+                        margin: responsive.paddingSymmetric(horizontal: 10),
+                        width: responsive.spacing(8),
+                        height: responsive.spacing(8),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: goldenBorder,
                         ),
                       ),
                       Container(
-                        width: 50,
-                        height: 2,
+                        width: responsive.spacing(50),
+                        height: responsive.spacing(2),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [goldenBorder, Colors.transparent],
@@ -1220,15 +4138,15 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: responsive.spacing(20)),
                   // Title
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    padding: responsive.paddingSymmetric(horizontal: 30),
                     child: Text(
                       _customTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Color(0xFFFFE5A0),
-                        fontSize: 22,
+                        fontSize: responsive.fontSize(22),
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.2,
                         shadows: [
@@ -1242,15 +4160,15 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: responsive.spacing(16)),
                   // Message
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 35),
+                    padding: responsive.paddingSymmetric(horizontal: 35),
                     child: Text(
                       _customMessage,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: creamText,
-                        fontSize: 14,
+                        fontSize: responsive.fontSize(14),
                         height: 1.6,
                         letterSpacing: 0.5,
                       ),
@@ -1259,22 +4177,38 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: responsive.spacing(20)),
                   // Bottom ornamental line
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(width: 40, height: 1.5, color: goldenBorder),
+                      Container(
+                        width: responsive.spacing(40),
+                        height: 1.5,
+                        color: goldenBorder,
+                      ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        padding: responsive.paddingSymmetric(horizontal: 8),
                         child: Icon(
                           Icons.auto_awesome,
                           color: goldenBorder,
-                          size: 16,
+                          size: responsive.iconSize(16),
                         ),
                       ),
-                      Container(width: 40, height: 1.5, color: goldenBorder),
+                      Container(
+                        width: responsive.spacing(40),
+                        height: 1.5,
+                        color: goldenBorder,
+                      ),
                     ],
+                  ),
+                  SizedBox(height: responsive.spacing(20.0)),
+                  _buildAppFooter(
+                    textColor: creamText,
+                    backgroundColor: deepGreen.withValues(alpha: 0.5),
+                    accentColor: goldenBorder,
+                    responsive: responsive,
+                    showStars: true,
                   ),
                 ],
               ),
@@ -1283,165 +4217,307 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
         );
 
       case 2:
-        // Design 3: Ramadan Kareem with Arabic Calligraphy Style
+        // Design 3: Royal Mosque - Islamic Theme with Dynamic Colors
         return Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [darkTealBg, deepGreen, shadowGreen],
+              stops: [0.0, 0.5, 1.0],
+            ),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
+            border: Border.all(color: goldenBorder, width: 3),
             boxShadow: [
               BoxShadow(
-                color: shadowGreen.withValues(alpha: 0.5),
+                color: shadowGreen.withValues(alpha: 0.6),
                 blurRadius: 20,
-                offset: const Offset(0, 6),
+                offset: const Offset(0, 8),
               ),
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(17)),
             child: Stack(
               children: [
-                // Left side with geometric Islamic pattern
+                // Background stars pattern
+                ...List.generate(15, (index) {
+                  final random = index * 17 % 10;
+                  return Positioned(
+                    top: (index * 31 % 200).toDouble(),
+                    left: (index * 47 % 280).toDouble(),
+                    child: Icon(
+                      Icons.star,
+                      color: softGoldText.withValues(
+                        alpha: 0.15 + (random * 0.02),
+                      ),
+                      size: 8 + (random * 0.5),
+                    ),
+                  );
+                }),
+                // Islamic geometric pattern overlay
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: IslamicPatternPainter(
+                      color: goldenBorder.withValues(alpha: 0.08),
+                    ),
+                  ),
+                ),
+                // Mosque dome silhouette at bottom
                 Positioned(
+                  bottom: 35,
                   left: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: 140,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [deepGreen, darkTealBg],
-                      ),
-                    ),
-                    child: CustomPaint(
-                      painter: IslamicPatternPainter(
-                        color: goldenBorder.withValues(alpha: 0.15),
-                      ),
+                  right: 0,
+                  child: CustomPaint(
+                    size: Size(double.infinity, responsive.spacing(80)),
+                    painter: MosqueSilhouettePainter(
+                      color: shadowGreen.withValues(alpha: 0.6),
                     ),
                   ),
                 ),
-                // Right side content area
-                Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [Colors.transparent, Color(0xFFF5F5F0)],
-                      stops: [0.0, 0.35],
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      // Left pattern section
-                      const SizedBox(width: 140),
-                      // Main content
-                      Expanded(
-                        child: Container(
-                          color: const Color(0xFFF5F5F0),
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Hanging lanterns decorations
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Transform.scale(
-                                    scale: 0.4,
-                                    child: _buildLantern(
-                                      const Color(0xFF8B4513),
-                                      goldenBorder,
-                                      1.0,
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.brightness_2,
-                                    color: goldenBorder,
-                                    size: 18,
-                                  ),
-                                  _buildStar(goldenBorder, 10),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              // Title
-                              Text(
-                                _customTitle,
-                                style: const TextStyle(
-                                  color: Color(0xFF1A3A4A),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Amiri',
-                                  letterSpacing: 0.5,
-                                ),
-                                textAlign: TextAlign.left,
-                              ),
-                              const SizedBox(height: 12),
-                              // Decorative line
-                              Container(
-                                height: 2,
-                                width: 80,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [goldenBorder, Colors.transparent],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              // Message
-                              Text(
-                                _customMessage,
-                                style: const TextStyle(
-                                  color: Color(0xFF4A5A5A),
-                                  fontSize: 13,
-                                  height: 1.6,
-                                  letterSpacing: 0.3,
-                                ),
-                                maxLines: 5,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 12),
-                              // Bottom decoration
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 6,
-                                    height: 6,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: goldenBorder,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    width: 30,
-                                    height: 1.5,
-                                    color: goldenBorder,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Golden ornamental frame on left edge
+                // Top decorative arch frame
                 Positioned(
-                  left: 135,
                   top: 0,
-                  bottom: 0,
+                  left: 0,
+                  right: 0,
                   child: Container(
-                    width: 5,
+                    height: responsive.spacing(60),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [goldenBorder, warmGold, goldenBorder],
+                        colors: [
+                          goldenBorder.withValues(alpha: 0.2),
+                          Colors.transparent,
+                        ],
                       ),
                     ),
+                  ),
+                ),
+                // Crescent moon and star at top
+                Positioned(
+                  top: responsive.spacing(20),
+                  left: 0,
+                  right: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildStar(softGoldText, 8),
+                      SizedBox(width: responsive.spacing(12)),
+                      Container(
+                        padding: responsive.paddingAll(8),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: goldenBorder, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: goldenBorder.withValues(alpha: 0.3),
+                              blurRadius: 15,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.brightness_2,
+                          color: goldenBorder,
+                          size: responsive.iconSize(28),
+                        ),
+                      ),
+                      SizedBox(width: responsive.spacing(12)),
+                      _buildStar(softGoldText, 8),
+                    ],
+                  ),
+                ),
+                // Main content
+                Padding(
+                  padding: responsive.paddingSymmetric(
+                    horizontal: 24,
+                    vertical: 16,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(height: responsive.spacing(55)),
+                      // Ornamental top divider
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: responsive.spacing(50),
+                            height: 2,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.transparent, goldenBorder],
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: responsive.paddingSymmetric(
+                              horizontal: 10,
+                            ),
+                            child: Container(
+                              width: responsive.spacing(8),
+                              height: responsive.spacing(8),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: goldenBorder,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: goldenBorder.withValues(alpha: 0.5),
+                                    blurRadius: 8,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: responsive.spacing(50),
+                            height: 2,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [goldenBorder, Colors.transparent],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: responsive.spacing(16)),
+                      // Title with golden glow
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          _customTitle,
+                          style: TextStyle(
+                            color: goldenBorder,
+                            fontSize: responsive.fontSize(24),
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 1.5,
+                            shadows: [
+                              Shadow(
+                                color: goldenBorder.withValues(alpha: 0.5),
+                                blurRadius: 10,
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                        ),
+                      ),
+                      SizedBox(height: responsive.spacing(12)),
+                      // Arabic style decorative element
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildStar(softGoldText, 6),
+                          Container(
+                            margin: responsive.paddingSymmetric(horizontal: 8),
+                            width: responsive.spacing(60),
+                            height: 1.5,
+                            color: softGoldText.withValues(alpha: 0.6),
+                          ),
+                          Icon(
+                            Icons.auto_awesome,
+                            color: softGoldText,
+                            size: responsive.iconSize(14),
+                          ),
+                          Container(
+                            margin: responsive.paddingSymmetric(horizontal: 8),
+                            width: responsive.spacing(60),
+                            height: 1.5,
+                            color: softGoldText.withValues(alpha: 0.6),
+                          ),
+                          _buildStar(softGoldText, 6),
+                        ],
+                      ),
+                      SizedBox(height: responsive.spacing(16)),
+                      // Message
+                      Container(
+                        constraints: BoxConstraints(
+                          maxHeight: responsive.spacing(100),
+                        ),
+                        child: Text(
+                          _customMessage,
+                          style: TextStyle(
+                            color: creamText.withValues(alpha: 0.9),
+                            fontSize: responsive.fontSize(13),
+                            height: 1.7,
+                            letterSpacing: 0.4,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 5,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      SizedBox(height: responsive.spacing(12)),
+                      // Bottom ornamental divider
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: responsive.spacing(30),
+                            height: 1,
+                            color: softGoldText.withValues(alpha: 0.4),
+                          ),
+                          Padding(
+                            padding: responsive.paddingSymmetric(horizontal: 6),
+                            child: Icon(
+                              Icons.brightness_2,
+                              color: softGoldText.withValues(alpha: 0.6),
+                              size: responsive.iconSize(10),
+                            ),
+                          ),
+                          Container(
+                            width: responsive.spacing(30),
+                            height: 1,
+                            color: softGoldText.withValues(alpha: 0.4),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                // Corner ornaments
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: _buildCornerOrnament(goldenBorder),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Transform.rotate(
+                    angle: 1.5708,
+                    child: _buildCornerOrnament(goldenBorder),
+                  ),
+                ),
+                Positioned(
+                  bottom: 40,
+                  left: 8,
+                  child: Transform.rotate(
+                    angle: -1.5708,
+                    child: _buildCornerOrnament(goldenBorder),
+                  ),
+                ),
+                Positioned(
+                  bottom: 40,
+                  right: 8,
+                  child: Transform.rotate(
+                    angle: 3.1416,
+                    child: _buildCornerOrnament(goldenBorder),
+                  ),
+                ),
+                // Noor-ul-Iman Footer
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: _buildAppFooter(
+                    textColor: creamText,
+                    backgroundColor: shadowGreen.withValues(alpha: 0.9),
+                    accentColor: goldenBorder,
+                    responsive: responsive,
+                    showStars: true,
                   ),
                 ),
               ],
@@ -1458,13 +4534,13 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               end: Alignment.bottomRight,
               colors: [darkTealBg, deepGreen],
             ),
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(22)),
             border: Border.all(color: goldenBorder, width: 3.5),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF000000).withValues(alpha: 0.4),
+                color: Color(0xFF000000).withValues(alpha: 0.4),
                 blurRadius: 18,
-                offset: const Offset(0, 6),
+                offset: Offset(0, 6),
               ),
             ],
           ),
@@ -1475,7 +4551,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                 top: 15,
                 left: 15,
                 child: CustomPaint(
-                  size: const Size(30, 30),
+                  size: Size(30, 30),
                   painter: CornerOrnamentPainter(
                     color: goldenBorder.withValues(alpha: 0.4),
                   ),
@@ -1487,7 +4563,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                 child: Transform.rotate(
                   angle: 1.5708,
                   child: CustomPaint(
-                    size: const Size(30, 30),
+                    size: Size(30, 30),
                     painter: CornerOrnamentPainter(
                       color: goldenBorder.withValues(alpha: 0.4),
                     ),
@@ -1500,7 +4576,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                 child: Transform.rotate(
                   angle: -1.5708,
                   child: CustomPaint(
-                    size: const Size(30, 30),
+                    size: Size(30, 30),
                     painter: CornerOrnamentPainter(
                       color: goldenBorder.withValues(alpha: 0.4),
                     ),
@@ -1513,7 +4589,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                 child: Transform.rotate(
                   angle: 3.14159,
                   child: CustomPaint(
-                    size: const Size(30, 30),
+                    size: Size(30, 30),
                     painter: CornerOrnamentPainter(
                       color: goldenBorder.withValues(alpha: 0.4),
                     ),
@@ -1522,14 +4598,14 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               ),
               // Main content
               Padding(
-                padding: const EdgeInsets.all(28),
+                padding: responsive.paddingAll(28),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // Top ornament
                     Container(
-                      width: 55,
-                      height: 55,
+                      width: responsive.spacing(55),
+                      height: responsive.spacing(55),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
@@ -1543,19 +4619,19 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                           ),
                         ],
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.star,
                         color: Color(0xFF1A4D7A),
-                        size: 30,
+                        size: responsive.iconSize(30),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: responsive.spacing(20)),
                     // Title
                     Text(
                       _customTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Color(0xFFFFE5A0),
-                        fontSize: 24,
+                        fontSize: responsive.fontSize(24),
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1,
                         shadows: [
@@ -1568,14 +4644,14 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 14),
+                    SizedBox(height: responsive.spacing(14)),
                     // Decorative line
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          width: 60,
-                          height: 2,
+                          width: responsive.spacing(60),
+                          height: responsive.spacing(2),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [Colors.transparent, goldenBorder],
@@ -1583,16 +4659,16 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          padding: responsive.paddingSymmetric(horizontal: 10),
                           child: Icon(
                             Icons.auto_awesome,
                             color: goldenBorder,
-                            size: 16,
+                            size: responsive.iconSize(16),
                           ),
                         ),
                         Container(
-                          width: 60,
-                          height: 2,
+                          width: responsive.spacing(60),
+                          height: responsive.spacing(2),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [goldenBorder, Colors.transparent],
@@ -1601,19 +4677,27 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 14),
+                    SizedBox(height: responsive.spacing(14)),
                     // Message
                     Text(
                       _customMessage,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Color(0xFFE8E8E8),
-                        fontSize: 13,
+                        fontSize: responsive.fontSize(13),
                         height: 1.6,
                         letterSpacing: 0.4,
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 4,
                       overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: responsive.spacing(16)),
+                    _buildAppFooter(
+                      textColor: creamText,
+                      backgroundColor: deepGreen.withValues(alpha: 0.5),
+                      accentColor: goldenBorder,
+                      responsive: responsive,
+                      showStars: true,
                     ),
                   ],
                 ),
@@ -1631,13 +4715,16 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               end: Alignment.bottomCenter,
               colors: [deepGreen, darkTealBg],
             ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: goldenBorder, width: 3),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
+            border: Border.all(
+              color: goldenBorder,
+              width: responsive.spacing(3),
+            ),
             boxShadow: [
               BoxShadow(
                 color: shadowGreen.withValues(alpha: 0.6),
                 blurRadius: 20,
-                offset: const Offset(0, 6),
+                offset: Offset(0, 6),
               ),
             ],
           ),
@@ -1658,9 +4745,10 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                 child: Transform.scale(
                   scale: 0.5,
                   child: _buildLantern(
-                    const Color(0xFF8B4513),
+                    Color(0xFF8B4513),
                     lanternGlow,
                     1.0,
+                    responsive,
                   ),
                 ),
               ),
@@ -1670,9 +4758,10 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                 child: Transform.scale(
                   scale: 0.5,
                   child: _buildLantern(
-                    const Color(0xFF8B4513),
+                    Color(0xFF8B4513),
                     lanternGlow,
                     1.0,
+                    responsive,
                   ),
                 ),
               ),
@@ -1682,8 +4771,8 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                 left: 10,
                 child: Icon(
                   Icons.eco,
-                  color: const Color(0xFF2D5F3F).withValues(alpha: 0.5),
-                  size: 50,
+                  color: Color(0xFF2D5F3F).withValues(alpha: 0.5),
+                  size: responsive.iconSize(50),
                 ),
               ),
               Positioned(
@@ -1693,14 +4782,14 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                   flipX: true,
                   child: Icon(
                     Icons.eco,
-                    color: const Color(0xFF2D5F3F).withValues(alpha: 0.5),
-                    size: 50,
+                    color: Color(0xFF2D5F3F).withValues(alpha: 0.5),
+                    size: responsive.iconSize(50),
                   ),
                 ),
               ),
               // Main content
               Padding(
-                padding: const EdgeInsets.symmetric(
+                padding: responsive.paddingSymmetric(
                   horizontal: 25,
                   vertical: 30,
                 ),
@@ -1708,22 +4797,22 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // Happy text
-                    const Text(
+                    Text(
                       'HAPPY',
                       style: TextStyle(
                         color: Color(0xFFD4AF37),
-                        fontSize: 16,
+                        fontSize: responsive.fontSize(16),
                         fontWeight: FontWeight.w500,
                         letterSpacing: 3,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: responsive.spacing(12)),
                     // Title
                     Text(
                       _customTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Color(0xFFFFE5A0),
-                        fontSize: 26,
+                        fontSize: responsive.fontSize(26),
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.8,
                         shadows: [
@@ -1736,22 +4825,24 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: responsive.spacing(16)),
                     // Message
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: responsive.paddingAll(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF0A3A2E).withValues(alpha: 0.6),
-                        borderRadius: BorderRadius.circular(12),
+                        color: Color(0xFF0A3A2E).withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(
+                          responsive.borderRadius(12),
+                        ),
                         border: Border.all(
                           color: goldenBorder.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Text(
                         _customMessage,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: creamText,
-                          fontSize: 13,
+                          fontSize: responsive.fontSize(13),
                           height: 1.6,
                           letterSpacing: 0.3,
                         ),
@@ -1759,6 +4850,14 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                         maxLines: 4,
                         overflow: TextOverflow.ellipsis,
                       ),
+                    ),
+                    SizedBox(height: responsive.spacing(16)),
+                    _buildAppFooter(
+                      textColor: creamText,
+                      backgroundColor: deepGreen.withValues(alpha: 0.5),
+                      accentColor: goldenBorder,
+                      responsive: responsive,
+                      showStars: true,
                     ),
                   ],
                 ),
@@ -1776,20 +4875,23 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               end: Alignment.bottomRight,
               colors: [darkTealBg, deepGreen],
             ),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
             boxShadow: [
               BoxShadow(
                 color: shadowGreen.withValues(alpha: 0.7),
                 blurRadius: 25,
-                offset: const Offset(0, 8),
+                offset: Offset(0, 8),
               ),
             ],
           ),
           child: Container(
-            margin: const EdgeInsets.all(5),
+            margin: EdgeInsets.all(5),
             decoration: BoxDecoration(
-              border: Border.all(color: goldenBorder, width: 3),
-              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: goldenBorder,
+                width: responsive.spacing(3),
+              ),
+              borderRadius: BorderRadius.circular(responsive.borderRadius(16)),
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -1797,15 +4899,17 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               ),
             ),
             child: Container(
-              margin: const EdgeInsets.all(12),
+              margin: responsive.paddingAll(12),
               decoration: BoxDecoration(
                 border: Border.all(
                   color: goldenBorder.withValues(alpha: 0.4),
-                  width: 1.5,
+                  width: responsive.spacing(1.5),
                 ),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(
+                  responsive.borderRadius(12),
+                ),
               ),
-              padding: const EdgeInsets.all(20),
+              padding: responsive.paddingAll(20),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -1813,56 +4917,68 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(width: 40, height: 1.5, color: goldenBorder),
+                      Container(
+                        width: responsive.spacing(40),
+                        height: 1.5,
+                        color: goldenBorder,
+                      ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        padding: responsive.paddingSymmetric(horizontal: 10),
                         child: Icon(
                           Icons.mosque,
                           color: goldenBorder,
-                          size: 22,
+                          size: responsive.iconSize(22),
                         ),
                       ),
-                      Container(width: 40, height: 1.5, color: goldenBorder),
+                      Container(
+                        width: responsive.spacing(40),
+                        height: 1.5,
+                        color: goldenBorder,
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: responsive.spacing(16)),
                   // Invitation text
-                  const Text(
+                  Text(
                     'Invitation',
                     style: TextStyle(
                       color: Color(0xFFD4AF37),
-                      fontSize: 13,
+                      fontSize: responsive.fontSize(13),
                       fontWeight: FontWeight.w400,
                       letterSpacing: 2,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: responsive.spacing(12)),
                   // Title
-                  Text(
-                    _customTitle,
-                    style: const TextStyle(
-                      color: Color(0xFFFFE5A0),
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Amiri',
-                      letterSpacing: 0.8,
-                      shadows: [
-                        Shadow(
-                          color: Color(0xFF000000),
-                          blurRadius: 6,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      _customTitle,
+                      style: TextStyle(
+                        color: Color(0xFFFFE5A0),
+                        fontSize: responsive.fontSize(22),
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
+                        letterSpacing: 0.8,
+                        shadows: [
+                          Shadow(
+                            color: Color(0xFF000000),
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 14),
+                  SizedBox(height: responsive.spacing(14)),
                   // Message
                   Text(
                     _customMessage,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color(0xFFE8E8E8),
-                      fontSize: 12,
+                      fontSize: responsive.fontSize(12),
                       height: 1.7,
                       letterSpacing: 0.4,
                     ),
@@ -1870,17 +4986,29 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                     maxLines: 4,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 14),
+                  SizedBox(height: responsive.spacing(14)),
                   // Bottom decoration
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       _buildStar(goldenBorder, 8),
-                      const SizedBox(width: 10),
-                      Container(width: 50, height: 1.5, color: goldenBorder),
-                      const SizedBox(width: 10),
+                      SizedBox(width: responsive.spacing(10)),
+                      Container(
+                        width: responsive.spacing(50),
+                        height: 1.5,
+                        color: goldenBorder,
+                      ),
+                      SizedBox(width: responsive.spacing(10)),
                       _buildStar(goldenBorder, 8),
                     ],
+                  ),
+                  SizedBox(height: responsive.spacing(12)),
+                  _buildAppFooter(
+                    textColor: creamText,
+                    backgroundColor: deepGreen.withValues(alpha: 0.5),
+                    accentColor: goldenBorder,
+                    responsive: responsive,
+                    showStars: true,
                   ),
                 ],
               ),
@@ -1892,18 +5020,18 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
         // Design 7: Premium Wedding/Celebration Invitation
         return Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF0C4C3C),
-            borderRadius: BorderRadius.circular(22),
+            color: Color(0xFF0C4C3C),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(22)),
             boxShadow: [
               BoxShadow(
                 color: shadowGreen.withValues(alpha: 0.8),
                 blurRadius: 30,
-                offset: const Offset(0, 10),
+                offset: Offset(0, 10),
               ),
               BoxShadow(
                 color: goldenBorder.withValues(alpha: 0.2),
                 blurRadius: 40,
-                offset: const Offset(0, 0),
+                offset: Offset(0, 0),
               ),
             ],
           ),
@@ -1915,19 +5043,19 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                 left: 0,
                 right: 0,
                 child: Container(
-                  height: 45,
+                  height: responsive.spacing(45),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [goldenBorder, warmGold, goldenBorder],
                     ),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(22),
-                      topRight: Radius.circular(22),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(responsive.borderRadius(22)),
+                      topRight: Radius.circular(responsive.borderRadius(22)),
                     ),
                   ),
                   child: CustomPaint(
                     painter: GeometricPatternPainter(
-                      color: const Color(0xFF0C4C3C).withValues(alpha: 0.3),
+                      color: Color(0xFF0C4C3C).withValues(alpha: 0.3),
                     ),
                   ),
                 ),
@@ -1938,26 +5066,26 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                 left: 0,
                 right: 0,
                 child: Container(
-                  height: 45,
+                  height: responsive.spacing(45),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [goldenBorder, warmGold, goldenBorder],
                     ),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(22),
-                      bottomRight: Radius.circular(22),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(responsive.borderRadius(22)),
+                      bottomRight: Radius.circular(responsive.borderRadius(22)),
                     ),
                   ),
                   child: CustomPaint(
                     painter: GeometricPatternPainter(
-                      color: const Color(0xFF0C4C3C).withValues(alpha: 0.3),
+                      color: Color(0xFF0C4C3C).withValues(alpha: 0.3),
                     ),
                   ),
                 ),
               ),
               // Main content area
               Padding(
-                padding: const EdgeInsets.only(
+                padding: responsive.paddingOnly(
                   top: 50,
                   bottom: 50,
                   left: 20,
@@ -1970,52 +5098,61 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                       end: Alignment.bottomCenter,
                       colors: [darkTealBg, deepGreen],
                     ),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: goldenBorder, width: 2),
+                    borderRadius: BorderRadius.circular(
+                      responsive.borderRadius(16),
+                    ),
+                    border: Border.all(
+                      color: goldenBorder,
+                      width: responsive.spacing(2),
+                    ),
                   ),
-                  padding: const EdgeInsets.all(20),
+                  padding: responsive.paddingAll(20),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // Top ornament
                       Container(
-                        padding: const EdgeInsets.all(10),
+                        padding: responsive.paddingAll(10),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: LinearGradient(
                             colors: [warmGold, goldenBorder],
                           ),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.brightness_2,
                           color: Color(0xFF0F5C48),
-                          size: 24,
+                          size: responsive.iconSize(24),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: responsive.spacing(16)),
                       // Title
-                      Text(
-                        _customTitle,
-                        style: const TextStyle(
-                          color: Color(0xFFFFE5A0),
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
-                          shadows: [
-                            Shadow(
-                              color: Color(0xFF000000),
-                              blurRadius: 8,
-                              offset: Offset(0, 3),
-                            ),
-                          ],
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          _customTitle,
+                          style: TextStyle(
+                            color: Color(0xFFFFE5A0),
+                            fontSize: responsive.fontSize(24),
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1,
+                            shadows: [
+                              Shadow(
+                                color: Color(0xFF000000),
+                                blurRadius: 8,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
                         ),
-                        textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 14),
+                      SizedBox(height: responsive.spacing(14)),
                       // Decorative divider
                       Container(
-                        width: 100,
-                        height: 2,
+                        width: responsive.spacing(100),
+                        height: responsive.spacing(2),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
@@ -2026,13 +5163,13 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 14),
+                      SizedBox(height: responsive.spacing(14)),
                       // Message
                       Text(
                         _customMessage,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: creamText,
-                          fontSize: 13,
+                          fontSize: responsive.fontSize(13),
                           height: 1.6,
                           letterSpacing: 0.4,
                         ),
@@ -2042,6 +5179,19 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                       ),
                     ],
                   ),
+                ),
+              ),
+              // Noor-ul-Iman Footer
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: _buildAppFooter(
+                  textColor: creamText,
+                  backgroundColor: Color(0xFF0C4C3C),
+                  accentColor: goldenBorder,
+                  responsive: responsive,
+                  showStars: true,
                 ),
               ),
             ],
@@ -2056,15 +5206,18 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [darkTealBg, deepGreen, darkTealBg],
-              stops: const [0.0, 0.5, 1.0],
+              stops: [0.0, 0.5, 1.0],
             ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: goldenBorder, width: 3),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
+            border: Border.all(
+              color: goldenBorder,
+              width: responsive.spacing(3),
+            ),
             boxShadow: [
               BoxShadow(
                 color: darkTealBg.withValues(alpha: 0.5),
                 blurRadius: 20,
-                offset: const Offset(0, 6),
+                offset: Offset(0, 6),
               ),
             ],
           ),
@@ -2080,7 +5233,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               ),
               // Content
               Padding(
-                padding: const EdgeInsets.all(24),
+                padding: responsive.paddingAll(24),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -2088,61 +5241,81 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _buildStar(const Color(0xFFFFE5A0), 12),
-                        const SizedBox(width: 15),
-                        Icon(Icons.brightness_2, color: goldenBorder, size: 28),
-                        const SizedBox(width: 15),
-                        _buildStar(const Color(0xFFFFE5A0), 12),
+                        _buildStar(Color(0xFFFFE5A0), 12),
+                        SizedBox(width: responsive.spacing(15)),
+                        Icon(
+                          Icons.brightness_2,
+                          color: goldenBorder,
+                          size: responsive.iconSize(28),
+                        ),
+                        SizedBox(width: responsive.spacing(15)),
+                        _buildStar(Color(0xFFFFE5A0), 12),
                       ],
                     ),
-                    const SizedBox(height: 18),
-                    // Wishing you text
-                    const Text(
-                      'Wishing you all a very',
-                      style: TextStyle(
-                        color: Color(0xFFFFFFFF),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 0.8,
+                    SizedBox(height: responsive.spacing(18)),
+                    // Wishing you text (translated)
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        widget.language == GreetingLanguage.urdu
+                            ? 'آپ سب کو مبارک ہو'
+                            : widget.language == GreetingLanguage.hindi
+                            ? 'आप सभी को मुबारक हो'
+                            : widget.language == GreetingLanguage.arabic
+                            ? 'نتمنى لكم جميعاً'
+                            : 'Wishing you all a very',
+                        style: TextStyle(
+                          color: Color(0xFFFFFFFF),
+                          fontSize: responsive.fontSize(13),
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: 0.8,
+                        ),
+                        maxLines: 1,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: responsive.spacing(12)),
                     // Title
-                    Text(
-                      _customTitle,
-                      style: const TextStyle(
-                        color: Color(0xFFFFE5A0),
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Amiri',
-                        letterSpacing: 0.8,
-                        shadows: [
-                          Shadow(
-                            color: Color(0xFF000000),
-                            blurRadius: 10,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        _customTitle,
+                        style: TextStyle(
+                          color: Color(0xFFFFE5A0),
+                          fontSize: responsive.fontSize(26),
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                          letterSpacing: 0.8,
+                          shadows: [
+                            Shadow(
+                              color: Color(0xFF000000),
+                              blurRadius: 10,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: responsive.spacing(16)),
                     // Message in frame
                     Container(
-                      padding: const EdgeInsets.all(14),
+                      padding: responsive.paddingAll(14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF0A6666).withValues(alpha: 0.6),
-                        borderRadius: BorderRadius.circular(12),
+                        color: Color(0xFF0A6666).withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(
+                          responsive.borderRadius(12),
+                        ),
                         border: Border.all(
                           color: goldenBorder.withValues(alpha: 0.5),
-                          width: 1.5,
+                          width: responsive.spacing(1.5),
                         ),
                       ),
                       child: Text(
                         _customMessage,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Color(0xFFF5F5F5),
-                          fontSize: 12,
+                          fontSize: responsive.fontSize(12),
                           height: 1.7,
                           letterSpacing: 0.3,
                         ),
@@ -2151,7 +5324,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: responsive.spacing(16)),
                     // Bottom decoration
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -2159,18 +5332,20 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                         Transform.scale(
                           scale: 0.4,
                           child: _buildLantern(
-                            const Color(0xFF8B4513),
-                            const Color(0xFFFFD700),
+                            Color(0xFF8B4513),
+                            Color(0xFFFFD700),
                             1.0,
+                            responsive,
                           ),
                         ),
-                        const SizedBox(width: 20),
+                        SizedBox(width: responsive.spacing(20)),
                         Transform.scale(
                           scale: 0.4,
                           child: _buildLantern(
-                            const Color(0xFF8B4513),
-                            const Color(0xFFFFD700),
+                            Color(0xFF8B4513),
+                            Color(0xFFFFD700),
                             1.0,
+                            responsive,
                           ),
                         ),
                       ],
@@ -2183,7 +5358,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                 top: 10,
                 left: 10,
                 child: CustomPaint(
-                  size: const Size(40, 40),
+                  size: Size(40, 40),
                   painter: MandalaPatternPainter(
                     color: goldenBorder.withValues(alpha: 0.3),
                   ),
@@ -2193,10 +5368,23 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                 bottom: 10,
                 right: 10,
                 child: CustomPaint(
-                  size: const Size(40, 40),
+                  size: Size(40, 40),
                   painter: MandalaPatternPainter(
                     color: goldenBorder.withValues(alpha: 0.3),
                   ),
+                ),
+              ),
+              // Noor-ul-Iman Footer
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: _buildAppFooter(
+                  textColor: creamText,
+                  backgroundColor: deepGreen.withValues(alpha: 0.8),
+                  accentColor: goldenBorder,
+                  responsive: responsive,
+                  showStars: true,
                 ),
               ),
             ],
@@ -2206,187 +5394,256 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
       case 8:
         // Design 9: Original Premium Islamic Card with Lanterns
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 8),
+          margin: responsive.paddingSymmetric(horizontal: 8),
           decoration: BoxDecoration(
             color: shadowGreen,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: goldenBorder, width: 3),
+            borderRadius: BorderRadius.circular(responsive.borderRadius(24)),
+            border: Border.all(
+              color: goldenBorder,
+              width: responsive.spacing(3),
+            ),
             boxShadow: [
               BoxShadow(
                 color: shadowGreen.withValues(alpha: 0.6),
                 blurRadius: 20,
-                offset: const Offset(0, 8),
+                offset: Offset(0, 8),
               ),
               BoxShadow(
                 color: goldenBorder.withValues(alpha: 0.3),
                 blurRadius: 30,
-                offset: const Offset(0, 0),
+                offset: Offset(0, 0),
               ),
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(22),
-            child: Column(
-              children: [
-                // Top Header with Lanterns
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [deepGreen, deepGreen.withValues(alpha: 0.8)],
+            borderRadius: BorderRadius.circular(responsive.borderRadius(22)),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Top Header with Lanterns
+                  Container(
+                    width: double.infinity,
+                    padding: responsive.paddingSymmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [deepGreen, deepGreen.withValues(alpha: 0.8)],
+                      ),
                     ),
-                  ),
-                  child: Stack(
-                    children: [
-                      // Background Mandala Pattern
-                      Positioned.fill(
-                        child: CustomPaint(
-                          painter: MandalaPatternPainter(
-                            color: const Color(
-                              0xFFD4AF37,
-                            ).withValues(alpha: 0.15),
-                          ),
-                        ),
-                      ),
-                      // Hanging Lanterns
-                      Positioned(
-                        top: -10,
-                        left: 20,
-                        child: _buildLantern(
-                          const Color(0xFF8B4513),
-                          lanternGlow,
-                          0.7,
-                        ),
-                      ),
-                      Positioned(
-                        top: -10,
-                        right: 20,
-                        child: _buildLantern(
-                          const Color(0xFF8B4513),
-                          lanternGlow,
-                          0.7,
-                        ),
-                      ),
-                      // Content
-                      Column(
-                        children: [
-                          // HAPPY text
-                          Text(
-                            widget.language == GreetingLanguage.urdu
-                                ? 'مبارک ہو'
-                                : widget.language == GreetingLanguage.hindi
-                                ? 'मुबारक हो'
-                                : widget.language == GreetingLanguage.arabic
-                                ? 'مبارك'
-                                : 'HAPPY',
-                            style: TextStyle(
-                              color: softGoldText,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 3,
+                    child: Stack(
+                      children: [
+                        // Background Mandala Pattern
+                        Positioned.fill(
+                          child: CustomPaint(
+                            painter: MandalaPatternPainter(
+                              color: Color(0xFFD4AF37).withValues(alpha: 0.15),
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          // Golden decorative border
-                          _buildGoldenBorder(goldenBorder),
-                          const SizedBox(height: 10),
-                          // Moon and Stars decoration
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _buildStar(lanternGlow, 8),
-                              const SizedBox(width: 12),
-                              Icon(
-                                Icons.brightness_2,
-                                color: goldenBorder,
-                                size: 24,
+                        ),
+                        // Hanging Lanterns
+                        Positioned(
+                          top: -10,
+                          left: 20,
+                          child: _buildLantern(
+                            Color(0xFF8B4513),
+                            lanternGlow,
+                            0.7,
+                            responsive,
+                          ),
+                        ),
+                        Positioned(
+                          top: -10,
+                          right: 20,
+                          child: _buildLantern(
+                            Color(0xFF8B4513),
+                            lanternGlow,
+                            0.7,
+                            responsive,
+                          ),
+                        ),
+                        // Content
+                        Column(
+                          children: [
+                            // HAPPY text
+                            Text(
+                              widget.language == GreetingLanguage.urdu
+                                  ? 'مبارک ہو'
+                                  : widget.language == GreetingLanguage.hindi
+                                  ? 'मुबारक हो'
+                                  : widget.language == GreetingLanguage.arabic
+                                  ? 'مبارك'
+                                  : 'HAPPY',
+                              style: TextStyle(
+                                color: softGoldText,
+                                fontSize: responsive.fontSize(16),
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 3,
                               ),
-                              const SizedBox(width: 12),
-                              _buildStar(lanternGlow, 8),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-
-                          _buildGoldenBorder(goldenBorder),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Card Content Area
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [deepGreen.withValues(alpha: 0.9), darkTealBg],
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      // Month Name with Same Style as Title Card
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: goldenBorder, width: 2),
-                          borderRadius: BorderRadius.circular(16),
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              deepGreen.withValues(alpha: 0.6),
-                              shadowGreen.withValues(alpha: 0.8),
-                            ],
-                          ),
-                        ),
-                        child: Consumer<LanguageProvider>(
-                          builder: (context, languageProvider, child) {
-                            String monthName;
-                            switch (languageProvider.languageCode) {
-                              case 'en':
-                                monthName = widget.month.name;
-                                break;
-                              case 'ur':
-                                monthName = widget.month.nameUrdu;
-                                break;
-                              case 'hi':
-                                monthName = widget.month.nameHindi;
-                                break;
-                              case 'ar':
-                                monthName = widget.month.arabicName;
-                                break;
-                              default:
-                                monthName = widget.month.name;
-                            }
-
-                            return Row(
+                            ),
+                            SizedBox(height: responsive.spacing(8)),
+                            // Golden decorative border
+                            _buildGoldenBorder(goldenBorder, responsive),
+                            SizedBox(height: responsive.spacing(10)),
+                            // Moon and Stars decoration
+                            Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                _buildCornerOrnament(goldenBorder),
-                                const SizedBox(width: 10),
-                                Flexible(
+                                _buildStar(lanternGlow, 8),
+                                SizedBox(width: responsive.spacing(12)),
+                                Icon(
+                                  Icons.brightness_2,
+                                  color: goldenBorder,
+                                  size: responsive.iconSize(24),
+                                ),
+                                SizedBox(width: responsive.spacing(12)),
+                                _buildStar(lanternGlow, 8),
+                              ],
+                            ),
+                            SizedBox(height: responsive.spacing(8)),
+
+                            _buildGoldenBorder(goldenBorder, responsive),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Card Content Area
+                  Container(
+                    padding: responsive.paddingSymmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [deepGreen.withValues(alpha: 0.9), darkTealBg],
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        // Month Name with Same Style as Title Card
+                        Container(
+                          padding: responsive.paddingSymmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: goldenBorder,
+                              width: responsive.spacing(2),
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              responsive.borderRadius(16),
+                            ),
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                deepGreen.withValues(alpha: 0.6),
+                                shadowGreen.withValues(alpha: 0.8),
+                              ],
+                            ),
+                          ),
+                          child: Consumer<LanguageProvider>(
+                            builder: (context, languageProvider, child) {
+                              String monthName;
+                              switch (languageProvider.languageCode) {
+                                case 'en':
+                                  monthName = widget.month.name;
+                                  break;
+                                case 'ur':
+                                  monthName = widget.month.nameUrdu;
+                                  break;
+                                case 'hi':
+                                  monthName = widget.month.nameHindi;
+                                  break;
+                                case 'ar':
+                                  monthName = widget.month.arabicName;
+                                  break;
+                                default:
+                                  monthName = widget.month.name;
+                              }
+
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _buildCornerOrnament(goldenBorder),
+                                  SizedBox(width: responsive.spacing(10)),
+                                  Flexible(
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        monthName,
+                                        style: TextStyle(
+                                          color: warmGold,
+                                          fontSize: responsive.fontSize(18),
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 1,
+                                          fontFamily: 'Poppins',
+                                          shadows: [
+                                            Shadow(
+                                              color: shadowGreen,
+                                              blurRadius: 4,
+                                              offset: const Offset(2, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 1,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: responsive.spacing(10)),
+                                  _buildCornerOrnament(goldenBorder),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(height: responsive.spacing(10)),
+
+                        // Main Title with Golden Frame
+                        Container(
+                          padding: responsive.paddingSymmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: goldenBorder,
+                              width: responsive.spacing(2),
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              responsive.borderRadius(16),
+                            ),
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                deepGreen.withValues(alpha: 0.6),
+                                shadowGreen.withValues(alpha: 0.8),
+                              ],
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _buildCornerOrnament(goldenBorder),
+                              SizedBox(width: responsive.spacing(10)),
+                              Flexible(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
                                   child: Text(
-                                    monthName,
+                                    _customTitle,
                                     style: TextStyle(
                                       color: warmGold,
-                                      fontSize: 18,
+                                      fontSize: responsive.fontSize(18),
                                       fontWeight: FontWeight.bold,
                                       letterSpacing: 1,
-                                      fontFamily:
-                                          languageProvider.languageCode == 'ar'
-                                          ? 'Amiri'
-                                          : null,
                                       shadows: [
                                         Shadow(
                                           color: shadowGreen,
@@ -2396,176 +5653,138 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                                       ],
                                     ),
                                     textAlign: TextAlign.center,
+                                    maxLines: 2,
                                   ),
                                 ),
-                                const SizedBox(width: 10),
-                                _buildCornerOrnament(goldenBorder),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-
-                      // Main Title with Golden Frame
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: goldenBorder, width: 2),
-                          borderRadius: BorderRadius.circular(16),
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              deepGreen.withValues(alpha: 0.6),
-                              shadowGreen.withValues(alpha: 0.8),
+                              ),
+                              SizedBox(width: responsive.spacing(10)),
+                              _buildCornerOrnament(goldenBorder),
                             ],
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _buildCornerOrnament(goldenBorder),
-                            const SizedBox(width: 10),
-                            Flexible(
-                              child: Text(
-                                _customTitle,
+                        SizedBox(height: responsive.spacing(10)),
+
+                        // Message with Decorative Frame
+                        Container(
+                          padding: responsive.paddingAll(20),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                deepGreen.withValues(alpha: 0.4),
+                                shadowGreen.withValues(alpha: 0.6),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              responsive.borderRadius(20),
+                            ),
+                            border: Border.all(
+                              color: goldenBorder,
+                              width: responsive.spacing(2),
+                            ),
+
+                            boxShadow: [
+                              BoxShadow(
+                                color: shadowGreen.withValues(alpha: 0.5),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              // Top ornament
+                              CustomPaint(
+                                size: const Size(80, 18),
+                                painter: OrnamentPainter(color: softGoldText),
+                              ),
+                              SizedBox(height: responsive.spacing(12)),
+                              // Message text
+                              Text(
+                                _customMessage,
                                 style: TextStyle(
-                                  color: warmGold,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1,
+                                  color: creamText,
+                                  fontSize: responsive.fontSize(16),
+                                  height: 1.8,
+                                  fontStyle: FontStyle.italic,
+                                  letterSpacing: 0.5,
                                   shadows: [
                                     Shadow(
                                       color: shadowGreen,
-                                      blurRadius: 4,
-                                      offset: const Offset(2, 2),
+                                      blurRadius: 2,
+                                      offset: const Offset(1, 1),
                                     ),
                                   ],
                                 ),
                                 textAlign: TextAlign.center,
+                                maxLines: 5,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            _buildCornerOrnament(goldenBorder),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-
-                      // Message with Decorative Frame
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              deepGreen.withValues(alpha: 0.4),
-                              shadowGreen.withValues(alpha: 0.6),
+                              SizedBox(height: responsive.spacing(12)),
+                              // Bottom ornament
+                              Transform.rotate(
+                                angle: 3.14159,
+                                child: CustomPaint(
+                                  size: const Size(80, 18),
+                                  painter: OrnamentPainter(color: softGoldText),
+                                ),
+                              ),
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: goldenBorder, width: 2),
-
-                          boxShadow: [
-                            BoxShadow(
-                              color: shadowGreen.withValues(alpha: 0.5),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
                         ),
-                        child: Column(
+                      ],
+                    ),
+                  ),
+
+                  // Bottom Decorative Footer
+                  Container(
+                    width: double.infinity,
+                    padding: responsive.paddingSymmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [deepGreen.withValues(alpha: 0.9), shadowGreen],
+                      ),
+                      border: Border(
+                        top: BorderSide(
+                          color: goldenBorder,
+                          width: responsive.spacing(2),
+                        ),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildGoldenBorder(goldenBorder, responsive),
+                        SizedBox(height: responsive.spacing(8)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            // Top ornament
-                            CustomPaint(
-                              size: const Size(80, 18),
-                              painter: OrnamentPainter(color: softGoldText),
-                            ),
-                            const SizedBox(height: 12),
-                            // Message text
+                            _buildStar(lanternGlow, 6),
+                            SizedBox(width: responsive.spacing(10)),
                             Text(
-                              _customMessage,
+                              'Noor-ul-Iman',
                               style: TextStyle(
                                 color: creamText,
-                                fontSize: 16,
-                                height: 1.8,
-                                fontStyle: FontStyle.italic,
-                                letterSpacing: 0.5,
-                                shadows: [
-                                  Shadow(
-                                    color: shadowGreen,
-                                    blurRadius: 2,
-                                    offset: const Offset(1, 1),
-                                  ),
-                                ],
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 12),
-                            // Bottom ornament
-                            Transform.rotate(
-                              angle: 3.14159,
-                              child: CustomPaint(
-                                size: const Size(80, 18),
-                                painter: OrnamentPainter(color: softGoldText),
+                                fontSize: responsive.fontSize(12),
+                                letterSpacing: 1.5,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
+                            SizedBox(width: responsive.spacing(10)),
+                            _buildStar(lanternGlow, 6),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                ),
+                        SizedBox(height: responsive.spacing(8)),
 
-                // Bottom Decorative Footer
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [deepGreen.withValues(alpha: 0.9), shadowGreen],
-                    ),
-                    border: Border(
-                      top: BorderSide(color: goldenBorder, width: 2),
+                        _buildGoldenBorder(goldenBorder, responsive),
+                      ],
                     ),
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildGoldenBorder(goldenBorder),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildStar(lanternGlow, 6),
-                          const SizedBox(width: 10),
-                          const Text(
-                            'Noor-ul-Iman',
-                            style: TextStyle(
-                              color: creamText,
-                              fontSize: 12,
-                              letterSpacing: 1.5,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          _buildStar(lanternGlow, 6),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-
-                      _buildGoldenBorder(goldenBorder),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -2579,38 +5798,73 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
     try {
       // Show loading message
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+      // Show loading snackbar
+      scaffoldMessenger.showSnackBar(
         SnackBar(
-          content: Text(
-            widget.language == GreetingLanguage.urdu
-                ? 'کارڈ محفوظ ہو رہا ہے...'
-                : widget.language == GreetingLanguage.hindi
-                ? 'कार्ड सहेजा जा रहा है...'
-                : widget.language == GreetingLanguage.arabic
-                ? 'جاري حفظ البطاقة...'
-                : 'Saving card...',
+          content: Row(
+            children: [
+              const SizedBox(
+                width: 20.0,
+                height: 20.0,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.0,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+              const SizedBox(width: 16.0),
+              Expanded(
+                child: Text(
+                  widget.language == GreetingLanguage.urdu
+                      ? 'ڈاؤن لوڈ ہو رہا ہے...'
+                      : widget.language == GreetingLanguage.hindi
+                      ? 'डाउनलोड हो रहा है...'
+                      : widget.language == GreetingLanguage.arabic
+                      ? 'جاري التحميل...'
+                      : 'Downloading...',
+                ),
+              ),
+            ],
           ),
-          duration: const Duration(seconds: 1),
+          duration: const Duration(seconds: 2),
+          backgroundColor: AppColors.primary,
         ),
       );
 
-      // Capture the card as image
-      final image = await _screenshotController.capture();
+      // Wait for widgets to fully render
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Capture at high quality (3x pixel ratio for retina quality)
+      final image = await _screenshotController.capture(
+        pixelRatio: 3.0,
+        delay: const Duration(milliseconds: 50),
+      );
 
       if (image == null) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessenger.showSnackBar(
           SnackBar(
-            content: Text(
-              widget.language == GreetingLanguage.urdu
-                  ? 'تصویر بنانے میں خرابی'
-                  : widget.language == GreetingLanguage.hindi
-                  ? 'छवि बनाने में त्रुटि'
-                  : widget.language == GreetingLanguage.arabic
-                  ? 'خطأ في إنشاء الصورة'
-                  : 'Error creating image',
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 16.0),
+                Expanded(
+                  child: Text(
+                    widget.language == GreetingLanguage.urdu
+                        ? 'ڈاؤن لوڈ ناکام ہو گیا'
+                        : widget.language == GreetingLanguage.hindi
+                        ? 'डाउनलोड विफल हो गया'
+                        : widget.language == GreetingLanguage.arabic
+                        ? 'فشل التحميل'
+                        : 'Download failed',
+                  ),
+                ),
+              ],
             ),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
           ),
         );
         return;
@@ -2632,16 +5886,24 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
       if (!mounted) return;
 
       // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffoldMessenger.showSnackBar(
         SnackBar(
-          content: Text(
-            widget.language == GreetingLanguage.urdu
-                ? 'کارڈ گیلری میں محفوظ ہو گیا!'
-                : widget.language == GreetingLanguage.hindi
-                ? 'कार्ड गैलरी में सहेजा गया!'
-                : widget.language == GreetingLanguage.arabic
-                ? 'تم حفظ البطاقة في المعرض!'
-                : 'Card saved to gallery!',
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle_outline, color: Colors.white),
+              const SizedBox(width: 16.0),
+              Expanded(
+                child: Text(
+                  widget.language == GreetingLanguage.urdu
+                      ? 'ڈاؤن لوڈ کامیاب! گیلری میں محفوظ ہو گیا'
+                      : widget.language == GreetingLanguage.hindi
+                      ? 'डाउनलोड सफल! गैलरी में सहेजा गया'
+                      : widget.language == GreetingLanguage.arabic
+                      ? 'تم التحميل بنجاح! تم الحفظ في المعرض'
+                      : 'Download successful! Saved to gallery',
+                ),
+              ),
+            ],
           ),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 3),
@@ -2649,16 +5911,25 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
+      scaffoldMessenger.showSnackBar(
         SnackBar(
-          content: Text(
-            widget.language == GreetingLanguage.urdu
-                ? 'خرابی: $e'
-                : widget.language == GreetingLanguage.hindi
-                ? 'त्रुटि: $e'
-                : widget.language == GreetingLanguage.arabic
-                ? 'خطأ: $e'
-                : 'Error: $e',
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 16.0),
+              Expanded(
+                child: Text(
+                  widget.language == GreetingLanguage.urdu
+                      ? 'ڈاؤن لوڈ میں خرابی: ${e.toString()}'
+                      : widget.language == GreetingLanguage.hindi
+                      ? 'डाउनलोड में त्रुटि: ${e.toString()}'
+                      : widget.language == GreetingLanguage.arabic
+                      ? 'خطأ في التحميل: ${e.toString()}'
+                      : 'Download error: ${e.toString()}',
+                ),
+              ),
+            ],
           ),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 4),
@@ -2668,6 +5939,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
   }
 
   void _showEditDialog() {
+    final responsive = context.responsive;
     final titleController = TextEditingController(text: _customTitle);
     final messageController = TextEditingController(text: _customMessage);
 
@@ -2675,16 +5947,20 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(
+          borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
+          side: BorderSide(
             color: Color(0xFF0A5C36), // Islamic Green border
-            width: 3,
+            width: responsive.spacing(3),
           ),
         ),
         title: Row(
           children: [
-            const Icon(Icons.edit, color: Color(0xFF0A5C36), size: 28),
-            const SizedBox(width: 12),
+            Icon(
+              Icons.edit,
+              color: Color(0xFF0A5C36),
+              size: responsive.iconSize(28),
+            ),
+            SizedBox(width: responsive.spacing(12)),
             Expanded(
               child: Text(
                 widget.language == GreetingLanguage.urdu
@@ -2718,30 +5994,36 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                       : 'Title',
                   labelStyle: const TextStyle(color: Color(0xFF0A5C36)),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
+                    borderRadius: BorderRadius.circular(
+                      responsive.borderRadius(12),
+                    ),
+                    borderSide: BorderSide(
                       color: Color(0xFF0A5C36),
-                      width: 2,
+                      width: responsive.spacing(2),
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
+                    borderRadius: BorderRadius.circular(
+                      responsive.borderRadius(12),
+                    ),
+                    borderSide: BorderSide(
                       color: Color(0xFF8AAF9A),
-                      width: 1.5,
+                      width: responsive.spacing(1.5),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
+                    borderRadius: BorderRadius.circular(
+                      responsive.borderRadius(12),
+                    ),
+                    borderSide: BorderSide(
                       color: Color(0xFF0A5C36),
-                      width: 2,
+                      width: responsive.spacing(2),
                     ),
                   ),
                 ),
                 maxLines: 1,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: responsive.spacing(16)),
               TextField(
                 controller: messageController,
                 decoration: InputDecoration(
@@ -2754,24 +6036,30 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                       : 'Message',
                   labelStyle: const TextStyle(color: Color(0xFF0A5C36)),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
+                    borderRadius: BorderRadius.circular(
+                      responsive.borderRadius(12),
+                    ),
+                    borderSide: BorderSide(
                       color: Color(0xFF0A5C36),
-                      width: 2,
+                      width: responsive.spacing(2),
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
+                    borderRadius: BorderRadius.circular(
+                      responsive.borderRadius(12),
+                    ),
+                    borderSide: BorderSide(
                       color: Color(0xFF8AAF9A),
-                      width: 1.5,
+                      width: responsive.spacing(1.5),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
+                    borderRadius: BorderRadius.circular(
+                      responsive.borderRadius(12),
+                    ),
+                    borderSide: BorderSide(
                       color: Color(0xFF0A5C36),
-                      width: 2,
+                      width: responsive.spacing(2),
                     ),
                   ),
                 ),
@@ -2789,7 +6077,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               // Reset Button
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: responsive.paddingSymmetric(horizontal: 4),
                   child: ElevatedButton.icon(
                     onPressed: () {
                       // Reset to original
@@ -2798,11 +6086,10 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                         _customMessage = widget.card.getMessage(
                           widget.language,
                         );
-                        _isEdited = false;
                       });
                       Navigator.pop(context);
                     },
-                    icon: const Icon(Icons.refresh, size: 16),
+                    icon: Icon(Icons.refresh, size: responsive.iconSize(16)),
                     label: Text(
                       widget.language == GreetingLanguage.urdu
                           ? 'ری سیٹ'
@@ -2811,14 +6098,16 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                           : widget.language == GreetingLanguage.arabic
                           ? 'إعادة'
                           : 'Reset',
-                      style: const TextStyle(fontSize: 12),
+                      style: TextStyle(fontSize: responsive.fontSize(12)),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFF9800), // Orange
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      padding: responsive.paddingSymmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(
+                          responsive.borderRadius(30),
+                        ),
                       ),
                     ),
                   ),
@@ -2827,10 +6116,10 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               // Cancel Button
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: responsive.paddingSymmetric(horizontal: 4),
                   child: ElevatedButton.icon(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close, size: 16),
+                    icon: Icon(Icons.close, size: responsive.iconSize(16)),
                     label: Text(
                       widget.language == GreetingLanguage.urdu
                           ? 'منسوخ'
@@ -2839,14 +6128,16 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                           : widget.language == GreetingLanguage.arabic
                           ? 'إلغاء'
                           : 'Cancel',
-                      style: const TextStyle(fontSize: 12),
+                      style: TextStyle(fontSize: responsive.fontSize(12)),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFD32F2F), // Red
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      padding: responsive.paddingSymmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(
+                          responsive.borderRadius(30),
+                        ),
                       ),
                     ),
                   ),
@@ -2855,17 +6146,16 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               // Save Button
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: responsive.paddingSymmetric(horizontal: 4),
                   child: ElevatedButton.icon(
                     onPressed: () {
                       setState(() {
                         _customTitle = titleController.text;
                         _customMessage = messageController.text;
-                        _isEdited = true;
                       });
                       Navigator.pop(context);
                     },
-                    icon: const Icon(Icons.check, size: 16),
+                    icon: Icon(Icons.check, size: responsive.iconSize(16)),
                     label: Text(
                       widget.language == GreetingLanguage.urdu
                           ? 'محفوظ'
@@ -2874,14 +6164,16 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                           : widget.language == GreetingLanguage.arabic
                           ? 'حفظ'
                           : 'Save',
-                      style: const TextStyle(fontSize: 12),
+                      style: TextStyle(fontSize: responsive.fontSize(12)),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0A5C36), // Islamic Green
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      padding: responsive.paddingSymmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(
+                          responsive.borderRadius(30),
+                        ),
                       ),
                     ),
                   ),
@@ -2894,37 +6186,132 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
     );
   }
 
-  void _shareCard(BuildContext context) {
-    final hijri = HijriCalendar.now();
-    final hijriDate =
-        '${hijri.hDay} ${_getHijriMonthName(hijri.hMonth)} ${hijri.hYear} AH';
-    final gregorianDate = DateFormat('d MMMM yyyy').format(DateTime.now());
+  Future<void> _shareCard(BuildContext context) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-    Share.share(
-      '✦ $_customTitle ✦\n\n'
-      '$_customMessage\n\n'
-      '🌙 $hijriDate\n'
-      '📅 $gregorianDate\n\n'
-      '~ Noor-ul-Iman ~',
-    );
-  }
+    try {
+      // Show loading snackbar
+      if (!mounted) return;
 
-  String _getHijriMonthName(int month) {
-    const months = [
-      'Muharram',
-      'Safar',
-      'Rabi al-Awwal',
-      'Rabi al-Thani',
-      'Jumada al-Awwal',
-      'Jumada al-Thani',
-      'Rajab',
-      'Sha\'ban',
-      'Ramadan',
-      'Shawwal',
-      'Dhul Qa\'dah',
-      'Dhul Hijjah',
-    ];
-    return months[month - 1];
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const SizedBox(
+                width: 20.0,
+                height: 20.0,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.0,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+              const SizedBox(width: 16.0),
+              Expanded(
+                child: Text(
+                  widget.language == GreetingLanguage.urdu
+                      ? 'شیئر کے لیے تیار ہو رہا ہے...'
+                      : widget.language == GreetingLanguage.hindi
+                      ? 'शेयर के लिए तैयार हो रहा है...'
+                      : widget.language == GreetingLanguage.arabic
+                      ? 'جاري التحضير للمشاركة...'
+                      : 'Preparing to share...',
+                ),
+              ),
+            ],
+          ),
+          duration: const Duration(seconds: 2),
+          backgroundColor: AppColors.primary,
+        ),
+      );
+
+      // Wait for widgets to fully render
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Capture at high quality (3x pixel ratio for retina quality)
+      final image = await _screenshotController.capture(
+        pixelRatio: 3.0,
+        delay: const Duration(milliseconds: 50),
+      );
+
+      if (image == null) {
+        if (!mounted) return;
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 16.0),
+                Expanded(
+                  child: Text(
+                    widget.language == GreetingLanguage.urdu
+                        ? 'شیئر ناکام ہو گیا'
+                        : widget.language == GreetingLanguage.hindi
+                        ? 'शेयर विफल हो गया'
+                        : widget.language == GreetingLanguage.arabic
+                        ? 'فشلت المشاركة'
+                        : 'Share failed',
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        return;
+      }
+
+      // Save to temporary directory
+      final directory = await getTemporaryDirectory();
+      final imagePath =
+          '${directory.path}/greeting_card_${DateTime.now().millisecondsSinceEpoch}.png';
+      final imageFile = File(imagePath);
+      await imageFile.writeAsBytes(image);
+
+      // Share the image
+      await Share.shareXFiles(
+        [XFile(imagePath)],
+        text: widget.language == GreetingLanguage.urdu
+            ? 'نور الایمان سے اسلامی کارڈ'
+            : widget.language == GreetingLanguage.hindi
+            ? 'नूर-उल-ईमान से इस्लामी कार्ड'
+            : widget.language == GreetingLanguage.arabic
+            ? 'بطاقة إسلامية من نور الإيمان'
+            : 'Islamic Card from Noor-ul-Iman',
+      );
+
+      // Delete temporary file after a delay
+      Future.delayed(const Duration(seconds: 5), () {
+        if (imageFile.existsSync()) {
+          imageFile.delete();
+        }
+      });
+    } catch (e) {
+      if (!mounted) return;
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 16.0),
+              Expanded(
+                child: Text(
+                  widget.language == GreetingLanguage.urdu
+                      ? 'شیئر میں خرابی: ${e.toString()}'
+                      : widget.language == GreetingLanguage.hindi
+                      ? 'शेयर में त्रुटि: ${e.toString()}'
+                      : widget.language == GreetingLanguage.arabic
+                      ? 'خطأ في المشاركة: ${e.toString()}'
+                      : 'Share error: ${e.toString()}',
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
   }
 }
 
@@ -3125,6 +6512,76 @@ class CornerOrnamentPainter extends CustomPainter {
       Offset(size.width, size.height / 2),
       paint,
     );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// Mosque Silhouette Painter for Royal Mosque Theme
+class MosqueSilhouettePainter extends CustomPainter {
+  final Color color;
+
+  MosqueSilhouettePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+
+    // Base line
+    path.moveTo(0, size.height);
+    path.lineTo(0, size.height * 0.7);
+
+    // Left minaret
+    path.lineTo(size.width * 0.08, size.height * 0.7);
+    path.lineTo(size.width * 0.08, size.height * 0.25);
+    path.lineTo(size.width * 0.10, size.height * 0.15);
+    path.lineTo(size.width * 0.12, size.height * 0.25);
+    path.lineTo(size.width * 0.12, size.height * 0.7);
+
+    // Left small dome
+    path.lineTo(size.width * 0.22, size.height * 0.7);
+    path.quadraticBezierTo(
+      size.width * 0.27,
+      size.height * 0.45,
+      size.width * 0.32,
+      size.height * 0.7,
+    );
+
+    // Center main dome
+    path.lineTo(size.width * 0.35, size.height * 0.7);
+    path.quadraticBezierTo(
+      size.width * 0.5,
+      size.height * 0.0,
+      size.width * 0.65,
+      size.height * 0.7,
+    );
+
+    // Right small dome
+    path.lineTo(size.width * 0.68, size.height * 0.7);
+    path.quadraticBezierTo(
+      size.width * 0.73,
+      size.height * 0.45,
+      size.width * 0.78,
+      size.height * 0.7,
+    );
+
+    // Right minaret
+    path.lineTo(size.width * 0.88, size.height * 0.7);
+    path.lineTo(size.width * 0.88, size.height * 0.25);
+    path.lineTo(size.width * 0.90, size.height * 0.15);
+    path.lineTo(size.width * 0.92, size.height * 0.25);
+    path.lineTo(size.width * 0.92, size.height * 0.7);
+
+    path.lineTo(size.width, size.height * 0.7);
+    path.lineTo(size.width, size.height);
+    path.close();
+
+    canvas.drawPath(path, paint);
   }
 
   @override
@@ -3425,6 +6882,579 @@ class GreetingCard {
     }
   }
 }
+
+// Islamic Events Class
+class IslamicEvent {
+  final int month;
+  final int day;
+  final String title;
+  final String titleUrdu;
+  final String titleHindi;
+  final String titleArabic;
+  final String description;
+  final String descriptionUrdu;
+  final String descriptionHindi;
+  final String descriptionArabic;
+  final IconData icon;
+  final Color color;
+  final String eventType; // 'viladat', 'shahadat', 'festival', 'special'
+
+  IslamicEvent({
+    required this.month,
+    required this.day,
+    required this.title,
+    required this.titleUrdu,
+    required this.titleHindi,
+    required this.titleArabic,
+    required this.description,
+    required this.descriptionUrdu,
+    required this.descriptionHindi,
+    required this.descriptionArabic,
+    required this.icon,
+    required this.color,
+    required this.eventType,
+  });
+
+  String getTitle(GreetingLanguage language) {
+    switch (language) {
+      case GreetingLanguage.english:
+        return title;
+      case GreetingLanguage.urdu:
+        return titleUrdu;
+      case GreetingLanguage.hindi:
+        return titleHindi;
+      case GreetingLanguage.arabic:
+        return titleArabic;
+    }
+  }
+
+  String getDescription(GreetingLanguage language) {
+    switch (language) {
+      case GreetingLanguage.english:
+        return description;
+      case GreetingLanguage.urdu:
+        return descriptionUrdu;
+      case GreetingLanguage.hindi:
+        return descriptionHindi;
+      case GreetingLanguage.arabic:
+        return descriptionArabic;
+    }
+  }
+}
+
+// Important Islamic Events Throughout the Year
+final List<IslamicEvent> _islamicEvents = [
+  // Muharram (Month 1)
+  IslamicEvent(
+    month: 1,
+    day: 1,
+    title: 'Islamic New Year',
+    titleUrdu: 'اسلامی نیا سال',
+    titleHindi: 'इस्लामी नया साल',
+    titleArabic: 'رأس السنة الهجرية',
+    description:
+        'The first day of Muharram marks the beginning of the Islamic calendar year.',
+    descriptionUrdu: 'محرم کا پہلا دن اسلامی سال کی شروعات کی نشاندہی کرتا ہے۔',
+    descriptionHindi:
+        'मुहर्रम का पहला दिन इस्लामी कैलेंडर वर्ष की शुरुआत का प्रतीक है।',
+    descriptionArabic: 'اليوم الأول من المحرم يمثل بداية السنة الهجرية.',
+    icon: Icons.calendar_today,
+    color: Color(0xFF5C6BC0),
+    eventType: 'festival',
+  ),
+  IslamicEvent(
+    month: 1,
+    day: 10,
+    title: 'Day of Ashura',
+    titleUrdu: 'یوم عاشورہ',
+    titleHindi: 'आशूरा का दिन',
+    titleArabic: 'يوم عاشوراء',
+    description:
+        'A sacred day of fasting and remembrance of the martyrdom of Imam Hussain (RA).',
+    descriptionUrdu: 'روزے اور امام حسین (رض) کی شہادت کی یاد کا مقدس دن۔',
+    descriptionHindi:
+        'रोज़े और इमाम हुसैन (रज़ि.) की शहादत की याद का पवित्र दिन।',
+    descriptionArabic:
+        'يوم مقدس من الصيام وإحياء ذكرى استشهاد الإمام الحسين (رض).',
+    icon: Icons.nights_stay,
+    color: Color(0xFF5C6BC0),
+    eventType: 'shahadat',
+  ),
+
+  // Safar (Month 2)
+  IslamicEvent(
+    month: 2,
+    day: 20,
+    title: 'Arbaeen',
+    titleUrdu: 'اربعین',
+    titleHindi: 'अरबईन',
+    titleArabic: 'الأربعين',
+    description: 'The 40th day after Ashura, commemorating Imam Hussain (RA).',
+    descriptionUrdu: 'عاشورہ کے 40 دن بعد، امام حسین (رض) کی یاد میں۔',
+    descriptionHindi: 'आशूरा के 40 दिन बाद, इमाम हुसैन (रज़ि.) की याद में।',
+    descriptionArabic:
+        'اليوم الأربعين بعد عاشوراء، إحياء لذكرى الإمام الحسين (رض).',
+    icon: Icons.favorite,
+    color: Color(0xFF8D6E63),
+    eventType: 'special',
+  ),
+
+  // Rabi al-Awwal (Month 3)
+  IslamicEvent(
+    month: 3,
+    day: 12,
+    title: 'Eid Milad-un-Nabi (SAW)',
+    titleUrdu: 'عید میلاد النبی ﷺ',
+    titleHindi: 'ईद मिलाद-उन-नबी (सल्ल.)',
+    titleArabic: 'المولد النبوي الشريف',
+    description:
+        'The birth anniversary of Prophet Muhammad (Peace Be Upon Him).',
+    descriptionUrdu: 'حضور نبی کریم ﷺ کی ولادت با سعادت کی سالگرہ۔',
+    descriptionHindi: 'पैगंबर मुहम्मद (सल्ल.) की जन्म वर्षगांठ।',
+    descriptionArabic: 'ذكرى مولد النبي محمد صلى الله عليه وسلم.',
+    icon: Icons.auto_awesome,
+    color: Color(0xFF43A047),
+    eventType: 'viladat',
+  ),
+
+  // Rajab (Month 7)
+  IslamicEvent(
+    month: 7,
+    day: 13,
+    title: 'Wiladat Imam Ali (RA)',
+    titleUrdu: 'ولادت حضرت علی (رض)',
+    titleHindi: 'विलादत इमाम अली (रज़ि.)',
+    titleArabic: 'ولادة الإمام علي (رض)',
+    description:
+        'The birth anniversary of Hazrat Ali (RA), the fourth Caliph of Islam.',
+    descriptionUrdu: 'حضرت علی (رض)، اسلام کے چوتھے خلیفہ کی ولادت با سعادت۔',
+    descriptionHindi:
+        'हज़रत अली (रज़ि.), इस्लाम के चौथे खलीफा की जन्म वर्षगांठ।',
+    descriptionArabic: 'ذكرى ميلاد الإمام علي (رض)، الخليفة الرابع للإسلام.',
+    icon: Icons.star,
+    color: Color(0xFFE53935),
+    eventType: 'viladat',
+  ),
+  IslamicEvent(
+    month: 7,
+    day: 27,
+    title: 'Shab-e-Meraj',
+    titleUrdu: 'شب معراج',
+    titleHindi: 'शब-ए-मेराज',
+    titleArabic: 'ليلة المعراج',
+    description:
+        'The night of the Prophet\'s (SAW) miraculous journey to heaven.',
+    descriptionUrdu: 'نبی کریم ﷺ کے آسمانوں کی طرف معجزاتی سفر کی رات۔',
+    descriptionHindi: 'पैगंबर (सल्ल.) की स्वर्ग की ओर चमत्कारी यात्रा की रात।',
+    descriptionArabic: 'ليلة الإسراء والمعراج المباركة.',
+    icon: Icons.nights_stay,
+    color: Color(0xFFE53935),
+    eventType: 'special',
+  ),
+
+  // Shaban (Month 8)
+  IslamicEvent(
+    month: 8,
+    day: 15,
+    title: 'Shab-e-Barat',
+    titleUrdu: 'شب برات',
+    titleHindi: 'शब-ए-बारात',
+    titleArabic: 'ليلة البراءة',
+    description:
+        'The night of forgiveness and blessings, seeking Allah\'s mercy.',
+    descriptionUrdu: 'معافی اور برکتوں کی رات، اللہ کی رحمت کی طلب۔',
+    descriptionHindi: 'माफी और बरकतों की रात, अल्लाह की रहमत की तलाश।',
+    descriptionArabic: 'ليلة المغفرة والبركات، طلب رحمة الله.',
+    icon: Icons.nightlight_round,
+    color: Color(0xFF7B1FA2),
+    eventType: 'special',
+  ),
+
+  // Ramadan (Month 9)
+  IslamicEvent(
+    month: 9,
+    day: 1,
+    title: 'First Day of Ramadan',
+    titleUrdu: 'رمضان کا پہلا دن',
+    titleHindi: 'रमज़ान का पहला दिन',
+    titleArabic: 'أول يوم من رمضان',
+    description:
+        'The beginning of the holy month of fasting and spiritual reflection.',
+    descriptionUrdu: 'روزے اور روحانی غور و ف��ر کے مقدس مہینے کی شروعات۔',
+    descriptionHindi: 'रोज़े और आध्यात्मिक चिंतन के पवित्र महीने की शुरुआत।',
+    descriptionArabic: 'بداية شهر الصيام والتأمل الروحي.',
+    icon: Icons.calendar_today,
+    color: Color(0xFF00897B),
+    eventType: 'festival',
+  ),
+  IslamicEvent(
+    month: 9,
+    day: 21,
+    title: 'Laylat al-Qadr (Estimated)',
+    titleUrdu: 'شب قدر (تخمینہ)',
+    titleHindi: 'लैलतुल कद्र (अनुमानित)',
+    titleArabic: 'ليلة القدر (تقديري)',
+    description:
+        'The Night of Power, better than a thousand months. Likely on odd nights in last 10 days.',
+    descriptionUrdu:
+        'شب قدر، ہزار مہینوں سے بہتر۔ آخری 10 دنوں کی طاق راتوں میں ممکن۔',
+    descriptionHindi:
+        'क़द्र की रात, हज़ार महीनों से बेहतर। आखिरी 10 दिनों की ताक रातों में संभव।',
+    descriptionArabic:
+        'ليلة القدر، خير من ألف شهر. من المحتمل في الليالي الفردية من العشر الأواخر.',
+    icon: Icons.stars,
+    color: Color(0xFF00897B),
+    eventType: 'special',
+  ),
+  IslamicEvent(
+    month: 9,
+    day: 27,
+    title: 'Laylat al-Qadr (27th)',
+    titleUrdu: 'شب قدر (27ویں)',
+    titleHindi: 'लैलतुल कद्र (27वीं)',
+    titleArabic: 'ليلة القدر (27)',
+    description:
+        'The most likely night of Laylat al-Qadr, a night of immense blessings.',
+    descriptionUrdu: 'شب قدر کی سب سے زیادہ ممکنہ رات، بے شمار برکتوں کی رات۔',
+    descriptionHindi: 'लैलतुल क़द्र की सबसे संभावित रात, अपार बरकतों की रात।',
+    descriptionArabic:
+        'الليلة الأكثر احتمالاً لليلة القدر، ليلة من البركات الهائلة.',
+    icon: Icons.star,
+    color: Color(0xFF00897B),
+    eventType: 'special',
+  ),
+
+  // Shawwal (Month 10)
+  IslamicEvent(
+    month: 10,
+    day: 1,
+    title: 'Eid al-Fitr',
+    titleUrdu: 'عید الفطر',
+    titleHindi: 'ईद-उल-फ़ित्र',
+    titleArabic: 'عيد الفطر',
+    description:
+        'The Festival of Breaking the Fast, celebrating the end of Ramadan.',
+    descriptionUrdu: 'روزوں کے اختتام کی خوشی کا تہوار، رمضان کے بعد۔',
+    descriptionHindi: 'रोज़ों के समापन की खुशी का त्योहार, रमज़ान के बाद।',
+    descriptionArabic: 'عيد الفطر، الاحتفال بنهاية شهر رمضان المبارك.',
+    icon: Icons.celebration,
+    color: Color(0xFF00897B),
+    eventType: 'festival',
+  ),
+
+  // Dhul Hijjah (Month 12)
+  IslamicEvent(
+    month: 12,
+    day: 9,
+    title: 'Day of Arafah',
+    titleUrdu: 'یوم عرفہ',
+    titleHindi: 'यौम-ए-अरफा',
+    titleArabic: 'يوم عرفة',
+    description:
+        'The most important day of Hajj, a day of forgiveness and mercy.',
+    descriptionUrdu: 'حج کا سب سے اہم دن، معافی اور رحمت کا دن۔',
+    descriptionHindi: 'हज का सबसे महत्वपूर्ण दिन, माफी और रहमत का दिन।',
+    descriptionArabic: 'أهم يوم في الحج، يوم المغفرة والرحمة.',
+    icon: Icons.terrain,
+    color: Color(0xFFD32F2F),
+    eventType: 'special',
+  ),
+  IslamicEvent(
+    month: 12,
+    day: 10,
+    title: 'Eid al-Adha',
+    titleUrdu: 'عید الاضحی',
+    titleHindi: 'ईद-उल-अज़हा',
+    titleArabic: 'عيد الأضحى',
+    description:
+        'The Festival of Sacrifice, commemorating Prophet Ibrahim\'s (AS) devotion.',
+    descriptionUrdu:
+        'قربانی کا تہوار، حضرت ابراہیم (علیہ السلام) کی قربانی کی یاد میں۔',
+    descriptionHindi:
+        'कुर्बानी का त्योहार, हज़रत इब्राहीम (अ.स.) की निष्ठा की याद में।',
+    descriptionArabic:
+        'عيد الأضحى، إحياء لذكرى تفاني النبي إبراهيم (عليه السلام).',
+    icon: Icons.mosque,
+    color: Color(0xFFD32F2F),
+    eventType: 'festival',
+  ),
+  IslamicEvent(
+    month: 12,
+    day: 18,
+    title: 'Eid-e-Ghadeer',
+    titleUrdu: 'عید غدیر',
+    titleHindi: 'ईद-ए-ग़दीर',
+    titleArabic: 'عيد الغدير',
+    description:
+        'Celebration of the appointment of Hazrat Ali (RA) at Ghadeer Khumm.',
+    descriptionUrdu: 'غدیر خم میں حضرت علی (رض) کی تقرری کی خوشی۔',
+    descriptionHindi: 'ग़दीर खुम में हज़रत अली (रज़ि.) की नियुक्ति का उत्सव।',
+    descriptionArabic: 'الاحتفال بتعيين الإمام علي (رض) في غدير خم.',
+    icon: Icons.celebration,
+    color: Color(0xFFD32F2F),
+    eventType: 'special',
+  ),
+
+  // Rabi al-Awwal (Month 3) - Additional events
+  IslamicEvent(
+    month: 3,
+    day: 8,
+    title: 'Wiladat Imam Hassan (RA)',
+    titleUrdu: 'ولادت امام حسن (رض)',
+    titleHindi: 'विलादत इमाम हसन (रज़ि.)',
+    titleArabic: 'ولادة الإمام الحسن (رض)',
+    description:
+        'The birth anniversary of Imam Hassan ibn Ali (RA), grandson of Prophet Muhammad (SAW).',
+    descriptionUrdu:
+        'امام حسن بن علی (رض)، نبی کریم ﷺ کے نواسے کی ولادت با سعادت۔',
+    descriptionHindi:
+        'इमाम हसन बिन अली (रज़ि.), पैगंबर मुहम्मद (सल्ल.) के नवासे की जन्म वर्षगांठ।',
+    descriptionArabic:
+        'ذكرى ميلاد الإمام الحسن بن علي (رض)، حفيد النبي محمد (صلى الله عليه وسلم).',
+    icon: Icons.child_care,
+    color: Color(0xFF43A047),
+    eventType: 'viladat',
+  ),
+  IslamicEvent(
+    month: 3,
+    day: 17,
+    title: 'Wiladat Imam Jafar Sadiq (RA)',
+    titleUrdu: 'ولادت امام جعفر صادق (رض)',
+    titleHindi: 'विलादत इमाम जाफर सादिक़ (रज़ि.)',
+    titleArabic: 'ولادة الإمام جعفر الصادق (رض)',
+    description:
+        'The birth anniversary of Imam Jafar Sadiq (RA), renowned Islamic scholar.',
+    descriptionUrdu:
+        'امام جعفر صادق (رض)، مشہور اسلامی عالم کی ولادت با سعادت۔',
+    descriptionHindi:
+        'इमाम जाफर सादिक़ (रज़ि.), प्रसिद्ध इस्लामी विद्वान की जन्म वर्षगांठ।',
+    descriptionArabic:
+        'ذكرى ميلاد الإمام جعفر الصادق (رض)، العالم الإسلامي المشهور.',
+    icon: Icons.menu_book,
+    color: Color(0xFF43A047),
+    eventType: 'viladat',
+  ),
+
+  // Rajab (Month 7) - Additional events
+  IslamicEvent(
+    month: 7,
+    day: 1,
+    title: 'Beginning of Rajab',
+    titleUrdu: 'رجب کی شروعات',
+    titleHindi: 'रजब की शुरुआत',
+    titleArabic: 'بداية شهر رجب',
+    description:
+        'The beginning of the sacred month of Rajab, one of the four sacred months.',
+    descriptionUrdu: 'رجب کے مقدس مہینے کی شروعات، چار مقدس مہینوں میں سے ایک۔',
+    descriptionHindi:
+        'रजब के पवित्र महीने की शुरुआत, चार पवित्र महीनों में से एक।',
+    descriptionArabic: 'بداية شهر رجب المبارك، أحد الأشهر الحرم الأربعة.',
+    icon: Icons.calendar_month,
+    color: Color(0xFFE53935),
+    eventType: 'special',
+  ),
+  IslamicEvent(
+    month: 7,
+    day: 3,
+    title: 'Wiladat Imam Ali Naqi (RA)',
+    titleUrdu: 'ولادت امام علی نقی (رض)',
+    titleHindi: 'विलादत इमाम अली नक़ी (रज़ि.)',
+    titleArabic: 'ولادة الإمام علي النقي (رض)',
+    description:
+        'The birth anniversary of Imam Ali al-Naqi (RA), the tenth Imam.',
+    descriptionUrdu: 'امام علی النقی (رض)، دسویں امام کی ولادت با سعادت۔',
+    descriptionHindi: 'इमाम अली अल-नक़ी (रज़ि.), दसवें इमाम की जन्म वर्षगांठ।',
+    descriptionArabic: 'ذكرى ميلاد الإمام علي النقي (رض)، الإمام العاشر.',
+    icon: Icons.star,
+    color: Color(0xFFE53935),
+    eventType: 'viladat',
+  ),
+
+  // Jamadi al-Awwal (Month 5)
+  IslamicEvent(
+    month: 5,
+    day: 13,
+    title: 'Wiladat Bibi Fatima (RA)',
+    titleUrdu: 'ولادت بی بی فاطمہ (رض)',
+    titleHindi: 'विलादत बीबी फ़ातिमा (रज़ि.)',
+    titleArabic: 'ولادة فاطمة الزهراء (رض)',
+    description:
+        'The birth anniversary of Bibi Fatima (RA), daughter of Prophet Muhammad (SAW).',
+    descriptionUrdu:
+        'بی بی فاطمہ (رض)، نبی کریم ﷺ کی صاحبزادی کی ولادت با سعادت۔',
+    descriptionHindi:
+        'बीबी फ़ातिमा (रज़ि.), पैगंबर मुहम्मद (सल्ल.) की बेटी की जन्म वर्षगांठ।',
+    descriptionArabic:
+        'ذكرى ميلاد فاطمة الزهراء (رض)، ابنة النبي محمد (صلى الله عليه وسلم).',
+    icon: Icons.favorite,
+    color: Color(0xFFFF6F00),
+    eventType: 'viladat',
+  ),
+
+  // Rajab (Month 7) - More events
+  IslamicEvent(
+    month: 7,
+    day: 10,
+    title: 'Wiladat Imam Muhammad Taqi (RA)',
+    titleUrdu: 'ولادت امام محمد تقی (رض)',
+    titleHindi: 'विलादत इमाम मुहम्मद तक़ी (रज़ि.)',
+    titleArabic: 'ولادة الإمام محمد التقي (رض)',
+    description:
+        'The birth anniversary of Imam Muhammad al-Taqi (RA), the ninth Imam.',
+    descriptionUrdu: 'امام محمد التقی (رض)، نویں امام کی ولادت با سعادت۔',
+    descriptionHindi:
+        'इमाम मुहम्मद अल-तक़ी (रज़ि.), नौवें इमाम की जन्म वर्षगांठ।',
+    descriptionArabic: 'ذكرى ميلاد الإمام محمد التقي (رض)، الإمام التاسع.',
+    icon: Icons.star,
+    color: Color(0xFFE53935),
+    eventType: 'viladat',
+  ),
+
+  // Shaban (Month 8) - Additional events
+  IslamicEvent(
+    month: 8,
+    day: 3,
+    title: 'Wiladat Imam Hussain (RA)',
+    titleUrdu: 'ولادت امام حسین (رض)',
+    titleHindi: 'विलादत इमाम हुसैन (रज़ि.)',
+    titleArabic: 'ولادة الإمام الحسين (رض)',
+    description:
+        'The birth anniversary of Imam Hussain ibn Ali (RA), the grandson of Prophet Muhammad (SAW).',
+    descriptionUrdu:
+        'امام حسین بن علی (رض)، نبی کریم ﷺ کے نواسے کی ولادت با سعادت۔',
+    descriptionHindi:
+        'इमाम हुसैन बिन अली (रज़ि.), पैगंबर मुहम्मद (सल्ल.) के नवासे की जन्म वर्षगांठ।',
+    descriptionArabic:
+        'ذكرى ميلاد الإمام الحسين بن علي (رض)، حفيد النبي محمد (صلى الله عليه وسلم).',
+    icon: Icons.child_care,
+    color: Color(0xFF7B1FA2),
+    eventType: 'viladat',
+  ),
+  IslamicEvent(
+    month: 8,
+    day: 4,
+    title: 'Wiladat Hazrat Abbas (RA)',
+    titleUrdu: 'ولادت حضرت عباس (رض)',
+    titleHindi: 'विलादत हज़रत अब्बास (रज़ि.)',
+    titleArabic: 'ولادة العباس (رض)',
+    description:
+        'The birth anniversary of Hazrat Abbas ibn Ali (RA), the loyal companion of Imam Hussain (RA).',
+    descriptionUrdu:
+        'حضرت عباس بن علی (رض)، امام حسین (رض) کے وفادار ساتھی کی ولادت با سعادت۔',
+    descriptionHindi:
+        'हज़रत अब्बास बिन अली (रज़ि.), इमाम हुसैन (रज़ि.) के वफादार साथी की जन्म वर्षगांठ।',
+    descriptionArabic:
+        'ذكرى ميلاد العباس بن علي (رض)، الصاحب الوفي للإمام الحسين (رض).',
+    icon: Icons.shield,
+    color: Color(0xFF7B1FA2),
+    eventType: 'viladat',
+  ),
+
+  // Ramadan (Month 9) - Additional events
+  IslamicEvent(
+    month: 9,
+    day: 10,
+    title: 'Wafat Bibi Khadija (RA)',
+    titleUrdu: 'وفات بی بی خدیجہ (رض)',
+    titleHindi: 'वफात बीबी खदीजा (रज़ि.)',
+    titleArabic: 'وفاة خديجة (رض)',
+    description:
+        'Remembering Bibi Khadija (RA), the first wife of Prophet Muhammad (SAW).',
+    descriptionUrdu: 'بی بی خدیجہ (رض)، نبی کریم ﷺ کی پہلی بیوی کی یاد۔',
+    descriptionHindi:
+        'बीबी खदीजा (रज़ि.), पैगंबर मुहम्मद (सल्ल.) की पहली पत्नी की याद।',
+    descriptionArabic:
+        'في ذكرى وفاة خديجة (رض)، الزوجة الأولى للنبي محمد (صلى الله عليه وسلم).',
+    icon: Icons.favorite_border,
+    color: Color(0xFF00897B),
+    eventType: 'shahadat',
+  ),
+  IslamicEvent(
+    month: 9,
+    day: 17,
+    title: 'Battle of Badr Anniversary',
+    titleUrdu: 'غزوہ بدر کی سالگرہ',
+    titleHindi: 'गज़वा-ए-बद्र की वर्षगांठ',
+    titleArabic: 'ذكرى غزوة بدر',
+    description: 'Commemorating the historic victory of the Battle of Badr.',
+    descriptionUrdu: 'غزوہ بدر کی تاریخی فتح کی یاد۔',
+    descriptionHindi: 'गज़वा-ए-बद्र की ऐतिहासिक जीत की याद।',
+    descriptionArabic: 'إحياء ذكرى النصر التاريخي في غزوة بدر.',
+    icon: Icons.military_tech,
+    color: Color(0xFF00897B),
+    eventType: 'special',
+  ),
+  IslamicEvent(
+    month: 9,
+    day: 19,
+    title: 'Shahadat Hazrat Ali (RA)',
+    titleUrdu: 'شہادت حضرت علی (رض)',
+    titleHindi: 'शहादत हज़रत अली (रज़ि.)',
+    titleArabic: 'استشهاد الإمام علي (رض)',
+    description:
+        'The martyrdom anniversary of Hazrat Ali ibn Abi Talib (RA), the fourth Caliph.',
+    descriptionUrdu: 'حضرت علی بن ابی طالب (رض)، چوتھے خلیفہ کی شہادت کی یاد۔',
+    descriptionHindi:
+        'हज़रत अली बिन अबी तालिब (रज़ि.), चौथे खलीफा की शहादत की याद।',
+    descriptionArabic: 'ذكرى استشهاد علي بن أبي طالب (رض)، الخليفة الرابع.',
+    icon: Icons.favorite,
+    color: Color(0xFF00897B),
+    eventType: 'shahadat',
+  ),
+
+  // Dhul Qa'dah (Month 11)
+  IslamicEvent(
+    month: 11,
+    day: 11,
+    title: 'Wiladat Imam Reza (RA)',
+    titleUrdu: 'ولادت امام رضا (رض)',
+    titleHindi: 'विलादत इमाम रज़ा (रज़ि.)',
+    titleArabic: 'ولادة الإمام الرضا (رض)',
+    description:
+        'The birth anniversary of Imam Ali al-Reza (RA), the eighth Imam.',
+    descriptionUrdu: 'امام علی الرضا (رض)، آٹھویں امام کی ولادت با سعادت۔',
+    descriptionHindi: 'इमाम अली अल-रज़ा (रज़ि.), आठवें इमाम की जन्म वर्षगांठ।',
+    descriptionArabic: 'ذكرى ميلاد الإمام علي الرضا (رض)، الإمام الثامن.',
+    icon: Icons.star,
+    color: Color(0xFF6A1B9A),
+    eventType: 'viladat',
+  ),
+  IslamicEvent(
+    month: 11,
+    day: 25,
+    title: 'Dahw al-Ardh (Earth Day)',
+    titleUrdu: 'دحو الارض',
+    titleHindi: 'दह्व अल-अर्ध़',
+    titleArabic: 'دحو الأرض',
+    description:
+        'Commemorating the spreading of the earth from beneath the Kaaba.',
+    descriptionUrdu: 'کعبہ کے نیچے سے زمین کی پھیلاؤ کی یاد۔',
+    descriptionHindi: 'काबा के नीचे से पृथ्वी के विस्तार की याद।',
+    descriptionArabic: 'إحياء ذكرى بسط الأرض من تحت الكعبة.',
+    icon: Icons.public,
+    color: Color(0xFF6A1B9A),
+    eventType: 'special',
+  ),
+
+  // Dhul Hijjah (Month 12) - Additional events
+  IslamicEvent(
+    month: 12,
+    day: 7,
+    title: 'Shahadat Imam Muhammad Baqir (RA)',
+    titleUrdu: 'شہادت امام محمد باقر (رض)',
+    titleHindi: 'शहादत इमाम मुहम्मद बाक़िर (रज़ि.)',
+    titleArabic: 'استشهاد الإمام محمد الباقر (رض)',
+    description:
+        'The martyrdom anniversary of Imam Muhammad al-Baqir (RA), the fifth Imam.',
+    descriptionUrdu: 'امام محمد الباقر (رض)، پانچویں امام کی شہادت کی یاد۔',
+    descriptionHindi:
+        'इमाम मुहम्मद अल-बाक़िर (रज़ि.), पांचवें इमाम की शहादत की याद।',
+    descriptionArabic: 'ذكرى استشهاد الإمام محمد الباقر (رض)، الإمام الخامس.',
+    icon: Icons.favorite,
+    color: Color(0xFFD32F2F),
+    eventType: 'shahadat',
+  ),
+];
 
 // Islamic Months Data with Cards
 final List<IslamicMonth> _islamicMonths = [

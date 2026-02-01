@@ -119,15 +119,38 @@ class PrayerTimeService {
 
   DateTime? _parseTime(String timeStr) {
     try {
-      final parts = timeStr.split(':');
+      // Handle 12-hour format with AM/PM (e.g., "5:30 AM", "7:45 PM")
+      final cleanTime = timeStr.trim().toUpperCase();
+      final isPM = cleanTime.contains('PM');
+      final isAM = cleanTime.contains('AM');
+
+      // Remove AM/PM and any extra spaces
+      String timeOnly = cleanTime
+          .replaceAll('AM', '')
+          .replaceAll('PM', '')
+          .trim();
+
+      final parts = timeOnly.split(':');
       if (parts.length >= 2) {
+        int hour = int.parse(parts[0].trim());
+        final minute = int.parse(parts[1].trim());
+
+        // Convert to 24-hour format if AM/PM is present
+        if (isPM || isAM) {
+          if (isPM && hour != 12) {
+            hour += 12;
+          } else if (isAM && hour == 12) {
+            hour = 0;
+          }
+        }
+
         final now = DateTime.now();
         return DateTime(
           now.year,
           now.month,
           now.day,
-          int.parse(parts[0]),
-          int.parse(parts[1]),
+          hour,
+          minute,
         );
       }
       return null;

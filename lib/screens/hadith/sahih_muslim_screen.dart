@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/hadith_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/common/search_bar_widget.dart';
@@ -60,7 +59,10 @@ class _SahihMuslimScreenState extends State<SahihMuslimScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: Text(context.tr('sahih_muslim'), style: TextStyle(fontSize: responsive.textLarge)),
+        title: Text(
+          context.tr('sahih_muslim'),
+          style: TextStyle(fontSize: responsive.textLarge),
+        ),
       ),
       body: Column(
         children: [
@@ -96,7 +98,10 @@ class _SahihMuslimScreenState extends State<SahihMuslimScreen> {
                         ),
                       )
                     : ListView.builder(
-                        padding: responsive.paddingSymmetric(horizontal: 16, vertical: 0),
+                        padding: responsive.paddingSymmetric(
+                          horizontal: 16,
+                          vertical: 0,
+                        ),
                         itemCount: filteredBooks.length,
                         itemBuilder: (context, index) {
                           final book = filteredBooks[index];
@@ -116,7 +121,6 @@ class _SahihMuslimScreenState extends State<SahihMuslimScreen> {
     const darkGreen = Color(0xFF0A5C36);
     const emeraldGreen = Color(0xFF1E8F5A);
     const lightGreenBorder = Color(0xFF8AAF9A);
-    const softGold = Color(0xFFC9A24D);
     final responsive = context.responsive;
 
     return Container(
@@ -124,10 +128,7 @@ class _SahihMuslimScreenState extends State<SahihMuslimScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
-        border: Border.all(
-          color: lightGreenBorder,
-          width: 1.5,
-        ),
+        border: Border.all(color: lightGreenBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
@@ -156,6 +157,7 @@ class _SahihMuslimScreenState extends State<SahihMuslimScreen> {
         child: Padding(
           padding: responsive.paddingAll(14),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Book Number
               Container(
@@ -190,27 +192,28 @@ class _SahihMuslimScreenState extends State<SahihMuslimScreen> {
                 child: Consumer<LanguageProvider>(
                   builder: (context, langProvider, child) {
                     String displayName;
-                    bool useArabicFont = false;
-                    bool useUrduFont = false;
                     TextDirection textDir = TextDirection.ltr;
+                    TextAlign textAlign = TextAlign.left;
 
                     switch (langProvider.languageCode) {
                       case 'ar':
                         displayName = book.arabicName;
-                        useArabicFont = true;
                         textDir = TextDirection.rtl;
+                        textAlign = TextAlign.right;
                         break;
                       case 'ur':
                         displayName = book.urduName;
-                        useUrduFont = true;
                         textDir = TextDirection.rtl;
+                        textAlign = TextAlign.right;
                         break;
                       case 'hi':
                         displayName = book.hindiName;
+                        textAlign = TextAlign.left;
                         break;
                       case 'en':
                       default:
                         displayName = book.name;
+                        textAlign = TextAlign.left;
                         break;
                     }
 
@@ -220,15 +223,19 @@ class _SahihMuslimScreenState extends State<SahihMuslimScreen> {
                         fontSize: responsive.textSmall,
                         fontWeight: FontWeight.bold,
                         color: darkGreen,
-                        fontFamily: useArabicFont ? 'Amiri' : (useUrduFont ? 'NotoNastaliq' : null),
+                        fontFamily: 'Poppins',
+                        height: 1.3,
                       ),
                       textDirection: textDir,
+                      textAlign: textAlign,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
+                      softWrap: true,
                     );
                   },
                 ),
               ),
+              SizedBox(width: responsive.spacing(8)),
 
               // Arrow Icon
               Container(
@@ -246,99 +253,6 @@ class _SahihMuslimScreenState extends State<SahihMuslimScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  void _showBookInfo(BuildContext context, HadithCollectionInfo info) {
-    final responsive = context.responsive;
-    showModalBottomSheet(
-      context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(responsive.radiusXLarge)),
-      ),
-      builder: (context) => Padding(
-        padding: responsive.paddingAll(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: responsive.paddingAll(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(responsive.radiusMedium),
-                  ),
-                  child: Icon(Icons.menu_book, color: AppColors.primary, size: responsive.iconXLarge),
-                ),
-                SizedBox(width: responsive.spaceRegular),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        info.name,
-                        style: TextStyle(fontSize: responsive.textXLarge, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        info.arabicName,
-                        style: TextStyle(fontSize: responsive.textRegular, fontFamily: 'Amiri'),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: responsive.spaceRegular),
-            Text(
-              '${context.tr('compiled_by')}: ${info.compiler}',
-              style: TextStyle(fontSize: responsive.textMedium, fontWeight: FontWeight.w600),
-            ),
-            SizedBox(height: responsive.spaceSmall),
-            Text(
-              info.description,
-              style: TextStyle(fontSize: responsive.textMedium, height: 1.5),
-            ),
-            SizedBox(height: responsive.spaceRegular),
-            Row(
-              children: [
-                _InfoChip(icon: Icons.book, label: '${info.totalBooks} ${context.tr('books')}'),
-                SizedBox(width: responsive.spaceMedium),
-                _InfoChip(icon: Icons.format_list_numbered, label: '${info.totalHadith} ${context.tr('hadiths')}'),
-              ],
-            ),
-            SizedBox(height: responsive.spaceLarge),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _InfoChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const _InfoChip({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final responsive = context.responsive;
-    return Container(
-      padding: responsive.paddingSymmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.secondary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(responsive.radiusXLarge),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: responsive.iconSmall, color: AppColors.secondary),
-          SizedBox(width: responsive.spacing(6)),
-          Text(label, style: TextStyle(fontSize: responsive.textSmall, color: AppColors.secondary, fontWeight: FontWeight.w600)),
-        ],
       ),
     );
   }
@@ -363,62 +277,455 @@ class MuslimBookInfo {
   });
 }
 
-// Complete list of all 56 Books in Sahih Muslim
+// Complete list of all 56 Books in Sahih Muslim (sunnah.com numbering)
+// Source: https://sunnah.com/muslim - Total 3033 hadith references across 56 books
 final List<MuslimBookInfo> _muslimBooks = [
-  const MuslimBookInfo(id: 1, name: "The Book of Faith", arabicName: "كتاب الإيمان", urduName: "کتاب الایمان", hindiName: "ईमान की किताब", hadithCount: 432),
-  const MuslimBookInfo(id: 2, name: "The Book of Purification", arabicName: "كتاب الطهارة", urduName: "کتاب الطہارت", hindiName: "पवित्रता की किताब", hadithCount: 279),
-  const MuslimBookInfo(id: 3, name: "The Book of Menstruation", arabicName: "كتاب الحيض", urduName: "کتاب الحیض", hindiName: "माहवारी की किताब", hadithCount: 139),
-  const MuslimBookInfo(id: 4, name: "The Book of Prayer", arabicName: "كتاب الصلاة", urduName: "کتاب الصلوٰۃ", hindiName: "नमाज़ की किताब", hadithCount: 285),
-  const MuslimBookInfo(id: 5, name: "The Book of Mosques", arabicName: "كتاب المساجد", urduName: "کتاب المساجد", hindiName: "मस्जिदों की किताब", hadithCount: 319),
-  const MuslimBookInfo(id: 6, name: "The Book of Prayer - Travellers", arabicName: "كتاب صلاة المسافرين", urduName: "کتاب صلوٰۃ المسافرین", hindiName: "मुसाफ़िरों की नमाज़ की किताब", hadithCount: 311),
-  const MuslimBookInfo(id: 7, name: "The Book of Friday Prayer", arabicName: "كتاب الجمعة", urduName: "کتاب الجمعہ", hindiName: "जुमा की नमाज़ की किताब", hadithCount: 68),
-  const MuslimBookInfo(id: 8, name: "The Book of Eid Prayer", arabicName: "كتاب صلاة العيدين", urduName: "کتاب صلوٰۃ العیدین", hindiName: "ईद की नमाज़ की किताब", hadithCount: 26),
-  const MuslimBookInfo(id: 9, name: "The Book of Prayer for Rain", arabicName: "كتاب الاستسقاء", urduName: "کتاب الاستسقاء", hindiName: "बारिश की दुआ की किताब", hadithCount: 16),
-  const MuslimBookInfo(id: 10, name: "The Book of Eclipse Prayer", arabicName: "كتاب الكسوف", urduName: "کتاب الکسوف", hindiName: "ग्रहण की नमाज़ की किताब", hadithCount: 31),
-  const MuslimBookInfo(id: 11, name: "The Book of Funerals", arabicName: "كتاب الجنائز", urduName: "کتاب الجنائز", hindiName: "अंतिम संस्कार की किताब", hadithCount: 163),
-  const MuslimBookInfo(id: 12, name: "The Book of Zakat", arabicName: "كتاب الزكاة", urduName: "کتاب الزکوٰۃ", hindiName: "ज़कात की किताब", hadithCount: 224),
-  const MuslimBookInfo(id: 13, name: "The Book of Fasting", arabicName: "كتاب الصيام", urduName: "کتاب الصیام", hindiName: "रोज़ा की किताब", hadithCount: 222),
-  const MuslimBookInfo(id: 14, name: "The Book of Itikaf", arabicName: "كتاب الاعتكاف", urduName: "کتاب الاعتکاف", hindiName: "एतिकाफ़ की किताब", hadithCount: 11),
-  const MuslimBookInfo(id: 15, name: "The Book of Pilgrimage", arabicName: "كتاب الحج", urduName: "کتاب الحج", hindiName: "हज की किताब", hadithCount: 605),
-  const MuslimBookInfo(id: 16, name: "The Book of Marriage", arabicName: "كتاب النكاح", urduName: "کتاب النکاح", hindiName: "निकाह की किताब", hadithCount: 174),
-  const MuslimBookInfo(id: 17, name: "The Book of Suckling", arabicName: "كتاب الرضاع", urduName: "کتاب الرضاع", hindiName: "दूध पिलाने की किताब", hadithCount: 56),
-  const MuslimBookInfo(id: 18, name: "The Book of Divorce", arabicName: "كتاب الطلاق", urduName: "کتاب الطلاق", hindiName: "तलाक़ की किताब", hadithCount: 75),
-  const MuslimBookInfo(id: 19, name: "The Book of Cursing", arabicName: "كتاب اللعان", urduName: "کتاب اللعان", hindiName: "लानत की किताब", hadithCount: 23),
-  const MuslimBookInfo(id: 20, name: "The Book of Manumission", arabicName: "كتاب العتق", urduName: "کتاب العتق", hindiName: "आज़ादी की किताब", hadithCount: 49),
-  const MuslimBookInfo(id: 21, name: "The Book of Transactions", arabicName: "كتاب البيوع", urduName: "کتاب البیوع", hindiName: "लेन-देन की किताब", hadithCount: 146),
-  const MuslimBookInfo(id: 22, name: "The Book of Agriculture", arabicName: "كتاب المساقاة", urduName: "کتاب المساقاۃ", hindiName: "खेती की किताब", hadithCount: 83),
-  const MuslimBookInfo(id: 23, name: "The Book of Inheritance", arabicName: "كتاب الفرائض", urduName: "کتاب الفرائض", hindiName: "विरासत की किताब", hadithCount: 19),
-  const MuslimBookInfo(id: 24, name: "The Book of Gifts", arabicName: "كتاب الهبات", urduName: "کتاب الہبات", hindiName: "उपहार की किताब", hadithCount: 35),
-  const MuslimBookInfo(id: 25, name: "The Book of Wills", arabicName: "كتاب الوصية", urduName: "کتاب الوصیہ", hindiName: "वसीयत की किताब", hadithCount: 29),
-  const MuslimBookInfo(id: 26, name: "The Book of Vows", arabicName: "كتاب النذر", urduName: "کتاب النذر", hindiName: "मन्नत की किताब", hadithCount: 26),
-  const MuslimBookInfo(id: 27, name: "The Book of Oaths", arabicName: "كتاب الأيمان", urduName: "کتاب الایمان", hindiName: "कसम की किताब", hadithCount: 61),
-  const MuslimBookInfo(id: 28, name: "The Book of Oaths (Qasama)", arabicName: "كتاب القسامة", urduName: "کتاب القسامہ", hindiName: "क़सामा की किताब", hadithCount: 37),
-  const MuslimBookInfo(id: 29, name: "The Book of Legal Punishments", arabicName: "كتاب الحدود", urduName: "کتاب الحدود", hindiName: "हदूद की किताब", hadithCount: 71),
-  const MuslimBookInfo(id: 30, name: "The Book of Judicial Decisions", arabicName: "كتاب الأقضية", urduName: "کتاب الاقضیہ", hindiName: "न्यायिक फ़ैसलों की किताब", hadithCount: 30),
-  const MuslimBookInfo(id: 31, name: "The Book of Lost Property", arabicName: "كتاب اللقطة", urduName: "کتاب اللقطہ", hindiName: "खोई हुई वस्तु की किताब", hadithCount: 21),
-  const MuslimBookInfo(id: 32, name: "The Book of Jihad", arabicName: "كتاب الجهاد والسير", urduName: "کتاب الجہاد والسیر", hindiName: "जिहाद की किताब", hadithCount: 203),
-  const MuslimBookInfo(id: 33, name: "The Book of Leadership", arabicName: "كتاب الإمارة", urduName: "کتاب الامارہ", hindiName: "नेतृत्व की किताब", hadithCount: 251),
-  const MuslimBookInfo(id: 34, name: "The Book of Hunting", arabicName: "كتاب الصيد والذبائح", urduName: "کتاب الصید والذبائح", hindiName: "शिकार और ज़बीहा की किताब", hadithCount: 74),
-  const MuslimBookInfo(id: 35, name: "The Book of Sacrifices", arabicName: "كتاب الأضاحي", urduName: "کتاب الاضاحی", hindiName: "क़ुर्बानी की किताब", hadithCount: 46),
-  const MuslimBookInfo(id: 36, name: "The Book of Drinks", arabicName: "كتاب الأشربة", urduName: "کتاب الاشربہ", hindiName: "पेय पदार्थों की किताब", hadithCount: 183),
-  const MuslimBookInfo(id: 37, name: "The Book of Clothes", arabicName: "كتاب اللباس والزينة", urduName: "کتاب اللباس والزینہ", hindiName: "वस्त्र और सजावट की किताब", hadithCount: 136),
-  const MuslimBookInfo(id: 38, name: "The Book of Good Manners", arabicName: "كتاب الآداب", urduName: "کتاب الآداب", hindiName: "शिष्टाचार की किताब", hadithCount: 56),
-  const MuslimBookInfo(id: 39, name: "The Book of Greetings", arabicName: "كتاب السلام", urduName: "کتاب السلام", hindiName: "सलाम की किताब", hadithCount: 166),
-  const MuslimBookInfo(id: 40, name: "The Book of Poetry", arabicName: "كتاب الشعر", urduName: "کتاب الشعر", hindiName: "शायरी की किताब", hadithCount: 10),
-  const MuslimBookInfo(id: 41, name: "The Book of Dreams", arabicName: "كتاب الرؤيا", urduName: "کتاب الرؤیا", hindiName: "ख़्वाब की किताब", hadithCount: 28),
-  const MuslimBookInfo(id: 42, name: "The Book of Virtues", arabicName: "كتاب الفضائل", urduName: "کتاب الفضائل", hindiName: "फ़ज़ीलतों की किताब", hadithCount: 167),
-  const MuslimBookInfo(id: 43, name: "The Book of Companions", arabicName: "كتاب فضائل الصحابة", urduName: "کتاب فضائل الصحابہ", hindiName: "सहाबा की फ़ज़ीलतों की किताब", hadithCount: 270),
-  const MuslimBookInfo(id: 44, name: "The Book of Righteousness", arabicName: "كتاب البر والصلة", urduName: "کتاب البر والصلہ", hindiName: "नेकी और रिश्तों की किताब", hadithCount: 181),
-  const MuslimBookInfo(id: 45, name: "The Book of Destiny", arabicName: "كتاب القدر", urduName: "کتاب القدر", hindiName: "तक़दीर की किताब", hadithCount: 44),
-  const MuslimBookInfo(id: 46, name: "The Book of Knowledge", arabicName: "كتاب العلم", urduName: "کتاب العلم", hindiName: "ज्ञान की किताब", hadithCount: 21),
-  const MuslimBookInfo(id: 47, name: "The Book of Remembrance", arabicName: "كتاب الذكر والدعاء", urduName: "کتاب الذکر والدعاء", hindiName: "ज़िक्र और दुआ की किताब", hadithCount: 110),
-  const MuslimBookInfo(id: 48, name: "The Book of Repentance", arabicName: "كتاب التوبة", urduName: "کتاب التوبہ", hindiName: "तौबा की किताब", hadithCount: 77),
-  const MuslimBookInfo(id: 49, name: "The Book of Hypocrites", arabicName: "كتاب صفات المنافقين", urduName: "کتاب صفات المنافقین", hindiName: "मुनाफ़िक़ों की किताब", hadithCount: 36),
-  const MuslimBookInfo(id: 50, name: "The Book of Paradise", arabicName: "كتاب الجنة وصفة نعيمها", urduName: "کتاب الجنۃ وصفۃ نعیمہا", hindiName: "जन्नत की किताब", hadithCount: 93),
-  const MuslimBookInfo(id: 51, name: "The Book of Tribulations", arabicName: "كتاب الفتن وأشراط الساعة", urduName: "کتاب الفتن واشراط الساعہ", hindiName: "फ़ितनों और क़यामत की निशानियों की किताब", hadithCount: 161),
-  const MuslimBookInfo(id: 52, name: "The Book of Asceticism", arabicName: "كتاب الزهد والرقائق", urduName: "کتاب الزہد والرقائق", hindiName: "ज़ुहद और नर्म दिली की किताब", hadithCount: 80),
-  const MuslimBookInfo(id: 53, name: "The Book of Tafsir", arabicName: "كتاب التفسير", urduName: "کتاب التفسیر", hindiName: "तफ़्सीर की किताब", hadithCount: 51),
-  const MuslimBookInfo(id: 54, name: "Introduction", arabicName: "المقدمة", urduName: "المقدمہ", hindiName: "मुक़द्दमा", hadithCount: 89),
-  const MuslimBookInfo(id: 55, name: "The Book of Foods", arabicName: "كتاب الأطعمة", urduName: "کتاب الاطعمہ", hindiName: "खाद्य पदार्थों की किताब", hadithCount: 168),
-  const MuslimBookInfo(id: 56, name: "The Book of Aqeeqa", arabicName: "كتاب العقيقة", urduName: "کتاب العقیقہ", hindiName: "अक़ीक़ा की किताब", hadithCount: 8),
+  const MuslimBookInfo(
+    id: 1,
+    name: "The Book of Faith",
+    arabicName: "كتاب الإيمان",
+    urduName: "کتاب الایمان",
+    hindiName: "ईमान की किताब",
+    hadithCount: 215,
+  ),
+  const MuslimBookInfo(
+    id: 2,
+    name: "The Book of Purification",
+    arabicName: "كتاب الطهارة",
+    urduName: "کتاب الطہارت",
+    hindiName: "पवित्रता की किताब",
+    hadithCount: 70,
+  ),
+  const MuslimBookInfo(
+    id: 3,
+    name: "The Book of Menstruation",
+    arabicName: "كتاب الحيض",
+    urduName: "کتاب الحیض",
+    hindiName: "माहवारी की किताब",
+    hadithCount: 84,
+  ),
+  const MuslimBookInfo(
+    id: 4,
+    name: "The Book of Prayers",
+    arabicName: "كتاب الصلاة",
+    urduName: "کتاب الصلوٰۃ",
+    hindiName: "नमाज़ की किताब",
+    hadithCount: 143,
+  ),
+  const MuslimBookInfo(
+    id: 5,
+    name: "The Book of Mosques and Places of Prayer",
+    arabicName: "كتاب الْمَسَاجِدِ وَمَوَاضِعِ الصَّلاَةِ",
+    urduName: "کتاب المساجد ومواضع الصلاۃ",
+    hindiName: "मस्जिदों और नमाज़ की जगहों की किताब",
+    hadithCount: 165,
+  ),
+  const MuslimBookInfo(
+    id: 6,
+    name: "The Book of Prayer - Travellers",
+    arabicName: "كتاب صلاة المسافرين وقصرها",
+    urduName: "کتاب صلوٰۃ المسافرین وقصرہا",
+    hindiName: "मुसाफ़िरों की नमाज़ की किताब",
+    hadithCount: 159,
+  ),
+  const MuslimBookInfo(
+    id: 7,
+    name: "The Book of Friday Prayer",
+    arabicName: "كتاب الجمعة",
+    urduName: "کتاب الجمعہ",
+    hindiName: "जुमा की नमाज़ की किताब",
+    hadithCount: 40,
+  ),
+  const MuslimBookInfo(
+    id: 8,
+    name: "The Book of Prayer - Two Eids",
+    arabicName: "كتاب صلاة العيدين",
+    urduName: "کتاب صلوٰۃ العیدین",
+    hindiName: "ईद की नमाज़ की किताब",
+    hadithCount: 10,
+  ),
+  const MuslimBookInfo(
+    id: 9,
+    name: "The Book of Prayer - Rain",
+    arabicName: "كتاب صلاة الاستسقاء‏",
+    urduName: "کتاب صلاۃ الاستسقاء",
+    hindiName: "बारिश की नमाज़ की किताब",
+    hadithCount: 7,
+  ),
+  const MuslimBookInfo(
+    id: 10,
+    name: "The Book of Prayer - Eclipses",
+    arabicName: "كتاب الكسوف",
+    urduName: "کتاب الکسوف",
+    hindiName: "ग्रहण की नमाज़ की किताब",
+    hadithCount: 15,
+  ),
+  const MuslimBookInfo(
+    id: 11,
+    name: "The Book of Prayer - Funerals",
+    arabicName: "كتاب الجنائز",
+    urduName: "کتاب الجنائز",
+    hindiName: "जनाज़े की नमाज़ की किताब",
+    hadithCount: 63,
+  ),
+  const MuslimBookInfo(
+    id: 12,
+    name: "The Book of Zakat",
+    arabicName: "كتاب الزكاة",
+    urduName: "کتاب الزکوٰۃ",
+    hindiName: "ज़कात की किताब",
+    hadithCount: 100,
+  ),
+  const MuslimBookInfo(
+    id: 13,
+    name: "The Book of Fasting",
+    arabicName: "كتاب الصيام",
+    urduName: "کتاب الصیام",
+    hindiName: "रोज़ा की किताब",
+    hadithCount: 92,
+  ),
+  const MuslimBookInfo(
+    id: 14,
+    name: "The Book of I'tikaf",
+    arabicName: "كتاب الاعتكاف",
+    urduName: "کتاب الاعتکاف",
+    hindiName: "एतिकाफ़ की किताब",
+    hadithCount: 6,
+  ),
+  const MuslimBookInfo(
+    id: 15,
+    name: "The Book of Pilgrimage",
+    arabicName: "كتاب الحج",
+    urduName: "کتاب الحج",
+    hindiName: "हज की किताब",
+    hadithCount: 223,
+  ),
+  const MuslimBookInfo(
+    id: 16,
+    name: "The Book of Marriage",
+    arabicName: "كتاب النكاح",
+    urduName: "کتاب النکاح",
+    hindiName: "निकाह की किताब",
+    hadithCount: 44,
+  ),
+  const MuslimBookInfo(
+    id: 17,
+    name: "The Book of Suckling",
+    arabicName: "كتاب الرضاع",
+    urduName: "کتاب الرضاع",
+    hindiName: "रज़ाअत की किताब",
+    hadithCount: 27,
+  ),
+  const MuslimBookInfo(
+    id: 18,
+    name: "The Book of Divorce",
+    arabicName: "كتاب الطلاق",
+    urduName: "کتاب الطلاق",
+    hindiName: "तलाक़ की किताब",
+    hadithCount: 21,
+  ),
+  const MuslimBookInfo(
+    id: 19,
+    name: "The Book of Invoking Curses",
+    arabicName: "كتاب اللعان",
+    urduName: "کتاب اللعان",
+    hindiName: "लान की किताब",
+    hadithCount: 9,
+  ),
+  const MuslimBookInfo(
+    id: 20,
+    name: "The Book of Emancipating Slaves",
+    arabicName: "كتاب العتق",
+    urduName: "کتاب العتق",
+    hindiName: "ग़ुलाम आज़ाद करने की किताब",
+    hadithCount: 10,
+  ),
+  const MuslimBookInfo(
+    id: 21,
+    name: "The Book of Transactions",
+    arabicName: "كتاب البيوع",
+    urduName: "کتاب البیوع",
+    hindiName: "ख़रीद व फ़रोख़्त की किताब",
+    hadithCount: 40,
+  ),
+  const MuslimBookInfo(
+    id: 22,
+    name: "The Book of Musaqah",
+    arabicName: "كتاب المساقاة",
+    urduName: "کتاب المساقاۃ",
+    hindiName: "मुसाक़ात की किताब",
+    hadithCount: 63,
+  ),
+  const MuslimBookInfo(
+    id: 23,
+    name: "The Book of Inheritance",
+    arabicName: "كتاب الفرائض",
+    urduName: "کتاب الفرائض",
+    hindiName: "विरासत की किताब",
+    hadithCount: 6,
+  ),
+  const MuslimBookInfo(
+    id: 24,
+    name: "The Book of Gifts",
+    arabicName: "كتاب الهبات",
+    urduName: "کتاب الہبات",
+    hindiName: "हिबा की किताब",
+    hadithCount: 7,
+  ),
+  const MuslimBookInfo(
+    id: 25,
+    name: "The Book of Wills",
+    arabicName: "كتاب الوصية",
+    urduName: "کتاب الوصیہ",
+    hindiName: "वसीयत की किताब",
+    hadithCount: 11,
+  ),
+  const MuslimBookInfo(
+    id: 26,
+    name: "The Book of Vows",
+    arabicName: "كتاب النذر",
+    urduName: "کتاب النذر",
+    hindiName: "नज़र की किताब",
+    hadithCount: 8,
+  ),
+  const MuslimBookInfo(
+    id: 27,
+    name: "The Book of Oaths",
+    arabicName: "كتاب الأيمان",
+    urduName: "کتاب الایمان",
+    hindiName: "क़समों की किताब",
+    hadithCount: 23,
+  ),
+  const MuslimBookInfo(
+    id: 28,
+    name: "The Book of Qasama, Muharibin, Qisas and Diyat",
+    arabicName: "كتاب القسامة والمحاربين والقصاص والديات",
+    urduName: "کتاب القسامہ والمحاربین والقصاص والدیات",
+    hindiName: "क़सामा, मुहारिबीन, क़िसास और दीयत की किताब",
+    hadithCount: 15,
+  ),
+  const MuslimBookInfo(
+    id: 29,
+    name: "The Book of Legal Punishments",
+    arabicName: "كتاب الحدود",
+    urduName: "کتاب الحدود",
+    hindiName: "हुदूद की किताब",
+    hadithCount: 27,
+  ),
+  const MuslimBookInfo(
+    id: 30,
+    name: "The Book of Judicial Decisions",
+    arabicName: "كتاب الأقضية",
+    urduName: "کتاب الاقضیہ",
+    hindiName: "फ़ैसलों की किताब",
+    hadithCount: 11,
+  ),
+  const MuslimBookInfo(
+    id: 31,
+    name: "The Book of Lost Property",
+    arabicName: "كتاب اللقطة",
+    urduName: "کتاب اللقطہ",
+    hindiName: "लुक़्ता की किताब",
+    hadithCount: 8,
+  ),
+  const MuslimBookInfo(
+    id: 32,
+    name: "The Book of Jihad and Expeditions",
+    arabicName: "كتاب الجهاد والسير",
+    urduName: "کتاب الجہاد والسیر",
+    hindiName: "जिहाद और ग़ज़वात की किताब",
+    hadithCount: 88,
+  ),
+  const MuslimBookInfo(
+    id: 33,
+    name: "The Book on Government",
+    arabicName: "كتاب الإمارة",
+    urduName: "کتاب الامارۃ",
+    hindiName: "इमारत की किताब",
+    hadithCount: 111,
+  ),
+  const MuslimBookInfo(
+    id: 34,
+    name: "The Book of Hunting, Slaughter and Eating",
+    arabicName: "كتاب الصيد والذبائح وما يؤكل من الحيوان",
+    urduName: "کتاب الصید والذبائح وما یؤکل من الحیوان",
+    hindiName: "शिकार, ज़बीहा और खाने की किताब",
+    hadithCount: 31,
+  ),
+  const MuslimBookInfo(
+    id: 35,
+    name: "The Book of Sacrifices",
+    arabicName: "كتاب الأضاحى",
+    urduName: "کتاب الاضاحی",
+    hindiName: "क़ुर्बानी की किताब",
+    hadithCount: 19,
+  ),
+  const MuslimBookInfo(
+    id: 36,
+    name: "The Book of Drinks",
+    arabicName: "كتاب الأشربة",
+    urduName: "کتاب الاشربہ",
+    hindiName: "पीने की चीज़ों की किताब",
+    hadithCount: 86,
+  ),
+  const MuslimBookInfo(
+    id: 37,
+    name: "The Book of Clothes and Adornment",
+    arabicName: "كتاب اللباس والزينة",
+    urduName: "کتاب اللباس والزینہ",
+    hindiName: "लिबास और ज़ीनत की किताब",
+    hadithCount: 66,
+  ),
+  const MuslimBookInfo(
+    id: 38,
+    name: "The Book of Manners and Etiquette",
+    arabicName: "كتاب الآداب",
+    urduName: "کتاب الآداب",
+    hindiName: "आदाब की किताब",
+    hadithCount: 29,
+  ),
+  const MuslimBookInfo(
+    id: 39,
+    name: "The Book of Greetings",
+    arabicName: "كتاب السلام",
+    urduName: "کتاب السلام",
+    hindiName: "सलाम की किताब",
+    hadithCount: 86,
+  ),
+  const MuslimBookInfo(
+    id: 40,
+    name: "The Book of Correct Words",
+    arabicName: "كتاب الألفاظ من الأدب وغيرها",
+    urduName: "کتاب الالفاظ من الادب وغیرہا",
+    hindiName: "सही अल्फ़ाज़ की किताब",
+    hadithCount: 9,
+  ),
+  const MuslimBookInfo(
+    id: 41,
+    name: "The Book of Poetry",
+    arabicName: "كتاب الشعر",
+    urduName: "کتاب الشعر",
+    hindiName: "शायरी की किताब",
+    hadithCount: 6,
+  ),
+  const MuslimBookInfo(
+    id: 42,
+    name: "The Book of Dreams",
+    arabicName: "كتاب الرؤيا",
+    urduName: "کتاب الرؤیا",
+    hindiName: "ख़्वाब की किताब",
+    hadithCount: 15,
+  ),
+  const MuslimBookInfo(
+    id: 43,
+    name: "The Book of Virtues",
+    arabicName: "كتاب الفضائل",
+    urduName: "کتاب الفضائل",
+    hindiName: "फ़ज़ाइल की किताब",
+    hadithCount: 105,
+  ),
+  const MuslimBookInfo(
+    id: 44,
+    name: "The Book of Companions' Merits",
+    arabicName: "كتاب فضائل الصحابة رضى الله تعالى عنهم",
+    urduName: "کتاب فضائل الصحابہ رضی اللہ تعالیٰ عنہم",
+    hindiName: "सहाबा की फ़ज़ीलतों की किताब",
+    hadithCount: 167,
+  ),
+  const MuslimBookInfo(
+    id: 45,
+    name: "The Book of Virtue and Good Manners",
+    arabicName: "كتاب البر والصلة والآداب",
+    urduName: "کتاب البر والصلۃ والآداب",
+    hindiName: "नेकी, सिला-रहमी और आदाब की किताब",
+    hadithCount: 95,
+  ),
+  const MuslimBookInfo(
+    id: 46,
+    name: "The Book of Destiny",
+    arabicName: "كتاب القدر",
+    urduName: "کتاب القدر",
+    hindiName: "तक़दीर की किताब",
+    hadithCount: 22,
+  ),
+  const MuslimBookInfo(
+    id: 47,
+    name: "The Book of Knowledge",
+    arabicName: "كتاب العلم",
+    urduName: "کتاب العلم",
+    hindiName: "इल्म की किताब",
+    hadithCount: 10,
+  ),
+  const MuslimBookInfo(
+    id: 48,
+    name: "The Book of Remembrance and Supplication",
+    arabicName: "كتاب الذكر والدعاء والتوبة والاستغفار",
+    urduName: "کتاب الذکر والدعاء والتوبۃ والاستغفار",
+    hindiName: "ज़िक्र, दुआ, तौबा और इस्तिग़्फ़ार की किताब",
+    hadithCount: 61,
+  ),
+  const MuslimBookInfo(
+    id: 49,
+    name: "The Book of Heart-Melting Traditions",
+    arabicName: "كتاب الرقاق",
+    urduName: "کتاب الرقاق",
+    hindiName: "दिल को नर्म करने वाली किताब",
+    hadithCount: 8,
+  ),
+  const MuslimBookInfo(
+    id: 50,
+    name: "The Book of Repentance",
+    arabicName: "كتاب التوبة",
+    urduName: "کتاب التوبہ",
+    hindiName: "तौबा की किताब",
+    hadithCount: 28,
+  ),
+  const MuslimBookInfo(
+    id: 51,
+    name: "Characteristics of Hypocrites",
+    arabicName: "كتاب صفات المنافقين وأحكامهم",
+    urduName: "کتاب صفات المنافقین واحکامہم",
+    hindiName: "मुनाफ़िक़ों की सिफ़ात की किताब",
+    hadithCount: 13,
+  ),
+  const MuslimBookInfo(
+    id: 52,
+    name: "The Day of Judgment, Paradise and Hell",
+    arabicName: "كتاب صفة القيامة والجنة والنار",
+    urduName: "کتاب صفۃ القیامۃ والجنۃ والنار",
+    hindiName: "क़यामत, जन्नत और जहन्नम की किताब",
+    hadithCount: 37,
+  ),
+  const MuslimBookInfo(
+    id: 53,
+    name: "Paradise and Its Bounties",
+    arabicName: "كتاب الجنة وصفة نعيمها وأهلها",
+    urduName: "کتاب الجنۃ وصفۃ نعیمہا واہلہا",
+    hindiName: "जन्नत और उसकी नेमतों की किताब",
+    hadithCount: 58,
+  ),
+  const MuslimBookInfo(
+    id: 54,
+    name: "Tribulations and Signs of Hour",
+    arabicName: "كتاب الفتن وأشراط الساعة",
+    urduName: "کتاب الفتن واشراط الساعۃ",
+    hindiName: "फ़ितने और क़यामत की निशानियों की किताब",
+    hadithCount: 76,
+  ),
+  const MuslimBookInfo(
+    id: 55,
+    name: "The Book of Zuhd and Softening Hearts",
+    arabicName: "كتاب الزهد والرقائق",
+    urduName: "کتاب الزہد والرقائق",
+    hindiName: "ज़ुहद और दिल नर्म करने की किताब",
+    hadithCount: 59,
+  ),
+  const MuslimBookInfo(
+    id: 56,
+    name: "The Book of Tafsir",
+    arabicName: "كتاب التفسير",
+    urduName: "کتاب التفسیر",
+    hindiName: "तफ़्सीर की किताब",
+    hadithCount: 19,
+  ),
 ];

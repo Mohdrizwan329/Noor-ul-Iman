@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/countries.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/app_utils.dart';
 
 class PhoneNumberField extends StatelessWidget {
   final TextEditingController controller;

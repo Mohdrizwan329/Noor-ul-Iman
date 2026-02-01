@@ -4,12 +4,11 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/language_provider.dart';
 
-enum IslamicNameLanguage { english, urdu, hindi }
+enum IslamicNameLanguage { english, urdu, hindi, arabic }
 
 class IslamicNameDetailScreen extends StatefulWidget {
   final String arabicName;
@@ -79,6 +78,7 @@ class _IslamicNameDetailScreenState extends State<IslamicNameDetailScreen> {
   IslamicNameLanguage _getLanguageFromCode(String langCode) {
     switch (langCode) {
       case 'ar':
+        return IslamicNameLanguage.arabic;
       case 'en':
         return IslamicNameLanguage.english;
       case 'ur':
@@ -92,6 +92,11 @@ class _IslamicNameDetailScreenState extends State<IslamicNameDetailScreen> {
 
   String _getCurrentMeaning(IslamicNameLanguage selectedLanguage) {
     switch (selectedLanguage) {
+      case IslamicNameLanguage.arabic:
+        // Arabic uses Urdu translation (both use Arabic script)
+        return widget.meaningUrdu.isNotEmpty
+            ? widget.meaningUrdu
+            : widget.meaning;
       case IslamicNameLanguage.urdu:
         return widget.meaningUrdu.isNotEmpty
             ? widget.meaningUrdu
@@ -100,13 +105,18 @@ class _IslamicNameDetailScreenState extends State<IslamicNameDetailScreen> {
         return widget.meaningHindi.isNotEmpty
             ? widget.meaningHindi
             : widget.meaning;
-      default:
+      case IslamicNameLanguage.english:
         return widget.meaning;
     }
   }
 
   String _getCurrentDescription(IslamicNameLanguage selectedLanguage) {
     switch (selectedLanguage) {
+      case IslamicNameLanguage.arabic:
+        // Arabic uses Urdu translation (both use Arabic script)
+        return widget.descriptionUrdu.isNotEmpty
+            ? widget.descriptionUrdu
+            : widget.description;
       case IslamicNameLanguage.urdu:
         return widget.descriptionUrdu.isNotEmpty
             ? widget.descriptionUrdu
@@ -115,7 +125,7 @@ class _IslamicNameDetailScreenState extends State<IslamicNameDetailScreen> {
         return widget.descriptionHindi.isNotEmpty
             ? widget.descriptionHindi
             : widget.description;
-      default:
+      case IslamicNameLanguage.english:
         return widget.description;
     }
   }
@@ -183,6 +193,10 @@ class _IslamicNameDetailScreenState extends State<IslamicNameDetailScreen> {
           textToSpeak = '$currentMeaning. $currentDescription';
           ttsLangCode = 'en-US';
           break;
+        case IslamicNameLanguage.arabic:
+          textToSpeak = '$currentMeaning. $currentDescription';
+          ttsLangCode = await _isLanguageAvailable('ar-SA') ? 'ar-SA' : 'en-US';
+          break;
         case IslamicNameLanguage.urdu:
           textToSpeak = '$currentMeaning. $currentDescription';
           ttsLangCode = await _isLanguageAvailable('ur-PK') ? 'ur-PK' : 'en-US';
@@ -199,16 +213,6 @@ class _IslamicNameDetailScreenState extends State<IslamicNameDetailScreen> {
 
     if (textToSpeak.isEmpty) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.tr('no_text_for_audio')),
-            backgroundColor: AppColors.primary,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
       }
       return;
     }
@@ -260,14 +264,6 @@ $currentDescription
 - ${context.tr('from_app')}
 ''';
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.tr('copied')),
-        backgroundColor: AppColors.primary,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
   }
 
   void shareDetails() {
@@ -405,6 +401,9 @@ $currentDescription
         switch (selectedLanguage) {
           case IslamicNameLanguage.english:
             return parts[0].trim();
+          case IslamicNameLanguage.arabic:
+            // Arabic uses Urdu translation (both use Arabic script)
+            return parts[1].trim();
           case IslamicNameLanguage.urdu:
             return parts[1].trim();
           case IslamicNameLanguage.hindi:
@@ -1534,6 +1533,9 @@ $currentDescription
     };
 
     switch (selectedLanguage) {
+      case IslamicNameLanguage.arabic:
+        // Arabic uses Urdu translation (both use Arabic script)
+        return urduTranslations[value] ?? value;
       case IslamicNameLanguage.urdu:
         return urduTranslations[value] ?? value;
       case IslamicNameLanguage.hindi:
@@ -1545,6 +1547,9 @@ $currentDescription
 
   String _getDisplayName(IslamicNameLanguage selectedLanguage) {
     switch (selectedLanguage) {
+      case IslamicNameLanguage.arabic:
+        // Arabic shows Arabic name directly
+        return widget.arabicName;
       case IslamicNameLanguage.urdu:
         return _transliterateToUrdu(widget.transliteration);
       case IslamicNameLanguage.hindi:
@@ -1568,7 +1573,7 @@ $currentDescription
     const lightGreenBorder = Color(0xFF8AAF9A);
     const lightGreenChip = Color(0xFFE8F3ED);
     const softGold = Color(0xFFC9A24D);
-    final isRtl = selectedLanguage == IslamicNameLanguage.urdu;
+    final isRtl = selectedLanguage == IslamicNameLanguage.urdu || selectedLanguage == IslamicNameLanguage.arabic;
 
     // Helper function to get category translation key
     String getCategoryKey(String category) {
@@ -1592,7 +1597,13 @@ $currentDescription
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
-      appBar: AppBar(title: Text(context.tr(getCategoryKey(widget.category)))),
+      appBar: AppBar(
+        title: Text(
+          context.tr(getCategoryKey(widget.category)),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
       body: SingleChildScrollView(
         padding: responsive.paddingMedium,
         child: Container(
@@ -1610,7 +1621,7 @@ $currentDescription
                 : [
                     BoxShadow(
                       color: darkGreen.withValues(alpha: 0.08),
-                      blurRadius: responsive.spacing(10),
+                      blurRadius: 10.0,
                       offset: const Offset(0, 2),
                     ),
                   ],
@@ -1637,8 +1648,8 @@ $currentDescription
                     Row(
                       children: [
                         Container(
-                          width: 40,
-                          height: 40,
+                          width: responsive.spacing(40),
+                          height: responsive.spacing(40),
                           decoration: BoxDecoration(
                             color: _isSpeaking ? emeraldGreen : darkGreen,
                             shape: BoxShape.circle,
@@ -1661,7 +1672,7 @@ $currentDescription
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        responsive.hSpaceSmall,
                         Expanded(
                           child: Text(
                             displayName,
@@ -1674,7 +1685,7 @@ $currentDescription
                               fontFamily:
                                   selectedLanguage ==
                                       IslamicNameLanguage.urdu
-                                  ? 'NotoNastaliq'
+                                  ? 'Poppins'
                                   : null,
                             ),
                             textDirection:
@@ -1728,15 +1739,7 @@ $currentDescription
                   ],
                 ),
               ),
-              GestureDetector(
-                onTap: () {
-                  if (_isSpeaking && _isPlayingArabic) {
-                    _stopPlaying();
-                  } else {
-                    playAudio(true);
-                  }
-                },
-                child: Container(
+              Container(
                   margin: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 8,
@@ -1768,7 +1771,7 @@ $currentDescription
                             Text(
                               widget.arabicName,
                               style: TextStyle(
-                                fontFamily: 'Amiri',
+                                fontFamily: 'Poppins',
                                 fontSize: 56,
                                 height: 1.5,
                                 color: (_isSpeaking && _isPlayingArabic)
@@ -1787,10 +1790,7 @@ $currentDescription
                                 color: isDark
                                     ? AppColors.darkTextPrimary
                                     : darkGreen,
-                                fontFamily:
-                                    selectedLanguage == IslamicNameLanguage.urdu
-                                    ? 'NotoNastaliq'
-                                    : null,
+                                fontFamily: 'Poppins',
                               ),
                               textAlign: TextAlign.center,
                               textDirection:
@@ -1803,7 +1803,6 @@ $currentDescription
                       ),
                     ],
                   ),
-                ),
               ),
               Center(
                 child: Container(
@@ -1827,9 +1826,7 @@ $currentDescription
                       fontSize: responsive.textRegular,
                       fontWeight: FontWeight.w600,
                       color: isDark ? AppColors.secondary : softGold,
-                      fontFamily: selectedLanguage == IslamicNameLanguage.urdu
-                          ? 'NotoNastaliq'
-                          : null,
+                      fontFamily: 'Poppins',
                     ),
                     textAlign: TextAlign.center,
                     textDirection: isRtl
@@ -1839,15 +1836,7 @@ $currentDescription
                 ),
               ),
               if (_showTranslation)
-                GestureDetector(
-                  onTap: () {
-                    if (_isSpeaking && !_isPlayingArabic) {
-                      _stopPlaying();
-                    } else {
-                      playAudio(false);
-                    }
-                  },
-                  child: Container(
+                Container(
                     margin: const EdgeInsets.all(12),
                     padding: responsive.paddingRegular,
                     decoration: BoxDecoration(
@@ -1900,7 +1889,7 @@ $currentDescription
                                       fontFamily:
                                           selectedLanguage ==
                                               IslamicNameLanguage.urdu
-                                          ? 'NotoNastaliq'
+                                          ? 'Poppins'
                                           : null,
                                     ),
                                   ),
@@ -1920,7 +1909,7 @@ $currentDescription
                                   fontFamily:
                                       selectedLanguage ==
                                           IslamicNameLanguage.urdu
-                                      ? 'NotoNastaliq'
+                                      ? 'Poppins'
                                       : null,
                                 ),
                                 textDirection: isRtl
@@ -1936,7 +1925,6 @@ $currentDescription
                       ],
                     ),
                   ),
-                ),
               if (!_showTranslation)
                 Container(
                   margin: const EdgeInsets.all(12),
@@ -1974,7 +1962,7 @@ $currentDescription
                               size: 20,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          responsive.hSpaceSmall,
                           Text(
                             context.tr('about'),
                             style: TextStyle(
@@ -1983,10 +1971,7 @@ $currentDescription
                               color: isDark
                                   ? AppColors.darkTextPrimary
                                   : darkGreen,
-                              fontFamily:
-                                  selectedLanguage == IslamicNameLanguage.urdu
-                                  ? 'NotoNastaliq'
-                                  : null,
+                              fontFamily: 'Poppins',
                             ),
                           ),
                         ],
@@ -2000,10 +1985,7 @@ $currentDescription
                           color: isDark
                               ? AppColors.darkTextSecondary
                               : AppColors.textSecondary,
-                          fontFamily:
-                              selectedLanguage == IslamicNameLanguage.urdu
-                              ? 'NotoNastaliq'
-                              : null,
+                          fontFamily: 'Poppins',
                         ),
                         textDirection: isRtl
                             ? TextDirection.rtl
@@ -2045,7 +2027,7 @@ $currentDescription
                               size: 20,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          responsive.hSpaceSmall,
                           Text(
                             context.tr('biographical_details'),
                             style: TextStyle(
@@ -2054,10 +2036,7 @@ $currentDescription
                               color: isDark
                                   ? AppColors.darkTextPrimary
                                   : darkGreen,
-                              fontFamily:
-                                  selectedLanguage == IslamicNameLanguage.urdu
-                                  ? 'NotoNastaliq'
-                                  : null,
+                              fontFamily: 'Poppins',
                             ),
                           ),
                         ],
@@ -2101,8 +2080,8 @@ $currentDescription
         borderRadius: BorderRadius.circular(responsive.radiusSmall),
         child: Container(
           padding: EdgeInsets.symmetric(
-            horizontal: responsive.spacing(10),
-            vertical: responsive.spacing(6),
+            horizontal: 10.0,
+            vertical: 6.0,
           ),
           decoration: BoxDecoration(
             color: isActive
@@ -2323,7 +2302,7 @@ $currentDescription
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: EdgeInsets.all(responsive.spacing(8)),
+            padding: EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: isDark
                   ? emeraldGreen.withValues(alpha: 0.2)
@@ -2336,7 +2315,7 @@ $currentDescription
               color: isDark ? emeraldGreen : darkGreen,
             ),
           ),
-          SizedBox(width: responsive.spacing(12)),
+          responsive.hSpaceSmall,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2358,9 +2337,7 @@ $currentDescription
                     fontSize: responsive.textMedium,
                     fontWeight: FontWeight.w500,
                     color: isDark ? AppColors.darkTextPrimary : darkGreen,
-                    fontFamily: selectedLanguage == IslamicNameLanguage.urdu
-                        ? 'NotoNastaliq'
-                        : null,
+                    fontFamily: 'Poppins',
                   ),
                   textDirection: selectedLanguage == IslamicNameLanguage.urdu
                       ? TextDirection.rtl

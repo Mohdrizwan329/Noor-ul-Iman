@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,8 +13,6 @@ class GunhaFazilatScreen extends StatefulWidget {
 }
 
 class _GunhaFazilatScreenState extends State<GunhaFazilatScreen> {
-  String _selectedLanguage = 'english';
-
   final List<Map<String, dynamic>> _gunhaTopics = [
     {
       'number': 1,
@@ -1187,6 +1184,1101 @@ The Way Out:
 • المداومة على الطاعات'''
       },
     },
+    {
+      'number': 7,
+      'titleKey': 'gunha_fazilat_7_70_major_sins',
+      'title': '70 Major Sins List',
+      'titleUrdu': '70 کبیرہ گناہوں کی فہرست',
+      'titleHindi': '70 कबीरा गुनाहों की सूची',
+      'titleArabic': 'قائمة السبعين كبيرة',
+      'icon': Icons.format_list_numbered,
+      'color': Colors.indigo,
+      'details': {
+        'english': '''70 Major Sins (Al-Kaba'ir) - Complete List
+
+Imam Dhahabi compiled this comprehensive list in his famous book "Kitab al-Kaba'ir".
+
+The 70 Major Sins:
+
+1. Shirk - Associating partners with Allah (the greatest sin)
+2. Murder - Killing an innocent soul
+3. Sorcery/Magic - Black magic and witchcraft
+4. Abandoning Prayer - Not performing obligatory prayers
+5. Withholding Zakat - Refusing to give obligatory charity
+6. Breaking Ramadan Fast - Without valid excuse
+7. Not performing Hajj - Despite having ability
+8. Disobeying Parents - Being disrespectful to them
+9. Cutting Family Ties - Breaking relations with relatives
+10. Adultery/Fornication (Zina)
+
+11. Sodomy - Homosexual acts
+12. Usury/Interest (Riba) - Consuming or paying interest
+13. Consuming Orphan's Wealth - Taking their property unjustly
+14. Lying about Allah or Prophet ﷺ
+15. Fleeing from Battlefield - Deserting in jihad
+16. Corrupt Leadership - Leaders betraying their trust
+17. Arrogance/Pride - Looking down on others
+18. False Testimony - Lying in court
+19. Drinking Alcohol - All intoxicants
+20. Gambling
+
+21. Slandering Chaste Women - False accusations
+22. Embezzlement - Stealing from public funds
+23. Theft - Stealing property
+24. Highway Robbery
+25. Perjury - False oath that harms others
+26. Chronic Lying - Frequent dishonesty
+27. Suicide - Taking one's own life
+28. Unjust Judgment - Corrupt judiciary
+29. Accepting Spouse's Infidelity (Dayyuth)
+30. Men Imitating Women (and vice versa)
+
+31. Marrying to make wife halal for ex-husband (Tahleel)
+32. Consuming Haram Food - Carrion, blood, pork
+33. Not purifying from urine
+34. Showing off in worship (Riya)
+35. Betraying a trust
+36. Learning religion for worldly gain
+37. Reminding others of favors done
+38. Denying Divine Decree (Qadar)
+39. Spying on others
+40. Cursing frequently
+
+41. Betraying the leader
+42. Believing fortunetellers/astrologers
+43. Wife's disobedience to husband (Nushuz)
+44. Making pictures of living beings
+45. Loud wailing at funerals
+46. Tale-bearing/spreading rumors
+47. Attacking someone's lineage
+48. Oppression and transgression
+49. Armed rebellion against Muslim rulers
+50. Harming and insulting Muslims
+
+51. Harming the pious servants of Allah
+52. Trailing garment out of pride
+53. Men wearing silk and gold
+54. Slave running away from master
+55. Sacrificing to other than Allah
+56. Changing land boundary markers
+57. Cursing the Sahabah (Companions)
+58. Cursing the Ansar (Helpers of Madinah)
+59. Calling people to misguidance
+60. Women wearing hair extensions, tattoos
+
+61. Pointing weapons at a Muslim
+62. Claiming false paternity
+63. Believing in bad omens
+64. Drinking from gold/silver vessels
+65. Excessive arguing and disputing
+66. Mutilating slaves
+67. Cheating in measurements/weights
+68. Feeling safe from Allah's punishment
+69. Despairing of Allah's mercy
+70. Being ungrateful to benefactors
+
+Reference: Imam Dhahabi's "Kitab al-Kaba'ir"''',
+        'urdu': '''70 کبیرہ گناہوں کی فہرست
+
+امام ذہبی نے اپنی مشہور کتاب "کتاب الکبائر" میں یہ فہرست مرتب کی۔
+
+70 کبیرہ گناہ:
+
+1. شرک - اللہ کے ساتھ شریک ٹھہرانا (سب سے بڑا گناہ)
+2. قتل - بے گناہ کو مارنا
+3. جادو - کالا جادو اور ٹونا
+4. نماز چھوڑنا - فرض نماز ادا نہ کرنا
+5. زکوٰۃ نہ دینا
+6. رمضان کا روزہ توڑنا - بغیر عذر کے
+7. حج نہ کرنا - طاقت کے باوجود
+8. والدین کی نافرمانی
+9. رشتے توڑنا
+10. زنا
+
+11. لواطت
+12. سود کھانا یا دینا
+13. یتیم کا مال کھانا
+14. اللہ یا نبی ﷺ کے بارے میں جھوٹ
+15. میدان جنگ سے بھاگنا
+16. بدعنوان قیادت
+17. تکبر اور غرور
+18. جھوٹی گواہی
+19. شراب پینا
+20. جوا کھیلنا
+
+21. پاکدامن عورتوں پر تہمت
+22. بیت المال میں خیانت
+23. چوری کرنا
+24. ڈکیتی
+25. جھوٹی قسم جو دوسروں کو نقصان پہنچائے
+26. بہت جھوٹ بولنا
+27. خودکشی
+28. ناانصافی سے فیصلہ کرنا
+29. بیوی کی بے حیائی برداشت کرنا
+30. مردوں کا عورتوں کی نقل کرنا
+
+31. حلالہ
+32. حرام کھانا - مردار، خون، سور
+33. پیشاب سے پاکی نہ کرنا
+34. دکھاوے کی عبادت
+35. امانت میں خیانت
+36. دنیا کے لیے دین سیکھنا
+37. احسان جتانا
+38. تقدیر کا انکار
+39. جاسوسی کرنا
+40. بہت لعنت کرنا
+
+41. حکمران کی دغابازی
+42. نجومیوں پر یقین
+43. بیوی کی نافرمانی
+44. جاندار کی تصویر بنانا
+45. جنازے پر نوحہ کرنا
+46. چغلی کھانا
+47. نسب پر حملہ
+48. ظلم و زیادتی
+49. مسلمان حکمرانوں کے خلاف بغاوت
+50. مسلمانوں کو تکلیف دینا
+
+51. اللہ کے نیک بندوں کو نقصان
+52. غرور سے کپڑے گھسیٹنا
+53. مردوں کا ریشم اور سونا پہننا
+54. غلام کا بھاگنا
+55. غیر اللہ کے نام پر ذبح
+56. زمین کی حدیں بدلنا
+57. صحابہ کو گالی دینا
+58. انصار کو گالی دینا
+59. گمراہی کی طرف بلانا
+60. عورتوں کا مصنوعی بال لگانا
+
+61. مسلمان پر ہتھیار اٹھانا
+62. جھوٹا نسب دعویٰ
+63. بد شگونی پر یقین
+64. سونے چاندی کے برتن سے پینا
+65. بہت جھگڑا کرنا
+66. غلاموں کو اذیت دینا
+67. ناپ تول میں کمی
+68. اللہ کے عذاب سے بے خوف
+69. اللہ کی رحمت سے مایوس
+70. احسان فراموشی
+
+حوالہ: امام ذہبی کی "کتاب الکبائر"''',
+        'hindi': '''70 कबीरा गुनाहों की सूची
+
+इमाम ज़हबी ने अपनी मशहूर किताब "किताब अल-कबाइर" में यह सूची मुरत्तब की।
+
+70 कबीरा गुनाह:
+
+1. शिर्क - अल्लाह के साथ शरीक ठहराना (सबसे बड़ा गुनाह)
+2. क़त्ल - बेगुनाह को मारना
+3. जादू - काला जादू और टोना
+4. नमाज़ छोड़ना - फ़र्ज़ नमाज़ अदा न करना
+5. ज़कात न देना
+6. रमज़ान का रोज़ा तोड़ना - बग़ैर उज़्र के
+7. हज न करना - ताक़त के बावजूद
+8. वालिदैन की नाफ़रमानी
+9. रिश्ते तोड़ना
+10. ज़िना
+
+11. लवातत
+12. सूद खाना या देना
+13. यतीम का माल खाना
+14. अल्लाह या नबी ﷺ के बारे म��ं झूठ
+15. मैदान-ए-जंग से भागना
+16. बदअनवान क़यादत
+17. तकब्बुर और ग़ुरूर
+18. झूठी गवाही
+19. शराब पीना
+20. जुआ खेलना
+
+21. पाकदामन औरतों पर तोहमत
+22. बैतुल माल में ख़यानत
+23. चोरी करना
+24. डकैती
+25. झूठी क़सम जो दूसरों को नुक़सान पहुंचाए
+26. बहुत झूठ बोलना
+27. ख़ुदकुशी
+28. नाइंसाफ़ी से फ़ैसला करना
+29. बीवी की बेहयाई बर्दाश्त करना
+30. मर्दों का औरतों की नक़ल करना
+
+31. हलाला
+32. हराम खाना - मुर्दार, ख़ून, सूअर
+33. पेशाब से पाकी न करना
+34. दिखावे की इबादत
+35. अमानत में ख़यानत
+36. दुनिया के लिए दीन सीखना
+37. एहसान जताना
+38. तक़दीर का इंकार
+39. जासूसी करना
+40. बहुत लानत करना
+
+41. हुक्मरान की दग़ाबाज़ी
+42. नजूमियों पर यक़ीन
+43. बीवी की नाफ़रमानी
+44. जानदार की तस्वीर बनाना
+45. जनाज़े पर नौहा करना
+46. चुग़ली खाना
+47. नसब पर हमला
+48. ज़ुल्म व ज़यादती
+49. मुसलमान हुक्मरानों के ख़िलाफ़ बग़ावत
+50. मुसलमानों को तकलीफ़ देना
+
+51. अल्लाह के नेक बंदों को नुक़सान
+52. ग़ुरूर से कपड़े घसीटना
+53. मर्दों का रेशम और सोना पहनना
+54. ग़ुलाम का भागना
+55. ग़ैर अल्लाह के नाम पर ज़बह
+56. ज़मीन की हदें बदलना
+57. सहाबा को गाली देना
+58. अंसार को गाली देना
+59. गुमराही की तरफ़ बुलाना
+60. औरतों का मस्नूई बाल लगाना
+
+61. मुसलमान पर हथियार उठाना
+62. झूठा नसब दावा
+63. बद शुगूनी पर यक़ीन
+64. सोने चांदी के बर्तन से पीना
+65. बहुत झगड़ा करना
+66. ग़ुलामों को अज़ीयत देना
+67. नाप तौल में कमी
+68. अल्लाह के अज़ाब से बेख़ौफ़
+69. अल्लाह की रहमत से मायूस
+70. एहसान फ़रामोशी
+
+हवाला: इमाम ज़हबी की "किताब अल-कबाइर"''',
+        'arabic': '''قائمة السبعين كبيرة
+
+جمع الإمام الذهبي هذه القائمة في كتابه الشهير "الكبائر".
+
+السبعون كبيرة:
+
+١. الشرك بالله (أعظم الذنوب)
+٢. قتل النفس التي حرم الله
+٣. السحر
+٤. ترك الصلاة المفروضة
+٥. منع الزكاة
+٦. إفطار رمضان بلا عذر
+٧. ترك الحج مع الاستطاعة
+٨. عقوق الوالدين
+٩. قطيعة الرحم
+١٠. الزنا
+
+١١. اللواط
+١٢. أكل الربا
+١٣. أكل مال اليتيم
+١٤. الكذب على الله ورسوله ﷺ
+١٥. الفرار من الزحف
+١٦. خيانة الإمام للرعية
+١٧. الكبر والفخر
+١٨. شهادة الزور
+١٩. شرب الخمر
+٢٠. القمار
+
+٢١. قذف المحصنات
+٢٢. الغلول من الغنيمة
+٢٣. السرقة
+٢٤. قطع الطريق
+٢٥. اليمين الغموس
+٢٦. كثرة الكذب
+٢٧. قتل النفس (الانتحار)
+٢٨. القاضي الجائر
+٢٩. الديوث
+٣٠. تشبه الرجال بالنساء والعكس
+
+٣١. المحلل والمحلل له
+٣٢. أكل الميتة والدم ولحم الخنزير
+٣٣. عدم التنزه من البول
+٣٤. الرياء
+٣٥. الغدر والخيانة
+٣٦. التعلم للدنيا
+٣٧. المن بالعطاء
+٣٨. التكذيب بالقدر
+٣٩. التجسس
+٤٠. اللعان
+
+٤١. الغدر بالإمام
+٤٢. تصديق العراف والمنجم
+٤٣. نشوز المرأة على زوجها
+٤٤. التصوير
+٤٥. النياحة على الميت
+٤٦. النميمة
+٤٧. الطعن في الأنساب
+٤٨. البغي والظلم
+٤٩. الخروج على ولي الأمر
+٥٠. إيذاء المسلمين
+
+٥١. إيذاء أولياء الله
+٥٢. إسبال الإزار خيلاء
+٥٣. لبس الحرير والذهب للرجال
+٥٤. إباق العبد
+٥٥. الذبح لغير الله
+٥٦. تغيير منار الأرض
+٥٧. سب الصحابة
+٥٨. سب الأنصار
+٥٩. الدعوة إلى الضلالة
+٦٠. الوصل والوشم
+
+٦١. الإشارة بالسلاح إلى مسلم
+٦٢. انتساب لغير أبيه
+٦٣. الطيرة
+٦٤. الشرب في آنية الذهب والفضة
+٦٥. كثرة المراء والجدل
+٦٦. الخصاء
+٦٧. التطفيف في الكيل والميزان
+٦٨. الأمن من مكر الله
+٦٩. القنوط من رحمة الله
+٧٠. كفران النعم
+
+المرجع: كتاب الإمام الذهبي "الكبائر"'''
+      },
+    },
+    {
+      'number': 8,
+      'titleKey': 'gunha_fazilat_8_sins_of_the_heart',
+      'title': 'Sins of the Heart',
+      'titleUrdu': 'دل کے گناہ',
+      'titleHindi': 'दिल के गुनाह',
+      'titleArabic': 'ذنوب القلب',
+      'icon': Icons.favorite_border,
+      'color': Colors.pink,
+      'details': {
+        'english': '''Sins of the Heart
+
+The heart is the king of all organs. If it is corrupt, the whole body becomes corrupt.
+
+The Prophet ﷺ said: "In the body there is a piece of flesh. If it is sound, the whole body is sound. If it is corrupt, the whole body is corrupt. Indeed it is the heart." (Bukhari & Muslim)
+
+Major Sins of the Heart:
+
+1. Shirk (Associating Partners with Allah):
+   • The greatest sin
+   • Hidden shirk includes showing off in worship
+   • "Indeed, Allah does not forgive association with Him" (Quran 4:48)
+
+2. Kibr (Arrogance/Pride):
+   • Looking down on others
+   • Refusing to accept the truth
+   • The Prophet ﷺ said: "No one who has an atom's weight of arrogance will enter Paradise" (Muslim)
+
+3. Hasad (Envy):
+   • Wishing evil for others
+   • Being unhappy at others' blessings
+   • "Envy consumes good deeds as fire consumes wood" (Abu Dawud)
+
+4. Riya (Showing Off):
+   • Worshipping to be seen by people
+   • Hidden polytheism
+   • Nullifies rewards of good deeds
+
+5. Ujb (Self-Amazement):
+   • Being impressed with oneself
+   • Attributing success to oneself, not Allah
+   • Leads to arrogance
+
+6. Sum'ah (Seeking Fame):
+   • Doing good deeds to be heard about
+   • Similar to Riya but through speech
+   • "Whoever seeks fame, Allah will expose him" (Bukhari)
+
+7. Ghurur (Self-Deception):
+   • False security about Allah's punishment
+   • Taking forgiveness for granted
+   • Delaying repentance
+
+8. Bad Opinion of Allah:
+   • Thinking Allah won't forgive
+   • Despairing of His mercy
+   • Or feeling safe from His punishment
+
+9. Love of Dunya (Worldly Attachments):
+   • When love of world exceeds love of Akhirah
+   • "Love of dunya is the head of all sins" (Bayhaqi)
+
+10. Hatred for Fellow Muslims:
+    • Holding grudges
+    • Wishing harm upon them
+    • "The gates of Paradise are opened on Monday and Thursday, and every servant who does not associate anything with Allah is forgiven except for a man who has enmity with his brother" (Muslim)
+
+How to Purify the Heart:
+• Sincere repentance
+• Constant remembrance of Allah (Dhikr)
+• Self-reflection (Muhasabah)
+• Seeking knowledge
+• Good companionship
+• Reciting Quran with reflection''',
+        'urdu': '''دل کے گناہ
+
+دل تمام اعضاء کا بادشاہ ہے۔ اگر یہ خراب ہو تو سارا جسم خراب ہو جاتا ہے۔
+
+نبی کریم ﷺ نے فرمایا: "جسم میں گوشت کا ایک ٹکڑا ہے۔ اگر وہ درست ہو تو سارا جسم درست ہے۔ اگر وہ خراب ہو تو سارا جسم خراب ہے۔ سنو! وہ دل ہے۔" (بخاری و مسلم)
+
+دل کے بڑے گناہ:
+
+1. شرک:
+   • سب سے بڑا گناہ
+   • چھپا ہوا شرک میں دکھاوے کی عبادت شامل ہے
+   • "بے شک اللہ شرک کو معاف نہیں کرتا" (قرآن 4:48)
+
+2. کبر (تکبر/غرور):
+   • دوسروں کو حقیر سمجھنا
+   • حق ماننے سے انکار
+   • نبی ﷺ نے فرمایا: "جس کے دل میں ذرہ بھر تکبر ہے وہ جنت میں نہیں جائے گا" (مسلم)
+
+3. حسد:
+   • دوسروں کا برا چاہنا
+   • دوسروں کی نعمت پر دکھی ہونا
+   • "حسد نیکیوں کو ایسے کھا جاتا ہے جیسے آگ لکڑی کو" (ابو داؤد)
+
+4. ریا (دکھاوا):
+   • لوگوں کو دکھانے کے لیے عبادت کرنا
+   • چھپا ہوا شرک
+   • نیک اعمال کا ثواب ختم کر دیتا ہے
+
+5. عجب (خود پسندی):
+   • اپنے آپ سے متاثر ہونا
+   • کامیابی خود کو منسوب کرنا، اللہ کو نہیں
+   • تکبر کی طرف لے جاتا ہے
+
+6. سمعہ (شہرت کی چاہت):
+   • نیک اعمال کرنا تاکہ لوگ سنیں
+   • ریا کی طرح لیکن بات کے ذریعے
+   • "جو شہرت چاہے، اللہ اسے رسوا کر دے گا" (بخاری)
+
+7. غرور (خود فریبی):
+   • اللہ کے عذاب سے جھوٹا اطمینان
+   • معافی کو یقینی سمجھنا
+   • توبہ میں تاخیر
+
+8. اللہ کے بارے میں بدگمانی:
+   • سوچنا کہ اللہ معاف نہیں کرے گا
+   • اس کی رحمت سے مایوسی
+   • یا اس کے عذاب سے بے خوف ہونا
+
+9. دنیا کی محبت:
+   • جب دنیا کی محبت آخرت سے زیادہ ہو
+   • "دنیا کی محبت تمام گناہوں کی جڑ ہے" (بیہقی)
+
+10. مسلمانوں سے نفرت:
+    • دل میں کینہ رکھنا
+    • ان کا برا چاہنا
+    • "جنت کے دروازے پیر اور جمعرات کو کھولے جاتے ہیں۔۔۔" (مسلم)
+
+دل کی پاکیزگی کیسے کریں:
+• مخلصانہ توبہ
+• مسلسل ذکر اللہ
+• خود احتسابی
+• علم حاصل کرنا
+• اچھی صحبت
+• تدبر سے قرآن پڑھنا''',
+        'hindi': '''दिल के गुनाह
+
+दिल तमाम आज़ा का बादशाह है। अगर यह ख़राब हो तो सारा जिस्म ख़राब हो जाता है।
+
+नबी करीम ﷺ ने फ़रमाया: "जिस्म में गोश्त का एक टुकड़ा है। अगर वो दुरुस्त हो तो सारा जिस्म दुरुस्त है। अगर वो ख़राब हो तो सारा जिस्म ख़राब है। सुनो! वो दिल है।" (बुख़ारी व मुस्लिम)
+
+दिल के बड़े गुनाह:
+
+1. शिर्क:
+   • सबसे बड़ा गुनाह
+   • छुपा हुआ शिर्क में दिखावे की इबादत शामिल है
+   • "बेशक अल्लाह शिर्क को माफ़ नहीं करता" (क़ुरआन 4:48)
+
+2. किब्र (तकब्बुर/ग़ुरूर):
+   • दूसरों को हक़ीर समझना
+   • हक़ मानने से इंकार
+   • नबी ﷺ ने फ़रमाया: "जिसके दिल में ज़र्रा भर तकब्बुर है वो जन्नत में नहीं जाएगा" (मुस्लिम)
+
+3. हसद:
+   • दूसरों का बुरा चाहना
+   • दूसरों की नेमत पर दुखी होना
+   • "हसद नेकियों को ऐसे खा जाता है जैसे आग लकड़ी को" (अबू दाऊद)
+
+4. रिया (दिखावा):
+   • लोगों को दिखाने के लिए इबादत करना
+   • छुपा हुआ शिर्क
+   • नेक आमाल का सवाब ख़त्म कर देता है
+
+5. उज्ब (ख़ुदपसंदी):
+   • अपने आप से मुतास्सिर होना
+   • कामयाबी ख़ुद को मंसूब करना, अल्लाह को नहीं
+   • तकब्बुर की तरफ़ ले जाता है
+
+6. सुमअह (शोहरत की चाहत):
+   • नेक आमाल करना ताकि लोग सुनें
+   • रिया की तरह लेकिन बात के ज़रिए
+   • "जो शोहरत चाहे, अल्लाह उसे रुसवा कर देगा" (बुख़ारी)
+
+7. ग़ुरूर (ख़ुद फ़रेबी):
+   • अल्लाह के अज़ाब से झूठा इतमीनान
+   • माफ़ी को यक़ीनी समझना
+   • तौबा में ताख़ीर
+
+8. अल्लाह के बारे में बदगुमानी:
+   • सोचना कि अल्लाह माफ़ नहीं करेगा
+   • उसकी रहमत से मायूसी
+   • या उसके अज़ाब से बेख़ौफ़ होना
+
+9. दुनिया की मुहब्बत:
+   • जब दुनिया की मुहब्बत आख़िरत से ज़्यादा हो
+   • "दुनिया की मुहब्बत तमाम गुनाहों की जड़ है" (बैहक़ी)
+
+10. मुसलमानों से नफ़रत:
+    • दिल में कीना रखना
+    • उनका बुरा चाहना
+
+दिल की पाकीज़गी कैसे करें:
+• मुख़्लिसाना तौबा
+• मुसलसल ज़िक्र अल्लाह
+• ख़ुद एहतिसाबी
+• इल्म हासिल करना
+• अच्छी सोहबत
+• तदब्बुर से क़ुरआन पढ़ना''',
+        'arabic': '''ذنوب القلب
+
+القلب ملك الجوارح. إذا فسد فسد الجسد كله.
+
+قال النبي ﷺ: "ألا وإن في الجسد مضغة إذا صلحت صلح الجسد كله وإذا فسدت فسد الجسد كله ألا وهي القلب" (البخاري ومسلم)
+
+كبائر القلب:
+
+١. الشرك:
+   • أعظم الذنوب
+   • الشرك الخفي يشمل الرياء
+   • "إِنَّ اللَّهَ لَا يَغْفِرُ أَن يُشْرَكَ بِهِ" (النساء: ٤٨)
+
+٢. الكبر:
+   • احتقار الناس
+   • رد الحق
+   • قال النبي ﷺ: "لا يدخل الجنة من كان في قلبه مثقال ذرة من كبر" (مسلم)
+
+٣. الحسد:
+   • تمني زوال النعمة عن الغير
+   • الحزن لفرح الآخرين
+   • "الحسد يأكل الحسنات كما تأكل النار الحطب" (أبو داود)
+
+٤. الرياء:
+   • العبادة لأجل الناس
+   • الشرك الخفي
+   • يبطل ثواب الأعمال
+
+٥. العُجب:
+   • الإعجاب بالنفس
+   • نسبة الفضل للنفس لا لله
+   • يؤدي إلى الكبر
+
+٦. السمعة:
+   • العمل ليسمع الناس به
+   • كالرياء لكن بالقول
+   • "من سمّع سمّع الله به" (البخاري)
+
+٧. الغرور:
+   • الأمن من مكر الله
+   • الاتكال على المغفرة
+   • تأخير التوبة
+
+٨. سوء الظن بالله:
+   • اليأس من رحمة الله
+   • أو الأمن من عذابه
+
+٩. حب الدنيا:
+   • تقديم الدنيا على الآخرة
+   • "حب الدنيا رأس كل خطيئة" (البيهقي)
+
+١٠. بغض المسلمين:
+    • الحقد والضغينة
+    • تمني الشر لهم
+
+تزكية القلب:
+• التوبة الصادقة
+• ذكر الله الدائم
+• محاسبة النفس
+• طلب العلم
+• الصحبة الصالحة
+• تلاوة القرآن بتدبر'''
+      },
+    },
+    {
+      'number': 9,
+      'titleKey': 'gunha_fazilat_9_financial_sins',
+      'title': 'Financial Sins',
+      'titleUrdu': 'مالی گناہ',
+      'titleHindi': 'माली गुनाह',
+      'titleArabic': 'الذنوب المالية',
+      'icon': Icons.money_off,
+      'color': Colors.brown,
+      'details': {
+        'english': '''Financial Sins in Islam
+
+Islam places great emphasis on earning halal wealth and spending it properly.
+
+1. Riba (Interest/Usury):
+   The Prophet ﷺ said: "Allah has cursed the one who consumes riba, the one who pays it, the one who writes it, and the two witnesses. They are all equal in sin." (Muslim)
+
+   Types of Riba:
+   • Bank interest (giving or taking)
+   • Loan with added interest
+   • Credit card interest
+   • Late payment penalties
+
+   "Allah will destroy riba and will give increase for charity." (Quran 2:276)
+
+2. Consuming Orphan's Wealth:
+   "Indeed, those who devour the property of orphans unjustly are only consuming fire into their bellies." (Quran 4:10)
+
+   • Taking their inheritance
+   • Mismanaging their property
+   • Not returning their rights
+
+3. Theft and Robbery:
+   • Stealing others' property
+   • Shoplifting
+   • Embezzlement
+   • Wage theft (not paying workers)
+
+4. Bribery:
+   The Prophet ﷺ cursed the one who gives bribes and the one who takes them. (Tirmidhi)
+   • Bribing for contracts
+   • Bribing officials
+   • Accepting bribes
+
+5. Cheating in Business:
+   • Hiding defects in products
+   • False advertising
+   • Price manipulation
+   • Cheating in weights and measures
+   "Woe to those who give less [than due]" (Quran 83:1)
+
+6. Gambling:
+   "O you who believe! Intoxicants, gambling, stone altars, and divining arrows are abominations of Satan's doing." (Quran 5:90)
+   • All forms of gambling
+   • Lottery
+   • Betting
+   • Stock market gambling
+
+7. Consuming Haram Income:
+   • Income from haram businesses (alcohol, gambling, etc.)
+   • Income from deception
+   • Money obtained through lies
+
+8. Extortion and Oppression:
+   • Taking money by force
+   • Unjust taxation
+   • Forcing unfair contracts
+
+9. Not Paying Zakat:
+   A major sin that has severe punishment in the Hereafter.
+   "Those who hoard gold and silver and spend it not in the way of Allah - give them tidings of a painful punishment." (Quran 9:34)
+
+10. Wasting Wealth:
+    "And do not spend wastefully. Indeed, the wasteful are brothers of the devils." (Quran 17:26-27)
+
+How to Earn Halal:
+• Verify income sources are halal
+• Avoid doubtful transactions
+• Pay dues and debts on time
+• Give zakat and charity
+• Be honest in all dealings''',
+        'urdu': '''مالی گناہ
+
+اسلام حلال کمائی اور صحیح خرچ پر بہت زور دیتا ہے۔
+
+1. سود (ربا):
+   نبی ﷺ نے فرمایا: "اللہ نے سود کھانے والے، دینے والے، لکھنے والے اور گواہوں پر لعنت فرمائی۔ سب گناہ میں برابر ہیں۔" (مسلم)
+
+   سود کی اقسام:
+   • بینک سود (لینا یا دینا)
+   • سود پر قرض
+   • کریڈٹ کارڈ سود
+   • تاخیر کے جرمانے
+
+   "اللہ سود کو مٹاتا ہے اور صدقے کو بڑھاتا ہے۔" (قرآن 2:276)
+
+2. یتیم کا مال کھانا:
+   "جو لوگ یتیموں کا مال ظلم سے کھاتے ہیں وہ اپنے پیٹوں میں آگ بھرتے ہیں۔" (قرآن 4:10)
+
+3. چوری اور ڈکیتی:
+   • دوسروں کا مال چرانا
+   • دکان سے چوری
+   • بیت المال میں خیانت
+   • مزدوروں کی اجرت نہ دینا
+
+4. رشوت:
+   نبی ﷺ نے رشوت دینے والے اور لینے والے دونوں پر لعنت فرمائی۔ (ترمذی)
+
+5. کاروبار میں دھوکا:
+   • سامان کی خرابی چھپانا
+   • جھوٹا اشتہار
+   • قیمتوں میں دھوکا
+   • ناپ تول میں کمی
+   "ناپ میں کمی کرنے والوں کے لیے ہلاکت ہے" (قرآن 83:1)
+
+6. جوا:
+   "اے ایمان والو! شراب، جوا، بت اور فال کے تیر شیطانی کام ہیں۔" (قرآن 5:90)
+   • ہر قسم کا جوا
+   • لاٹری
+   • شرط لگانا
+
+7. حرام آمدنی:
+   • حرام کاروبار سے کمائی
+   • دھوکے سے کمائی
+   • جھوٹ سے حاصل کردہ رقم
+
+8. زبردستی اور ظلم:
+   • زبردستی مال لینا
+   • ناجائز ٹیکس
+   • ناجائز معاہدے
+
+9. زکوٰۃ نہ دینا:
+   بڑا گناہ جس کی آخرت میں سخت سزا ہے۔
+
+10. مال ضائع کرنا:
+    "فضول خرچی نہ کرو۔ بے شک فضول خرچ شیطان کے بھائی ہیں۔" (قرآن 17:26-27)
+
+حلال کیسے کمائیں:
+• آمدنی کے ذرائع کی تصدیق کریں
+• مشکوک لین دین سے بچیں
+• قرض اور واجبات وقت پر ادا کریں
+• زکوٰۃ اور صدقہ دیں
+• تمام معاملات میں ایمانداری''',
+        'hindi': '''माली गुनाह
+
+इस्लाम हलाल कमाई और सही ख़र्च पर बहुत ज़ोर देता है।
+
+1. सूद (रिबा):
+   नबी ﷺ ने फ़रमाया: "अल्लाह ने सूद खाने वाले, देने वाले, लिखने वाले और गवाहों पर लानत फ़रमाई। सब गुनाह में बराबर हैं।" (मुस्लिम)
+
+   सूद की क़िस्में:
+   • बैंक सूद (लेना या देना)
+   • सूद पर क़र्ज़
+   • क्रेडिट कार्ड सूद
+   • देरी के जुर्माने
+
+   "अल्लाह सूद को मिटाता है और सदक़े को बढ़ाता है।" (क़ुरआन 2:276)
+
+2. यतीम का माल खाना:
+   "जो लोग यतीमों का माल ज़ुल्म से खाते हैं वो अपने पेटों में आग भरते हैं।" (क़ुरआन 4:10)
+
+3. चोरी और डकैती:
+   • दूसरों का माल चुराना
+   • दुकान से चोरी
+   • बैतुल माल में ख़यानत
+   • मज़दूरों की उजरत न देना
+
+4. रिश्वत:
+   नबी ﷺ ने रिश्वत देने वाले और लेने वाले दोनों पर लानत फ़रमाई। (तिर्मिज़ी)
+
+5. कारोबार में धोखा:
+   • सामान की ख़राबी छुपाना
+   • झूठा इश्तेहार
+   • क़ीमतों में धोखा
+   • नाप तौल में कमी
+   "नाप में कमी करने वालों के लिए हलाकत है" (क़ुरआन 83:1)
+
+6. जुआ:
+   "ऐ ईमान वालो! शराब, जुआ, बुत और फ़ाल के तीर शैतानी काम हैं।" (क़ुरआन 5:90)
+   • हर क़िस्म का जुआ
+   • लॉटरी
+   • शर्त लगाना
+
+7. हराम आमदनी:
+   • हराम कारोबार से कमाई
+   • धोखे से कमाई
+   • झूठ से हासिल करदा रक़म
+
+8. ज़बरदस्ती और ज़ुल्म:
+   • ज़बरदस्ती माल लेना
+   • नाजाइज़ टैक्स
+   • नाजाइज़ मुआहिदे
+
+9. ज़कात न देना:
+   बड़ा गुनाह जिसकी आख़िरत में सख़्त सज़ा है।
+
+10. माल ज़ाया करना:
+    "फ़ुज़ूल ख़र्ची न करो। बेशक फ़ुज़ूल ख़र्च शैतान के भाई हैं।" (क़ुरआन 17:26-27)
+
+हलाल कैसे कमाएं:
+• आमदनी के ज़राए की तस्दीक़ करें
+• मशकूक लेन-देन से बचें
+• क़र्ज़ और वाजिबात वक़्त पर अदा करें
+• ज़कात और सदक़ा दें
+• तमाम मुआमलात में ईमानदारी''',
+        'arabic': '''الذنوب المالية
+
+يؤكد الإسلام على كسب المال الحلال وإنفاقه بشكل صحيح.
+
+١. الربا:
+   قال النبي ﷺ: "لعن الله آكل الربا ومؤكله وكاتبه وشاهديه" (مسلم)
+
+   أنواع الربا:
+   • الفوائد البنكية
+   • القرض بفائدة
+   • فوائد البطاقات الائتمانية
+   • غرامات التأخير
+
+   "يَمْحَقُ اللَّهُ الرِّبَا وَيُرْبِي الصَّدَقَاتِ" (البقرة: ٢٧٦)
+
+٢. أكل مال اليتيم:
+   "إِنَّ الَّذِينَ يَأْكُلُونَ أَمْوَالَ الْيَتَامَىٰ ظُلْمًا إِنَّمَا يَأْكُلُونَ فِي بُطُونِهِمْ نَارًا" (النساء: ١٠)
+
+٣. السرقة والسلب:
+   • سرقة أموال الغير
+   • الاختلاس
+   • أكل أجور العمال
+
+٤. الرشوة:
+   لعن النبي ﷺ الراشي والمرتشي. (الترمذي)
+
+٥. الغش في التجارة:
+   • إخفاء عيوب السلع
+   • الإعلانات الكاذبة
+   • التلاعب بالأسعار
+   • التطفيف في الكيل والميزان
+   "وَيْلٌ لِّلْمُطَفِّفِينَ" (المطففين: ١)
+
+٦. القمار:
+   "إِنَّمَا الْخَمْرُ وَالْمَيْسِرُ وَالْأَنصَابُ وَالْأَزْلَامُ رِجْسٌ مِّنْ عَمَلِ الشَّيْطَانِ" (المائدة: ٩٠)
+
+٧. الكسب الحرام:
+   • الدخل من التجارة الحرام
+   • المال المكتسب بالخداع
+
+٨. الظلم والابتزاز:
+   • أخذ المال بالقوة
+   • الضرائب الظالمة
+
+٩. منع الزكاة:
+   كبيرة لها عقوبة شديدة في الآخرة.
+
+١٠. تبذير المال:
+    "وَلَا تُبَذِّرْ تَبْذِيرًا • إِنَّ الْمُبَذِّرِينَ كَانُوا إِخْوَانَ الشَّيَاطِينِ" (الإسراء: ٢٦-٢٧)
+
+الكسب الحلال:
+• التحقق من مصادر الدخل
+• تجنب المعاملات المشبوهة
+• سداد الديون في وقتها
+• إخراج الزكاة والصدقة
+• الصدق في كل المعاملات'''
+      },
+    },
+    {
+      'number': 10,
+      'titleKey': 'gunha_fazilat_10_seeking_forgiveness',
+      'title': 'Seeking Forgiveness',
+      'titleUrdu': 'معافی مانگنا',
+      'titleHindi': 'माफ़ी मांगना',
+      'titleArabic': 'طلب المغفرة',
+      'icon': Icons.healing,
+      'color': Colors.teal,
+      'details': {
+        'english': '''Seeking Forgiveness (Istighfar)
+
+Allah loves those who seek His forgiveness and repent sincerely.
+
+"Say, 'O My servants who have transgressed against themselves, do not despair of the mercy of Allah. Indeed, Allah forgives all sins.'" (Quran 39:53)
+
+Benefits of Istighfar:
+
+1. Erasure of Sins:
+   • Good deeds erase bad deeds
+   • "Follow a bad deed with a good one and it will erase it" (Tirmidhi)
+
+2. Relief from Difficulties:
+   The Prophet ﷺ said: "Whoever makes istighfar constantly, Allah will provide for him relief from every difficulty." (Abu Dawud)
+
+3. Increase in Sustenance:
+   "Seek forgiveness of your Lord. Indeed, He is ever a Perpetual Forgiver. He will send [rain from] the sky upon you in showers and give you increase in wealth and children." (Quran 71:10-12)
+
+4. Peace of Mind:
+   • Removes guilt and anxiety
+   • Brings inner peace
+   • Strengthens connection with Allah
+
+Best Duas for Forgiveness:
+
+1. Sayyid al-Istighfar (Master of Seeking Forgiveness):
+   "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ"
+
+2. Simple Istighfar:
+   "أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ"
+   "I seek Allah's forgiveness and repent to Him"
+
+3. The Prophet's Istighfar:
+   The Prophet ﷺ said: "By Allah, I seek forgiveness from Allah and repent to Him more than seventy times a day." (Bukhari)
+
+Best Times for Istighfar:
+• Last third of the night
+• After obligatory prayers
+• During prostration (sujud)
+• Before sleeping
+• After waking up
+
+Conditions for Accepted Repentance:
+1. Stop the sin immediately
+2. Feel genuine regret
+3. Firm intention never to return
+4. If it involves others' rights, return them or seek their forgiveness
+
+Allah's Mercy:
+"Allah extends His Hand at night to accept the repentance of those who sinned during the day, and He extends His Hand during the day to accept the repentance of those who sinned at night." (Muslim)
+
+Never despair of Allah's mercy!''',
+        'urdu': '''معافی مانگنا (استغفار)
+
+اللہ ان لوگوں سے محبت کرتا ہے جو اس سے معافی مانگتے اور سچی توبہ کرتے ہیں۔
+
+"کہہ دو، اے میرے بندو جنہوں نے اپنی جانوں پر ظلم کیا، اللہ کی رحمت سے مایوس نہ ہو۔ بے شک اللہ سب گناہ معاف کر دیتا ہے۔" (قرآن 39:53)
+
+استغفار کے فوائد:
+
+1. گناہوں کا مٹنا:
+   • نیکیاں برائیوں کو مٹا دیتی ہیں
+   • "برائی کے بعد نیکی کرو وہ اسے مٹا دے گی" (ترمذی)
+
+2. مشکلات سے نجات:
+   نبی ﷺ نے فرمایا: "جو مسلسل استغفار کرے، اللہ اسے ہر مشکل سے نکال دے گا۔" (ابو داؤد)
+
+3. رزق میں اضافہ:
+   "اپنے رب سے معافی مانگو۔ بے شک وہ بہت معاف کرنے والا ہے۔ وہ تم پر موسلادھار بارش برسائے گا اور مال اور اولاد میں اضافہ کرے گا۔" (قرآن 71:10-12)
+
+4. ذہنی سکون:
+   • جرم اور پریشانی دور ہوتی ہے
+   • اندرونی سکون آتا ہے
+   • اللہ سے تعلق مضبوط ہوتا ہے
+
+معافی کی بہترین دعائیں:
+
+1. سید الاستغفار:
+   "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ..."
+
+2. آسان استغفار:
+   "أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ"
+   "میں اللہ سے معافی مانگتا ہوں اور اس کی طرف رجوع کرتا ہوں"
+
+3. نبی ﷺ کا استغفار:
+   نبی ﷺ نے فرمایا: "اللہ کی قسم، میں روزانہ ستر سے زیادہ بار اللہ سے استغفار کرتا ہوں۔" (بخاری)
+
+استغفار کے بہترین اوقات:
+• رات کا آخری تہائی حصہ
+• فرض نمازوں کے بعد
+• سجدے میں
+• سونے سے پہلے
+• اٹھنے کے بعد
+
+توبہ کی شرائط:
+1. فوری گناہ چھوڑنا
+2. سچی ندامت
+3. دوبارہ نہ کرنے کا پختہ ارادہ
+4. اگر کسی کا حق مارا ہے تو واپس کرنا
+
+اللہ کی رحمت:
+"اللہ رات کو ہاتھ پھیلاتا ہے تاکہ دن کے گناہگار توبہ کریں، اور دن کو ہاتھ پھیلاتا ہے تاکہ رات کے گناہگار توبہ کریں۔" (مسلم)
+
+اللہ کی رحمت سے کبھی مایوس نہ ہوں!''',
+        'hindi': '''माफ़ी मांगना (इस्तिग़फ़ार)
+
+अल्लाह उन लोगों से मुहब्बत करता है जो उससे माफ़ी मांगते और सच्ची तौबा करते हैं।
+
+"कह दो, ऐ मेरे बंदो जिन्होंने अपनी जानों पर ज़ुल्म किया, अल्लाह की रहमत से मायूस न हो। बेशक अल्लाह सब गुनाह माफ़ कर देता है।" (क़ुरआन 39:53)
+
+इस्तिग़फ़ार के फ़वाइद:
+
+1. गुनाहों का मिटना:
+   • नेकियां बुराइयों को मिटा देती हैं
+   • "बुराई के बाद नेकी करो वो उसे मिटा देगी" (तिर्मिज़ी)
+
+2. मुश्किलात से निजात:
+   नबी ﷺ ने फ़रमाया: "जो मुसलसल इस्तिग़फ़ार करे, अल्लाह उसे हर मुश्किल से निकाल देगा।" (अबू दाऊद)
+
+3. रिज़्क़ में इज़ाफ़ा:
+   "अपने रब से माफ़ी मांगो। बेशक वो बहुत माफ़ करने वाला है। वो तुम पर मूसलाधार बारिश बरसाएगा और माल और औलाद में इज़ाफ़ा करेगा।" (क़ुरआन 71:10-12)
+
+4. ज़हनी सुकून:
+   • जुर्म और परेशानी दूर होती है
+   • अंदरूनी सुकून आता है
+   • अल्लाह से ताल्लुक़ मज़बूत होता है
+
+माफ़ी की बेहतरीन दुआएं:
+
+1. सय्यिद अल-इस्तिग़फ़ार:
+   "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ..."
+
+2. आसान इस्तिग़फ़ार:
+   "أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ"
+   "मैं अल्लाह से माफ़ी मांगता हूं और उसकी तरफ़ रुजू करता हूं"
+
+3. नबी ﷺ का इस्तिग़फ़ार:
+   नबी ﷺ ने फ़रमाया: "अल्लाह की क़सम, मैं रोज़ाना सत्तर से ज़्यादा बार अल्लाह से इस्तिग़फ़ार करता हूं।" (बुख़ारी)
+
+इस्तिग़फ़ार के बेहतरीन औक़ात:
+• रात का आख़िरी तिहाई हिस्सा
+• फ़र्ज़ नमाज़ों के बाद
+• सज्दे में
+• सोने से पहले
+• उठने के बाद
+
+तौबा की शराइत:
+1. फ़ौरन गुनाह छोड़ना
+2. सच्ची नदामत
+3. दोबारा न करने का पुख़्ता इरादा
+4. अगर किसी का हक़ मारा है तो वापस करना
+
+अल्लाह की रहमत:
+"अल्लाह रात को हाथ फैलाता है ताकि दिन के गुनाहगार तौबा करें, और दिन को हाथ फैलाता है ताकि रात के गुनाहगार तौबा करें।" (मुस्लिम)
+
+अल्लाह की रहमत से कभी मायूस न हों!''',
+        'arabic': '''طلب المغفرة (الاستغفار)
+
+الله يحب من يستغفره ويتوب إليه توبة نصوحاً.
+
+"قُلْ يَا عِبَادِيَ الَّذِينَ أَسْرَفُوا عَلَىٰ أَنفُسِهِمْ لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ ۚ إِنَّ اللَّهَ يَغْفِرُ الذُّنُوبَ جَمِيعًا" (الزمر: ٥٣)
+
+فوائد الاستغفار:
+
+١. محو الذنوب:
+   • الحسنات يذهبن السيئات
+   • "أتبع السيئة الحسنة تمحها" (الترمذي)
+
+٢. الفرج من الكروب:
+   قال النبي ﷺ: "من لزم الاستغفار جعل الله له من كل هم فرجاً" (أبو داود)
+
+٣. زيادة الرزق:
+   "اسْتَغْفِرُوا رَبَّكُمْ إِنَّهُ كَانَ غَفَّارًا • يُرْسِلِ السَّمَاءَ عَلَيْكُم مِّدْرَارًا • وَيُمْدِدْكُم بِأَمْوَالٍ وَبَنِينَ" (نوح: ١٠-١٢)
+
+٤. السكينة والطمأنينة:
+   • زوال الهم والقلق
+   • راحة النفس
+   • قوة الصلة بالله
+
+أفضل أدعية الاستغفار:
+
+١. سيد الاستغفار:
+   "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ..."
+
+٢. الاستغفار البسيط:
+   "أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ"
+
+٣. استغفار النبي ﷺ:
+   قال النبي ﷺ: "والله إني لأستغفر الله وأتوب إليه في اليوم أكثر من سبعين مرة" (البخاري)
+
+أفضل أوقات الاستغفار:
+• الثلث الأخير من الليل
+• بع�� الصلوات المفروضة
+• في السجود
+• قبل النوم
+• بعد الاستيقاظ
+
+شروط التوبة المقبولة:
+١. الإقلاع عن الذنب فوراً
+٢. الندم الصادق
+٣. العزم على عدم العودة
+٤. رد المظالم إلى أهلها
+
+رحمة الله:
+"إن الله يبسط يده بالليل ليتوب مسيء النهار ويبسط يده بالنهار ليتوب مسيء الليل" (مسلم)
+
+لا تيأسوا من رحمة الله!'''
+      },
+    },
   ];
 
   @override
@@ -1211,22 +2303,28 @@ The Way Out:
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: context.responsive.paddingRegular,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _gunhaTopics.length,
-              itemBuilder: (context, index) {
-                final topic = _gunhaTopics[index];
-                return _buildTopicCard(topic, isDark);
-              },
+      body: Builder(
+        builder: (context) {
+          final langCode = context.languageProvider.languageCode;
+          final isRtl = langCode == 'ur' || langCode == 'ar';
+          return SingleChildScrollView(
+            padding: context.responsive.paddingRegular,
+            child: Column(
+              crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _gunhaTopics.length,
+                  itemBuilder: (context, index) {
+                    final topic = _gunhaTopics[index];
+                    return _buildTopicCard(topic, isDark);
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -1251,8 +2349,8 @@ return Container(
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
-            offset: Offset(0, responsive.spacing(2)),
+            blurRadius: 10.0,
+            offset: Offset(0, 2.0),
           ),
         ],
       ),
@@ -1265,16 +2363,16 @@ return Container(
             children: [
               // Number Badge
               Container(
-                width: responsive.spacing(50),
-                height: responsive.spacing(50),
+                width: responsive.iconLarge * 1.5,
+                height: responsive.iconLarge * 1.5,
                 decoration: BoxDecoration(
                   color: darkGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
                       color: darkGreen.withValues(alpha: 0.3),
-                      blurRadius: responsive.spacing(8),
-                      offset: Offset(0, responsive.spacing(2)),
+                      blurRadius: 8,
+                      offset: Offset(0, 2.0),
                     ),
                   ],
                 ),
@@ -1289,12 +2387,14 @@ return Container(
                   ),
                 ),
               ),
-              SizedBox(width: responsive.spacing(14)),
+              responsive.hSpaceSmall,
 
               // Title and Icon chip
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: (langCode == 'ur' || langCode == 'ar')
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
                   children: [
                     // Title
                     Text(
@@ -1304,9 +2404,11 @@ return Container(
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : darkGreen,
                       ),
-                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                      textDirection: (langCode == 'ur' || langCode == 'ar') ? TextDirection.rtl : TextDirection.ltr,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: responsive.spacing(4)),
+                    responsive.vSpaceXSmall,
                     // Icon chip
                     Container(
                       padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
@@ -1322,13 +2424,17 @@ return Container(
                             size: responsive.textXSmall + 2,
                             color: emeraldGreen,
                           ),
-                          SizedBox(width: responsive.spacing(4)),
-                          Text(
-                            context.tr('gunha_fazilat'),
-                            style: TextStyle(
-                              fontSize: responsive.textXSmall,
-                              fontWeight: FontWeight.w600,
-                              color: emeraldGreen,
+                          responsive.hSpaceXSmall,
+                          Flexible(
+                            child: Text(
+                              context.tr('gunha_fazilat'),
+                              style: TextStyle(
+                                fontSize: responsive.textXSmall,
+                                fontWeight: FontWeight.w600,
+                                color: emeraldGreen,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -1360,7 +2466,6 @@ return Container(
 
   void _showTopicDetails(Map<String, dynamic> topic) {
     final details = topic['details'] as Map<String, String>;
-    final titleKey = topic['titleKey'] ?? 'gunha_fazilat';
     Navigator.push(
       context,
       MaterialPageRoute(

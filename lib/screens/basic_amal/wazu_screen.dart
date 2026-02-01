@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/settings_provider.dart';
 import '../../widgets/common/search_bar_widget.dart';
 import 'basic_amal_detail_screen.dart';
@@ -15,7 +14,6 @@ class WazuScreen extends StatefulWidget {
 }
 
 class _WazuScreenState extends State<WazuScreen> {
-  String _selectedLanguage = 'english';
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -1054,6 +1052,7 @@ The Prophet ﷺ said: "Whoever performs Wudu like my Wudu, then prays two rakats
 
   final List<Map<String, dynamic>> _additionalInfo = [
     {
+      'number': 11,
       'titleKey': 'wazu_11_things_that_break_wudu',
       'title': 'Things That Break Wudu',
       'titleUrdu': 'وضو توڑنے والی چیزیں',
@@ -1161,6 +1160,7 @@ Note: Different schools of thought have slight variations. Follow the guidance o
       },
     },
     {
+      'number': 12,
       'titleKey': 'wazu_12_wudu_with_socks_masah',
       'title': 'Wudu with Socks (Masah)',
       'titleUrdu': 'موزوں پر مسح',
@@ -1279,6 +1279,762 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
 ملاحظة: الجوارب القطنية العادية محل خلاف بين العلماء. بعضهم يجيز المسح عليها، والبعض يشترط الخفاف الجلدية.''',
       },
     },
+    {
+      'number': 13,
+      'titleKey': 'wazu_13_virtues_benefits',
+      'title': 'Virtues & Benefits of Wudu',
+      'titleUrdu': 'وضو کی فضیلت اور فوائد',
+      'titleHindi': 'वुज़ू की फ़ज़ीलत और फ़ायदे',
+      'titleArabic': 'فضائل وفوائد الوضوء',
+      'icon': Icons.star,
+      'color': Colors.amber,
+      'details': {
+        'english': '''Virtues and Benefits of Wudu
+
+1. Radiance on the Day of Resurrection:
+The Prophet ﷺ said: "On the Day of Resurrection, my followers will be summoned 'Al-Ghurr Al-Muhajjalun' (with radiant faces, hands, and feet) from the traces of Wudu. Whoever can increase the area of his radiance should do so."
+(Sahih Bukhari 136, Sahih Muslim 246)
+
+2. Forgiveness of Sins:
+The Prophet ﷺ said: "When a Muslim performs ablution, washing his face, every evil that he looked at with his eyes comes out with the water. When he washes his hands, every evil his hands touched comes out with the water. When he washes his feet, every evil his feet walked towards comes out with the water, until he emerges cleansed of sin."
+(Sahih Muslim)
+
+3. Eight Gates of Paradise:
+When one performs Wudu carefully and recites the Shahada, the Prophet ﷺ said: "The eight gates of Jannah are opened for him. He may enter through whichever of these gates he desires."
+(Sahih Muslim)
+
+4. Complete Purification:
+Uthman ibn Affan (RA) reported: The Prophet ﷺ said: "He who performed ablution well, his sins would come out from his body, even coming out from under his nails."
+(Sahih Muslim)
+
+5. Key to Prayer:
+The Prophet ﷺ said: "The key to Paradise is Salah, and the key to Salah is Wudu."
+(Musnad Ahmad)
+
+6. Protection from Shaitan:
+The Prophet ﷺ said: "When a person goes to sleep in a state of wudu, an angel stays with him throughout the night."
+
+7. Angels Surround You:
+Being in a state of wudu keeps angels near you and shaitan away.
+
+8. Half of Faith:
+The Prophet ﷺ said: "Wudu is half of faith (Iman)."
+(Sahih Muslim)
+
+9. Physical Health Benefits:
+• Cleanses the body 5 times daily
+• Washes away germs and bacteria
+• Prevents skin diseases
+• Rinses mouth and nose, preventing infections
+• Improves blood circulation
+• Reduces stress and promotes calmness
+
+Important Reminder:
+Maintain wudu throughout the day, not just for prayer. The Prophet ﷺ was always in a state of purity.''',
+        'urdu': '''وضو کی فضیلت اور فوائد
+
+۱۔ قیامت کے دن چمکتے چہرے:
+نبی کریم ﷺ نے فرمایا: "قیامت کے دن میری امت کو 'الغر المحجلون' (چمکتے چہروں، ہاتھوں اور پاؤں والے) کے نام سے بلایا جائے گا وضو کے نشانات کی وجہ سے۔ جو اپنے نور کا دائرہ بڑھا سکے وہ بڑھائے۔"
+(صحیح بخاری 136، صحیح مسلم 246)
+
+۲۔ گناہوں کی معافی:
+نبی کریم ﷺ نے فرمایا: "جب کوئی مسلمان وضو کرتا ہے اور اپنا چہرہ دھوتا ہے تو ہر برائی جو اس نے اپنی آنکھوں سے دیکھی تھی پانی کے ساتھ نکل جاتی ہے۔ جب ہاتھ دھوتا ہے تو ہر برائی جو اس کے ہاتھوں نے چھوئی تھی پانی کے ساتھ نکل جاتی ہے۔ جب پاؤں دھوتا ہے تو ہر برائی جس کی طرف اس کے پاؤں چلے تھے پانی کے ساتھ نکل جاتی ہے، یہاں تک کہ وہ گناہوں سے پاک ہو کر نکلتا ہے۔"
+(صحیح مسلم)
+
+۳۔ جنت کے آٹھ دروازے:
+جب کوئی احسن طریقے سے وضو کرتا ہے اور کلمہ شہادت پڑھتا ہے تو نبی کریم ﷺ نے فرمایا: "اس کے لیے جنت کے آٹھ دروازے کھول دیے جاتے ہیں۔ وہ جس دروازے سے چاہے داخل ہو سکتا ہے۔"
+(صحیح مسلم)
+
+۴۔ مکمل پاکیزگی:
+عثمان بن عفان رضی اللہ عنہ نے روایت کی: نبی کریم ﷺ نے فرمایا: "جس نے اچھے طریقے سے وضو کیا تو اس کے جسم سے گناہ نکل جاتے ہیں، یہاں تک کہ اس کے ناخنوں کے نیچے سے بھی نکل جاتے ہیں۔"
+(صحیح مسلم)
+
+۵۔ نماز کی کنجی:
+نبی کریم ﷺ نے فرمایا: "جنت کی کنجی نماز ہے اور نماز کی کنجی وضو ہے۔"
+(مسند احمد)
+
+۶۔ شیطان سے حفاظت:
+نبی کریم ﷺ نے فرمایا: "جب کوئی شخص وضو کی حالت میں سوتا ہے تو ایک فرشتہ رات بھر اس کے ساتھ رہتا ہے۔"
+
+۷۔ فرشتے آپ کے گرد ہوتے ہیں:
+وضو کی حالت میں رہنے سے فرشتے قریب رہتے ہیں اور شیطان دور رہتا ہے۔
+
+۸۔ نصف ایمان:
+نبی کریم ﷺ نے فرمایا: "وضو نصف ایمان ہے۔"
+(صحیح مسلم)
+
+۹۔ جسمانی صحت کے فوائد:
+• روزانہ 5 بار جسم کی صفائی
+• جراثیم اور بیکٹیریا کو دھو دیتا ہے
+• جلد کی بیماریوں سے بچاتا ہے
+• منہ اور ناک کو صاف کرتا ہے، انفیکشن سے بچاتا ہے
+• خون کی گردش بہتر کرتا ہے
+• تناؤ کم کرتا ہے اور سکون فراہم کرتا ہے
+
+اہم یاد دہانی:
+دن بھر وضو کی حالت میں رہیں، نہ صرف نماز کے لیے۔ نبی کریم ﷺ ہمیشہ طہارت کی حالت میں رہتے تھے۔''',
+        'hindi': '''वुज़ू की फ़ज़ीलत और फ़ायदे
+
+१. क़यामत के दिन चमकते चेहरे:
+नबी करीम ﷺ ने फ़रमाया: "क़यामत के दिन मेरी उम्मत को 'अल-ग़ुर्र अल-मुहज्जलून' (चमकते चेहरों, हाथों और पांव वाले) के नाम से बुलाया जाएगा वुज़ू के निशानात की वजह से। जो अपने नूर का दायरा बढ़ा सके वो बढ़ाए।"
+(सहीह बुख़ारी 136, सहीह मुस्लिम 246)
+
+२. गुनाहों की माफ़ी:
+नबी करीम ﷺ ने फ़रमाया: "जब कोई मुसलमान वुज़ू करता है और अपना चेहरा धोता है तो हर बुराई जो उसने अपनी आंखों से देखी थी पानी के साथ निकल जाती है। जब हाथ धोता है तो हर बुराई जो उसके हाथों ने छुई थी पानी के साथ निकल जाती है। जब पांव धोता है तो हर बुराई जिसकी तरफ़ उसके पांव चले थे पानी के साथ निकल जाती है, यहां तक कि वो गुनाहों से पाक होकर निकलता है।"
+(सहीह मुस्लिम)
+
+३. जन्नत के आठ दरवाज़े:
+जब कोई अहसन तरीक़े से वुज़ू करता है और कलिमा शहादत पढ़ता है तो नबी करीम ﷺ ने फ़रमाया: "उसके लिए जन्नत के आठ दरवाज़े खोल दिए जाते हैं। वो जिस दरवाज़े से चाहे दाख़िल हो सकता है।"
+(सहीह मुस्लिम)
+
+४. मुकम्मल पाकीज़गी:
+उस्मान बिन अफ़्फ़ान रज़ियल्लाहु अन्हु ने रिवायत की: नबी करीम ﷺ ने फ़रमाया: "जिसने अच्छे तरीक़े से वुज़ू किया तो उसके जिस्म से गुनाह निकल जाते हैं, यहां तक कि उसके नाख़ुनों के नीचे से भी निकल जाते हैं।"
+(सहीह मुस्लिम)
+
+५. नमाज़ की कुंजी:
+नबी करीम ﷺ ने फ़रमाया: "जन्नत की कुंजी नमाज़ है और नमाज़ की कुंजी वुज़ू है।"
+(मुसनद अहमद)
+
+६. शैतान से हिफ़ाज़त:
+नबी करीम ﷺ ने फ़रमाया: "जब कोई शख़्स वुज़ू की हालत में सोता है तो एक फ़रिश्ता रात भर उसके साथ रहता है।"
+
+७. फ़रिश्ते आपके गिर्द होते हैं:
+वुज़ू की हालत में रहने से फ़रिश्ते क़रीब रहते हैं और शैतान दूर रहता है।
+
+८. निस्फ़ ईमान:
+नबी करीम ﷺ ने फ़रमाया: "वुज़ू निस्फ़ ईमान है।"
+(सहीह मुस्लिम)
+
+९. जिस्मानी सेहत के फ़ायदे:
+• रोज़ाना 5 बार जिस्म की सफ़ाई
+• जरासीम और बैक्टीरिया को धो देता है
+• जिल्द की बीमारियों से बचाता है
+• मुंह और नाक को साफ़ करता है, इनफ़ेक्शन से बचाता है
+• ख़ून की गर्दिश बेहतर करता है
+• तनाव कम करता है और सुकून फ़राहम करता है
+
+अहम याद दिहानी:
+दिन भर वुज़ू की हालत में रहें, न सिर्फ़ नमाज़ के लिए। नबी करीम ﷺ हमेशा तहारत की हालत में रहते थे।''',
+        'arabic': '''فضائل وفوائد الوضوء
+
+١. النور يوم القيامة:
+قال النبي ﷺ: "إن أمتي يُدعون يوم القيامة غراً محجلين من آثار الوضوء، فمن استطاع منكم أن يطيل غرته فليفعل."
+(صحيح البخاري 136، صحيح مسلم 246)
+
+٢. غفران الذنوب:
+قال النبي ﷺ: "إذا توضأ العبد المسلم أو المؤمن فغسل وجهه خرج من وجهه كل خطيئة نظر إليها بعينيه مع الماء، فإذا غسل يديه خرج من يديه كل خطيئة كان بطشتها يداه مع الماء، فإذا غسل رجليه خرجت كل خطيئة مشتها رجلاه مع الماء حتى يخرج نقياً من الذنوب."
+(صحيح مسلم)
+
+٣. أبواب الجنة الثمانية:
+عندما يتوضأ المرء بإحسان ويشهد الشهادة، قال النبي ﷺ: "فُتحت له أبواب الجنة الثمانية يدخل من أيها شاء."
+(صحيح مسلم)
+
+٤. الطهارة الكاملة:
+عن عثمان بن عفان رضي الله عنه: قال النبي ﷺ: "من توضأ فأحسن الوضوء خرجت خطاياه من جسده حتى تخرج من تحت أظفاره."
+(صحيح مسلم)
+
+٥. مفتاح الصلاة:
+قال النبي ﷺ: "مفتاح الجنة الصلاة، ومفتاح الصلاة الوضوء."
+(مسند أحمد)
+
+٦. الحماية من الشيطان:
+قال النبي ﷺ: "من بات طاهراً بات في شعاره ملك."
+
+٧. الملائكة تحيط بك:
+البقاء على وضوء يُبقي الملائكة قريبة والشيطان بعيداً.
+
+٨. نصف الإيمان:
+قال النبي ﷺ: "الوضوء شطر الإيمان."
+(صحيح مسلم)
+
+٩. الفوائد الصحية الجسدية:
+• تنظيف الجسم 5 مرات يومياً
+• إزالة الجراثيم والبكتيريا
+• الوقاية من أمراض الجلد
+• تنظيف الفم والأنف، الوقاية من العدوى
+• تحسين الدورة الدموية
+• تقليل التوتر وتعزيز الهدوء
+
+تذكير مهم:
+حافظ على الوضوء طوال اليوم، وليس فقط للصلاة. كان النبي ﷺ دائماً على طهارة.''',
+      },
+    },
+    {
+      'number': 14,
+      'titleKey': 'wazu_14_common_mistakes',
+      'title': 'Common Mistakes in Wudu',
+      'titleUrdu': 'وضو میں عام غلطیاں',
+      'titleHindi': 'वुज़ू में आम ग़लतियां',
+      'titleArabic': 'الأخطاء الشائعة في الوضوء',
+      'icon': Icons.warning_amber,
+      'color': Colors.orange,
+      'details': {
+        'english': '''Common Mistakes to Avoid in Wudu
+
+1. Incomplete Washing of Body Parts:
+❌ Leaving elbows or ankles dry
+❌ Missing between fingers and toes
+❌ Not washing the entire face from forehead to chin
+✓ Ensure every required part is thoroughly washed
+
+The Prophet ﷺ saw a man performing wudu with a dry spot on his heel and said: "Woe to the heels from the Hellfire!"
+(Sahih Bukhari)
+
+2. Lack of Proper Intention (Niyyah):
+❌ Starting without intention
+❌ Losing focus during wudu
+✓ Make sincere intention before beginning
+✓ Stay focused on worship throughout
+
+3. Not Following the Correct Order:
+❌ Washing parts out of sequence
+✓ Follow the order: Face → Arms → Head → Feet
+
+According to Shafi'i and Hanbali scholars, the order (Tarteeb) is obligatory for valid wudu.
+
+4. Rushing Through the Process:
+❌ Performing wudu hastily
+❌ Not allowing water to reach all areas
+✓ Perform calmly with mindfulness
+✓ Take time to ensure completeness
+
+5. Using Excessive Water:
+❌ Wasting water unnecessarily
+✓ Use minimal water as the Prophet ﷺ did
+✓ One handful for each limb is sufficient
+
+The Prophet ﷺ used to perform wudu with one Mudd (approximately 750ml) of water.
+
+6. Not Removing Barriers:
+❌ Nail polish, thick cream, or wax on skin
+❌ Rings too tight to allow water underneath
+✓ Remove anything preventing water from reaching skin
+✓ Ensure jewelry allows water to pass
+
+7. Distractions During Wudu:
+❌ Talking unnecessarily
+❌ Using phone or being distracted
+✓ Focus on the worship
+✓ Maintain silence and mindfulness
+
+8. Missing Between Fingers and Toes:
+❌ Not interlacing fingers
+❌ Not washing between toes
+✓ Use Khilal (interlacing) for thoroughness
+
+9. Washing Less Than Three Times:
+❌ Washing once when you should wash thrice
+✓ Wash face, arms, and feet three times each (Sunnah)
+✓ At minimum, once thoroughly for Fard
+
+10. Not Washing in Sequence (Muwaalaat):
+❌ Long gaps between washing body parts
+✓ Perform wudu continuously without long breaks
+
+Important Reminder:
+If you realize you made a mistake during wudu, it's better to repeat it to ensure validity. Prayer with invalid wudu is not accepted.''',
+        'urdu': '''وضو میں عام غلطیاں جن سے بچنا چاہیے
+
+۱۔ جسم کے حصوں کا نامکمل دھونا:
+❌ کہنیوں یا ٹخنوں کو خشک چھوڑنا
+❌ انگلیوں کے درمیان چھوڑنا
+❌ پورا چہرہ ماتھے سے ٹھوڑی تک نہ دھونا
+✓ یقینی بنائیں کہ ہر ضروری حصہ اچھی طرح دھویا گیا ہے
+
+نبی کریم ﷺ نے ایک آدمی کو وضو کرتے دیکھا جس کی ایڑی پر خشک جگہ تھی اور فرمایا: "ایڑیوں کے لیے دوزخ کی آگ سے خرابی ہے!"
+(صحیح بخاری)
+
+۲۔ صحیح نیت کا نہ ہونا:
+❌ بغیر نیت کے شروع کرنا
+❌ وضو کے دوران توجہ کھونا
+✓ شروع کرنے سے پہلے خلوص نیت کریں
+✓ پوری عبادت میں توجہ برقرار رکھیں
+
+۳۔ صحیح ترتیب کا نہ ہونا:
+❌ حصوں کو غلط ترتیب سے دھونا
+✓ ترتیب پر عمل کریں: چہرہ → بازو → سر → پاؤں
+
+شافعی اور حنبلی علماء کے مطابق، ترتیب (ترتیب) صحیح وضو کے لیے ضروری ہے۔
+
+۴۔ جلدی جلدی کرنا:
+❌ وضو جلدی سے کرنا
+❌ پانی کو تمام جگہوں تک نہ پہنچنے دینا
+✓ سکون سے ہوش مندی کے ساتھ کریں
+✓ مکمل ہونے کو یقینی بنانے کے لیے وقت لیں
+
+۵۔ ضرورت سے زیادہ پانی استعمال کرنا:
+❌ بلا ضرورت پانی ضائع کرنا
+✓ نبی کریم ﷺ کی طرح کم پانی استعمال کریں
+✓ ہر عضو کے لیے ایک چلو کافی ہے
+
+نبی کریم ﷺ ایک مد (تقریباً 750 ملی لیٹر) پانی سے وضو کرتے تھے۔
+
+۶۔ رکاوٹوں کو نہ ہٹانا:
+❌ نیل پالش، موٹی کریم، یا جلد پر موم
+❌ انگوٹھیاں اتنی تنگ کہ نیچے پانی نہ جائے
+✓ ہر وہ چیز ہٹائیں جو پانی کو جلد تک پہنچنے سے روکے
+✓ یقینی بنائیں کہ زیورات پانی گزرنے دیں
+
+۷۔ وضو کے دوران توجہ ہٹانا:
+❌ بلا ضرورت بات کرنا
+❌ فون استعمال کرنا یا مشغول ہونا
+✓ عبادت پر توجہ رکھیں
+✓ خاموشی اور ہوش مندی برقرار رکھیں
+
+۸۔ انگلیوں کے درمیان چھوڑنا:
+❌ انگلیاں نہ ملانا
+❌ پاؤں کی انگلیوں کے درمیان نہ دھونا
+✓ اچھی طرح دھونے کے لیے خلال استعمال کریں
+
+۹۔ تین بار سے کم دھونا:
+❌ ایک بار دھونا جب تین بار دھونا چاہیے
+✓ چہرہ، بازو، اور پاؤں تین بار دھوئیں (سنت)
+✓ کم از کم، فرض کے لیے ایک بار اچھی طرح
+
+۱۰۔ تسلسل میں نہ دھونا (موالات):
+❌ حصوں کو دھونے میں لمبے وقفے
+✓ بغیر لمبے وقفوں کے مسلسل وضو کریں
+
+اہم یاد دہانی:
+اگر آپ کو احساس ہو کہ وضو میں غلطی ہوئی ہے تو بہتر ہے کہ دوبارہ کریں تاکہ درستگی یقینی ہو۔ غلط وضو کے ساتھ نماز قبول نہیں ہوتی۔''',
+        'hindi': '''वुज़ू में आम ग़लतियां जिनसे बचना चाहिए
+
+१. जिस्म के हिस्सों का नामुकम्मल धोना:
+❌ कोहनियों या टख़नों को ख़ुश्क छोड़ना
+❌ उंगलियों के दरमियान छोड़ना
+❌ पूरा चेहरा माथे से ठोड़ी तक न धोना
+✓ यक़ीनी बनाएं कि हर ज़रूरी हिस्सा अच्छी तरह धोया गया है
+
+नबी करीम ﷺ ने एक आदमी को वुज़ू करते देखा जिसकी एड़ी पर ख़ुश्क जगह थी और फ़रमाया: "एड़ियों के लिए दोज़ख़ की आग से ख़राबी है!"
+(सहीह बुख़ारी)
+
+२. सही नीयत का न होना:
+❌ बग़ैर नीयत के शुरू करना
+❌ वुज़ू के दौरान तवज्जो खोना
+✓ शुरू करने से पहले ख़ुलूस नीयत करें
+✓ पूरी इबादत में तवज्जो बरक़रार रखें
+
+३. सही तरतीब का न होना:
+❌ हिस्सों को ग़लत तरतीब से धोना
+✓ तरतीब पर अमल करें: चेहरा → बाज़ू → सर → पांव
+
+शाफ़ई और हनबली उलमा के मुताबिक़, तरतीब (तरतीब) सही वुज़ू के लिए ज़रूरी है।
+
+४. जल्दी जल्दी करना:
+❌ वुज़ू जल्दी से करना
+❌ पानी को तमाम जगहों तक न पहुंचने देना
+✓ सुकून से होशमंदी के साथ करें
+✓ मुकम्मल होने को यक़ीनी बनाने के लिए वक़्त लें
+
+५. ज़रूरत से ज़्यादा पानी इस्तेमाल करना:
+❌ बिला ज़रूरत पानी ज़ाया करना
+✓ नबी करीम ﷺ की तरह कम पानी इस्तेमाल करें
+✓ हर उज़्व के लिए एक चुल्लू काफ़ी है
+
+नबी करीम ﷺ एक मुद (तक़रीबन 750 मिली लीटर) पानी से वुज़ू करते थे।
+
+६. रुकावटों को न हटाना:
+❌ नेल पॉलिश, मोटी क्रीम, या जिल्द पर मोम
+❌ अंगूठियां इतनी तंग कि नीचे पानी न जाए
+✓ हर वो चीज़ हटाएं जो पानी को जिल्द तक पहुंचने से रोके
+✓ यक़ीनी बनाएं कि ज़ेवरात पानी गुज़रने दें
+
+७. वुज़ू के दौरान तवज्जो हटाना:
+❌ बिला ज़रूरत बात करना
+❌ फ़ोन इस्तेमाल करना या मशग़ूल होना
+✓ इबादत पर तवज्जो रखें
+✓ ख़ामोशी और होशमंदी बरक़रार रखें
+
+८. उंगलियों के दरमियान छोड़ना:
+❌ उंगलियां न मिलाना
+❌ पांव की उंगलियों के दरमियान न धोना
+✓ अच्छी तरह धोने के लिए ख़िलाल इस्तेमाल करें
+
+९. तीन बार से कम धोना:
+❌ एक बार धोना जब तीन बार धोना चाहिए
+✓ चेहरा, बाज़ू, और पांव तीन बार धोएं (सुन्नत)
+✓ कम से कम, फ़र्ज़ के लिए एक बार अच्छी तरह
+
+१०. तसलसुल में न धोना (मुवालात):
+❌ हिस्सों को धोने में लंबे वक़्फ़े
+✓ बग़ैर लंबे वक़्फ़��ं के मुसलसल वुज़ू करें
+
+अहम याद दिहानी:
+अगर आपको अहसास हो कि वुज़ू में ग़लती हुई है तो बेहतर है कि दोबारा करें ताकि दुरुस्तगी यक़ीनी हो। ग़लत वुज़ू के साथ नमाज़ क़बूल नहीं होती।''',
+        'arabic': '''الأخطاء الشائعة التي يجب تجنبها في الوضوء
+
+١. عدم غسل أعضاء الجسم بالكامل:
+❌ ترك المرفقين أو الكعبين جافين
+❌ تفويت ما بين الأصابع
+❌ عدم غسل الوجه كاملاً من الجبهة إلى الذقن
+✓ تأكد من غسل كل جزء مطلوب جيداً
+
+رأى النبي ﷺ رجلاً يتوضأ وفي عقبه مثل موضع الدرهم لم يصبه الماء فقال: "ويل للأعقاب من النار!"
+(صحيح البخاري)
+
+٢. عدم النية الصحيحة:
+❌ البدء بدون نية
+❌ فقدان التركيز أثناء الوضوء
+✓ اعقد نية صادقة قبل البدء
+✓ حافظ على التركيز في العبادة
+
+٣. عدم اتباع الترتيب الصحيح:
+❌ غسل الأعضاء خارج التسلسل
+✓ اتبع الترتيب: الوجه → الذراعان → الرأس → القدمان
+
+وفقاً لعلماء الشافعية والحنابلة، الترتيب واجب لصحة الوضوء.
+
+٤. التعجل في الوضوء:
+❌ أداء الوضوء بسرعة
+❌ عدم السماح للماء بالوصول لكل الأماكن
+✓ أدِّ الوضوء بهدوء ووعي
+✓ خذ وقتك لضمان الاكتمال
+
+٥. الإسراف في الماء:
+❌ إضاعة الماء دون داع
+✓ استخدم الماء القليل كما كان النبي ﷺ
+✓ حفنة واحدة لكل عضو كافية
+
+كان النبي ﷺ يتوضأ بمد واحد (حوالي 750 مل) من الماء.
+
+٦. عدم إزالة الحواجز:
+❌ طلاء الأظافر، الكريمات الثقيلة، أو الشمع على الجلد
+❌ الخواتم ضيقة جداً لا تسمح للماء بالمرور
+✓ أزل أي شيء يمنع الماء من الوصول للجلد
+✓ تأكد أن المجوهرات تسمح بمرور الماء
+
+٧. التشتت أثناء الوضوء:
+❌ التحدث دون ضرورة
+❌ استخدام الهاتف أو التشتت
+✓ ركز على العبادة
+✓ حافظ على الصمت والوعي
+
+٨. تفويت ما بين الأصابع:
+❌ عدم تخليل الأصابع
+❌ عدم غسل ما بين أصابع القدمين
+✓ استخدم التخليل للتأكد من الشمولية
+
+٩. الغسل أقل من ثلاث مرات:
+❌ الغسل مرة واحدة عندما يجب ثلاث مرات
+✓ اغسل الوجه والذراعين والقدمين ثلاث مرات (سنة)
+✓ على الأقل، مرة واحدة جيداً للفرض
+
+١٠. عدم الموالاة:
+❌ فترات طويلة بين غسل الأعضاء
+✓ أدِّ الوضوء متتالياً بدون فترات طويلة
+
+تذكير مهم:
+إذا أدركت خطأ في وضوئك، من الأفضل إعادته لضمان الصحة. الصلاة بوضوء غير صحيح غير مقبولة.''',
+      },
+    },
+    {
+      'number': 15,
+      'titleKey': 'wazu_15_fard_sunnah_mustahab',
+      'title': 'Fard, Sunnah & Mustahab',
+      'titleUrdu': 'فرض، سنت اور مستحب',
+      'titleHindi': 'फ़र्ज़, सुन्नत और मुस्तहब',
+      'titleArabic': 'الفرض والسنة والمستحب',
+      'icon': Icons.list_alt,
+      'color': Colors.indigo,
+      'details': {
+        'english': '''Classification of Wudu Acts
+
+## FARD (Obligatory) - 4 Essential Acts
+
+These are absolutely required for valid wudu:
+
+1. **Washing the Face**
+   • From hairline to chin
+   • From ear to ear
+   • Including rinsing mouth and nose (according to most scholars)
+
+2. **Washing Both Arms**
+   • From fingertips to elbows
+   • Including the elbows themselves
+   • Must be washed completely
+
+3. **Wiping the Head (Masah)**
+   • At least one-fourth of the head
+   • With wet hands
+   • Cannot be replaced with washing
+
+4. **Washing Both Feet**
+   • From toes to ankles
+   • Including the ankles themselves
+   • Between the toes must be washed
+
+⚠️ Missing any Fard action invalidates the entire wudu!
+
+## SUNNAH (Recommended) - Following the Prophet's Way
+
+These bring great reward but are not required:
+
+1. **Saying Bismillah** before starting
+2. **Washing hands three times** at the beginning
+3. **Using Miswak** or brushing teeth
+4. **Rinsing mouth (Madmada)** three times
+5. **Rinsing nose (Istinshaq)** three times
+6. **Washing each part three times** (not exceeding three)
+7. **Starting with the right side** before left
+8. **Running fingers through the beard**
+9. **Interlacing fingers and toes (Khilal)**
+10. **Continuous washing** without long breaks (Muwaalaat)
+11. **Following the order** (Tarteeb - Fard in Shafi'i school)
+12. **Reciting dua after completion**
+
+## MUSTAHAB (Preferred) - Extra Blessings
+
+These are liked acts that bring additional reward:
+
+1. **Facing the Qibla** during wudu
+2. **Not talking** unnecessarily
+3. **Not wasting water** - using minimal amount
+4. **Avoiding help** unless necessary
+5. **Drying with a clean towel** (permissible)
+6. **Making dua** during each step
+7. **Two Rak'at prayer** after wudu (Sunnah)
+
+## What Breaks Wudu?
+
+Fard situations that require new wudu:
+• Any discharge from private parts
+• Deep sleep lying down
+• Loss of consciousness
+• Touching private parts (according to some schools)
+
+## Important Notes:
+
+✓ The 4 Fard acts MUST be done for valid wudu
+✓ Sunnah acts should be followed as much as possible
+✓ Mustahab acts bring extra blessings
+✓ Intention is essential (some consider it Fard)
+
+The Prophet ﷺ said: "Shall I not tell you something by which Allah removes sins and raises ranks? They said: 'Yes, O Messenger of Allah.' He said: 'Performing wudu properly despite difficulties.'"
+(Sahih Muslim)''',
+        'urdu': '''وضو کے اعمال کی تقسیم
+
+## فرض (لازمی) - 4 ضروری اعمال
+
+یہ صحیح وضو کے لیے بالکل ضروری ہیں:
+
+۱۔ **چہرہ دھونا**
+   • بالوں کی لکیر سے ٹھوڑی تک
+   • کان سے کان تک
+   • منہ اور ناک دھونا شامل (اکثر علماء کے مطابق)
+
+۲۔ **دونوں بازو دھونا**
+   • انگلیوں کی نوک سے کہنیوں تک
+   • کہنیاں بھی شامل
+   • مکمل طور پر دھونا ضروری
+
+۳۔ **سر کا مسح**
+   • کم از کم سر کا چوتھائی حصہ
+   • گیلے ہاتھوں سے
+   • دھونے سے تبدیل نہیں کیا جا سکتا
+
+۴۔ **دونوں پاؤں دھونا**
+   • انگلیوں سے ٹخنوں تک
+   • ٹخنے بھی شامل
+   • انگلیوں کے درمیان دھونا ضروری
+
+⚠️ کوئی بھی فرض عمل چھوڑنے سے پورا وضو باطل ہو جاتا ہے!
+
+## سنت (تجویز شدہ) - نبی کریم ﷺ کے طریقے پر عمل
+
+یہ بڑا ثواب لاتے ہیں لیکن لازمی نہیں:
+
+۱۔ شروع میں **بسم اللہ** کہنا
+۲۔ شروع میں **ہاتھ تین بار** دھونا
+۳۔ **مسواک** استعمال کرنا یا دانت صاف کرنا
+۴۔ **کلی** تین بار کرنا
+۵۔ **ناک میں پانی** تین بار ڈالنا
+۶۔ **ہر حصہ تین بار** دھونا (تین سے زیادہ نہیں)
+۷۔ **دائیں جانب سے شروع** کرنا بائیں سے پہلے
+۸۔ **داڑھی میں انگلیاں** پھیرنا
+۹۔ **انگلیوں میں خلال** کرنا
+۱۰۔ **مسلسل دھونا** بغیر لمبے وقفے کے (موالات)
+۱۱۔ **ترتیب پر عمل** (شافعی مسلک میں فرض)
+۱۲۔ تکمیل کے بعد **دعا پڑھنا**
+
+## مستحب (پسندیدہ) - اضافی برکتیں
+
+یہ پسندیدہ اعمال ہیں جو اضافی ثواب لاتے ہیں:
+
+۱۔ وضو کے دوران **قبلہ رو** ہونا
+۲۔ بلا ضرورت **بات نہ** کرنا
+۳۔ **پانی ضائع نہ** کرنا - کم سے کم استعمال
+۴۔ جب تک ضروری نہ ہو **مدد سے پرہیز**
+۵۔ **صاف تولیے سے خشک** کرنا (جائز)
+۶۔ ہر قدم پر **دعا** کرنا
+۷۔ وضو کے بعد **دو رکعت نماز** (سنت)
+
+## وضو کیا توڑتا ہے؟
+
+فرض حالات جن میں نیا وضو ضروری ہے:
+• شرمگاہ سے کوئی خارج
+• لیٹ کر گہری نیند
+• بے ہوشی
+• شرمگاہ چھونا (بعض مسالک کے مطابق)
+
+## اہم نکات:
+
+✓ 4 فرض اعمال صحیح وضو کے لیے ضروری ہیں
+✓ سنت اعمال کی زیادہ سے زیادہ پیروی کرنی چاہیے
+✓ مستحب اعمال اضافی برکتیں لاتے ہیں
+✓ نیت ضروری ہے (بعض اسے فرض سمجھتے ہیں)
+
+نبی کریم ﷺ نے فرمایا: "کیا میں تمہیں ایسی چیز نہ بتاؤں جس سے اللہ گناہ مٹاتا اور درجات بلند کرتا ہے؟" انہوں نے کہا: 'جی ہاں، اے اللہ کے رسول۔' آپ ﷺ نے فرمایا: 'مشکلات کے باوجود اچھی طرح وضو کرنا۔'"
+(صحیح مسلم)''',
+        'hindi': '''वुज़ू के आमाल की तक़सीम
+
+## फ़र्ज़ (लाज़िमी) - 4 ज़रूरी आमाल
+
+ये सही वुज़ू के लिए बिल्कुल ज़रूरी हैं:
+
+१. **चेहरा धोना**
+   • बालों की लकीर से ठोड़ी तक
+   • कान से कान तक
+   • मुंह और नाक धोना शामिल (अकसर उलमा के मुताबिक़)
+
+२. **दोनों बाज़ू धोना**
+   • उंगलियों की नोक से कोहनियों तक
+   • कोहनियां भी शामिल
+   • मुकम्मल तौर पर धोना ज़रूरी
+
+३. **सर का मसह**
+   • कम से कम सर का चौथाई हिस्सा
+   • गीले हाथों से
+   • धोने से तब्दील नहीं किया जा सकता
+
+४. **दोनों पांव धोना**
+   • उंगलियों से टख़नों तक
+   • टख़ने भी शामिल
+   • उंगलियों के दरमियान धोना ज़रूरी
+
+⚠️ कोई भी फ़र्ज़ अमल छोड़ने से पूरा वुज़ू बातिल हो जाता है!
+
+## सुन्नत (तजवीज़ शुदा) - नबी करीम ﷺ के तरीक़े पर अमल
+
+ये बड़ा सवाब लाते हैं लेकिन लाज़िमी नहीं:
+
+१. शुरू में **बिस्मिल्लाह** कहना
+२. शुरू में **हाथ तीन बार** धोना
+३. **मिसवाक** इस्तेमाल करना या दांत साफ़ करना
+४. **कुल्ली** तीन बार करना
+५. **नाक में पानी** तीन बार डालना
+६. **हर हिस्सा तीन बार** धोना (तीन से ज़्यादा नहीं)
+७. **दाहिनी जानिब से शुरू** करना बाएं से पहले
+८. **दाढ़ी में उंगलियां** फेरना
+९. **उंगलियों में ख़िलाल** करना
+१०. **मुसलसल धोना** बग़ैर लंबे वक़्फ़े के (मुवालात)
+११. **तरतीब पर अमल** (शाफ़ई मसलक में फ़र्ज़)
+१२. तकमील के बाद **दुआ पढ़ना**
+
+## मुस्तहब (पसंदीदा) - इज़ाफ़ी बरकतें
+
+ये पसंदीदा आमाल हैं जो इज़ाफ़ी सवाब लाते हैं:
+
+१. वुज़ू के दौरान **क़िबला रू** होना
+२. बिला ज़रूरत **बात न** करना
+३. **पानी ज़ाया न** करना - कम से कम इस्तेमाल
+४. जब तक ज़रूरी न हो **मदद से परहेज़**
+५. **साफ़ तौलिए से ख़ुश्क** करना (जायज़)
+६. हर क़दम पर **दुआ** करना
+७. वुज़ू के बाद **दो रकात नमाज़** (सुन्नत)
+
+## वुज़ू क्या तोड़ता है?
+
+फ़र्ज़ हालात जिनमें नया वुज़ू ज़रूरी है:
+• शर्मगाह से कोई ख़ारिज
+• लेटकर गहरी नींद
+• बेहोशी
+• शर्मगाह छूना (बाज़ मसालिक के मुताबिक़)
+
+## अहम बातें:
+
+✓ 4 फ़र्ज़ आमाल सही वुज़ू के लिए ज़रूरी हैं
+✓ सुन्नत आमाल की ज़्यादा से ज़्यादा पैरवी करनी चाहिए
+✓ मुस्तहब आमाल इज़ाफ़ी बरकतें लाते हैं
+✓ नीयत ज़रूरी है (बाज़ इसे फ़र्ज़ समझते हैं)
+
+नबी करीम ﷺ ने फ़रमाया: "क्या मैं तुम्हें ऐसी चीज़ न बताऊं जिससे अल्लाह गुनाह मिटाता और दर्जात बुलंद करता है?" उन्होंने कहा: 'जी हां, ऐ अल्लाह के रसूल।' आप ﷺ ने फ़रमाया: 'मुश्किलात के बावजूद अच्छी तरह वुज़ू करना।'"
+(सहीह मुस्लिम)''',
+        'arabic': '''تصنيف أعمال الوضوء
+
+## الفرض (الواجب) - 4 أعمال أساسية
+
+هذه ضرورية تماماً للوضوء الصحيح:
+
+١. **غسل الوجه**
+   • من منبت الشعر إلى الذقن
+   • من الأذن إلى الأذن
+   • يشمل المضمضة والاستنشاق (حسب أغلب العلماء)
+
+٢. **غسل الذراعين**
+   • من أطراف الأصابع إلى المرفقين
+   • المرفقان نفسهما مشمولان
+   • يجب الغسل الكامل
+
+٣. **مسح الرأس**
+   • ربع الرأس على الأقل
+   • بأيدٍ مبللة
+   • لا يمكن استبداله بالغسل
+
+٤. **غسل القدمين**
+   • من الأصابع إلى الكعبين
+   • الكعبان نفسهما مشمولان
+   • يجب غسل ما بين الأصابع
+
+⚠️ تفويت أي عمل فرض يبطل الوضوء بالكامل!
+
+## السنة (الموصى به) - اتباع طريقة النبي ﷺ
+
+هذه تجلب أجراً عظيماً لكنها ليست واجبة:
+
+١. **قول بسم الله** قبل البدء
+٢. **غسل اليدين ثلاث مرات** في البداية
+٣. **استخدام السواك** أو تنظيف الأسنان
+٤. **المضمضة** ثلاث مرات
+٥. **الاستنشاق** ثلاث مرات
+٦. **غسل كل عضو ثلاث مرات** (لا تزيد عن ثلاث)
+٧. **البدء بالجانب الأيمن** قبل الأيسر
+٨. **تخليل اللحية** بالأصابع
+٩. **تخليل الأصابع والأصابع**
+١٠. **الموالاة** بدون فترات طويلة
+١١. **اتباع الترتيب** (فرض في المذهب الشافعي)
+١٢. **قراءة الدعاء** بعد الانتهاء
+
+## المستحب (المفضل) - بركات إضافية
+
+هذه أعمال محبوبة تجلب أجراً إضافياً:
+
+١. **استقبال القبلة** أثناء الوضوء
+٢. **عدم الكلام** دون ضرورة
+٣. **عدم الإسراف في الماء** - استخدام الحد الأدنى
+٤. **تجنب المساعدة** إلا عند الضرورة
+٥. **التجفيف بمنشفة نظيفة** (مباح)
+٦. **الدعاء** في كل خطوة
+٧. **صلاة ركعتين** بعد الوضوء (سنة)
+
+## ما ينقض الوضوء؟
+
+حالات الفرض التي تتطلب وضوءً جديداً:
+• أي خروج من السبيلين
+• النوم العميق مستلقياً
+• فقدان الوعي
+• لمس الفرج (حسب بعض المذاهب)
+
+## ملاحظات مهمة:
+
+✓ الأعمال الأربعة الفرض يجب القيام بها للوضوء الصحيح
+✓ يجب اتباع أعمال السنة قدر الإمكان
+✓ أعمال المستحب تجلب بركات إضافية
+✓ النية ضرورية (يعتبرها البعض فرضاً)
+
+قال النبي ﷺ: "ألا أدلكم على ما يمحو الله به الخطايا ويرفع به الدرجات؟" قالوا: 'بلى يا رسول الله.' قال: 'إسباغ الوضوء على المكاره.'"
+(صحيح مسلم)''',
+      },
+    },
   ];
 
   @override
@@ -1346,11 +2102,15 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: context.responsive.paddingRegular,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: Builder(
+        builder: (context) {
+          final langCode = context.languageProvider.languageCode;
+          final isRtl = langCode == 'ur' || langCode == 'ar';
+          return SingleChildScrollView(
+            padding: context.responsive.paddingRegular,
+            child: Column(
+              crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
             // Search Bar
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
@@ -1375,19 +2135,19 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
             filteredWazuSteps.isEmpty && filteredAdditionalInfo.isEmpty
                 ? Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(32),
+                      padding: context.responsive.paddingAll(32),
                       child: Column(
                         children: [
                           Icon(
                             Icons.search_off,
-                            size: 64,
+                            size: context.responsive.iconLarge * 2,
                             color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
                           ),
-                          const SizedBox(height: 16),
+                          context.responsive.vSpaceRegular,
                           Text(
                             context.tr('no_results_found'),
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: context.responsive.textRegular,
                               color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                             ),
                             textAlign: TextAlign.center,
@@ -1441,6 +2201,8 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
             ],
           ],
         ),
+      );
+        },
       ),
     );
   }
@@ -1468,8 +2230,8 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
-            offset: Offset(0, responsive.spacing(2)),
+            blurRadius: 10.0,
+            offset: Offset(0, 2.0),
           ),
         ],
       ),
@@ -1482,16 +2244,16 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
             children: [
               // Step Number Badge
               Container(
-                width: responsive.spacing(50),
-                height: responsive.spacing(50),
+                width: responsive.iconLarge * 1.5,
+                height: responsive.iconLarge * 1.5,
                 decoration: BoxDecoration(
                   color: darkGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
                       color: darkGreen.withValues(alpha: 0.3),
-                      blurRadius: responsive.spacing(8),
-                      offset: Offset(0, responsive.spacing(2)),
+                      blurRadius: 8,
+                      offset: Offset(0, 2.0),
                     ),
                   ],
                 ),
@@ -1506,12 +2268,14 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
                   ),
                 ),
               ),
-              SizedBox(width: responsive.spacing(14)),
+              responsive.hSpaceSmall,
 
               // Step Name and Icon
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: (langCode == 'ur' || langCode == 'ar')
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
                   children: [
                     // Step Title
                     Text(
@@ -1521,9 +2285,11 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : darkGreen,
                       ),
-                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                      textDirection: (langCode == 'ur' || langCode == 'ar') ? TextDirection.rtl : TextDirection.ltr,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: responsive.spacing(4)),
+                    responsive.vSpaceXSmall,
                     // Step icon chip
                     Container(
                       padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
@@ -1539,13 +2305,17 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
                             size: responsive.textXSmall + 2,
                             color: emeraldGreen,
                           ),
-                          SizedBox(width: responsive.spacing(4)),
-                          Text(
-                            '${context.tr('step')} ${step['step']}',
-                            style: TextStyle(
-                              fontSize: responsive.textXSmall,
-                              fontWeight: FontWeight.w600,
-                              color: emeraldGreen,
+                          responsive.hSpaceXSmall,
+                          Flexible(
+                            child: Text(
+                              '${context.tr('step')} ${step['step']}',
+                              style: TextStyle(
+                                fontSize: responsive.textXSmall,
+                                fontWeight: FontWeight.w600,
+                                color: emeraldGreen,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -1598,8 +2368,8 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
-            offset: Offset(0, responsive.spacing(2)),
+            blurRadius: 10.0,
+            offset: Offset(0, 2.0),
           ),
         ],
       ),
@@ -1610,35 +2380,40 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
           padding: responsive.paddingAll(14),
           child: Row(
             children: [
-              // Icon Badge
+              // Number Badge
               Container(
-                width: responsive.spacing(50),
-                height: responsive.spacing(50),
+                width: responsive.iconLarge * 1.5,
+                height: responsive.iconLarge * 1.5,
                 decoration: BoxDecoration(
                   color: darkGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
                       color: darkGreen.withValues(alpha: 0.3),
-                      blurRadius: responsive.spacing(8),
-                      offset: Offset(0, responsive.spacing(2)),
+                      blurRadius: 8,
+                      offset: Offset(0, 2.0),
                     ),
                   ],
                 ),
                 child: Center(
-                  child: Icon(
-                    info['icon'] as IconData,
-                    color: Colors.white,
-                    size: responsive.textLarge + 4,
+                  child: Text(
+                    '${info['number']}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsive.textLarge,
+                    ),
                   ),
                 ),
               ),
-              SizedBox(width: responsive.spacing(14)),
+              responsive.hSpaceSmall,
 
               // Info Title
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: (langCode == 'ur' || langCode == 'ar')
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
                   children: [
                     // Info Title
                     Text(
@@ -1648,9 +2423,11 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : darkGreen,
                       ),
-                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                      textDirection: (langCode == 'ur' || langCode == 'ar') ? TextDirection.rtl : TextDirection.ltr,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: responsive.spacing(4)),
+                    responsive.vSpaceXSmall,
                     // Info chip
                     Container(
                       padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
@@ -1658,13 +2435,28 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
                         color: const Color(0xFFE8F3ED),
                         borderRadius: BorderRadius.circular(responsive.radiusSmall),
                       ),
-                      child: Text(
-                        context.tr('additional_information'),
-                        style: TextStyle(
-                          fontSize: responsive.textXSmall,
-                          fontWeight: FontWeight.w600,
-                          color: emeraldGreen,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: responsive.textXSmall + 2,
+                            color: emeraldGreen,
+                          ),
+                          responsive.hSpaceXSmall,
+                          Flexible(
+                            child: Text(
+                              context.tr('additional_information'),
+                              style: TextStyle(
+                                fontSize: responsive.textXSmall,
+                                fontWeight: FontWeight.w600,
+                                color: emeraldGreen,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -1716,7 +2508,6 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
 
   void _showInfoDetails(Map<String, dynamic> info) {
     final details = info['details'] as Map<String, String>;
-    final titleKey = info['titleKey'] ?? 'wazu';
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -1732,6 +2523,7 @@ Note: Regular cotton socks are a matter of scholarly difference. Some allow wipi
           color: info['color'] as Color,
           icon: info['icon'] as IconData,
           categoryKey: 'category_wazu',
+          number: info['number'] as int?,
         ),
       ),
     );

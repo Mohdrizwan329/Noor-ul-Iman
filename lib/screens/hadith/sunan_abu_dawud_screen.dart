@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/hadith_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/common/search_bar_widget.dart';
@@ -116,7 +115,6 @@ class _SunanAbuDawudScreenState extends State<SunanAbuDawudScreen> {
     const darkGreen = Color(0xFF0A5C36);
     const emeraldGreen = Color(0xFF1E8F5A);
     const lightGreenBorder = Color(0xFF8AAF9A);
-    const softGold = Color(0xFFC9A24D);
     final responsive = context.responsive;
 
     return Container(
@@ -187,19 +185,15 @@ class _SunanAbuDawudScreenState extends State<SunanAbuDawudScreen> {
                 child: Consumer<LanguageProvider>(
                   builder: (context, langProvider, child) {
                     String displayName;
-                    bool useArabicFont = false;
-                    bool useUrduFont = false;
                     TextDirection textDir = TextDirection.ltr;
 
                     switch (langProvider.languageCode) {
                       case 'ar':
                         displayName = book.arabicName;
-                        useArabicFont = true;
                         textDir = TextDirection.rtl;
                         break;
                       case 'ur':
                         displayName = book.urduName;
-                        useUrduFont = true;
                         textDir = TextDirection.rtl;
                         break;
                       case 'hi':
@@ -217,7 +211,7 @@ class _SunanAbuDawudScreenState extends State<SunanAbuDawudScreen> {
                         fontSize: responsive.textSmall,
                         fontWeight: FontWeight.bold,
                         color: darkGreen,
-                        fontFamily: useArabicFont ? 'Amiri' : (useUrduFont ? 'NotoNastaliq' : null),
+                        fontFamily: 'Poppins',
                       ),
                       textDirection: textDir,
                       maxLines: 2,
@@ -245,98 +239,6 @@ class _SunanAbuDawudScreenState extends State<SunanAbuDawudScreen> {
     );
   }
 
-  void _showBookInfo(BuildContext context, HadithCollectionInfo info) {
-    final responsive = context.responsive;
-    showModalBottomSheet(
-      context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(responsive.radiusXLarge)),
-      ),
-      builder: (context) => Padding(
-        padding: responsive.paddingAll(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: responsive.paddingAll(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(responsive.radiusMedium),
-                  ),
-                  child: Icon(Icons.menu_book, color: AppColors.primary, size: responsive.iconXLarge),
-                ),
-                SizedBox(width: responsive.spaceRegular),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        info.name,
-                        style: TextStyle(fontSize: responsive.textXLarge, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        info.arabicName,
-                        style: TextStyle(fontSize: responsive.textRegular, fontFamily: 'Amiri'),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: responsive.spaceRegular),
-            Text(
-              '${context.tr('compiled_by')}: ${info.compiler}',
-              style: TextStyle(fontSize: responsive.textMedium, fontWeight: FontWeight.w600),
-            ),
-            SizedBox(height: responsive.spaceSmall),
-            Text(
-              info.description,
-              style: TextStyle(fontSize: responsive.textMedium, height: 1.5),
-            ),
-            SizedBox(height: responsive.spaceRegular),
-            Row(
-              children: [
-                _InfoChip(icon: Icons.book, label: '${info.totalBooks} ${context.tr('books')}'),
-                SizedBox(width: responsive.spaceMedium),
-                _InfoChip(icon: Icons.format_list_numbered, label: '${info.totalHadith} ${context.tr('hadiths')}'),
-              ],
-            ),
-            SizedBox(height: responsive.spaceLarge),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _InfoChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const _InfoChip({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final responsive = context.responsive;
-    return Container(
-      padding: responsive.paddingSymmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.secondary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(responsive.radiusXLarge),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: responsive.iconSmall, color: AppColors.secondary),
-          SizedBox(width: responsive.spacing(6)),
-          Text(label, style: TextStyle(fontSize: responsive.textSmall, color: AppColors.secondary, fontWeight: FontWeight.w600)),
-        ],
-      ),
-    );
-  }
 }
 
 class AbuDawudBookInfo {
@@ -357,34 +259,50 @@ class AbuDawudBookInfo {
   });
 }
 
-// Complete list of all Books in Sunan Abu Dawud
+// Complete list of all 43 Books in Sunan Abu Dawud (sunnah.com numbering)
+// Source: https://sunnah.com/abudawud - Total 5274 hadith across 43 books
 final List<AbuDawudBookInfo> _abuDawudBooks = [
-  const AbuDawudBookInfo(id: 1, name: "Kitab at-Taharah (Purification)", arabicName: "كتاب الطهارة", urduName: "کتاب الطہارت", hindiName: "पवित्रता की किताब", hadithCount: 390),
-  const AbuDawudBookInfo(id: 2, name: "Kitab as-Salat (Prayer)", arabicName: "كتاب الصلاة", urduName: "کتاب الصلوٰۃ", hindiName: "नमाज़ की किताब", hadithCount: 457),
-  const AbuDawudBookInfo(id: 3, name: "Kitab az-Zakat", arabicName: "كتاب الزكاة", urduName: "کتاب الزکوٰۃ", hindiName: "ज़कात की किताब", hadithCount: 145),
-  const AbuDawudBookInfo(id: 4, name: "Kitab al-Luqatah (Lost & Found)", arabicName: "كتاب اللقطة", urduName: "کتاب اللقطہ", hindiName: "खोई हुई वस्तु की किताब", hadithCount: 25),
-  const AbuDawudBookInfo(id: 5, name: "Kitab al-Manasik (Hajj Rituals)", arabicName: "كتاب المناسك", urduName: "کتاب المناسک", hindiName: "हज के रीति-रिवाज़ की किताब", hadithCount: 198),
-  const AbuDawudBookInfo(id: 6, name: "Kitab an-Nikah (Marriage)", arabicName: "كتاب النكاح", urduName: "کتاب النکاح", hindiName: "निकाह की किताब", hadithCount: 130),
-  const AbuDawudBookInfo(id: 7, name: "Kitab at-Talaq (Divorce)", arabicName: "كتاب الطلاق", urduName: "کتاب الطلاق", hindiName: "तलाक़ की किताब", hadithCount: 94),
-  const AbuDawudBookInfo(id: 8, name: "Kitab as-Sawm (Fasting)", arabicName: "كتاب الصوم", urduName: "کتاب الصوم", hindiName: "रोज़ा की किताब", hadithCount: 164),
-  const AbuDawudBookInfo(id: 9, name: "Kitab al-Jihad", arabicName: "كتاب الجهاد", urduName: "کتاب الجہاد", hindiName: "जिहाद की किताब", hadithCount: 177),
-  const AbuDawudBookInfo(id: 10, name: "Kitab as-Sayd (Hunting)", arabicName: "كتاب الصيد", urduName: "کتاب الصید", hindiName: "शिकार की किताब", hadithCount: 40),
-  const AbuDawudBookInfo(id: 11, name: "Kitab al-Wasaya (Wills)", arabicName: "كتاب الوصايا", urduName: "کتاب الوصایا", hindiName: "वसीयत की किताब", hadithCount: 20),
-  const AbuDawudBookInfo(id: 12, name: "Kitab al-Fara'id (Inheritance)", arabicName: "كتاب الفرائض", urduName: "کتاب الفرائض", hindiName: "विरासत की किताब", hadithCount: 21),
-  const AbuDawudBookInfo(id: 13, name: "Kitab al-Kharaj wa al-Imarah (Tribute & Leadership)", arabicName: "كتاب الخراج والإمارة", urduName: "کتاب الخراج والامارہ", hindiName: "कर और नेतृत्व की किताब", hadithCount: 164),
-  const AbuDawudBookInfo(id: 14, name: "Kitab al-Jana'iz (Funerals)", arabicName: "كتاب الجنائز", urduName: "کتاب الجنائز", hindiName: "अंतिम संस्कार की किताब", hadithCount: 134),
-  const AbuDawudBookInfo(id: 15, name: "Kitab al-Ayman wa an-Nudhur (Oaths & Vows)", arabicName: "كتاب الأيمان والنذور", urduName: "کتاب الایمان والنذور", hindiName: "कसम और मन्नत की किताब", hadithCount: 67),
-  const AbuDawudBookInfo(id: 16, name: "Kitab al-Buyu' (Sales)", arabicName: "كتاب البيوع", urduName: "کتاب البیوع", hindiName: "लेन-देन की किताब", hadithCount: 104),
-  const AbuDawudBookInfo(id: 17, name: "Kitab al-Ijarah (Wages)", arabicName: "كتاب الإجارة", urduName: "کتاب الاجارہ", hindiName: "मज़दूरी की किताब", hadithCount: 36),
-  const AbuDawudBookInfo(id: 18, name: "Kitab al-Aqdiya (Judgments)", arabicName: "كتاب الأقضية", urduName: "کتاب الاقضیہ", hindiName: "न्यायिक फ़ैसलों की किताब", hadithCount: 60),
-  const AbuDawudBookInfo(id: 19, name: "Kitab al-'Ilm (Knowledge)", arabicName: "كتاب العلم", urduName: "کتاب العلم", hindiName: "ज्ञान की किताब", hadithCount: 27),
-  const AbuDawudBookInfo(id: 20, name: "Kitab al-Ashriba (Drinks)", arabicName: "كتاب الأشربة", urduName: "کتاب الاشربہ", hindiName: "पेय पदार्थों की किताब", hadithCount: 55),
-  const AbuDawudBookInfo(id: 21, name: "Kitab al-At'imah (Foods)", arabicName: "كتاب الأطعمة", urduName: "کتاب الاطعمہ", hindiName: "खाद्य पदार्थों की किताब", hadithCount: 93),
-  const AbuDawudBookInfo(id: 22, name: "Kitab at-Tibb (Medicine)", arabicName: "كتاب الطب", urduName: "کتاب الطب", hindiName: "चिकित्सा की किताब", hadithCount: 43),
-  const AbuDawudBookInfo(id: 23, name: "Kitab al-Libas (Clothing)", arabicName: "كتاب اللباس", urduName: "کتاب اللباس", hindiName: "वस्त्र की किताब", hadithCount: 69),
-  const AbuDawudBookInfo(id: 24, name: "Kitab al-Hudud (Punishments)", arabicName: "كتاب الحدود", urduName: "کتاب الحدود", hindiName: "हदूद की किताब", hadithCount: 79),
-  const AbuDawudBookInfo(id: 25, name: "Kitab ad-Diyat (Blood Money)", arabicName: "كتاب الديات", urduName: "کتاب الدیات", hindiName: "खून का मुआवज़ा की किताब", hadithCount: 32),
-  const AbuDawudBookInfo(id: 26, name: "Kitab al-Adab (Manners)", arabicName: "كتاب الأدب", urduName: "کتاب الادب", hindiName: "शिष्टाचार की किताब", hadithCount: 322),
-  const AbuDawudBookInfo(id: 27, name: "Kitab al-Fitan (Tribulations)", arabicName: "كتاب الفتن", urduName: "کتاب الفتن", hindiName: "फ़ितनों की किताब", hadithCount: 87),
-  const AbuDawudBookInfo(id: 28, name: "Kitab al-Malahim (Battles)", arabicName: "كتاب الملاحم", urduName: "کتاب الملاحم", hindiName: "युद्धों की किताब", hadithCount: 20),
+  const AbuDawudBookInfo(id: 1, name: "Purification (Kitab Al-Taharah)", arabicName: "كتاب الطهارة", urduName: "کتاب الطہارت", hindiName: "पवित्रता की किताब", hadithCount: 390),
+  const AbuDawudBookInfo(id: 2, name: "Prayer (Kitab Al-Salat)", arabicName: "كتاب الصلاة", urduName: "کتاب الصلوٰۃ", hindiName: "नमाज़ की किताब", hadithCount: 770),
+  const AbuDawudBookInfo(id: 3, name: "Prayer for Rain (Istisqa)", arabicName: "كتاب الاستسقاء", urduName: "کتاب الاستسقاء", hindiName: "बारिश की नमाज़ की किताब", hadithCount: 37),
+  const AbuDawudBookInfo(id: 4, name: "Prayer During Journey", arabicName: "كتاب صلاة السفر", urduName: "کتاب صلاۃ السفر", hindiName: "सफ़र की नमाज़ की किताब", hadithCount: 52),
+  const AbuDawudBookInfo(id: 5, name: "Voluntary Prayers", arabicName: "كتاب التطوع", urduName: "کتاب التطوع", hindiName: "नफ़ल नमाज़ों की किताब", hadithCount: 121),
+  const AbuDawudBookInfo(id: 6, name: "Ramadan (Detailed Injunctions)", arabicName: "كتاب شهر رمضان", urduName: "کتاب شہر رمضان", hindiName: "रमज़ान की किताब", hadithCount: 30),
+  const AbuDawudBookInfo(id: 7, name: "Prostration During Quran Recitation", arabicName: "كتاب سجود القرآن", urduName: "کتاب سجود القرآن", hindiName: "क़ुरआन में सज्दे की किताब", hadithCount: 15),
+  const AbuDawudBookInfo(id: 8, name: "Witr Prayer", arabicName: "كتاب الوتر", urduName: "کتاب الوتر", hindiName: "वित्र नमाज़ की किताब", hadithCount: 140),
+  const AbuDawudBookInfo(id: 9, name: "Zakat (Kitab Al-Zakat)", arabicName: "كتاب الزكاة", urduName: "کتاب الزکوٰۃ", hindiName: "ज़कात की किताब", hadithCount: 145),
+  const AbuDawudBookInfo(id: 10, name: "Lost and Found Items", arabicName: "كتاب اللقطة", urduName: "کتاب اللقطہ", hindiName: "खोई हुई वस्तु की किताब", hadithCount: 20),
+  const AbuDawudBookInfo(id: 11, name: "Hajj Rites (Kitab Al-Manasik)", arabicName: "كتاب المناسك", urduName: "کتاب المناسک", hindiName: "हज के मनासिक की किताब", hadithCount: 325),
+  const AbuDawudBookInfo(id: 12, name: "Marriage (Kitab Al-Nikah)", arabicName: "كتاب النكاح", urduName: "کتاب النکاح", hindiName: "निकाह की किताब", hadithCount: 129),
+  const AbuDawudBookInfo(id: 13, name: "Divorce (Kitab Al-Talaq)", arabicName: "كتاب الطلاق", urduName: "کتاب الطلاق", hindiName: "तलाक़ की किताब", hadithCount: 138),
+  const AbuDawudBookInfo(id: 14, name: "Fasting (Kitab Al-Siyam)", arabicName: "كتاب الصوم", urduName: "کتاب الصوم", hindiName: "रोज़ा की किताब", hadithCount: 164),
+  const AbuDawudBookInfo(id: 15, name: "Jihad (Kitab Al-Jihad)", arabicName: "كتاب الجهاد", urduName: "کتاب الجہاد", hindiName: "जिहाद की किताब", hadithCount: 311),
+  const AbuDawudBookInfo(id: 16, name: "Sacrifice (Kitab Al-Dahaya)", arabicName: "كتاب الضحايا", urduName: "کتاب الضحایا", hindiName: "क़ुर्बानी की किताब", hadithCount: 56),
+  const AbuDawudBookInfo(id: 17, name: "Game (Kitab Al-Said)", arabicName: "كتاب الصيد", urduName: "کتاب الصید", hindiName: "शिकार की किताब", hadithCount: 18),
+  const AbuDawudBookInfo(id: 18, name: "Wills (Kitab Al-Wasaya)", arabicName: "كتاب الوصايا", urduName: "کتاب الوصایا", hindiName: "वसीयत की किताब", hadithCount: 23),
+  const AbuDawudBookInfo(id: 19, name: "Inheritance (Kitab Al-Fara'id)", arabicName: "كتاب الفرائض", urduName: "کتاب الفرائض", hindiName: "विरासत की किताब", hadithCount: 43),
+  const AbuDawudBookInfo(id: 20, name: "Tribute, Spoils and Rulership", arabicName: "كتاب الخراج والإمارة والفىء", urduName: "کتاب الخراج والامارۃ والفیء", hindiName: "ख़राज, माल-ए-ग़नीमत और हुकूमत की किताब", hadithCount: 161),
+  const AbuDawudBookInfo(id: 21, name: "Funerals (Kitab Al-Jana'iz)", arabicName: "كتاب الجنائز", urduName: "کتاب الجنائز", hindiName: "जनाज़े की किताब", hadithCount: 153),
+  const AbuDawudBookInfo(id: 22, name: "Oaths and Vows", arabicName: "كتاب الأيمان والنذور", urduName: "کتاب الایمان والنذور", hindiName: "क़समें और मन्नतें की किताब", hadithCount: 84),
+  const AbuDawudBookInfo(id: 23, name: "Commercial Transactions", arabicName: "كتاب البيوع", urduName: "کتاب البیوع", hindiName: "ख़रीद-फ़रोख़्त की किताब", hadithCount: 90),
+  const AbuDawudBookInfo(id: 24, name: "Wages (Kitab Al-Ijarah)", arabicName: "كتاب الإجارة", urduName: "کتاب الاجارہ", hindiName: "मज़दूरी और किराए की किताब", hadithCount: 155),
+  const AbuDawudBookInfo(id: 25, name: "Office of the Judge", arabicName: "كتاب الأقضية", urduName: "کتاب الاقضیہ", hindiName: "क़ाज़ी के फ़राइज़ की किताब", hadithCount: 70),
+  const AbuDawudBookInfo(id: 26, name: "Knowledge (Kitab Al-Ilm)", arabicName: "كتاب العلم", urduName: "کتاب العلم", hindiName: "इल्म की किताब", hadithCount: 28),
+  const AbuDawudBookInfo(id: 27, name: "Drinks (Kitab Al-Ashribah)", arabicName: "كتاب الأشربة", urduName: "کتاب الاشربہ", hindiName: "पीने की चीज़ों की किताब", hadithCount: 67),
+  const AbuDawudBookInfo(id: 28, name: "Foods (Kitab Al-At'imah)", arabicName: "كتاب الأطعمة", urduName: "کتاب الاطعمہ", hindiName: "खाने की चीज़ों की किताब", hadithCount: 119),
+  const AbuDawudBookInfo(id: 29, name: "Medicine (Kitab Al-Tibb)", arabicName: "كتاب الطب", urduName: "کتاب الطب", hindiName: "तिब्ब की किताब", hadithCount: 49),
+  const AbuDawudBookInfo(id: 30, name: "Divination and Omens", arabicName: "كتاب الكهانة و التطير", urduName: "کتاب الکہانۃ والتطیر", hindiName: "कहानत और तियरा की किताब", hadithCount: 22),
+  const AbuDawudBookInfo(id: 31, name: "Manumission of Slaves", arabicName: "كتاب العتق", urduName: "کتاب العتق", hindiName: "ग़ुलाम आज़ाद करने की किताब", hadithCount: 43),
+  const AbuDawudBookInfo(id: 32, name: "Dialects and Quran Readings", arabicName: "كتاب الحروف والقراءات", urduName: "کتاب الحروف والقراءات", hindiName: "हुरूफ़ और क़िराअतों की किताब", hadithCount: 40),
+  const AbuDawudBookInfo(id: 33, name: "Hot Baths (Kitab Al-Hammam)", arabicName: "كتاب الحمَّام", urduName: "کتاب الحمام", hindiName: "हम्माम की किताब", hadithCount: 11),
+  const AbuDawudBookInfo(id: 34, name: "Clothing (Kitab Al-Libas)", arabicName: "كتاب اللباس", urduName: "کتاب اللباس", hindiName: "लिबास की किताब", hadithCount: 139),
+  const AbuDawudBookInfo(id: 35, name: "Combing the Hair", arabicName: "كتاب الترجل", urduName: "کتاب الترجل", hindiName: "बालों को सवारने की किताब", hadithCount: 55),
+  const AbuDawudBookInfo(id: 36, name: "Signet-Rings (Kitab Al-Khatam)", arabicName: "كتاب الخاتم", urduName: "کتاب الخاتم", hindiName: "अंगूठी की किताब", hadithCount: 26),
+  const AbuDawudBookInfo(id: 37, name: "Trials and Fierce Battles", arabicName: "كتاب الفتن والملاحم", urduName: "کتاب الفتن والملاحم", hindiName: "फ़ितने और जंगों की किताब", hadithCount: 39),
+  const AbuDawudBookInfo(id: 38, name: "The Promised Deliverer (Al-Mahdi)", arabicName: "كتاب المهدى", urduName: "کتاب المہدی", hindiName: "इमाम महदी की किताब", hadithCount: 12),
+  const AbuDawudBookInfo(id: 39, name: "Battles (Kitab Al-Malahim)", arabicName: "كتاب الملاحم", urduName: "کتاب الملاحم", hindiName: "मलाहिम की किताब", hadithCount: 60),
+  const AbuDawudBookInfo(id: 40, name: "Prescribed Punishments", arabicName: "كتاب الحدود", urduName: "کتاب الحدود", hindiName: "हुदूद की किताब", hadithCount: 143),
+  const AbuDawudBookInfo(id: 41, name: "Blood-Wit (Kitab Al-Diyat)", arabicName: "كتاب الديات", urduName: "کتاب الدیات", hindiName: "दियत की किताब", hadithCount: 102),
+  const AbuDawudBookInfo(id: 42, name: "Model Behavior of the Prophet", arabicName: "كتاب السنة", urduName: "کتاب السنۃ", hindiName: "सुन्नत की किताब", hadithCount: 177),
+  const AbuDawudBookInfo(id: 43, name: "General Behavior (Kitab Al-Adab)", arabicName: "كتاب الأدب", urduName: "کتاب الادب", hindiName: "आदाब की किताब", hadithCount: 502),
 ];

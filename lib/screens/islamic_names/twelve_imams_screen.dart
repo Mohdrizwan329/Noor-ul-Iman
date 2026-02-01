@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/common/search_bar_widget.dart';
@@ -556,7 +555,6 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
     const darkGreen = Color(0xFF0A5C36);
     const emeraldGreen = Color(0xFF1E8F5A);
     const lightGreenBorder = Color(0xFF8AAF9A);
-    const softGold = Color(0xFFC9A24D);
     final responsive = context.responsive;
 
     return GestureDetector(
@@ -607,8 +605,8 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
               : [
                   BoxShadow(
                     color: darkGreen.withValues(alpha: 0.08),
-                    blurRadius: responsive.spacing(10),
-                    offset: Offset(0, responsive.spacing(2)),
+                    blurRadius: 10.0,
+                    offset: Offset(0, 2.0),
                   ),
                 ],
         ),
@@ -653,8 +651,8 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
               children: [
                 // Number Badge (circular)
                 Container(
-                  width: responsive.spacing(50),
-                  height: responsive.spacing(50),
+                  width: responsive.iconLarge * 1.5,
+                  height: responsive.iconLarge * 1.5,
                   decoration: BoxDecoration(
                     color: isDark ? emeraldGreen : darkGreen,
                     shape: BoxShape.circle,
@@ -663,8 +661,8 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
                         color: (isDark ? emeraldGreen : darkGreen).withValues(
                           alpha: 0.3,
                         ),
-                        blurRadius: responsive.spacing(8),
-                        offset: Offset(0, responsive.spacing(2)),
+                        blurRadius: 8,
+                        offset: Offset(0, 2.0),
                       ),
                     ],
                   ),
@@ -679,7 +677,7 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
                     ),
                   ),
                 ),
-                SizedBox(width: responsive.spacing(14)),
+                responsive.hSpaceSmall,
 
                 // Imam Name
                 Expanded(
@@ -690,8 +688,8 @@ class _TwelveImamsScreenState extends State<TwelveImamsScreen> {
                       fontWeight: FontWeight.bold,
                       color: isDark ? AppColors.darkTextPrimary : darkGreen,
                       fontFamily: languageCode == 'ar'
-                          ? 'Amiri'
-                          : (languageCode == 'ur' ? 'NotoNastaliq' : null),
+                          ? 'Poppins'
+                          : (languageCode == 'ur' ? 'Poppins' : null),
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

@@ -3,8 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_assets.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/auth_provider.dart';
 import '../../screens/main/main_screen.dart';
 
@@ -27,10 +26,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     4,
     (index) => TextEditingController(),
   );
-  final List<FocusNode> _focusNodes = List.generate(
-    4,
-    (index) => FocusNode(),
-  );
+  final List<FocusNode> _focusNodes = List.generate(4, (index) => FocusNode());
 
   @override
   void dispose() {
@@ -47,12 +43,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     final otp = _otpControllers.map((c) => c.text).join();
 
     if (otp.length != 4) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.tr('enter_complete_otp')),
-          backgroundColor: Colors.red,
-        ),
-      );
       return;
     }
 
@@ -66,43 +56,23 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     if (!mounted) return;
 
     if (success) {
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.tr('login_success')),
-          backgroundColor: Colors.green,
-        ),
-      );
-
       // Navigate to main screen
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const MainScreen()),
         (route) => false,
       );
-    } else {
-      // Show error
-      if (authProvider.error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(authProvider.error!),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
     }
   }
 
-  Widget _buildOtpField(int index, ResponsiveUtils responsive, bool isDark) {
+  Widget _buildOtpField(int index) {
+    final responsive = context.responsive;
+
     return Container(
-      width: responsive.iconSize(60),
-      height: responsive.iconSize(70),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(responsive.radiusMedium),
-        border: Border.all(
-          color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
-          width: 1.5,
-        ),
+      width: responsive.spacing(60),
+      height: responsive.spacing(70),
+      decoration: AppDecorations.card(
+        context,
+        borderRadius: responsive.radiusMedium,
       ),
       child: TextField(
         controller: _otpControllers[index],
@@ -110,23 +80,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         textAlign: TextAlign.center,
         keyboardType: TextInputType.number,
         maxLength: 1,
-        style: TextStyle(
-          fontSize: responsive.textXXLarge,
-          fontWeight: FontWeight.bold,
-          color: isDark ? AppColors.darkTextPrimary : AppColors.primary,
-        ),
-        inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly,
-        ],
+        style: AppTextStyles.heading1(context),
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         decoration: InputDecoration(
           counterText: '',
           border: InputBorder.none,
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(responsive.radiusMedium),
-            borderSide: BorderSide(
-              color: AppColors.primary,
-              width: 2,
-            ),
+            borderSide: BorderSide(color: AppColors.primary, width: 2),
           ),
         ),
         onChanged: (value) {
@@ -148,26 +109,25 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     final responsive = ResponsiveUtils(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: responsive.spacing(32),
+              height: responsive.spacing(32),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
               ),
-              padding: const EdgeInsets.all(4),
+              padding: responsive.paddingAll(4),
               child: Image.asset(AppAssets.appLogo, fit: BoxFit.contain),
             ),
-            const SizedBox(width: 8),
+            responsive.hSpaceSmall,
             Text(context.tr('verify_otp')),
           ],
         ),
@@ -178,14 +138,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: responsive.spaceLarge),
+              responsive.vSpaceLarge,
               // Icon
               Container(
-                width: responsive.iconSize(100),
-                height: responsive.iconSize(100),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
+                width: responsive.spacing(100),
+                height: responsive.spacing(100),
+                decoration: AppDecorations.primaryContainer(
+                  context,
+                  opacity: 0.1,
                 ),
                 child: Icon(
                   Icons.phone_android,
@@ -193,92 +153,55 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   color: AppColors.primary,
                 ),
               ),
-              SizedBox(height: responsive.spaceLarge),
+              responsive.vSpaceLarge,
               // Title
               Text(
                 context.tr('verify_otp'),
-                style: TextStyle(
-                  fontSize: responsive.textXXLarge,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.primary,
-                ),
+                style: AppTextStyles.heading1(context),
               ),
-              SizedBox(height: responsive.spaceSmall),
+              responsive.vSpaceSmall,
               // Instructions
               Text(
                 context.tr('otp_sent_to'),
-                style: TextStyle(
-                  fontSize: responsive.textMedium,
-                  color: isDark ? AppColors.darkTextSecondary : Colors.grey.shade600,
-                ),
+                style: AppTextStyles.bodyMedium(context),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: responsive.spaceXSmall),
-              Text(
-                widget.phoneNumber,
-                style: TextStyle(
-                  fontSize: responsive.textLarge,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                ),
-              ),
-              SizedBox(height: responsive.spaceLarge),
+              responsive.vSpaceXSmall,
+              Text(widget.phoneNumber, style: AppTextStyles.heading3(context)),
+              responsive.vSpaceLarge,
               // OTP Fields
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(
-                  4,
-                  (index) => _buildOtpField(index, responsive, isDark),
-                ),
+                children: List.generate(4, (index) => _buildOtpField(index)),
               ),
-              SizedBox(height: responsive.spaceLarge),
+              responsive.vSpaceLarge,
               // Verify Button
               SizedBox(
                 width: double.infinity,
-                height: 56,
+                height: responsive.spacing(56),
                 child: ElevatedButton(
                   onPressed: authProvider.isLoading ? null : _verifyOtp,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        responsive.radiusMedium,
-                      ),
-                    ),
-                  ),
+                  style: AppButtonStyles.primary(context),
                   child: authProvider.isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : Text(
                           context.tr('verify_otp'),
-                          style: TextStyle(
-                            fontSize: responsive.textLarge,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: AppTextStyles.button(context),
                         ),
                 ),
               ),
-              SizedBox(height: responsive.spaceMedium),
+              responsive.vSpaceMedium,
               // Resend OTP
               TextButton(
                 onPressed: authProvider.isLoading
                     ? null
                     : () {
                         // TODO: Implement resend OTP
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(context.tr('otp_resent')),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
                       },
+                style: AppButtonStyles.text(context),
                 child: Text(
                   context.tr('resend_otp'),
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontSize: responsive.textMedium,
-                  ),
+                  style: AppTextStyles.link(context),
                 ),
               ),
             ],

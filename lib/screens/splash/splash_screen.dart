@@ -5,14 +5,11 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:geocoding/geocoding.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_assets.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
-import '../../providers/language_provider.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/services/geo_restriction_service.dart';
 import '../../core/services/location_service.dart';
 import '../language_selection/language_selection_screen.dart';
-import '../permissions/permissions_screen.dart';
 import '../auth/login_screen.dart';
 import '../main/main_screen.dart';
 
@@ -71,60 +68,53 @@ class _SplashScreenState extends State<SplashScreen>
         return;
       }
 
-      // Language selected, check all permissions
-      final locationStatus = await Permission.location.status;
-      final notificationStatus = await Permission.notification.status;
-      final alarmStatus = await Permission.scheduleExactAlarm.status;
-      final galleryStatus = await Permission.photos.status;
-      final contactsStatus = await Permission.contacts.status;
+      // Request permissions at startup
+      await _requestPermissions();
 
-      final allPermissionsGranted = locationStatus.isGranted &&
-          notificationStatus.isGranted &&
-          alarmStatus.isGranted &&
-          (galleryStatus.isGranted || galleryStatus.isLimited) &&
-          contactsStatus.isGranted;
+      // Try to fetch location if permission is granted
+      final locationStatus = await Permission.location.status;
+      if (locationStatus.isGranted) {
+        await _fetchAndSaveLocation();
+      }
+
+      // Check geo restriction
+      final isRestricted = await GeoRestrictionService.checkCurrentLocation();
+
+      if (isRestricted) {
+        if (mounted) {
+          GeoRestrictionService.showRestrictionDialog(context);
+        }
+        return;
+      }
 
       if (!mounted) return;
 
-      if (allPermissionsGranted) {
-        // All permissions granted, fetch location if not already fetched
-        if (locationStatus.isGranted) {
-          await _fetchAndSaveLocation();
-        }
+      // Check authentication status
+      final authProvider = context.read<AuthProvider>();
 
-        // Check geo restriction and auth
-        final isRestricted = await GeoRestrictionService.checkCurrentLocation();
-
-        if (isRestricted) {
-          if (mounted) {
-            GeoRestrictionService.showRestrictionDialog(context);
-          }
-          return;
-        }
-
-        if (!mounted) return;
-
-        // Check authentication status
-        final authProvider = context.read<AuthProvider>();
-
-        if (authProvider.isAuthenticated) {
-          // User is authenticated, go to main screen
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const MainScreen()),
-          );
-        } else {
-          // User is not authenticated, go to login screen
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const LoginScreen()),
-          );
-        }
-      } else {
-        // Permissions not granted, go to permissions screen
+      if (authProvider.isAuthenticated) {
+        // User is authenticated, go to main screen
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const PermissionsScreen()),
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+        );
+      } else {
+        // User is not authenticated, go to login screen
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
         );
       }
     });
+  }
+
+  Future<void> _requestPermissions() async {
+    // Request location permission
+    await Permission.location.request();
+
+    // Request notification permission
+    await Permission.notification.request();
+
+    // Request alarm permission
+    await Permission.scheduleExactAlarm.request();
   }
 
   Future<void> _fetchAndSaveLocation() async {
@@ -236,7 +226,7 @@ class _SplashScreenState extends State<SplashScreen>
                           Text(
                             context.tr('app_subtitle'),
                             style: TextStyle(
-                              fontSize: responsive.textMedium,
+                              fontSize: responsive.fontSize(16),
                               color: Colors.white.withValues(alpha: 0.8),
                             ),
                           ),
@@ -260,15 +250,15 @@ class _SplashScreenState extends State<SplashScreen>
                           height: responsive.spacing(30),
                           child: CircularProgressIndicator(
                             color: AppColors.secondary,
-                            strokeWidth: 2,
+                            strokeWidth: responsive.spacing(2),
                           ),
                         ),
                         responsive.vSpaceRegular,
                         Text(
                           context.tr('bismillah_arabic'),
                           style: TextStyle(
-                            fontSize: responsive.textLarge,
-                            fontFamily: 'Amiri',
+                            fontSize: responsive.fontSize(18),
+                            fontFamily: 'Poppins',
                             color: Colors.white.withValues(alpha: 0.9),
                           ),
                         ),

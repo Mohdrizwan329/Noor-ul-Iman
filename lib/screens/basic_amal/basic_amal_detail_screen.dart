@@ -4,8 +4,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/language_provider.dart';
 
@@ -81,7 +80,6 @@ class _BasicAmalDetailScreenState extends State<BasicAmalDetailScreen> {
     }
   }
 
-
   @override
   void initState() {
     super.initState();
@@ -123,7 +121,7 @@ class _BasicAmalDetailScreenState extends State<BasicAmalDetailScreen> {
       return;
     }
 
-    final langCode = context.read<LanguageProvider>().languageCode ?? 'en';
+    final langCode = context.read<LanguageProvider>().languageCode;
     String textToSpeak = _getCurrentContent(langCode);
     String ttsLangCode = 'en-US';
     switch (langCode) {
@@ -142,19 +140,6 @@ class _BasicAmalDetailScreenState extends State<BasicAmalDetailScreen> {
     }
 
     if (textToSpeak.isEmpty) {
-      if (mounted) {
-        final responsive = context.responsive;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.tr('no_text_available_audio')),
-            backgroundColor: AppColors.primary,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(responsive.borderRadius(10)),
-            ),
-          ),
-        );
-      }
       return;
     }
 
@@ -182,8 +167,7 @@ class _BasicAmalDetailScreenState extends State<BasicAmalDetailScreen> {
   }
 
   void copyDetails(BuildContext context) {
-    final responsive = context.responsive;
-    final langCode = context.read<LanguageProvider>().languageCode ?? 'en';
+    final langCode = context.read<LanguageProvider>().languageCode;
     final text = '''
 ${_getCurrentTitle(langCode)}
 ${context.tr(widget.categoryKey)}
@@ -193,20 +177,10 @@ ${_getCurrentContent(langCode)}
 - ${context.tr('from_app')}
 ''';
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.tr('copied')),
-        backgroundColor: AppColors.primary,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(responsive.borderRadius(10)),
-        ),
-      ),
-    );
   }
 
   void shareDetails() {
-    final langCode = context.read<LanguageProvider>().languageCode ?? 'en';
+    final langCode = context.read<LanguageProvider>().languageCode;
     final text = '''
 ${widget.number != null ? '${widget.number}. ' : ''}${_getCurrentTitle(langCode)}
 
@@ -220,7 +194,7 @@ ${_getCurrentContent(langCode)}
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<SettingsProvider>().isDarkMode;
-    final langCode = context.watch<LanguageProvider>().languageCode ?? 'en';
+    final langCode = context.watch<LanguageProvider>().languageCode;
     final isRtl = langCode == 'ur' || langCode == 'ar';
     final responsive = context.responsive;
 
@@ -251,8 +225,8 @@ ${_getCurrentContent(langCode)}
                 boxShadow: [
                   BoxShadow(
                     color: AppColors.primary.withValues(alpha: 0.08),
-                    blurRadius: responsive.spacing(10),
-                    offset: Offset(0, responsive.spacing(2)),
+                    blurRadius: 10.0,
+                    offset: Offset(0, 2.0),
                   ),
                 ],
               ),
@@ -283,8 +257,8 @@ ${_getCurrentContent(langCode)}
                                 boxShadow: [
                                   BoxShadow(
                                     color: AppColors.primary.withValues(alpha: 0.3),
-                                    blurRadius: responsive.spacing(6),
-                                    offset: Offset(0, responsive.spacing(2)),
+                                    blurRadius: 6.0,
+                                    offset: Offset(0, 2.0),
                                   ),
                                 ],
                               ),
@@ -292,11 +266,11 @@ ${_getCurrentContent(langCode)}
                                 child: Icon(
                                   widget.icon,
                                   color: Colors.white,
-                                  size: responsive.iconSize(20),
+                                  size: 20.0,
                                 ),
                               ),
                             ),
-                            SizedBox(width: responsive.spacing(12)),
+                            responsive.hSpaceSmall,
                             Expanded(
                               child: Text(
                                 _getCurrentTitle(langCode),
@@ -309,7 +283,7 @@ ${_getCurrentContent(langCode)}
                             ),
                           ],
                         ),
-                        SizedBox(height: responsive.spacing(8)),
+                        responsive.vSpaceXSmall,
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
@@ -336,35 +310,26 @@ ${_getCurrentContent(langCode)}
                       ],
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      if (_isSpeaking) {
-                        _stopPlaying();
-                      } else {
-                        playAudio();
-                      }
-                    },
-                    child: Container(
-                      padding: responsive.paddingAll(16),
-                      child: Text(
-                        _getCurrentContent(langCode),
-                        style: TextStyle(
-                          fontSize: responsive.fontSize(15),
-                          height: 1.8,
-                          color: _isSpeaking
-                              ? AppColors.primary
-                              : (isDark ? AppColors.darkTextSecondary : Colors.black87),
-                        ),
-                        textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
-                        textAlign: isRtl ? TextAlign.right : TextAlign.left,
+                  Container(
+                    padding: responsive.paddingAll(16),
+                    child: Text(
+                      _getCurrentContent(langCode),
+                      style: TextStyle(
+                        fontSize: responsive.fontSize(15),
+                        height: 1.8,
+                        color: _isSpeaking
+                            ? AppColors.primary
+                            : (isDark ? AppColors.darkTextSecondary : Colors.black87),
                       ),
+                      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+                      textAlign: isRtl ? TextAlign.right : TextAlign.left,
                     ),
                   ),
                 ],
               ),
             ),
             if (widget.reference != null) ...[
-              SizedBox(height: responsive.spacing(12)),
+              responsive.vSpaceSmall,
               _buildInfoCard(
                 context: context,
                 title: context.tr('reference'),
@@ -375,7 +340,7 @@ ${_getCurrentContent(langCode)}
               ),
             ],
             if (widget.importance != null) ...[
-              SizedBox(height: responsive.spacing(12)),
+              responsive.vSpaceSmall,
               _buildInfoCard(
                 context: context,
                 title: context.tr('importance'),
@@ -386,7 +351,7 @@ ${_getCurrentContent(langCode)}
               ),
             ],
             if (widget.warning != null) ...[
-              SizedBox(height: responsive.spacing(12)),
+              responsive.vSpaceSmall,
               _buildInfoCard(
                 context: context,
                 title: context.tr('warning'),
@@ -398,7 +363,7 @@ ${_getCurrentContent(langCode)}
               ),
             ],
             if (widget.tip != null) ...[
-              SizedBox(height: responsive.spacing(12)),
+              responsive.vSpaceSmall,
               _buildInfoCard(
                 context: context,
                 title: context.tr('tip'),
@@ -408,7 +373,7 @@ ${_getCurrentContent(langCode)}
                 isRtl: isRtl,
               ),
             ],
-            SizedBox(height: responsive.spacing(16)),
+            responsive.vSpaceRegular,
           ],
         ),
       ),
@@ -440,10 +405,10 @@ ${_getCurrentContent(langCode)}
             children: [
               Icon(
                 icon,
-                size: responsive.iconSize(22),
+                size: 22.0,
                 color: isActive ? Colors.white : AppColors.primary,
               ),
-              SizedBox(height: responsive.spacing(2)),
+              responsive.vSpaceXSmall,
               Text(
                 label,
                 style: TextStyle(
@@ -483,8 +448,8 @@ ${_getCurrentContent(langCode)}
         boxShadow: [
           BoxShadow(
             color: (isWarning ? Colors.orange : AppColors.primary).withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
-            offset: Offset(0, responsive.spacing(2)),
+            blurRadius: 10.0,
+            offset: Offset(0, 2.0),
           ),
         ],
       ),
@@ -513,8 +478,8 @@ ${_getCurrentContent(langCode)}
                     boxShadow: [
                       BoxShadow(
                         color: (isWarning ? Colors.orange : AppColors.primary).withValues(alpha: 0.3),
-                        blurRadius: responsive.spacing(6),
-                        offset: Offset(0, responsive.spacing(2)),
+                        blurRadius: 6.0,
+                        offset: Offset(0, 2.0),
                       ),
                     ],
                   ),
@@ -522,11 +487,11 @@ ${_getCurrentContent(langCode)}
                     child: Icon(
                       icon,
                       color: Colors.white,
-                      size: responsive.iconSize(18),
+                      size: 18.0,
                     ),
                   ),
                 ),
-                SizedBox(width: responsive.spacing(12)),
+                responsive.hSpaceSmall,
                 Text(
                   title,
                   style: TextStyle(

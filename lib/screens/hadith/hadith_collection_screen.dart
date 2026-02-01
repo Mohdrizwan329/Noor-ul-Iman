@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/hadith_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/language_provider.dart';
@@ -54,7 +54,8 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       _loadMore();
     }
   }
@@ -99,6 +100,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
   Widget build(BuildContext context) {
     final info = HadithProvider.collectionInfo[widget.collection]!;
     final settings = context.watch<SettingsProvider>();
+    final responsive = context.responsive;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -110,7 +112,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
             Text(info.name, style: const TextStyle(fontSize: 18)),
             Text(
               info.arabicName,
-              style: const TextStyle(fontSize: 12, fontFamily: 'Amiri'),
+              style: const TextStyle(fontSize: 12, fontFamily: 'Poppins'),
             ),
           ],
         ),
@@ -150,14 +152,20 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                     decoration: InputDecoration(
                       hintText: context.tr('search_hadith_hint'),
                       hintStyle: TextStyle(color: AppColors.textHint),
-                      prefixIcon: const Icon(Icons.search, color: Color(0xFF0A5C36)),
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        color: Color(0xFF0A5C36),
+                      ),
                       filled: true,
                       fillColor: Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                     ),
                   ),
                 ),
@@ -166,7 +174,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
               // Chapter Filter
               if (provider.chapters.isNotEmpty)
                 SizedBox(
-                  height: 50,
+                  height: responsive.spacing(50),
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -181,7 +189,9 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                             onSelected: (selected) => _onChapterSelected(null),
                             selectedColor: AppColors.primary,
                             labelStyle: TextStyle(
-                              color: _selectedChapter == null ? Colors.white : AppColors.textPrimary,
+                              color: _selectedChapter == null
+                                  ? Colors.white
+                                  : AppColors.textPrimary,
                             ),
                           ),
                         );
@@ -196,10 +206,13 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                                 : chapter.name,
                           ),
                           selected: _selectedChapter == chapter.id,
-                          onSelected: (selected) => _onChapterSelected(selected ? chapter.id : null),
+                          onSelected: (selected) =>
+                              _onChapterSelected(selected ? chapter.id : null),
                           selectedColor: AppColors.primary,
                           labelStyle: TextStyle(
-                            color: _selectedChapter == chapter.id ? Colors.white : AppColors.textPrimary,
+                            color: _selectedChapter == chapter.id
+                                ? Colors.white
+                                : AppColors.textPrimary,
                           ),
                         ),
                       );
@@ -213,7 +226,10 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
@@ -231,9 +247,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
               ),
 
               // Hadith List
-              Expanded(
-                child: _buildHadithList(provider, settings),
-              ),
+              Expanded(child: _buildHadithList(provider, settings)),
             ],
           );
         },
@@ -265,7 +279,10 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
             ElevatedButton(
               onPressed: () {
                 if (_selectedChapter != null) {
-                  provider.fetchChapterHadiths(widget.collection, _selectedChapter!);
+                  provider.fetchChapterHadiths(
+                    widget.collection,
+                    _selectedChapter!,
+                  );
                 } else {
                   provider.fetchAllHadiths(widget.collection, page: 1);
                 }
@@ -324,19 +341,15 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
     double translationFontSize,
     int cardIndex,
   ) {
-
+    final responsive = context.responsive;
     final showTranslation = _cardsWithTranslation.contains(cardIndex);
-    final isFav = provider.isFavorite(widget.collection, hadith.hadithNumber);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: AppColors.lightGreenBorder,
-          width: 1.5,
-        ),
+        border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: AppColors.primaryDark.withValues(alpha: 0.08),
@@ -362,8 +375,8 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
               children: [
                 // Hadith number badge
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: responsive.spacing(40),
+                  height: responsive.spacing(40),
                   decoration: BoxDecoration(
                     color: AppColors.primaryDark,
                     shape: BoxShape.circle,
@@ -404,7 +417,10 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                       if (hadith.grade.isNotEmpty)
                         Container(
                           margin: const EdgeInsets.only(top: 4),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: _getGradeColor(hadith.grade),
                             borderRadius: BorderRadius.circular(8),
@@ -427,12 +443,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                   onTap: () => _toggleCardTranslation(cardIndex),
                   isActive: showTranslation,
                 ),
-                const SizedBox(width: 4),
-                _buildActionButton(
-                  icon: isFav ? Icons.favorite : Icons.favorite_border,
-                  onTap: () => provider.toggleFavorite(widget.collection, hadith.hadithNumber),
-                  isActive: isFav,
-                ),
+
                 const SizedBox(width: 4),
                 _buildActionButton(
                   icon: Icons.copy,
@@ -456,7 +467,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
               child: Text(
                 hadith.arabic,
                 style: TextStyle(
-                  fontFamily: 'Amiri',
+                  fontFamily: 'Poppins',
                   fontSize: arabicFontSize,
                   height: 2.0,
                   color: AppColors.arabicText,
@@ -483,16 +494,22 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                   // Show translation based on current language
                   Builder(
                     builder: (context) {
-                      final langCode = context.watch<LanguageProvider>().languageCode;
+                      final langCode = context
+                          .watch<LanguageProvider>()
+                          .languageCode;
                       final isRtl = langCode == 'ur' || langCode == 'ar';
                       String translationText = '';
 
                       switch (langCode) {
                         case 'ur':
-                          translationText = hadith.urdu.isNotEmpty ? hadith.urdu : hadith.english;
+                          translationText = hadith.urdu.isNotEmpty
+                              ? hadith.urdu
+                              : hadith.english;
                           break;
                         case 'hi':
-                          translationText = hadith.hindi.isNotEmpty ? hadith.hindi : hadith.english;
+                          translationText = hadith.hindi.isNotEmpty
+                              ? hadith.hindi
+                              : hadith.english;
                           break;
                         case 'ar':
                           translationText = hadith.arabic;
@@ -501,7 +518,9 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                           translationText = hadith.english;
                       }
 
-                      if (translationText.isEmpty) return const SizedBox.shrink();
+                      if (translationText.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
 
                       return Text(
                         translationText,
@@ -509,9 +528,11 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                           fontSize: translationFontSize,
                           height: 1.5,
                           color: Colors.black87,
-                          fontFamily: isRtl ? 'Amiri' : null,
+                          fontFamily: 'Poppins',
                         ),
-                        textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+                        textDirection: isRtl
+                            ? TextDirection.rtl
+                            : TextDirection.ltr,
                         textAlign: isRtl ? TextAlign.right : TextAlign.left,
                       );
                     },
@@ -538,7 +559,11 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
               child: Center(
                 child: TextButton.icon(
                   onPressed: () => _toggleCardTranslation(cardIndex),
-                  icon: Icon(Icons.translate, size: 16, color: AppColors.primary),
+                  icon: Icon(
+                    Icons.translate,
+                    size: 16,
+                    color: AppColors.primary,
+                  ),
                   label: Text(
                     context.tr('show_translation'),
                     style: TextStyle(color: AppColors.primary, fontSize: 12),
@@ -556,12 +581,13 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
     required VoidCallback onTap,
     required bool isActive,
   }) {
+    final responsive = context.responsive;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        width: 32,
-        height: 32,
+        width: responsive.spacing(32),
+        height: responsive.spacing(32),
         decoration: BoxDecoration(
           color: isActive
               ? AppColors.primary.withValues(alpha: 0.15)
@@ -586,7 +612,9 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
         translationText = hadith.urdu.isNotEmpty ? hadith.urdu : hadith.english;
         break;
       case 'hi':
-        translationText = hadith.hindi.isNotEmpty ? hadith.hindi : hadith.english;
+        translationText = hadith.hindi.isNotEmpty
+            ? hadith.hindi
+            : hadith.english;
         break;
       case 'ar':
         translationText = hadith.arabic;
@@ -595,11 +623,9 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
         translationText = hadith.english;
     }
 
-    final text = '${hadith.arabic}\n\n$translationText\n\n— ${_translateReference(hadith.reference)}\n\n- ${context.tr('from_app')}';
+    final text =
+        '${hadith.arabic}\n\n$translationText\n\n— ${_translateReference(hadith.reference)}\n\n- ${context.tr('from_app')}';
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.tr('copied'))),
-    );
   }
 
   void _shareHadith(HadithModel hadith) {
@@ -611,7 +637,9 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
         translationText = hadith.urdu.isNotEmpty ? hadith.urdu : hadith.english;
         break;
       case 'hi':
-        translationText = hadith.hindi.isNotEmpty ? hadith.hindi : hadith.english;
+        translationText = hadith.hindi.isNotEmpty
+            ? hadith.hindi
+            : hadith.english;
         break;
       case 'ar':
         translationText = hadith.arabic;
@@ -620,7 +648,8 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
         translationText = hadith.english;
     }
 
-    final text = '${hadith.arabic}\n\n$translationText\n\n— ${_translateReference(hadith.reference)}\n\n- ${context.tr('shared_from_app')}';
+    final text =
+        '${hadith.arabic}\n\n$translationText\n\n— ${_translateReference(hadith.reference)}\n\n- ${context.tr('shared_from_app')}';
     Share.share(text);
   }
 
@@ -676,7 +705,11 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                     color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(Icons.menu_book, color: AppColors.primary, size: 32),
+                  child: Icon(
+                    Icons.menu_book,
+                    color: AppColors.primary,
+                    size: 32,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -685,11 +718,17 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                     children: [
                       Text(
                         info.name,
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         info.arabicName,
-                        style: const TextStyle(fontSize: 16, fontFamily: 'Amiri'),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontFamily: 'Poppins',
+                        ),
                       ),
                     ],
                   ),
@@ -702,16 +741,19 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
-            Text(
-              info.description,
-              style: const TextStyle(height: 1.5),
-            ),
+            Text(info.description, style: const TextStyle(height: 1.5)),
             const SizedBox(height: 16),
             Row(
               children: [
-                _InfoChip(icon: Icons.book, label: '${info.totalBooks} ${context.tr('books')}'),
+                _InfoChip(
+                  icon: Icons.book,
+                  label: '${info.totalBooks} ${context.tr('books')}',
+                ),
                 const SizedBox(width: 12),
-                _InfoChip(icon: Icons.format_list_numbered, label: '${info.totalHadith} ${context.tr('hadiths')}'),
+                _InfoChip(
+                  icon: Icons.format_list_numbered,
+                  label: '${info.totalHadith} ${context.tr('hadiths')}',
+                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -741,7 +783,13 @@ class _InfoChip extends StatelessWidget {
         children: [
           Icon(icon, size: 16, color: AppColors.secondary),
           const SizedBox(width: 6),
-          Text(label, style: TextStyle(color: AppColors.secondary, fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: TextStyle(
+              color: AppColors.secondary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );

@@ -4,9 +4,10 @@ import 'package:hijri/hijri_calendar.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_assets.dart';
-import '../../core/utils/theme_extensions.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/prayer_provider.dart';
+import '../../providers/language_provider.dart';
+import '../../providers/adhan_provider.dart';
 import '../../core/services/weather_service.dart';
 import '../../core/services/location_service.dart';
 import '../../widgets/common/common_widgets.dart';
@@ -23,6 +24,7 @@ import '../hadith/sunan_nasai_screen.dart';
 import '../hadith/sunan_abu_dawud_screen.dart';
 import '../hadith/jami_tirmidhi_screen.dart';
 import '../zakat_calculator/zakat_calculator_screen.dart';
+import '../zakat_calculator/zakat_guide_screen.dart';
 // New feature imports
 import '../mosque_finder/mosque_finder_screen.dart';
 import '../halal_finder/halal_finder_screen.dart';
@@ -76,8 +78,34 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PrayerProvider>().initialize();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Initialize prayer times
+      final prayerProvider = context.read<PrayerProvider>();
+      await prayerProvider.initialize();
+
+      // Schedule Azan notifications after prayer times are loaded
+      if (mounted && prayerProvider.todayPrayerTimes != null) {
+        final adhanProvider = context.read<AdhanProvider>();
+
+        // Update AdhanProvider with current location for location-aware notifications
+        final locationService = LocationService();
+        final position = prayerProvider.currentPosition;
+        if (position != null) {
+          final city = locationService.currentCity ?? '';
+          adhanProvider.updateLocation(
+            city: city,
+            latitude: position.latitude,
+            longitude: position.longitude,
+          );
+        }
+
+        await adhanProvider.schedulePrayerNotifications(
+          prayerProvider.todayPrayerTimes!,
+        );
+
+        // Schedule daily Islamic reminders and festival notifications
+        await adhanProvider.scheduleAllIslamicNotifications();
+      }
     });
     _initSpeech();
     _fetchWeather();
@@ -90,13 +118,17 @@ class _HomeScreenState extends State<HomeScreen> {
       final position = await locationService.getCurrentLocation();
 
       if (position != null && mounted) {
-        debugPrint('🌤️ Location found: ${position.latitude}, ${position.longitude}');
+        debugPrint(
+          '🌤️ Location found: ${position.latitude}, ${position.longitude}',
+        );
         final weather = await WeatherService.getWeather(
           lat: position.latitude,
           lon: position.longitude,
         );
 
-        debugPrint('🌤️ Weather data received: ${weather != null ? "Success" : "Failed"}');
+        debugPrint(
+          '🌤️ Weather data received: ${weather != null ? "Success" : "Failed"}',
+        );
         if (weather != null) {
           debugPrint('🌤️ Temperature: ${weather.temperature}°C');
           debugPrint('🌤️ AQI: ${weather.aqi} - ${weather.aqiLevel}');
@@ -147,6 +179,79 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       return context.tr('good_evening');
     }
+  }
+
+  String _getTranslatedDay(BuildContext context) {
+    final now = DateTime.now();
+    final days = [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday',
+    ];
+    // DateTime.weekday returns 1 for Monday, 7 for Sunday
+    return context.tr(days[now.weekday - 1]);
+  }
+
+  String _getTranslatedWeatherDescription(
+    BuildContext context,
+    String description,
+  ) {
+    final lowerDesc = description.toLowerCase().trim();
+
+    // Map weather descriptions to translation keys
+    final weatherMap = {
+      'clear sky': 'weather_clear_sky',
+      'few clouds': 'weather_few_clouds',
+      'scattered clouds': 'weather_scattered_clouds',
+      'broken clouds': 'weather_broken_clouds',
+      'overcast clouds': 'weather_overcast_clouds',
+      'shower rain': 'weather_shower_rain',
+      'rain': 'weather_rain',
+      'light rain': 'weather_light_rain',
+      'moderate rain': 'weather_moderate_rain',
+      'heavy intensity rain': 'weather_heavy_rain',
+      'heavy rain': 'weather_heavy_rain',
+      'thunderstorm': 'weather_thunderstorm',
+      'snow': 'weather_snow',
+      'mist': 'weather_mist',
+      'haze': 'weather_haze',
+      'fog': 'weather_fog',
+      'dust': 'weather_dust',
+      'smoke': 'weather_smoke',
+    };
+
+    final key = weatherMap[lowerDesc];
+    if (key != null) {
+      return context.tr(key);
+    }
+
+    // Return capitalized description if not found
+    return description
+        .split(' ')
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
+  }
+
+  String _getTranslatedAQILevel(BuildContext context, String aqiLevel) {
+    final aqiMap = {
+      'Good': 'aqi_good',
+      'Fair': 'aqi_fair',
+      'Moderate': 'aqi_moderate',
+      'Poor': 'aqi_poor',
+      'Very Poor': 'aqi_very_poor',
+      'Unknown': 'aqi_unknown',
+    };
+
+    final key = aqiMap[aqiLevel];
+    if (key != null) {
+      return context.tr(key);
+    }
+
+    return aqiLevel;
   }
 
   String _getTranslatedHijriMonth(BuildContext context, String monthName) {
@@ -204,17 +309,33 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Sort features based on search query - matched items on top, rest below
+  // Searches across all 4 languages (English, Urdu, Arabic, Hindi)
   List<FeatureGridItem> _filterFeatures(List<FeatureGridItem> features) {
     if (_searchQuery.isEmpty) {
       return features;
     }
 
-    final query = _searchQuery.toLowerCase();
     final matchingFeatures = <FeatureGridItem>[];
     final nonMatchingFeatures = <FeatureGridItem>[];
 
     for (final feature in features) {
-      if (feature.title.toLowerCase().contains(query)) {
+      bool matches = false;
+
+      // If translation key is provided, search in all languages
+      if (feature.translationKey != null) {
+        matches = LanguageHelpers.matchesInAnyLanguage(
+          context,
+          feature.translationKey!,
+          _searchQuery,
+        );
+      } else {
+        // Fallback to current language title
+        matches = feature.title.toLowerCase().contains(
+          _searchQuery.toLowerCase(),
+        );
+      }
+
+      if (matches) {
         matchingFeatures.add(feature);
       } else {
         nonMatchingFeatures.add(feature);
@@ -225,12 +346,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Get all matched features from all sections for consolidated search results
+  // Searches across all 4 languages (English, Urdu, Arabic, Hindi)
   List<FeatureGridItem> _getAllMatchedFeatures(BuildContext context) {
     if (_searchQuery.isEmpty) {
       return [];
     }
 
-    final query = _searchQuery.toLowerCase();
     final allMatchedFeatures = <FeatureGridItem>[];
 
     // Collect all features from all sections
@@ -242,10 +363,26 @@ class _HomeScreenState extends State<HomeScreen> {
       _getIslamicBooksList(context),
     ];
 
-    // Filter and collect matched items
+    // Filter and collect matched items using multi-language search
     for (final featureList in allFeatureLists) {
       for (final feature in featureList) {
-        if (feature.title.toLowerCase().contains(query)) {
+        bool matches = false;
+
+        // If translation key is provided, search in all languages
+        if (feature.translationKey != null) {
+          matches = LanguageHelpers.matchesInAnyLanguage(
+            context,
+            feature.translationKey!,
+            _searchQuery,
+          );
+        } else {
+          // Fallback to current language title
+          matches = feature.title.toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          );
+        }
+
+        if (matches) {
           allMatchedFeatures.add(feature);
         }
       }
@@ -259,6 +396,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.library_books,
         title: context.tr('surah'),
+        translationKey: 'surah',
         color: Colors.teal,
         onTap: () => Navigator.push(
           context,
@@ -268,6 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.volunteer_activism,
         title: context.tr('duas'),
+        translationKey: 'duas',
         color: Colors.pink,
         emoji: '🤲',
         onTap: () => Navigator.push(
@@ -278,6 +417,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.menu_book,
         title: context.tr('seven_kalma'),
+        translationKey: 'seven_kalma',
         color: Colors.deepPurple,
         onTap: () => Navigator.push(
           context,
@@ -292,6 +432,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.nights_stay,
         title: context.tr('ramadan'),
+        translationKey: 'ramadan',
         color: Colors.deepPurple,
         onTap: () => Navigator.push(
           context,
@@ -301,6 +442,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.wb_twilight,
         title: context.tr('fasting'),
+        translationKey: 'fasting',
         color: Colors.indigo,
         onTap: () => Navigator.push(
           context,
@@ -310,6 +452,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.mosque,
         title: context.tr('mosques'),
+        translationKey: 'mosques',
         color: AppColors.primary,
         onTap: () => Navigator.push(
           context,
@@ -319,6 +462,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.restaurant,
         title: context.tr('halal'),
+        translationKey: 'halal',
         color: Colors.green,
         onTap: () => Navigator.push(
           context,
@@ -328,6 +472,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.card_giftcard,
         title: context.tr('status'),
+        translationKey: 'status',
         color: Colors.deepPurple,
         emoji: '🎴',
         onTap: () => Navigator.push(
@@ -338,6 +483,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.flight_takeoff,
         title: context.tr('hajj_guide'),
+        translationKey: 'hajj_guide',
         color: Colors.brown,
         onTap: () => Navigator.push(
           context,
@@ -347,6 +493,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.explore,
         title: context.tr('qibla'),
+        translationKey: 'qibla',
         color: AppColors.compassNeedle,
         onTap: () => Navigator.push(
           context,
@@ -356,6 +503,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.radio_button_checked,
         title: context.tr('tasbih'),
+        translationKey: 'tasbih',
         color: AppColors.secondary,
         onTap: () => Navigator.push(
           context,
@@ -365,6 +513,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.calendar_month,
         title: context.tr('calendar'),
+        translationKey: 'calendar',
         color: Colors.orange,
         onTap: () => Navigator.push(
           context,
@@ -374,6 +523,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.calculate,
         title: context.tr('zakat'),
+        translationKey: 'zakat',
         color: Colors.indigo,
         onTap: () => Navigator.push(
           context,
@@ -382,15 +532,25 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
+      FeatureGridItem(
+        icon: Icons.menu_book_rounded,
+        title: context.tr('zakat_guide'),
+        translationKey: 'zakat_guide',
+        color: Colors.teal,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ZakatGuideScreen()),
+        ),
+      ),
     ];
   }
-
 
   List<FeatureGridItem> _getIslamicNamesList(BuildContext context) {
     return [
       FeatureGridItem(
         icon: Icons.star,
         title: context.tr('names_of_allah'),
+        translationKey: 'names_of_allah',
         color: Colors.purple,
         onTap: () => Navigator.push(
           context,
@@ -400,6 +560,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.person,
         title: context.tr('nabi_names'),
+        translationKey: 'nabi_names',
         color: Colors.green,
         onTap: () => Navigator.push(
           context,
@@ -409,6 +570,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.people,
         title: context.tr('sahaba_names'),
+        translationKey: 'sahaba_names',
         color: Colors.blue,
         onTap: () => Navigator.push(
           context,
@@ -418,6 +580,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.account_balance,
         title: context.tr('khalifa_names'),
+        translationKey: 'khalifa_names',
         color: Colors.orange,
         onTap: () => Navigator.push(
           context,
@@ -427,6 +590,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.stars,
         title: context.tr('twelve_imams'),
+        translationKey: 'twelve_imams',
         color: Colors.purple,
         onTap: () => Navigator.push(
           context,
@@ -436,6 +600,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.favorite,
         title: context.tr('panjatan'),
+        translationKey: 'panjatan',
         color: Colors.red,
         onTap: () => Navigator.push(
           context,
@@ -445,6 +610,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.family_restroom,
         title: context.tr('ahlebait'),
+        translationKey: 'ahlebait',
         color: Colors.teal,
         onTap: () => Navigator.push(
           context,
@@ -459,6 +625,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.mosque,
         title: context.tr('sabhi_namaz'),
+        translationKey: 'sabhi_namaz',
         color: Colors.green,
         onTap: () => Navigator.push(
           context,
@@ -468,6 +635,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.handshake,
         title: context.tr('nazar_karika'),
+        translationKey: 'nazar_karika',
         color: Colors.teal,
         onTap: () => Navigator.push(
           context,
@@ -477,6 +645,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.menu_book,
         title: context.tr('fatiha'),
+        translationKey: 'fatiha',
         color: Colors.purple,
         onTap: () => Navigator.push(
           context,
@@ -486,6 +655,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.water_drop,
         title: context.tr('wazu'),
+        translationKey: 'wazu',
         color: Colors.blue,
         onTap: () => Navigator.push(
           context,
@@ -495,6 +665,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.shower,
         title: context.tr('ghusl'),
+        translationKey: 'ghusl',
         color: Colors.cyan,
         onTap: () => Navigator.push(
           context,
@@ -504,6 +675,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.record_voice_over,
         title: context.tr('khutba'),
+        translationKey: 'khutba',
         color: Colors.orange,
         onTap: () => Navigator.push(
           context,
@@ -513,6 +685,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.remove_red_eye,
         title: context.tr('nazar_e_bad'),
+        translationKey: 'nazar_e_bad',
         color: Colors.indigo,
         onTap: () => Navigator.push(
           context,
@@ -522,6 +695,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.campaign,
         title: context.tr('azan'),
+        translationKey: 'azan',
         color: Colors.amber,
         onTap: () => Navigator.push(
           context,
@@ -531,6 +705,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.local_fire_department,
         title: context.tr('jahannam'),
+        translationKey: 'jahannam',
         color: Colors.red,
         onTap: () => Navigator.push(
           context,
@@ -542,6 +717,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.family_restroom,
         title: context.tr('family_fazilat'),
+        translationKey: 'family_fazilat',
         color: Colors.pink,
         onTap: () => Navigator.push(
           context,
@@ -551,6 +727,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.connect_without_contact,
         title: context.tr('relative_fazilat'),
+        translationKey: 'relative_fazilat',
         color: Colors.deepPurple,
         onTap: () => Navigator.push(
           context,
@@ -562,6 +739,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.landscape,
         title: context.tr('jannat'),
+        translationKey: 'jannat',
         color: Colors.green,
         onTap: () => Navigator.push(
           context,
@@ -571,6 +749,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.warning,
         title: context.tr('gunha'),
+        translationKey: 'gunha',
         color: Colors.brown,
         onTap: () => Navigator.push(
           context,
@@ -580,6 +759,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.star,
         title: context.tr('savab'),
+        translationKey: 'savab',
         color: Colors.amber,
         onTap: () => Navigator.push(
           context,
@@ -589,6 +769,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.mosque,
         title: context.tr('namaz_fazilat'),
+        translationKey: 'namaz_fazilat',
         color: Colors.teal,
         onTap: () => Navigator.push(
           context,
@@ -598,6 +779,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.water,
         title: context.tr('zamzam'),
+        translationKey: 'zamzam',
         color: Colors.lightBlue,
         onTap: () => Navigator.push(
           context,
@@ -607,6 +789,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.calendar_today,
         title: context.tr('month_fazilat'),
+        translationKey: 'month_fazilat',
         color: Colors.deepOrange,
         onTap: () => Navigator.push(
           context,
@@ -623,6 +806,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.menu_book,
         title: context.tr('quran'),
+        translationKey: 'quran',
         color: AppColors.primary,
         onTap: () => Navigator.push(
           context,
@@ -632,6 +816,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.auto_stories,
         title: context.tr('sahih_bukhari'),
+        translationKey: 'sahih_bukhari',
         color: AppColors.primary,
         onTap: () => Navigator.push(
           context,
@@ -641,6 +826,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.auto_stories,
         title: context.tr('sahih_muslim'),
+        translationKey: 'sahih_muslim',
         color: Colors.teal,
         onTap: () => Navigator.push(
           context,
@@ -650,6 +836,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.auto_stories,
         title: context.tr('sunan_nasai'),
+        translationKey: 'sunan_nasai',
         color: Colors.indigo,
         onTap: () => Navigator.push(
           context,
@@ -659,6 +846,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.auto_stories,
         title: context.tr('sunan_abu_dawud'),
+        translationKey: 'sunan_abu_dawud',
         color: Colors.brown,
         onTap: () => Navigator.push(
           context,
@@ -668,6 +856,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FeatureGridItem(
         icon: Icons.auto_stories,
         title: context.tr('jami_tirmidhi'),
+        translationKey: 'jami_tirmidhi',
         color: Colors.deepPurple,
         onTap: () => Navigator.push(
           context,
@@ -684,32 +873,46 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
+    // Get current language before async operations
+    final currentLang = context.read<LanguageProvider>().languageCode;
+    String localeId;
+
+    switch (currentLang) {
+      case 'ur':
+        localeId = 'ur_PK'; // Urdu (Pakistan)
+        break;
+      case 'ar':
+        localeId = 'ar_SA'; // Arabic (Saudi Arabia)
+        break;
+      case 'hi':
+        localeId = 'hi_IN'; // Hindi (India)
+        break;
+      case 'en':
+      default:
+        localeId = 'en_US'; // English (US)
+        break;
+    }
+
     bool available = await _speech.initialize(
       onStatus: (status) {
         if (status == 'done' || status == 'notListening') {
-          setState(() => _isListening = false);
+          if (mounted) {
+            setState(() => _isListening = false);
+          }
         }
       },
       onError: (error) {
-        setState(() => _isListening = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${context.tr('error')}: ${error.errorMsg}'),
-            backgroundColor: AppColors.error,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
+        if (mounted) {
+          setState(() => _isListening = false);
+        }
       },
     );
 
-    if (available) {
+    if (available && mounted) {
       setState(() => _isListening = true);
       await _speech.listen(
         onResult: (result) {
-          if (result.finalResult) {
+          if (result.finalResult && mounted) {
             setState(() {
               _searchController.text = result.recognizedWords;
               _searchQuery = result.recognizedWords;
@@ -719,21 +922,8 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         listenFor: const Duration(seconds: 10),
         pauseFor: const Duration(seconds: 3),
-        localeId: 'en_US',
+        localeId: localeId,
       );
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.tr('speech_recognition_not_available')),
-            backgroundColor: AppColors.error,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
-      }
     }
   }
 
@@ -743,7 +933,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final isDark = context.isDarkMode;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
@@ -753,77 +943,133 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 32,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(
+                  context.responsive.radiusSmall,
+                ),
               ),
-              padding: const EdgeInsets.all(4),
+              padding: context.responsive.paddingAll(4),
               child: Image.asset(AppAssets.appLogo, fit: BoxFit.contain),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: context.responsive.spaceSmall),
             Text(context.tr('app_name')),
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NotificationsScreen(),
-                ),
+          Consumer<AdhanProvider>(
+            builder: (context, adhanProvider, _) {
+              final unreadCount = adhanProvider.unreadCount;
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications_outlined),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotificationsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  if (unreadCount > 0)
+                    Positioned(
+                      right: 6,
+                      top: 6,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 1.5),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 18,
+                          minHeight: 18,
+                        ),
+                        child: Center(
+                          child: Text(
+                            unreadCount > 99 ? '99+' : unreadCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               );
             },
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: context.responsive.paddingAll(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Search Bar
             _buildSearchBar(isDark),
-            const SizedBox(height: 16),
+            context.responsive.vSpaceMedium,
 
             // Header with greeting
             _buildHeader(hijriDate, isDark),
-            const SizedBox(height: 20),
+            context.responsive.vSpaceLarge,
 
             // Search Results Section (only shown when searching)
             if (_searchQuery.isNotEmpty) ...[
-              _buildSectionTitle(context.tr('search_results'), isDark),
-              const SizedBox(height: 12),
+              AppDecorations.sectionTitle(
+                context,
+                title: context.tr('search_results'),
+              ),
+              context.responsive.vSpaceMedium,
               _buildSearchResultsGrid(context, isDark),
-              const SizedBox(height: 20),
+              context.responsive.vSpaceLarge,
             ],
 
             // Islamic Services & Tools
-            _buildSectionTitle(context.tr('islamic_fast_halal'), isDark),
-            const SizedBox(height: 12),
+            AppDecorations.sectionTitle(
+              context,
+              title: context.tr('islamic_fast_halal'),
+            ),
+            context.responsive.vSpaceMedium,
             _buildMoreFeaturesGrid(context, isDark),
-            const SizedBox(height: 20),
+            context.responsive.vSpaceLarge,
 
             // Islamic Books Section
-            _buildSectionTitle(context.tr('islamic_books'), isDark),
-            const SizedBox(height: 12),
+            AppDecorations.sectionTitle(
+              context,
+              title: context.tr('islamic_books'),
+            ),
+            context.responsive.vSpaceMedium,
             _buildIslamicBooksGrid(context, isDark),
-            const SizedBox(height: 20),
+            context.responsive.vSpaceLarge,
 
             // Islamic Names Section
-            _buildSectionTitle(context.tr('islamic_names'), isDark),
-            const SizedBox(height: 12),
+            AppDecorations.sectionTitle(
+              context,
+              title: context.tr('islamic_names'),
+            ),
+            context.responsive.vSpaceMedium,
             _buildIslamicNamesGrid(context, isDark),
-            const SizedBox(height: 20),
+            context.responsive.vSpaceLarge,
 
             // Islamic Ibadaat & Farz Section
-            _buildSectionTitle(context.tr('islamic_ibadat_farz'), isDark),
-            const SizedBox(height: 12),
+            AppDecorations.sectionTitle(
+              context,
+              title: context.tr('islamic_ibadat_farz'),
+            ),
+            context.responsive.vSpaceMedium,
             _buildIslamicIbadatFarzGrid(context, isDark),
-            const SizedBox(height: 20),
+            context.responsive.vSpaceLarge,
 
             // Deen Ki Buniyadi Amal Section
-            _buildSectionTitle(context.tr('deen_buniyadi_amal'), isDark),
-            const SizedBox(height: 12),
+            AppDecorations.sectionTitle(
+              context,
+              title: context.tr('deen_buniyadi_amal'),
+            ),
+            context.responsive.vSpaceMedium,
             _buildBasicAmalGrid(context, isDark),
           ],
         ),
@@ -832,24 +1078,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSearchBar(bool isDark) {
+    final responsive = context.responsive;
     return Container(
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
-          width: 1.5,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-      ),
+      decoration: AppDecorations.searchBar(context),
       child: Stack(
         children: [
           TextField(
@@ -861,63 +1092,54 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             onSubmitted: _onSearch,
             textInputAction: TextInputAction.search,
-            style: TextStyle(
-              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-            ),
+            style: AppTextStyles.bodyLarge(context),
             decoration: InputDecoration(
               hintText: _isListening
                   ? context.tr('listening')
                   : context.tr('search_quran_duas_hadith'),
-              hintStyle: TextStyle(
-                color: _isListening
-                    ? AppColors.primary
-                    : (isDark
-                          ? AppColors.darkTextSecondary
-                          : AppColors.textHint),
-                fontSize: 14,
+              hintStyle: AppTextStyles.bodyMedium(
+                context,
+                color: _isListening ? AppColors.primary : null,
               ),
               prefixIcon: _isListening
                   ? _buildWaveformAnimation()
                   : Icon(
                       Icons.search_rounded,
                       color: AppColors.primary,
-                      size: 22,
+                      size: responsive.iconSize(24),
                     ),
               suffixIcon: Container(
-                margin: const EdgeInsets.all(6),
+                margin: responsive.paddingAll(6),
                 decoration: BoxDecoration(
                   color: _isListening ? Colors.red : AppColors.primary,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
                 child: IconButton(
                   onPressed: _onMicPressed,
                   icon: Icon(
                     _isListening ? Icons.stop_rounded : Icons.mic_rounded,
                     color: Colors.white,
-                    size: 20,
+                    size: responsive.iconSize(20),
                   ),
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 36,
-                    minHeight: 36,
-                  ),
+                  constraints: BoxConstraints(minWidth: 36.0, minHeight: 36.0),
                 ),
               ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(18.0),
                 borderSide: BorderSide.none,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(18.0),
                 borderSide: BorderSide.none,
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(18.0),
                 borderSide: BorderSide.none,
               ),
               filled: true,
               fillColor: isDark ? AppColors.darkCard : Colors.white,
-              contentPadding: const EdgeInsets.symmetric(
+              contentPadding: responsive.paddingSymmetric(
                 horizontal: 16,
                 vertical: 14,
               ),
@@ -929,20 +1151,23 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildWaveformAnimation() {
+    final responsive = context.responsive;
     return SizedBox(
-      width: 44,
+      width: responsive.spacing(44),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: List.generate(3, (index) {
           return AnimatedContainer(
             duration: Duration(milliseconds: 300 + (index * 100)),
             curve: Curves.easeInOut,
-            width: 3,
-            height: _isListening ? (12 + (index % 2) * 8) : 4,
-            margin: const EdgeInsets.symmetric(horizontal: 2),
+            width: responsive.spacing(3),
+            height: _isListening
+                ? responsive.spacing(12 + (index % 2) * 8)
+                : responsive.spacing(4),
+            margin: responsive.paddingSymmetric(horizontal: 2),
             decoration: BoxDecoration(
               color: AppColors.primary,
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(responsive.spacing(2)),
             ),
           );
         }),
@@ -950,144 +1175,171 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title, bool isDark) {
-    return Row(
-      children: [
-        Container(
-          width: 4,
-          height: 20,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildHeader(HijriCalendar hijriDate, bool isDark) {
+    final responsive = context.responsive;
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
-          width: 1.5,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-      ),
+      padding: responsive.paddingAll(16),
+      decoration: AppDecorations.card(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: responsive.paddingAll(10),
                 decoration: BoxDecoration(
                   gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(responsive.radiusMedium),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.wb_sunny_rounded,
                   color: Colors.white,
-                  size: 24,
+                  size: responsive.iconSize(24),
                 ),
               ),
-              const SizedBox(width: 12),
+              responsive.hSpaceMedium,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       context.tr('assalamu_alaikum'),
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: isDark
-                            ? AppColors.darkTextPrimary
-                            : AppColors.primary,
-                      ),
+                      style: AppTextStyles.heading3(context),
                     ),
                     Text(
                       _getGreeting(context),
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.textSecondary,
-                      ),
+                      style: AppTextStyles.bodySmall(context),
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              gradient: AppColors.goldGradient,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.calendar_today_rounded,
-                  color: Colors.white,
-                  size: 14,
+          responsive.vSpaceMedium,
+          Wrap(
+            spacing: responsive.spaceSmall,
+            runSpacing: responsive.spaceSmall,
+            alignment: WrapAlignment.spaceBetween,
+            children: [
+              // Hijri Date
+              Container(
+                padding: responsive.paddingSymmetric(
+                  horizontal: 10,
+                  vertical: 6,
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  '${hijriDate.hDay} ${_getTranslatedHijriMonth(context, hijriDate.longMonthName)} ${hijriDate.hYear} ${context.tr('ah')}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
+                decoration: AppDecorations.primaryContainer(context),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.calendar_today_rounded,
+                      color: AppColors.primary,
+                      size: responsive.fontSize(12),
+                    ),
+                    responsive.hSpaceXSmall,
+                    Flexible(
+                      child: Text(
+                        '${_getTranslatedDay(context)}, ${hijriDate.hDay} ${_getTranslatedHijriMonth(context, hijriDate.longMonthName)} ${hijriDate.hYear}',
+                        style: AppTextStyles.caption(context).copyWith(
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              // Next Prayer Info
+              Consumer<PrayerProvider>(
+                builder: (context, prayerProvider, _) {
+                  if (prayerProvider.nextPrayer.isEmpty ||
+                      prayerProvider.todayPrayerTimes == null) {
+                    return const SizedBox.shrink();
+                  }
+
+                  final nextPrayerName = prayerProvider.nextPrayer;
+                  final prayerTimes = prayerProvider.todayPrayerTimes!;
+
+                  // Get the time for the next prayer
+                  String prayerTime = '';
+                  switch (nextPrayerName.toLowerCase()) {
+                    case 'fajr':
+                      prayerTime = prayerTimes.fajr;
+                      break;
+                    case 'dhuhr':
+                      prayerTime = prayerTimes.dhuhr;
+                      break;
+                    case 'asr':
+                      prayerTime = prayerTimes.asr;
+                      break;
+                    case 'maghrib':
+                      prayerTime = prayerTimes.maghrib;
+                      break;
+                    case 'isha':
+                      prayerTime = prayerTimes.isha;
+                      break;
+                    default:
+                      prayerTime = '';
+                  }
+
+                  final translatedPrayerName = context.tr(
+                    nextPrayerName.toLowerCase(),
+                  );
+
+                  return Container(
+                    padding: responsive.paddingSymmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: AppDecorations.primaryContainer(context),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.access_time,
+                          color: AppColors.primary,
+                          size: responsive.fontSize(12),
+                        ),
+                        responsive.hSpaceXSmall,
+                        Text(
+                          '$translatedPrayerName $prayerTime',
+                          style: AppTextStyles.caption(context).copyWith(
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
           // Weather and Air Quality Section
           if (_weatherData != null) ...[
-            const SizedBox(height: 16),
+            responsive.vSpaceSmall,
             const Divider(height: 1),
-            const SizedBox(height: 12),
+            responsive.vSpaceSmall,
             Row(
               children: [
                 // Weather Info
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
+                    padding: responsive.paddingAll(8),
+                    decoration: AppDecorations.chip(
+                      context,
                       color: isDark
                           ? Colors.grey.shade800
                           : AppColors.primary.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isDark
-                            ? Colors.grey.shade700
-                            : AppColors.lightGreenBorder,
-                      ),
+                      borderRadius: responsive.radiusMedium,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1097,40 +1349,32 @@ class _HomeScreenState extends State<HomeScreen> {
                             Icon(
                               WeatherService.getWeatherIcon(_weatherData!.icon),
                               color: AppColors.primary,
-                              size: 28,
+                              size: responsive.iconSize(24),
                             ),
-                            const SizedBox(width: 8),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${_weatherData!.temperature.round()}°C',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark
-                                        ? AppColors.darkTextPrimary
-                                        : AppColors.textPrimary,
+                            responsive.hSpaceXSmall,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${_weatherData!.temperature.round()}°C',
+                                    style: AppTextStyles.heading3(context),
                                   ),
-                                ),
-                                Text(
-                                  _weatherData!.description
-                                      .split(' ')
-                                      .map((word) =>
-                                          word[0].toUpperCase() + word.substring(1))
-                                      .join(' '),
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: isDark
-                                        ? AppColors.darkTextSecondary
-                                        : AppColors.textSecondary,
+                                  Text(
+                                    _getTranslatedWeatherDescription(
+                                      context,
+                                      _weatherData!.description,
+                                    ),
+                                    style: AppTextStyles.caption(context),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        responsive.vSpaceXSmall,
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -1138,20 +1382,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 Icon(
                                   Icons.water_drop,
-                                  size: 14,
+                                  size: responsive.fontSize(12),
                                   color: isDark
                                       ? AppColors.darkTextSecondary
                                       : AppColors.textSecondary,
                                 ),
-                                const SizedBox(width: 4),
+                                responsive.hSpaceXSmall,
                                 Text(
                                   '${_weatherData!.humidity}%',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: isDark
-                                        ? AppColors.darkTextSecondary
-                                        : AppColors.textSecondary,
-                                  ),
+                                  style: AppTextStyles.caption(context),
                                 ),
                               ],
                             ),
@@ -1159,20 +1398,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 Icon(
                                   Icons.air,
-                                  size: 14,
+                                  size: responsive.fontSize(12),
                                   color: isDark
                                       ? AppColors.darkTextSecondary
                                       : AppColors.textSecondary,
                                 ),
-                                const SizedBox(width: 4),
+                                responsive.hSpaceXSmall,
                                 Text(
                                   '${_weatherData!.windSpeed.toStringAsFixed(1)} m/s',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: isDark
-                                        ? AppColors.darkTextSecondary
-                                        : AppColors.textSecondary,
-                                  ),
+                                  style: AppTextStyles.caption(context),
                                 ),
                               ],
                             ),
@@ -1182,23 +1416,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                responsive.hSpaceSmall,
                 // Air Quality Info
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
+                    padding: responsive.paddingAll(8),
+                    decoration: AppDecorations.chip(
+                      context,
                       color: isDark
                           ? Colors.grey.shade800
-                          : WeatherService.getAQIColor(_weatherData!.aqi)
-                              .withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isDark
-                            ? Colors.grey.shade700
-                            : WeatherService.getAQIColor(_weatherData!.aqi)
-                                .withValues(alpha: 0.3),
-                      ),
+                          : WeatherService.getAQIColor(
+                              _weatherData!.aqi,
+                            ).withValues(alpha: 0.1),
+                      borderRadius: responsive.radiusMedium,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1207,39 +1437,43 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Icon(
                               Icons.air_outlined,
-                              color: WeatherService.getAQIColor(_weatherData!.aqi),
-                              size: 20,
+                              color: WeatherService.getAQIColor(
+                                _weatherData!.aqi,
+                              ),
+                              size: responsive.iconSize(20),
                             ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'Air Quality',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: isDark
-                                    ? AppColors.darkTextPrimary
-                                    : AppColors.textPrimary,
+                            responsive.hSpaceXSmall,
+                            Expanded(
+                              child: Text(
+                                context.tr('air_quality'),
+                                style: AppTextStyles.caption(
+                                  context,
+                                ).copyWith(fontWeight: FontWeight.w600),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        responsive.vSpaceXSmall,
                         Text(
-                          _weatherData!.aqiLevel,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: WeatherService.getAQIColor(_weatherData!.aqi),
+                          _getTranslatedAQILevel(
+                            context,
+                            _weatherData!.aqiLevel,
                           ),
+                          style: AppTextStyles.bodyMedium(
+                            context,
+                            color: WeatherService.getAQIColor(
+                              _weatherData!.aqi,
+                            ),
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           'AQI: ${_weatherData!.aqi}',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: isDark
-                                ? AppColors.darkTextSecondary
-                                : AppColors.textSecondary,
-                          ),
+                          style: AppTextStyles.caption(context),
                         ),
                       ],
                     ),
@@ -1248,13 +1482,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ] else if (_isLoadingWeather) ...[
-            const SizedBox(height: 16),
-            const Center(
+            responsive.vSpaceMedium,
+            Center(
               child: SizedBox(
-                height: 20,
-                width: 20,
+                height: responsive.spacing(20),
+                width: responsive.spacing(20),
                 child: CircularProgressIndicator(
-                  strokeWidth: 2,
+                  strokeWidth: responsive.spacing(2),
                 ),
               ),
             ),
@@ -1266,6 +1500,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildSearchResultsGrid(BuildContext context, bool isDark) {
     final matchedFeatures = _getAllMatchedFeatures(context);
+
+    // Show "no results found" message if search returns empty
+    if (matchedFeatures.isEmpty) {
+      return EmptyStateWidget(
+        message: context.tr('no_results_found'),
+        icon: Icons.search_off,
+      );
+    }
+
     return FeatureGridBuilder(items: matchedFeatures);
   }
 

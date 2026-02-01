@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../core/services/location_service.dart';
+import 'package:geolocator/geolocator.dart';
 
 class TasbihProvider with ChangeNotifier {
   static const String _countKey = 'tasbih_count';
@@ -8,14 +11,20 @@ class TasbihProvider with ChangeNotifier {
   static const String _vibrationKey = 'tasbih_vibration';
   static const String _soundKey = 'tasbih_sound';
   static const String _lapCountKey = 'tasbih_lap_count';
+  static const String _historyKey = 'tasbih_history';
 
   int _count = 0;
   int _target = 100;
   int _totalCount = 0;
   int _lapCount = 0;
   bool _vibrationEnabled = true;
-  bool _soundEnabled = false;
+  bool _soundEnabled = true;
   int _selectedDhikrIndex = 0;
+  Position? _currentLocation;
+  String? _currentCity;
+  String? _currentCountry;
+  bool _isLoadingLocation = false;
+  List<TasbihHistoryItem> _history = [];
 
   // Predefined dhikr options
   final List<DhikrItem> dhikrList = [
@@ -74,6 +83,11 @@ class TasbihProvider with ChangeNotifier {
   DhikrItem get currentDhikr => dhikrList[_selectedDhikrIndex];
   double get progress => _target > 0 ? _count / _target : 0;
   bool get isTargetReached => _count >= _target;
+  Position? get currentLocation => _currentLocation;
+  String? get currentCity => _currentCity;
+  String? get currentCountry => _currentCountry;
+  bool get isLoadingLocation => _isLoadingLocation;
+  List<TasbihHistoryItem> get history => _history;
 
   Future<void> loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
@@ -82,7 +96,7 @@ class TasbihProvider with ChangeNotifier {
     _totalCount = prefs.getInt(_totalCountKey) ?? 0;
     _lapCount = prefs.getInt(_lapCountKey) ?? 0;
     _vibrationEnabled = prefs.getBool(_vibrationKey) ?? true;
-    _soundEnabled = prefs.getBool(_soundKey) ?? false;
+    _soundEnabled = prefs.getBool(_soundKey) ?? true;
     notifyListeners();
   }
 
@@ -158,6 +172,171 @@ class TasbihProvider with ChangeNotifier {
     await prefs.setInt(_totalCountKey, _totalCount);
     await prefs.setInt(_lapCountKey, _lapCount);
   }
+
+  Future<void> fetchCurrentLocation() async {
+    _isLoadingLocation = true;
+    notifyListeners();
+    try {
+      final locationService = LocationService();
+      final position = await locationService.getCurrentLocation();
+      if (position != null) {
+        _currentLocation = position;
+        _currentCity = locationService.currentCity;
+        _currentCountry = locationService.currentCountry;
+      }
+    } catch (e) {
+      debugPrint('Error fetching location: $e');
+    } finally {
+      _isLoadingLocation = false;
+      notifyListeners();
+    }
+  }
+
+  void addToHistory() {
+    final location = _currentCity != null && _currentCountry != null
+        ? '$_currentCity, $_currentCountry'
+        : null;
+
+    final historyItem = TasbihHistoryItem(
+      dhikr: currentDhikr.transliteration,
+      count: _totalCount,
+      laps: _lapCount,
+      timestamp: DateTime.now(),
+      location: location,
+    );
+
+    _history.insert(0, historyItem);
+    if (_history.length > 10) {
+      _history = _history.sublist(0, 10);
+    }
+    _saveHistory();
+    notifyListeners();
+  }
+
+  void addNoteToHistory(String note) {
+    final location = _currentCity != null && _currentCountry != null
+        ? '$_currentCity, $_currentCountry'
+        : null;
+
+    final historyItem = TasbihHistoryItem(
+      dhikr: 'Note',
+      count: 0,
+      laps: 0,
+      timestamp: DateTime.now(),
+      location: location,
+      notes: note,
+    );
+
+    _history.insert(0, historyItem);
+    if (_history.length > 10) {
+      _history = _history.sublist(0, 10);
+    }
+    _saveHistory();
+    notifyListeners();
+  }
+
+  void addNoteToHistoryWithCount(String note, int count) {
+    final historyItem = TasbihHistoryItem(
+      dhikr: 'Note',
+      count: count,
+      laps: 0,
+      timestamp: DateTime.now(),
+      notes: note,
+    );
+
+    _history.insert(0, historyItem);
+    if (_history.length > 10) {
+      _history = _history.sublist(0, 10);
+    }
+    _saveHistory();
+    notifyListeners();
+  }
+
+  void editHistoryItem(int index, String newNote) {
+    if (index >= 0 && index < _history.length) {
+      final updatedItem = TasbihHistoryItem(
+        dhikr: _history[index].dhikr,
+        count: _history[index].count,
+        laps: _history[index].laps,
+        timestamp: _history[index].timestamp,
+        location: _history[index].location,
+        notes: newNote,
+      );
+      _history[index] = updatedItem;
+      _saveHistory();
+      notifyListeners();
+    }
+  }
+
+  void editHistoryItemWithCount(int index, String newNote, int newCount) {
+    if (index >= 0 && index < _history.length) {
+      final updatedItem = TasbihHistoryItem(
+        dhikr: _history[index].dhikr,
+        count: newCount,
+        laps: _history[index].laps,
+        timestamp: _history[index].timestamp,
+        location: _history[index].location,
+        notes: newNote,
+      );
+      _history[index] = updatedItem;
+      _saveHistory();
+      notifyListeners();
+    }
+  }
+
+  void editHistoryCount(int index, int newCount, int newLaps) {
+    if (index >= 0 && index < _history.length) {
+      final updatedItem = TasbihHistoryItem(
+        dhikr: _history[index].dhikr,
+        count: newCount,
+        laps: newLaps,
+        timestamp: _history[index].timestamp,
+        location: _history[index].location,
+        notes: _history[index].notes,
+      );
+      _history[index] = updatedItem;
+      _saveHistory();
+      notifyListeners();
+    }
+  }
+
+  void deleteHistoryItem(int index) {
+    if (index >= 0 && index < _history.length) {
+      _history.removeAt(index);
+      _saveHistory();
+      notifyListeners();
+    }
+  }
+
+  Future<void> _saveHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final historyJson = _history.map((item) => item.toJson()).toList();
+    await prefs.setString(_historyKey, jsonEncode(historyJson));
+  }
+
+  Future<void> loadHistory() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final historyStr = prefs.getString(_historyKey);
+      if (historyStr != null && historyStr.isNotEmpty) {
+        final List<dynamic> decoded = jsonDecode(historyStr);
+        _history = decoded
+            .map((item) => TasbihHistoryItem.fromJson(item as Map<String, dynamic>))
+            .toList();
+      }
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error loading history: $e');
+      _history = [];
+    }
+  }
+
+  Future<void> clearHistory() async {
+    _history = [];
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_historyKey);
+    notifyListeners();
+  }
 }
 
 class DhikrItem {
@@ -172,4 +351,44 @@ class DhikrItem {
     required this.meaning,
     required this.defaultTarget,
   });
+}
+
+class TasbihHistoryItem {
+  final String dhikr;
+  final int count;
+  final int laps;
+  final DateTime timestamp;
+  final String? location;
+  final String? notes;
+
+  TasbihHistoryItem({
+    required this.dhikr,
+    required this.count,
+    required this.laps,
+    required this.timestamp,
+    this.location,
+    this.notes,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'dhikr': dhikr,
+      'count': count,
+      'laps': laps,
+      'timestamp': timestamp.toIso8601String(),
+      'location': location,
+      'notes': notes,
+    };
+  }
+
+  factory TasbihHistoryItem.fromJson(Map<String, dynamic> json) {
+    return TasbihHistoryItem(
+      dhikr: json['dhikr'] as String,
+      count: json['count'] as int,
+      laps: json['laps'] as int,
+      timestamp: DateTime.parse(json['timestamp'] as String),
+      location: json['location'] as String?,
+      notes: json['notes'] as String?,
+    );
+  }
 }

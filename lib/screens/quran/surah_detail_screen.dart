@@ -4,13 +4,13 @@ import 'package:provider/provider.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/quran_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../data/models/surah_model.dart';
 import '../../widgets/common/search_bar_widget.dart';
+import '../../widgets/common/header_action_button.dart';
 
 class SurahDetailScreen extends StatefulWidget {
   final int surahNumber;
@@ -328,9 +328,6 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
     }
     copyText.writeln('- ${context.tr('surah')} ${widget.surahNumber}');
     Clipboard.setData(ClipboardData(text: copyText.toString()));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.tr('copied'))),
-    );
   }
 
   // Get grouped ayahs for a card index
@@ -363,12 +360,11 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
 
             return Text(
               displayName,
-              style: TextStyle(
-                fontSize: responsive.textLarge,
-                fontWeight: FontWeight.bold,
-                fontFamily: langProvider.languageCode == 'ar'
-                    ? 'Amiri'
-                    : (langProvider.languageCode == 'ur' ? 'NotoNastaliq' : null),
+              style: AppTextStyles.heading3(
+                context,
+                color: Colors.white,
+              ).copyWith(
+                fontFamily: 'Poppins',
               ),
               textDirection: (langProvider.languageCode == 'ar' || langProvider.languageCode == 'ur')
                   ? TextDirection.rtl
@@ -442,10 +438,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                     ? Center(
                         child: Text(
                           context.tr('no_ayahs_found'),
-                          style: TextStyle(
-                            fontSize: responsive.textMedium,
-                            color: AppColors.textSecondary,
-                          ),
+                          style: AppTextStyles.bodyMedium(context),
                         ),
                       )
                     : ListView.builder(
@@ -510,8 +503,8 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
-            offset: Offset(0, responsive.spacing(2)),
+            blurRadius: 10.0,
+            offset: Offset(0, 2.0),
           ),
         ],
       ),
@@ -545,8 +538,8 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                         boxShadow: [
                           BoxShadow(
                             color: AppColors.primary.withValues(alpha: 0.3),
-                            blurRadius: responsive.spacing(6),
-                            offset: Offset(0, responsive.spacing(2)),
+                            blurRadius: 6.0,
+                            offset: Offset(0, 2.0),
                           ),
                         ],
                       ),
@@ -570,6 +563,8 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                           fontWeight: FontWeight.w600,
                           color: AppColors.primary,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -579,7 +574,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildHeaderActionButton(
+                    HeaderActionButton(
                       icon: isAnyPlaying ? Icons.stop : Icons.volume_up,
                       label: isAnyPlaying ? context.tr('stop') : context.tr('audio'),
                       onTap: isAnyPlaying
@@ -587,19 +582,19 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                           : () => _playCardAyahs(ayahs, cardIndex),
                       isActive: isAnyPlaying,
                     ),
-                    _buildHeaderActionButton(
+                    HeaderActionButton(
                       icon: Icons.translate,
                       label: context.tr('translate'),
                       onTap: () => _toggleCardTranslation(cardIndex),
                       isActive: showTranslation,
                     ),
-                    _buildHeaderActionButton(
+                    HeaderActionButton(
                       icon: Icons.copy,
                       label: context.tr('copy'),
                       onTap: () => _copyAyahs(ayahs, translations),
                       isActive: false,
                     ),
-                    _buildHeaderActionButton(
+                    HeaderActionButton(
                       icon: Icons.share,
                       label: context.tr('share'),
                       onTap: () => _shareAyahs(ayahs, translations),
@@ -651,7 +646,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                           child: Text(
                             ayah.text,
                             style: TextStyle(
-                              fontFamily: 'Amiri',
+                              fontFamily: 'Poppins',
                               fontSize: arabicFontSize,
                               height: 2.0,
                               color: isPlaying ? AppColors.primary : Colors.black87,
@@ -730,45 +725,4 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
     );
   }
 
-  Widget _buildHeaderActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    required bool isActive,
-  }) {
-    final responsive = context.responsive;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(responsive.radiusMedium),
-        child: Container(
-          padding: responsive.paddingSymmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: isActive ? AppColors.primaryLight : AppColors.lightGreenChip,
-            borderRadius: BorderRadius.circular(responsive.radiusMedium),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: responsive.iconSmall,
-                color: isActive ? Colors.white : AppColors.primary,
-              ),
-              responsive.vSpaceXSmall,
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: responsive.textXSmall,
-                  color: isActive ? Colors.white : AppColors.primary,
-                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }

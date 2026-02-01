@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/app_utils.dart';
 import '../../data/models/allah_name_model.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/common/search_bar_widget.dart';
 import 'name_of_allah_detail_screen.dart';
-import '../../core/utils/localization_helper.dart';
 
 class NamesOfAllahScreen extends StatefulWidget {
   const NamesOfAllahScreen({super.key});
@@ -335,12 +334,14 @@ class _NamesOfAllahScreenState extends State<NamesOfAllahScreen> {
                     fontWeight: FontWeight.bold,
                     color: isDark ? AppColors.darkTextPrimary : darkGreen,
                     fontFamily: languageCode == 'ar'
-                        ? 'Amiri'
-                        : (languageCode == 'ur' ? 'NotoNastaliq' : null),
+                        ? 'Poppins'
+                        : (languageCode == 'ur' ? 'Poppins' : null),
                   ),
                   textDirection: (languageCode == 'ar' || languageCode == 'ur')
                       ? TextDirection.rtl
                       : TextDirection.ltr,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
 

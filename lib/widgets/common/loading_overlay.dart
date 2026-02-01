@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/spacing.dart';
+import '../../core/utils/app_utils.dart';
 
 /// Loading overlay widget that shows a circular progress indicator.
 /// Can be used to show loading state over any content.

@@ -22,13 +22,22 @@ class FirebaseAuthService {
     required String password,
   }) async {
     try {
+      // Normalize email and password
+      final normalizedEmail = email.trim().toLowerCase();
+      final normalizedPassword = password.trim();
+
+      debugPrint('Attempting sign in for: $normalizedEmail');
+
       final credential = await _auth.signInWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
+        email: normalizedEmail,
+        password: normalizedPassword,
       );
+
+      debugPrint('Sign in successful for: $normalizedEmail');
       return credential;
     } on FirebaseAuthException catch (e) {
       debugPrint('Sign in error: ${e.code} - ${e.message}');
+      debugPrint('Failed email: ${email.trim().toLowerCase()}');
       rethrow;
     } catch (e) {
       debugPrint('Sign in error: $e');
@@ -43,20 +52,28 @@ class FirebaseAuthService {
     required String name,
   }) async {
     try {
+      // Normalize email and password
+      final normalizedEmail = email.trim().toLowerCase();
+      final normalizedPassword = password.trim();
+
+      debugPrint('Creating account for: $normalizedEmail');
+
       final credential = await _auth.createUserWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
+        email: normalizedEmail,
+        password: normalizedPassword,
       );
 
       // Update display name
       if (credential.user != null) {
         await credential.user!.updateDisplayName(name.trim());
         await credential.user!.reload();
+        debugPrint('Account created successfully for: $normalizedEmail');
       }
 
       return credential;
     } on FirebaseAuthException catch (e) {
       debugPrint('Sign up error: ${e.code} - ${e.message}');
+      debugPrint('Failed email: ${email.trim().toLowerCase()}');
       rethrow;
     } catch (e) {
       debugPrint('Sign up error: $e');
@@ -302,25 +319,27 @@ class FirebaseAuthService {
     if (error is FirebaseAuthException) {
       switch (error.code) {
         case 'user-not-found':
-          return context.tr('auth_error_user_not_found');
+          return 'No account found with this email. Please sign up first.';
         case 'wrong-password':
-          return context.tr('auth_error_wrong_password');
+          return 'Incorrect password. Please try again.';
         case 'email-already-in-use':
           return context.tr('auth_error_email_in_use');
         case 'weak-password':
           return context.tr('auth_error_weak_password');
         case 'invalid-email':
-          return context.tr('auth_error_invalid_email');
+          return 'Invalid email format. Please enter a valid email.';
         case 'network-request-failed':
-          return context.tr('auth_error_network');
+          return 'Network error. Please check your internet connection.';
         case 'user-disabled':
-          return 'This account has been disabled';
+          return 'This account has been disabled. Contact support.';
         case 'operation-not-allowed':
           return 'This sign-in method is not enabled';
         case 'too-many-requests':
-          return 'Too many attempts. Please try again later';
+          return 'Too many failed attempts. Please wait and try again later.';
         case 'invalid-credential':
-          return 'Invalid credentials. Please try again';
+          return 'Invalid email or password. Please check your credentials.\n\nNote: Email is case-insensitive, password is case-sensitive.';
+        case 'INVALID_LOGIN_CREDENTIALS':
+          return 'Invalid email or password. Please verify:\n• Email is correct\n• Password is correct (case-sensitive)\n• You have signed up before';
         case 'account-exists-with-different-credential':
           return 'An account already exists with this email';
         case 'requires-recent-login':
@@ -333,7 +352,7 @@ class FirebaseAuthService {
           return context.tr('auth_error_otp_expired');
         default:
           debugPrint('Unhandled Firebase Auth error: ${error.code}');
-          return context.tr('auth_error_unknown');
+          return 'Authentication error: ${error.code}\nPlease try again or contact support.';
       }
     } else if (error is SignInWithAppleAuthorizationException) {
       switch (error.code) {
@@ -356,14 +375,14 @@ class FirebaseAuthService {
   }
 
   // Check if email is already registered
+  // Note: fetchSignInMethodsForEmail is deprecated for security reasons
+  // (email enumeration protection). This method now always returns false.
+  // Let the sign-up/sign-in process handle email validation naturally.
   Future<bool> isEmailRegistered(String email) async {
-    try {
-      final methods = await _auth.fetchSignInMethodsForEmail(email.trim());
-      return methods.isNotEmpty;
-    } catch (e) {
-      debugPrint('Check email error: $e');
-      return false;
-    }
+    // Deprecated: final methods = await _auth.fetchSignInMethodsForEmail(email.trim());
+    // For security best practices, we no longer check if email exists
+    // See: https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection
+    return false;
   }
 
   // Reload current user

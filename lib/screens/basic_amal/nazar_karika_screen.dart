@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,7 +13,7 @@ class NazarKarikaScreen extends StatefulWidget {
 }
 
 class _NazarKarikaScreenState extends State<NazarKarikaScreen> {
-  String _selectedLanguage = 'english';
+
 
 
   final List<Map<String, dynamic>> _nazarTypes = [
@@ -838,6 +837,468 @@ Important Notes:
 • إذا نذرت شيئاً حراماً، لا تفِ به وأعطِ الكفارة بدلاً منه''',
       },
     },
+    {
+      'titleKey': 'nazar_karika_7_rules_and_conditions',
+      'title': 'Rules & Conditions',
+      'titleUrdu': 'اصول اور شرائط',
+      'titleHindi': 'उसूल और शर्तें',
+      'titleArabic': 'القواعد والشروط',
+      'icon': Icons.rule,
+      'color': Colors.indigo,
+      'details': {
+        'english': '''Rules and Conditions of Nazar
+
+What is Nazar (النذر)?
+Nazar is a vow or promise made to Allah to perform a good deed if a specific wish is fulfilled. It becomes obligatory (Wajib) once the condition is met.
+
+Basic Conditions:
+1. The person must be Muslim
+2. Must be of sound mind (not insane)
+3. Must be mature (reached puberty)
+4. Must make the vow willingly (not forced)
+5. Must be capable of fulfilling the vow
+
+Types of Nazar:
+1. Conditional Nazar (المعلق):
+   "If Allah does this, I will do that"
+   Example: "If I pass the exam, I will fast 3 days"
+
+2. Unconditional Nazar (المطلق):
+   Making a vow without conditions
+   Example: "I vow to Allah to pray 2 rakats tonight"
+
+When Does Nazar Become Wajib?
+• For conditional Nazar: When the condition is fulfilled
+• For unconditional Nazar: Immediately after making the vow
+• Cannot be cancelled once the condition is met
+• Must be fulfilled as soon as possible
+
+Valid Forms of Nazar:
+• Fasting
+• Prayer (Nafl)
+• Charity
+• Sacrifice
+• Hajj/Umrah
+• Any act of worship that is permissible
+
+What You CANNOT Make Nazar For:
+• Anything Haram (forbidden)
+• Harming yourself or others
+• Something impossible
+• Fard (obligatory) acts you already must do
+• Acts of disobedience
+
+Important Rules:
+1. Delaying fulfillment without reason is sinful
+2. Breaking Nazar requires Kaffara (expiation)
+3. If you die before fulfilling, heirs should fulfill it
+4. Nazar of Haram should not be fulfilled
+5. Make Nazar only when necessary
+
+The Prophet's ﷺ Guidance:
+"Do not make vows, for a vow does not change anything of the Divine Decree. It only extracts something from the miserly." (Sahih Muslim)
+
+Scholars' Advice:
+• Avoid making Nazar unnecessarily
+• If you make one, fulfill it promptly
+• Don't make Nazar as a bargaining tool with Allah
+• Trust in Allah's decree first
+• Make dua instead of Nazar when possible''',
+        'urdu': '''نذر کے اصول اور شرائط
+
+نذر (النذر) کیا ہے؟
+نذر اللہ سے کیا گیا ایک وعدہ یا عہد ہے کہ اگر کوئی خاص خواہش پوری ہو جائے تو نیک کام کیا جائے گا۔ شرط پوری ہونے کے بعد یہ واجب ہو جاتی ہے۔
+
+بنیادی شرائط:
+۱۔ شخص مسلمان ہونا چاہیے
+۲۔ عقل مند ہونا چاہیے (پاگل نہ ہو)
+۳۔ بالغ ہونا چاہیے (بلوغت کو پہنچا ہو)
+۴۔ رضامندی سے نذر مانی ہو (مجبور نہ ہو)
+۵۔ نذر پوری کرنے کی صلاحیت ہو
+
+نذر کی اقسام:
+۱۔ مشروط نذر (المعلق):
+   "اگر اللہ یہ کرے تو میں وہ کروں گا"
+   مثال: "اگر میں امتحان پاس کر لوں تو 3 دن روزے رکھوں گا"
+
+۲۔ غیر مشروط نذر (المطلق):
+   بغیر شرط کے نذر ماننا
+   مثال: "میں اللہ سے نذر مانتا ہوں کہ آج رات 2 رکعت نماز پڑھوں گا"
+
+نذر کب واجب ہوتی ہے؟
+• مشروط نذر: جب شرط پوری ہو جائے
+• غیر مشروط نذر: نذر ماننے کے فوراً بعد
+• شرط پوری ہونے کے بعد منسوخ نہیں کی جا سکتی
+• جلد از جلد پوری کرنی چاہیے
+
+نذر کی جائز شکلیں:
+• روزہ
+• نماز (نفل)
+• صدقہ
+• قربانی
+• حج/عمرہ
+• کوئی بھی جائز عبادت
+
+کس چیز کی نذر نہیں مانی جا سکتی:
+• کوئی بھی حرام چیز
+• اپنے یا دوسروں کو نقصان پہنچانا
+• کوئی ناممکن چیز
+• فرض اعمال جو پہلے سے ضروری ہیں
+• نافرمانی کے کام
+
+اہم اصول:
+۱۔ بلا وجہ تاخیر گناہ ہے
+۲۔ نذر توڑنے پر کفارہ واجب ہے
+۳۔ اگر پورا کرنے سے پہلے وفات ہو تو ورثاء کو پورا کرنا چاہیے
+۴۔ حرام کی نذر پوری نہیں کی جائے
+۵۔ صرف ضرورت کے وقت نذر مانیں
+
+نبی کریم ﷺ کی رہنمائی:
+"نذر نہ مانو، کیونکہ نذر تقدیر میں کچھ نہیں بدلتی۔ یہ صرف کنجوس سے کچھ نکلواتی ہے۔" (صحیح مسلم)
+
+علماء کا مشورہ:
+• غیر ضروری نذر نہ مانیں
+• اگر مان لیں تو فوراً پوری کریں
+• نذر کو اللہ سے سودا نہ بنائیں
+• پہلے اللہ کی تقدیر پر بھروسہ کریں
+• جہاں ممکن ہو دعا کریں نذر کی بجائے''',
+        'hindi': '''नज़र के उसूल और शर्तें
+
+नज़र (النذر) क्या है?
+नज़र अल्लाह से किया गया एक वादा या अहद है कि अगर कोई ख़ास ख़्वाहिश पूरी हो जाए तो नेक काम किया जाएगा। शर्त पूरी होने के बाद यह वाजिब हो जाती है।
+
+बुनियादी शर्तें:
+१. शख़्स मुसलमान होना चाहिए
+२. अक़्लमंद होना चाहिए (पागल न हो)
+३. बालिग़ होना चाहिए (बलूग़त को पहुंचा हो)
+४. रज़ामंदी से नज़र मानी हो (मजबूर न हो)
+५. नज़र पूरी करने की सलाहियत हो
+
+नज़र की क़िस्में:
+१. मशरूत नज़र (المعلق):
+   "अगर अल्लाह यह करे तो मैं वो करूंगा"
+   मिसाल: "अगर मैं इम्तिहान पास कर लूं तो 3 दिन रोज़े रखूंगा"
+
+२. ग़ैर-मशरूत नज़र (المطلق):
+   बग़ैर शर्त के नज़र मानना
+   मिसाल: "मैं अल्लाह से नज़र मानता हूं कि आज रात 2 रकअत नमाज़ पढ़ूंगा"
+
+नज़र कब वाजिब होती है?
+• मशरूत नज़र: जब शर्त पूरी हो जाए
+• ग़ैर-मशरूत नज़र: नज़र मानने के फ़ौरन बाद
+• शर्त पूरी होने के बाद मनसूख़ नहीं की जा सकती
+• जल्द से जल्द पूरी करनी चाहिए
+
+नज़र की जायज़ शक्लें:
+• रोज़ा
+• नमाज़ (नफ़्ल)
+• सदक़ा
+• क़ुर्बानी
+• हज/उमरा
+• कोई भी जायज़ इबादत
+
+किस चीज़ की नज़र नहीं मानी जा सकती:
+• कोई भी हराम चीज़
+• अपने या दूसरों को नुक़सान पहुंचाना
+• कोई नामुमकिन चीज़
+• फ़र्ज़ आमाल जो पहले से ज़रूरी हैं
+• नाफ़रमानी के काम
+
+अहम उसूल:
+१. बिला वजह तअख़ीर गुनाह है
+२. नज़र तोड़ने पर कफ़्फ़ारा वाजिब है
+३. अगर पूरा करने से पहले वफ़ात हो तो वारिस को पूरा करना चाहिए
+४. हराम की नज़र पूरी नहीं की जाए
+५. सिर्फ़ ज़रूरत के वक़्त नज़र मानें
+
+नबी करीम ﷺ की रहनुमाई:
+"नज़र न मानो, क्योंकि नज़र तक़दीर में कुछ नहीं बदलती। यह सिर्फ़ कंजूस से कुछ निकलवाती है।" (सहीह मुस्लिम)
+
+उलमा का मशवरा:
+• ग़ैर-ज़रूरी नज़र न मानें
+• अगर मान लें तो फ़ौरन पूरी करें
+• नज़र को अल्लाह से सौदा न बनाएं
+• पहले अल्लाह की तक़दीर पर भरोसा करें
+• जहां मुमकिन हो दुआ करें नज़र की बजाय''',
+        'arabic': '''القواعد والشروط للنذر
+
+ما هو النذر؟
+النذر هو وعد أو عهد تقطعه لله بأداء عمل صالح إذا تحقق طلب معين. يصبح واجباً بعد تحقق الشرط.
+
+الشروط الأساسية:
+١. يجب أن يكون الشخص مسلماً
+٢. يجب أن يكون عاقلاً (غير مجنون)
+٣. يجب أن يكون بالغاً
+٤. يجب أن ينذر طواعية (غير مكره)
+٥. يجب أن يكون قادراً على الوفاء بالنذر
+
+أنواع النذر:
+١. النذر المعلق:
+   "إذا فعل الله هذا، سأفعل ذاك"
+   مثال: "إذا نجحت في الامتحان، سأصوم 3 أيام"
+
+٢. النذر المطلق:
+   النذر بدون شرط
+   مثال: "نذرت لله أن أصلي ركعتين الليلة"
+
+متى يصبح النذر واجباً?
+• للنذر المعلق: عند تحقق الشرط
+• للنذر المطلق: فوراً بعد النذر
+• لا يمكن إلغاؤه بعد تحقق الشرط
+• يجب الوفاء به في أقرب وقت
+
+أشكال النذر الصحيحة:
+• الصيام
+• الصلاة (النافلة)
+• الصدقة
+• الأضحية
+• الحج/العمرة
+• أي عبادة مباحة
+
+ما لا يجوز النذر به:
+• أي شيء حرام
+• إيذاء النفس أو الآخرين
+• شيء مستحيل
+• الفرائض الواجبة أصلاً
+• أعمال المعصية
+
+قواعد مهمة:
+١. التأخير بلا سبب إثم
+٢. نقض النذر يتطلب كفارة
+٣. إذا مت قبل الوفاء، يجب على الورثة الوفاء به
+٤. نذر الحرام لا يُوفى به
+٥. انذر فقط عند الضرورة
+
+إرشاد النبي ﷺ:
+"لا تنذروا، فإن النذر لا يرد من القدر شيئاً، وإنما يستخرج به من البخيل" (صحيح مسلم)
+
+نصيحة العلماء:
+• تجنب النذر غير الضروري
+• إذا نذرت، أوفِ به فوراً
+• لا تجعل النذر مساومة مع الله
+• توكل على قضاء الله أولاً
+• ادع بدلاً من النذر حيثما أمكن''',
+      },
+    },
+    {
+      'titleKey': 'nazar_karika_8_hadith_about_nazar',
+      'title': 'Hadith About Nazar',
+      'titleUrdu': 'نذر کے بارے میں احادیث',
+      'titleHindi': 'नज़र के बारे में हदीसें',
+      'titleArabic': 'أحاديث عن النذر',
+      'icon': Icons.library_books,
+      'color': Colors.brown,
+      'details': {
+        'english': '''Authentic Hadith About Nazar (Vows)
+
+1. The Prophet ﷺ said:
+"Whoever makes a vow to obey Allah, let him obey Him. Whoever makes a vow to disobey Allah, let him not disobey Him."
+(Sahih Bukhari 6696)
+
+Lesson: Only fulfill vows of obedience, not disobedience.
+
+2. The Prophet ﷺ said:
+"Do not make vows, for a vow does not change anything of the Divine Decree. It only extracts something from the miserly."
+(Sahih Muslim 1639)
+
+Lesson: Nazar doesn't change destiny, avoid making it unnecessarily.
+
+3. Abdullah ibn Abbas (RA) reported:
+The Prophet ﷺ said: "Whoever makes a vow but does not name it, its expiation is the expiation for an oath. Whoever makes a vow to do an act of disobedience, its expiation is the expiation for an oath. Whoever makes a vow that he is unable to fulfill, its expiation is the expiation for an oath. Whoever makes a vow that he is able to fulfill must fulfill it."
+(Sunan Abu Dawud 3320)
+
+Lesson: Different types of vows have different rulings.
+
+4. Imran ibn Husain (RA) reported:
+The Prophet ﷺ said: "There is no fulfillment of a vow in something that a person does not possess, or in disobedience, or in severing family ties."
+(Sunan Abu Dawud 3293)
+
+Lesson: Invalid vows don't need to be fulfilled.
+
+5. Aisha (RA) reported:
+The Prophet ﷺ said: "There is no vow in disobedience to Allah, and its expiation is the expiation of an oath."
+(Jami at-Tirmidhi 1524)
+
+Lesson: Sinful vows require Kaffara, not fulfillment.
+
+6. Uqbah ibn Amir (RA) reported:
+The Prophet ﷺ said: "The expiation for a vow is the expiation for an oath."
+(Sahih Muslim 1645)
+
+Lesson: Breaking a vow has the same expiation as breaking an oath.
+
+Important Points from Hadith:
+• Fulfill vows of obedience to Allah
+• Don't fulfill vows of disobedience
+• Broken vows require Kaffara
+• Avoid making vows unnecessarily
+• Trust in Allah's decree, not vows
+• Invalid vows don't bind you
+
+Kaffara for Breaking Vow:
+Same as oath-breaking:
+1. Feed 10 poor people, OR
+2. Clothe 10 poor people, OR
+3. Free a slave (not applicable today), OR
+4. Fast 3 consecutive days (if unable to do 1-3)''',
+        'urdu': '''نذر (منت) کے بارے میں صحیح احادیث
+
+۱۔ نبی کریم ﷺ نے فرمایا:
+"جس نے اللہ کی اطاعت کی نذر مانی تو اسے چاہیے کہ اس کی اطاعت کرے۔ اور جس نے نافرمانی کی نذر مانی تو اسے نافرمانی نہیں کرنی چاہیے۔"
+(صحیح بخاری 6696)
+
+سبق: صرف فرمانبرداری کی نذریں پوری کریں، نافرمانی کی نہیں۔
+
+۲۔ نبی کریم ﷺ نے فرمایا:
+"نذر نہ مانو، کیونکہ نذر تقدیر الٰہی میں کچھ نہیں بدلتی۔ یہ صرف کنجوس سے کچھ نکلواتی ہے۔"
+(صحیح مسلم 1639)
+
+سبق: نذر تقدیر نہیں بدلتی، غیر ضروری نذر نہ مانیں۔
+
+۳۔ عبداللہ بن عباس رضی اللہ عنہما سے روایت ہے:
+نبی کریم ﷺ نے فرمایا: "جس نے نذر مانی لیکن اس کا نام نہیں بتایا، اس کا کفارہ قسم کا کفارہ ہے۔ جس نے نافرمانی کی نذر مانی، اس کا کفارہ قسم کا کفارہ ہے۔ جس نے ایسی نذر مانی جسے پورا کرنے کی طاقت نہیں، اس کا کفارہ قسم کا کفارہ ہے۔ جس نے ایسی نذر مانی جسے پورا کر سکتا ہے تو اسے ضرور پورا کرنا چاہیے۔"
+(سنن ابو داؤد 3320)
+
+سبق: مختلف قسم کی نذروں کے مختلف احکام ہیں۔
+
+۴۔ عمران بن حصین رضی اللہ عنہ سے روایت ہے:
+نبی کریم ﷺ نے فرمایا: "کسی ایسی چیز میں نذر کی تکمیل نہیں جو انسان کے پاس نہیں، یا نافرمانی میں، یا قطع رحمی میں۔"
+(سنن ابو داؤد 3293)
+
+سبق: غیر جائز نذریں پوری کرنے کی ضرورت نہیں۔
+
+۵۔ عائشہ رضی اللہ عنہا سے روایت ہے:
+نبی کریم ﷺ نے فرمایا: "اللہ کی نافرمانی میں کوئی نذر نہیں، اور اس کا کفارہ قسم کا کفارہ ہے۔"
+(جامع ترمذی 1524)
+
+سبق: گناہ کی نذروں کو پورا نہیں کیا جائے، کفارہ دیا جائے۔
+
+۶۔ عقبہ بن عامر رضی اللہ عنہ سے روایت ہے:
+نبی کریم ﷺ نے فرمایا: "نذر کا کفارہ قسم کا کفارہ ہے۔"
+(صحیح مسلم 1645)
+
+سبق: نذر توڑنے کا کفارہ قسم توڑنے جیسا ہے۔
+
+احادیث سے اہم نکات:
+• اللہ کی فرمانبرداری کی نذریں پوری کریں
+• نافرمانی کی نذریں پوری نہ کریں
+• توڑی گئی نذروں کا کفارہ دیں
+• غیر ضروری نذر نہ مانیں
+• اللہ کی تقدیر پر بھروسہ کریں، نذر پر نہیں
+• غیر جائز نذریں آپ کو پابند نہیں کرتیں
+
+نذر توڑنے کا کفارہ:
+قسم توڑنے جیسا:
+۱۔ 10 غریبوں کو کھانا کھلائیں، یا
+۲۔ 10 غریبوں کو کپڑے دیں، یا
+۳۔ غلام آزاد کریں (آج کل قابل اطلاق نہیں)، یا
+۴۔ لگاتار 3 دن روزے رکھیں (اگر 1-3 نہیں کر سکتے)''',
+        'hindi': '''नज़र (मन्नत) के बारे में सहीह हदीसें
+
+१. नबी करीम ﷺ ने फ़रमाया:
+"जिसने अल्लाह की इताअत की नज़र मानी तो उसे चाहिए कि उसकी इताअत करे। और जिसने नाफ़रमानी की नज़र मानी तो उसे नाफ़रमानी नहीं करनी चाहिए।"
+(सहीह बुख़ारी 6696)
+
+सबक़: सिर्फ़ फ़रमांबरदारी की नज़रें पूरी करें, नाफ़रमानी की नहीं।
+
+२. नबी करीम ﷺ ने फ़रमाया:
+"नज़र न मानो, क्योंकि नज़र तक़दीर-ए-इलाही में कुछ नहीं बदलती। यह सिर्फ़ कंजूस से कुछ निकलवाती है।"
+(सहीह मुस्लिम 1639)
+
+सबक़: नज़र तक़दीर नहीं बदलती, ग़ैर-ज़रूरी नज़र न मानें।
+
+३. अब्दुल्लाह बिन अब्बास रज़ियल्लाहु अन्हुमा से रिवायत है:
+नबी करीम ﷺ ने फ़रमाया: "जिसने नज़र मानी लेकिन उसका नाम नहीं बताया, उसका कफ़्फ़ारा क़सम का कफ़्फ़ारा है। जिसने नाफ़रमानी की नज़र मानी, उसका कफ़्फ़ारा क़सम का कफ़्फ़ारा है। जिसने ऐसी नज़र मानी जिसे पूरा करने की ताक़त नहीं, उसका कफ़्फ़ारा क़सम का कफ़्फ़ारा है। जिसने ऐसी नज़र मानी जिसे पूरा कर सकता है तो उसे ज़रूर पूरा करना चाहिए।"
+(सुनन अबू दाऊद 3320)
+
+सबक़: मुख़्तलिफ़ क़िस्म की नज़रों के मुख़्तलिफ़ अहकाम हैं।
+
+४. इमरान बिन हुसैन रज़ियल्लाहु अन्हु से रिवायत है:
+नबी करीम ﷺ ने फ़रमाया: "किसी ऐसी चीज़ में नज़र की तकमील नहीं जो इंसान के पास नहीं, या नाफ़रमानी में, या क़त-ए-रहमी में।"
+(सुनन अबू दाऊद 3293)
+
+सबक़: ग़ैर-जायज़ नज़रें पूरी करने की ज़रूरत नहीं।
+
+५. आइशा रज़ियल्लाहु अन्हा से रिवायत है:
+नबी करीम ﷺ ने फ़रमाया: "अल्लाह की नाफ़रमानी में कोई नज़र नहीं, और उसका कफ़्फ़ारा क़सम का कफ़्फ़ारा है।"
+(जामे तिर्मिज़ी 1524)
+
+सबक़: गुनाह की नज़रों को पूरा नहीं किया जाए, कफ़्फ़ारा दिया जाए।
+
+६. उक़्बा बिन आमिर रज़ियल्लाहु अन्हु से रिवायत है:
+नबी करीम ﷺ ने फ़रमाया: "नज़र का कफ़्फ़ारा क़सम का कफ़्फ़ारा है।"
+(सहीह मुस्लिम 1645)
+
+सबक़: नज़र तोड़ने का कफ़्फ़ारा क़सम तोड़ने जैसा है।
+
+हदीसों से अहम नुक़ात:
+• अल्लाह की फ़रमांबरदारी की नज़रें पूरी करें
+• नाफ़रमानी की नज़रें पूरी न करें
+• तोड़ी गई नज़रों का कफ़्फ़ारा दें
+• ग़ैर-ज़रूरी नज़र न मानें
+• अल्लाह की तक़दीर पर भरोसा करें, नज़र पर नहीं
+• ग़ैर-जायज़ नज़रें आपको पाबंद नहीं करतीं
+
+नज़र तोड़ने का कफ़्फ़ारा:
+क़सम तोड़ने जैसा:
+१. 10 ग़रीबों को खाना खिलाएं, या
+२. 10 ग़रीबों को कपड़े दें, या
+३. ग़ुलाम आज़ाद करें (आज कल लागू नहीं), या
+४. लगातार 3 दिन रोज़े रखें (अगर 1-3 नहीं कर सकते)''',
+        'arabic': '''أحاديث صحيحة عن النذر
+
+١. قال النبي ﷺ:
+"من نذر أن يطيع الله فليطعه، ومن نذر أن يعصيه فلا يعصه"
+(صحيح البخاري 6696)
+
+الدرس: أوفِ بنذور الطاعة فقط، وليس المعصية.
+
+٢. قال النبي ﷺ:
+"لا تنذروا، فإن النذر لا يرد من القدر شيئاً، وإنما يستخرج به من البخيل"
+(صحيح مسلم 1639)
+
+الدرس: النذر لا يغير القدر، تجنب النذر غير الضروري.
+
+٣. عن عبد الله بن عباس رضي الله عنهما:
+قال النبي ﷺ: "من نذر نذراً لم يسمه فكفارته كفارة يمين، ومن نذر نذراً في معصية فكفارته كفارة يمين، ومن نذر نذراً لا يطيقه فكفارته كفارة يمين، ومن نذر نذراً أطاقه فليف به"
+(سنن أبي داود 3320)
+
+الدرس: أنواع مختلفة من النذور لها أحكام مختلفة.
+
+٤. عن عمران بن حصين رضي الله عنه:
+قال النبي ﷺ: "لا وفاء لنذر فيما لا يملك ابن آدم، ولا في معصية، ولا في قطيعة رحم"
+(سنن أبي داود 3293)
+
+الدرس: النذور غير الصحي��ة لا حاجة للوفاء بها.
+
+٥. عن عائشة رضي الله عنها:
+قال النبي ﷺ: "لا نذر في معصية الله، وكفارته كفارة يمين"
+(جامع الترمذي 1524)
+
+الدرس: نذور المعصية تتطلب كفارة، لا وفاء.
+
+٦. عن عقبة بن عامر رضي الله عنه:
+قال النبي ﷺ: "كفارة النذر كفارة اليمين"
+(صحيح مسلم 1645)
+
+الدرس: نقض النذر له نفس كفارة نقض اليمين.
+
+النقاط المهمة من الأحاديث:
+• أوفِ بنذور الطاعة لله
+• لا تفِ بنذور المعصية
+• النذور المنقوضة تتطلب كفارة
+• تجنب النذر غير الضروري
+• توكل على قدر الله، لا على النذور
+• النذور غير الصحيحة لا تلزمك
+
+كفارة نقض النذر:
+نفس كفارة نقض اليمين:
+١. إطعام 10 مساكين، أو
+٢. كسوة 10 مساكين، أو
+٣. عتق رقبة (غير متاح اليوم)، أو
+٤. صيام 3 أيام متتابعة (إذا لم تستطع 1-3)''',
+      },
+    },
   ];
 
   @override
@@ -910,8 +1371,8 @@ return Container(
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
-            offset: Offset(0, responsive.spacing(2)),
+            blurRadius: 10.0,
+            offset: Offset(0, 2.0),
           ),
         ],
       ),
@@ -924,16 +1385,16 @@ return Container(
             children: [
               // Number Badge
               Container(
-                width: responsive.spacing(50),
-                height: responsive.spacing(50),
+                width: responsive.iconLarge * 1.5,
+                height: responsive.iconLarge * 1.5,
                 decoration: BoxDecoration(
                   color: darkGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
                       color: darkGreen.withValues(alpha: 0.3),
-                      blurRadius: responsive.spacing(8),
-                      offset: Offset(0, responsive.spacing(2)),
+                      blurRadius: 8,
+                      offset: Offset(0, 2.0),
                     ),
                   ],
                 ),
@@ -948,7 +1409,7 @@ return Container(
                   ),
                 ),
               ),
-              SizedBox(width: responsive.spacing(14)),
+              responsive.hSpaceSmall,
 
               // Title and Icon chip
               Expanded(
@@ -963,9 +1424,12 @@ return Container(
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : darkGreen,
                       ),
-                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                      textDirection: (langCode == 'ur' || langCode == 'ar') ? TextDirection.rtl : TextDirection.ltr,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
                     ),
-                    SizedBox(height: responsive.spacing(4)),
+                    responsive.vSpaceXSmall,
                     // Icon chip
                     Container(
                       padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
@@ -981,13 +1445,17 @@ return Container(
                             size: responsive.textXSmall + 2,
                             color: emeraldGreen,
                           ),
-                          SizedBox(width: responsive.spacing(4)),
-                          Text(
-                            context.tr('nazar_karika'),
-                            style: TextStyle(
-                              fontSize: responsive.textXSmall,
-                              fontWeight: FontWeight.w600,
-                              color: emeraldGreen,
+                          responsive.hSpaceXSmall,
+                          Flexible(
+                            child: Text(
+                              context.tr('nazar_karika'),
+                              style: TextStyle(
+                                fontSize: responsive.textXSmall,
+                                fontWeight: FontWeight.w600,
+                                color: emeraldGreen,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -1039,26 +1507,4 @@ return Container(
     );
   }
 
-  PopupMenuItem<String> _buildLanguageMenuItem(String value, String label) {
-    return PopupMenuItem(
-      value: value,
-      child: Row(
-        children: [
-          Icon(
-            _selectedLanguage == value ? Icons.check_circle : Icons.circle_outlined,
-            color: _selectedLanguage == value ? AppColors.primary : Colors.grey,
-            size: context.responsive.iconSmall,
-          ),
-          SizedBox(width: context.responsive.spaceSmall),
-          Text(
-            context.tr(label),
-            style: TextStyle(
-              fontWeight: _selectedLanguage == value ? FontWeight.bold : FontWeight.normal,
-              color: _selectedLanguage == value ? AppColors.primary : null,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

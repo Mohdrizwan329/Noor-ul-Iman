@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../core/utils/hadith_translator.dart';
 import '../../providers/hadith_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../data/models/hadith_model.dart';
 import '../../widgets/common/search_bar_widget.dart';
+import '../../widgets/common/chip_badge.dart';
 
 class HadithBookDetailScreen extends StatefulWidget {
   final HadithCollection collection;
@@ -97,12 +95,6 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
           _isPlaying = false;
           _playingCardIndex = null;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${context.tr('audio_error')}: $message'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
       }
     });
 
@@ -178,18 +170,7 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
     }
 
     if (textToSpeak.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              showTranslation
-                  ? context.tr('no_translation_available_audio')
-                  : context.tr('no_arabic_text_available'),
-            ),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      }
+      if (mounted) {}
       return;
     }
 
@@ -270,9 +251,13 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
     final languageCode = context.watch<LanguageProvider>().languageCode;
     switch (languageCode) {
       case 'ur':
-        return widget.bookUrduName.isNotEmpty ? widget.bookUrduName : widget.bookName;
+        return widget.bookUrduName.isNotEmpty
+            ? widget.bookUrduName
+            : widget.bookName;
       case 'hi':
-        return widget.bookHindiName.isNotEmpty ? widget.bookHindiName : widget.bookName;
+        return widget.bookHindiName.isNotEmpty
+            ? widget.bookHindiName
+            : widget.bookName;
       case 'ar':
         return widget.bookArabicName;
       default:
@@ -322,46 +307,19 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                 padding: responsive.paddingSymmetric(horizontal: 12),
                 child: Row(
                   children: [
-                    Container(
-                      padding: responsive.paddingSymmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE8F3ED),
-                        borderRadius: BorderRadius.circular(
-                          responsive.radiusMedium,
-                        ),
-                      ),
-                      child: Text(
-                        '${getFilteredHadiths(provider).length} ${context.tr('hadiths')}',
-                        style: TextStyle(
-                          color: const Color(0xFF1E8F5A),
-                          fontWeight: FontWeight.w600,
-                          fontSize: responsive.textSmall,
-                        ),
-                      ),
+                    ChipBadge(
+                      text:
+                          '${getFilteredHadiths(provider).length} ${context.tr('hadiths')}',
+                      backgroundColor: const Color(0xFFE8F3ED),
+                      textColor: const Color(0xFF1E8F5A),
                     ),
                     SizedBox(width: responsive.spaceSmall),
-                    Container(
-                      padding: responsive.paddingSymmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0A5C36).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(
-                          responsive.radiusMedium,
-                        ),
-                      ),
-                      child: Text(
-                        '${context.tr('book')} ${widget.bookNumber}',
-                        style: TextStyle(
-                          color: const Color(0xFF0A5C36),
-                          fontWeight: FontWeight.w600,
-                          fontSize: responsive.textSmall,
-                        ),
-                      ),
+                    ChipBadge(
+                      text: '${context.tr('book')} ${widget.bookNumber}',
+                      backgroundColor: const Color(
+                        0xFF0A5C36,
+                      ).withValues(alpha: 0.1),
+                      textColor: const Color(0xFF0A5C36),
                     ),
                   ],
                 ),
@@ -467,7 +425,6 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
 
     final responsive = context.responsive;
     final showTranslation = _cardsWithTranslation.contains(cardIndex);
-    final isFav = provider.isFavorite(widget.collection, hadith.hadithNumber);
     final isPlaying = _playingCardIndex == cardIndex && _isPlaying;
 
     return Container(
@@ -482,8 +439,8 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
-            offset: Offset(0, responsive.spacing(2)),
+            blurRadius: 10.0,
+            offset: Offset(0, 2.0),
           ),
         ],
       ),
@@ -514,8 +471,8 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                         boxShadow: [
                           BoxShadow(
                             color: darkGreen.withValues(alpha: 0.3),
-                            blurRadius: responsive.spacing(6),
-                            offset: Offset(0, responsive.spacing(2)),
+                            blurRadius: 6.0,
+                            offset: Offset(0, 2.0),
                           ),
                         ],
                       ),
@@ -542,28 +499,13 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                       ),
                     ),
                     if (hadith.grade.isNotEmpty)
-                      Container(
-                        padding: responsive.paddingSymmetric(
-                          horizontal: 8,
-                          vertical: 2,
+                      ChipBadge(
+                        text: HadithTranslator.translateGrade(
+                          hadith.grade,
+                          languageCode,
                         ),
-                        decoration: BoxDecoration(
-                          color: _getGradeColor(hadith.grade),
-                          borderRadius: BorderRadius.circular(
-                            responsive.radiusSmall,
-                          ),
-                        ),
-                        child: Text(
-                          HadithTranslator.translateGrade(
-                            hadith.grade,
-                            languageCode,
-                          ),
-                          style: TextStyle(
-                            fontSize: responsive.textXSmall,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        backgroundColor: _getGradeColor(hadith.grade),
+                        textColor: Colors.white,
                       ),
                   ],
                 ),
@@ -575,7 +517,9 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                       icon: isPlaying ? Icons.stop : Icons.volume_up,
                       label: isPlaying
                           ? context.tr('stop')
-                          : (showTranslation ? context.tr('cool') : context.tr('normal')),
+                          : (showTranslation
+                                ? context.tr('cool')
+                                : context.tr('normal')),
                       onTap: () => playHadith(
                         hadith,
                         provider.selectedLanguage,
@@ -585,8 +529,8 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                       isActive: isPlaying,
                       additionalWidget: !isPlaying && showTranslation
                           ? Container(
-                              width: 8,
-                              height: 8,
+                              width: responsive.spacing(8),
+                              height: responsive.spacing(8),
                               decoration: const BoxDecoration(
                                 color: Color(0xFF4A90E2),
                                 shape: BoxShape.circle,
@@ -613,15 +557,6 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                       onTap: () =>
                           _shareHadith(hadith, provider.selectedLanguage),
                       isActive: false,
-                    ),
-                    _headerActionButton(
-                      icon: isFav ? Icons.favorite : Icons.favorite_border,
-                      label: context.tr('favorite'),
-                      onTap: () => provider.toggleFavorite(
-                        widget.collection,
-                        hadith.hadithNumber,
-                      ),
-                      isActive: isFav,
                     ),
                   ],
                 ),
@@ -672,7 +607,7 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                         child: Text(
                           hadith.arabic,
                           style: TextStyle(
-                            fontFamily: 'Amiri',
+                            fontFamily: 'Poppins',
                             fontSize: arabicFontSize,
                             height: 2.0,
                             color: (isPlaying && !showTranslation)
@@ -681,6 +616,8 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                           ),
                           textAlign: TextAlign.right,
                           textDirection: TextDirection.rtl,
+                          softWrap: true,
+                          overflow: TextOverflow.visible,
                         ),
                       ),
                     ],
@@ -751,6 +688,8 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                                         ? AppColors.primary
                                         : Colors.black87,
                                   ),
+                                  softWrap: true,
+                                  overflow: TextOverflow.visible,
                                 )
                               else if (hadith.english.isNotEmpty) ...[
                                 Container(
@@ -794,6 +733,8 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                                         ? AppColors.primary
                                         : Colors.black54,
                                   ),
+                                  softWrap: true,
+                                  overflow: TextOverflow.visible,
                                 ),
                               ] else
                                 Text(
@@ -811,12 +752,14 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                                 style: TextStyle(
                                   fontSize: translationFontSize,
                                   height: 1.5,
-                                  fontFamily: 'Amiri',
+                                  fontFamily: 'Poppins',
                                   color: (isPlaying && showTranslation)
                                       ? AppColors.primary
                                       : Colors.black87,
                                 ),
                                 textDirection: TextDirection.rtl,
+                                softWrap: true,
+                                overflow: TextOverflow.visible,
                               )
                             else if (provider.selectedLanguage ==
                                     HadithLanguage.english &&
@@ -830,6 +773,8 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                                       ? AppColors.primary
                                       : Colors.black87,
                                 ),
+                                softWrap: true,
+                                overflow: TextOverflow.visible,
                               )
                             else if (provider.selectedLanguage ==
                                     HadithLanguage.urdu &&
@@ -839,12 +784,14 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                                 style: TextStyle(
                                   fontSize: translationFontSize,
                                   height: 1.5,
-                                  fontFamily: 'Amiri',
+                                  fontFamily: 'Poppins',
                                   color: (isPlaying && showTranslation)
                                       ? AppColors.primary
                                       : Colors.black87,
                                 ),
                                 textDirection: TextDirection.rtl,
+                                softWrap: true,
+                                overflow: TextOverflow.visible,
                               )
                             else if (hadith.english.isNotEmpty)
                               Text(
@@ -856,6 +803,8 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                                       ? AppColors.primary
                                       : Colors.black87,
                                 ),
+                                softWrap: true,
+                                overflow: TextOverflow.visible,
                               )
                             else
                               Text(
@@ -939,7 +888,7 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                     Positioned(right: -4, top: -4, child: additionalWidget),
                 ],
               ),
-              SizedBox(height: responsive.spacing(2)),
+              SizedBox(height: 2.0),
               Text(
                 label,
                 style: TextStyle(
@@ -977,11 +926,13 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
       hadith.reference,
       languageCode,
     );
-    final text = '${hadith.arabic}\n\n$translation\n\n— $translatedReference';
-    Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(
+
+    ActionHelpers.copyFormattedContent(
       context,
-    ).showSnackBar(SnackBar(content: Text(context.tr('copied'))));
+      arabicText: hadith.arabic,
+      translation: translation,
+      reference: translatedReference,
+    );
   }
 
   void _shareHadith(HadithModel hadith, HadithLanguage language) {
@@ -1006,8 +957,12 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
       hadith.reference,
       languageCode,
     );
-    final text = '${hadith.arabic}\n\n$translation\n\n— $translatedReference';
-    Share.share(text);
+
+    ActionHelpers.shareFormattedContent(
+      arabicText: hadith.arabic,
+      translation: translation,
+      reference: translatedReference,
+    );
   }
 
   Color _getGradeColor(String grade) {

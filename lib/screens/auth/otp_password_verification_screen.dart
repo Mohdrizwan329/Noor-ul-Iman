@@ -3,18 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_assets.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../core/services/otp_service.dart';
 import 'reset_password_screen.dart';
 
 class OtpPasswordVerificationScreen extends StatefulWidget {
   final String email;
 
-  const OtpPasswordVerificationScreen({
-    super.key,
-    required this.email,
-  });
+  const OtpPasswordVerificationScreen({super.key, required this.email});
 
   @override
   State<OtpPasswordVerificationScreen> createState() =>
@@ -23,8 +19,10 @@ class OtpPasswordVerificationScreen extends StatefulWidget {
 
 class _OtpPasswordVerificationScreenState
     extends State<OtpPasswordVerificationScreen> {
-  final List<TextEditingController> _controllers =
-      List.generate(4, (_) => TextEditingController());
+  final List<TextEditingController> _controllers = List.generate(
+    4,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _focusNodes = List.generate(4, (_) => FocusNode());
   bool _isLoading = false;
   String? _errorMessage;
@@ -65,7 +63,9 @@ class _OtpPasswordVerificationScreenState
     });
 
     try {
-      debugPrint('🔍 Attempt ${retryCount + 1}: Fetching OTP for ${widget.email.toLowerCase()}');
+      debugPrint(
+        '🔍 Attempt ${retryCount + 1}: Fetching OTP for ${widget.email.toLowerCase()}',
+      );
 
       // Add delay to ensure OTP is saved
       await Future.delayed(const Duration(milliseconds: 500));
@@ -122,12 +122,6 @@ class _OtpPasswordVerificationScreenState
     });
   }
 
-  void _onBackspace(int index) {
-    if (index > 0 && _controllers[index].text.isEmpty) {
-      _focusNodes[index - 1].requestFocus();
-    }
-  }
-
   Future<void> _verifyOtp() async {
     final otp = _controllers.map((c) => c.text).join();
 
@@ -153,10 +147,7 @@ class _OtpPasswordVerificationScreenState
         // OTP verified, navigate to reset password screen
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (_) => ResetPasswordScreen(
-              email: widget.email,
-              otp: otp,
-            ),
+            builder: (_) => ResetPasswordScreen(email: widget.email, otp: otp),
           ),
         );
       } else {
@@ -183,7 +174,7 @@ class _OtpPasswordVerificationScreenState
 
     try {
       // Call Cloud Function to send new OTP
-      final result = await OtpService.sendOtp(widget.email);
+      await OtpService.sendOtp(widget.email);
 
       if (!mounted) return;
 
@@ -201,32 +192,12 @@ class _OtpPasswordVerificationScreenState
       await _fetchGeneratedOtp();
 
       if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            result['success'] == true
-                ? context.tr('new_otp_generated_check_screen')
-                : context.tr('new_otp_generated_email_not_sent'),
-          ),
-          backgroundColor: result['success'] == true ? Colors.green : Colors.orange,
-          duration: const Duration(seconds: 3),
-        ),
-      );
     } catch (e) {
       if (!mounted) return;
 
       setState(() {
         _isLoading = false;
       });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: ${e.toString()}'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-        ),
-      );
     }
   }
 
@@ -236,22 +207,22 @@ class _OtpPasswordVerificationScreenState
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: responsive.spacing(32),
+              height: responsive.spacing(32),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
               ),
-              padding: const EdgeInsets.all(4),
+              padding: responsive.paddingAll(4),
               child: Image.asset(AppAssets.appLogo, fit: BoxFit.contain),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: responsive.spacing(8)),
             Text(context.tr('verify_otp')),
           ],
         ),
@@ -260,44 +231,16 @@ class _OtpPasswordVerificationScreenState
         child: SingleChildScrollView(
           padding: responsive.paddingAll(24),
           child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: isDark
-                    ? [const Color(0xFF5C6BC0), const Color(0xFF7986CB)]
-                    : [const Color(0xFF81C784), const Color(0xFF66BB6A)],
-              ),
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: isDark
-                      ? const Color(0x40000000)
-                      : const Color(0x3081C784),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
+            decoration: AppDecorations.gradient(context),
             padding: responsive.paddingAll(32),
             child: Column(
               children: [
                 // Icon
                 Center(
                   child: Container(
-                    width: responsive.iconSize(100),
-                    height: responsive.iconSize(100),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(50),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
+                    width: responsive.spacing(100),
+                    height: responsive.spacing(100),
+                    decoration: AppDecorations.circularIcon(context),
                     child: Icon(
                       Icons.mail_lock,
                       size: responsive.iconXXLarge,
@@ -307,32 +250,24 @@ class _OtpPasswordVerificationScreenState
                     ),
                   ),
                 ),
-                SizedBox(height: responsive.spaceLarge),
+                SizedBox(height: responsive.spacing(20)),
                 // Title
                 Center(
                   child: Text(
                     context.tr('verify_otp'),
-                    style: TextStyle(
-                      fontSize: responsive.textXXLarge,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    style: AppTextStyles.whiteHeading(context),
                   ),
                 ),
-                SizedBox(height: responsive.spaceSmall),
+                SizedBox(height: responsive.spacing(8)),
                 // Instructions
                 Center(
                   child: Text(
                     '${context.tr('enter_4_digit_code_sent_to')}\n${widget.email}',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: responsive.textMedium,
-                      color: Colors.white.withAlpha(230),
-                      height: 1.5,
-                    ),
+                    style: AppTextStyles.whiteBody(context, opacity: 0.9),
                   ),
                 ),
-                SizedBox(height: responsive.spaceMedium),
+                SizedBox(height: responsive.spacing(12)),
                 // Display Generated OTP for Testing
                 if (_loadingOtp)
                   Center(
@@ -340,28 +275,27 @@ class _OtpPasswordVerificationScreenState
                       children: [
                         CircularProgressIndicator(
                           color: Colors.white,
-                          strokeWidth: 2,
+                          strokeWidth: responsive.spacing(2),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           context.tr('loading_otp'),
-                          style: TextStyle(
-                            color: Colors.white.withAlpha(204),
-                            fontSize: 12,
-                          ),
+                          style: AppTextStyles.whiteCaption(context),
                         ),
                       ],
                     ),
                   )
                 else if (_generatedOtp != null)
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: responsive.paddingAll(16),
                     decoration: BoxDecoration(
                       color: Colors.white.withAlpha(25),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(
+                        responsive.borderRadius(12),
+                      ),
                       border: Border.all(
                         color: Colors.white.withAlpha(76),
-                        width: 1,
+                        width: responsive.spacing(1),
                       ),
                     ),
                     child: Column(
@@ -372,73 +306,87 @@ class _OtpPasswordVerificationScreenState
                             Icon(
                               Icons.visibility,
                               color: Colors.white.withAlpha(204),
-                              size: 16,
+                              size: responsive.iconSize(16),
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: responsive.spacing(8)),
                             Text(
                               context.tr('your_otp_code'),
                               style: TextStyle(
                                 color: Colors.white.withAlpha(204),
-                                fontSize: 12,
+                                fontSize: responsive.fontSize(12),
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: responsive.spacing(8)),
                         Text(
                           _generatedOtp ?? context.tr('loading_otp'),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
-                            fontSize: 32,
+                            fontSize: responsive.fontSize(32),
                             fontWeight: FontWeight.bold,
-                            letterSpacing: 8,
+                            letterSpacing: responsive.spacing(8),
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: responsive.spacing(4)),
                         Text(
                           context.tr('copy_code_below'),
                           style: TextStyle(
                             color: Colors.white.withAlpha(153),
-                            fontSize: 11,
+                            fontSize: responsive.fontSize(11),
                           ),
                         ),
                         // Refresh button if OTP shows error
-                        if (_generatedOtp != null && (_generatedOtp!.contains('Error') || _generatedOtp!.contains('Unable')))
+                        if (_generatedOtp != null &&
+                            (_generatedOtp!.contains('Error') ||
+                                _generatedOtp!.contains('Unable')))
                           Padding(
-                            padding: const EdgeInsets.only(top: 12),
+                            padding: EdgeInsets.only(
+                              top: responsive.spacing(12),
+                            ),
                             child: TextButton.icon(
                               onPressed: () => _fetchGeneratedOtp(),
-                              icon: const Icon(Icons.refresh, color: Colors.white, size: 16),
+                              icon: Icon(
+                                Icons.refresh,
+                                color: Colors.white,
+                                size: responsive.iconSize(16),
+                              ),
                               label: Text(
                                 context.tr('retry'),
-                                style: const TextStyle(color: Colors.white, fontSize: 12),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: responsive.fontSize(12),
+                                ),
                               ),
                               style: TextButton.styleFrom(
                                 backgroundColor: Colors.white.withAlpha(25),
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: responsive.spacing(16),
+                                  vertical: responsive.spacing(8),
+                                ),
                               ),
                             ),
                           ),
                       ],
                     ),
                   ),
-                SizedBox(height: responsive.spaceLarge),
+                SizedBox(height: responsive.spacing(20)),
                 // OTP Input Fields
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(4, (index) {
                     return SizedBox(
-                      width: 60,
-                      height: 70,
+                      width: responsive.spacing(60),
+                      height: responsive.spacing(70),
                       child: TextField(
                         controller: _controllers[index],
                         focusNode: _focusNodes[index],
                         textAlign: TextAlign.center,
                         keyboardType: TextInputType.number,
                         maxLength: 1,
-                        style: const TextStyle(
-                          fontSize: 24,
+                        style: TextStyle(
+                          fontSize: responsive.fontSize(24),
                           fontWeight: FontWeight.bold,
                         ),
                         inputFormatters: [
@@ -449,48 +397,54 @@ class _OtpPasswordVerificationScreenState
                           filled: true,
                           fillColor: Colors.white,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(
+                              responsive.borderRadius(12),
+                            ),
                             borderSide: BorderSide.none,
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(
+                              responsive.borderRadius(12),
+                            ),
                             borderSide: BorderSide.none,
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(
+                              responsive.borderRadius(12),
+                            ),
                             borderSide: BorderSide(
                               color: isDark
                                   ? const Color(0xFF5C6BC0)
                                   : const Color(0xFF4CAF50),
-                              width: 2,
+                              width: responsive.spacing(2),
                             ),
                           ),
                         ),
                         onChanged: (value) => _onOtpChanged(index, value),
                         onTap: () {
-                          _controllers[index].selection = TextSelection.fromPosition(
-                            TextPosition(offset: _controllers[index].text.length),
-                          );
+                          _controllers[index].selection =
+                              TextSelection.fromPosition(
+                                TextPosition(
+                                  offset: _controllers[index].text.length,
+                                ),
+                              );
                         },
                       ),
                     );
                   }),
                 ),
                 if (_errorMessage != null) ...[
-                  SizedBox(height: responsive.spaceSmall),
+                  SizedBox(height: responsive.spacing(8)),
                   Text(
                     _errorMessage!,
-                    style: const TextStyle(
-                      color: Colors.red,
-                      fontSize: 14,
-                    ),
+                    style: const TextStyle(color: Colors.red, fontSize: 14),
                   ),
                 ],
-                SizedBox(height: responsive.spaceLarge),
+                SizedBox(height: responsive.spacing(20)),
                 // Verify Button
                 SizedBox(
                   width: double.infinity,
-                  height: 56,
+                  height: responsive.spacing(56),
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _verifyOtp,
                     style: ElevatedButton.styleFrom(
@@ -501,7 +455,9 @@ class _OtpPasswordVerificationScreenState
                       elevation: 8,
                       shadowColor: Colors.black.withAlpha(80),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(
+                          responsive.borderRadius(16),
+                        ),
                       ),
                     ),
                     child: _isLoading
@@ -512,23 +468,23 @@ class _OtpPasswordVerificationScreenState
                           )
                         : Text(
                             context.tr('verify_otp'),
-                            style: const TextStyle(
-                              fontSize: 18,
+                            style: TextStyle(
+                              fontSize: responsive.fontSize(18),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                   ),
                 ),
-                SizedBox(height: responsive.spaceMedium),
+                SizedBox(height: responsive.spacing(12)),
                 // Resend OTP
                 Center(
                   child: TextButton(
                     onPressed: _resendOtp,
                     child: Text(
                       context.tr('resend_otp'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 16,
+                        fontSize: responsive.fontSize(16),
                         fontWeight: FontWeight.w600,
                       ),
                     ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import 'login_screen.dart';
 import 'signup_screen.dart';
 
@@ -41,16 +40,16 @@ class WelcomeScreen extends StatelessWidget {
                 const Spacer(),
                 // App Logo
                 Container(
-                  width: responsive.iconSize(120),
-                  height: responsive.iconSize(120),
+                  width: responsive.spacing(120),
+                  height: responsive.spacing(120),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+                        blurRadius: responsive.spacing(20),
+                        offset: Offset(0, responsive.spacing(10)),
                       ),
                     ],
                   ),
@@ -86,7 +85,7 @@ class WelcomeScreen extends StatelessWidget {
                 // Sign In Button
                 SizedBox(
                   width: double.infinity,
-                  height: 56,
+                  height: responsive.spacing(56),
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.push(
@@ -117,7 +116,7 @@ class WelcomeScreen extends StatelessWidget {
                 // Sign Up Button
                 SizedBox(
                   width: double.infinity,
-                  height: 56,
+                  height: responsive.spacing(56),
                   child: OutlinedButton(
                     onPressed: () {
                       Navigator.push(
@@ -129,7 +128,7 @@ class WelcomeScreen extends StatelessWidget {
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white, width: 2),
+                      side: BorderSide(color: Colors.white, width: responsive.spacing(2)),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(responsive.radiusMedium),
                       ),

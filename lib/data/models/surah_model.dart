@@ -57,6 +57,9 @@ class AyahModel {
   final int page;
   final int hizbQuarter;
   final bool sajda;
+  final int surahNumber;
+  final String? surahName;
+  final String? surahEnglishName;
 
   AyahModel({
     required this.number,
@@ -67,9 +70,15 @@ class AyahModel {
     required this.page,
     required this.hizbQuarter,
     this.sajda = false,
+    this.surahNumber = 0,
+    this.surahName,
+    this.surahEnglishName,
   });
 
   factory AyahModel.fromJson(Map<String, dynamic> json) {
+    // Extract surah info from nested surah object if available
+    final surahData = json['surah'] as Map<String, dynamic>?;
+
     return AyahModel(
       number: json['number'] ?? 0,
       numberInSurah: json['numberInSurah'] ?? 0,
@@ -79,6 +88,9 @@ class AyahModel {
       page: json['page'] ?? 0,
       hizbQuarter: json['hizbQuarter'] ?? 0,
       sajda: json['sajda'] is bool ? json['sajda'] : false,
+      surahNumber: surahData?['number'] ?? 0,
+      surahName: surahData?['name'],
+      surahEnglishName: surahData?['englishName'],
     );
   }
 
@@ -92,6 +104,9 @@ class AyahModel {
       'page': page,
       'hizbQuarter': hizbQuarter,
       'sajda': sajda,
+      'surahNumber': surahNumber,
+      'surahName': surahName,
+      'surahEnglishName': surahEnglishName,
     };
   }
 }

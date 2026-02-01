@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_assets.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
-import '../../core/utils/validators.dart';
+import '../../core/utils/app_utils.dart';
 import '../../widgets/auth/auth_text_field.dart';
 import 'login_screen.dart';
 
@@ -46,15 +44,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
     if (!mounted) return;
 
-    // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.tr('password_reset_success')),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 3),
-      ),
-    );
-
     // Navigate to login screen
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -68,22 +57,22 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: responsive.spacing(32),
+              height: responsive.spacing(32),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
               ),
-              padding: const EdgeInsets.all(4),
+              padding: responsive.paddingAll(4),
               child: Image.asset(AppAssets.appLogo, fit: BoxFit.contain),
             ),
-            const SizedBox(width: 8),
+            responsive.hSpaceSmall,
             Text(context.tr('reset_password')),
           ],
         ),
@@ -92,25 +81,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         child: SingleChildScrollView(
           padding: responsive.paddingAll(24),
           child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: isDark
-                    ? [const Color(0xFF5C6BC0), const Color(0xFF7986CB)]
-                    : [const Color(0xFF81C784), const Color(0xFF66BB6A)],
-              ),
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: isDark
-                      ? const Color(0x40000000)
-                      : const Color(0x3081C784),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
+            decoration: AppDecorations.gradient(context),
             padding: responsive.paddingAll(32),
             child: Form(
               key: _formKey,
@@ -119,19 +90,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   // Icon
                   Center(
                     child: Container(
-                      width: responsive.iconSize(100),
-                      height: responsive.iconSize(100),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(50),
-                            blurRadius: 15,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
+                      width: responsive.spacing(100),
+                      height: responsive.spacing(100),
+                      decoration: AppDecorations.circularIcon(context),
                       child: Icon(
                         Icons.lock_open,
                         size: responsive.iconXXLarge,
@@ -141,32 +102,24 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: responsive.spaceLarge),
+                  responsive.vSpaceLarge,
                   // Title
                   Center(
                     child: Text(
                       context.tr('reset_password'),
-                      style: TextStyle(
-                        fontSize: responsive.textXXLarge,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                      style: AppTextStyles.whiteHeading(context),
                     ),
                   ),
-                  SizedBox(height: responsive.spaceSmall),
+                  responsive.vSpaceSmall,
                   // Instructions
                   Center(
                     child: Text(
                       '${context.tr('create_new_password_for')}\n${widget.email}',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: responsive.textMedium,
-                        color: Colors.white.withAlpha(230),
-                        height: 1.5,
-                      ),
+                      style: AppTextStyles.whiteBody(context, opacity: 0.9),
                     ),
                   ),
-                  SizedBox(height: responsive.spaceLarge),
+                  responsive.vSpaceLarge,
                   // New Password Field
                   AuthTextField(
                     controller: _passwordController,
@@ -177,7 +130,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     validator: (value) =>
                         Validators.validatePassword(value, context),
                   ),
-                  SizedBox(height: responsive.spaceMedium),
+                  responsive.vSpaceMedium,
                   // Confirm Password Field
                   AuthTextField(
                     controller: _confirmPasswordController,
@@ -191,24 +144,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       context,
                     ),
                   ),
-                  SizedBox(height: responsive.spaceLarge),
+                  responsive.vSpaceLarge,
                   // Reset Password Button
                   SizedBox(
                     width: double.infinity,
-                    height: 56,
+                    height: responsive.spacing(56),
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _resetPassword,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: isDark
-                            ? const Color(0xFF5C6BC0)
-                            : const Color(0xFF4CAF50),
-                        elevation: 8,
-                        shadowColor: Colors.black.withAlpha(80),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
+                      style: AppButtonStyles.white(context),
                       child: _isLoading
                           ? CircularProgressIndicator(
                               color: isDark
@@ -217,9 +160,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             )
                           : Text(
                               context.tr('reset_password'),
-                              style: TextStyle(
-                                fontSize: responsive.textLarge,
-                                fontWeight: FontWeight.bold,
+                              style: AppTextStyles.button(
+                                context,
+                                color: isDark
+                                    ? const Color(0xFF5C6BC0)
+                                    : const Color(0xFF4CAF50),
                               ),
                             ),
                     ),

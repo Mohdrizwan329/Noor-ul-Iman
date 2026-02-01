@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_dimens.dart';
+import '../../core/utils/app_utils.dart';
 
 /// Reusable card widget that automatically handles dark mode styling.
 /// Replaces 424+ repeated BoxDecoration patterns across the app.
@@ -37,6 +37,7 @@ class AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -46,10 +47,10 @@ class AppCard extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(
-            borderRadius ?? AppDimens.borderRadiusLarge,
+            borderRadius ?? responsive.radiusLarge,
           ),
           child: Container(
-            padding: padding ?? const EdgeInsets.all(AppDimens.paddingMedium),
+            padding: padding ?? responsive.paddingAll(16),
             decoration: BoxDecoration(
               color: gradient == null
                   ? (backgroundColor ??
@@ -57,14 +58,14 @@ class AppCard extends StatelessWidget {
                   : null,
               gradient: gradient,
               borderRadius: BorderRadius.circular(
-                borderRadius ?? AppDimens.borderRadiusLarge,
+                borderRadius ?? responsive.radiusLarge,
               ),
               border: border ??
                   Border.all(
                     color: isDark
                         ? Colors.grey.shade700
                         : AppColors.lightGreenBorder,
-                    width: AppDimens.borderWidth,
+                    width: 1.5,
                   ),
               boxShadow: boxShadow ??
                   (isDark

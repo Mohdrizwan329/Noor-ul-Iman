@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,9 +13,6 @@ class NamazFazilatScreen extends StatefulWidget {
 }
 
 class _NamazFazilatScreenState extends State<NamazFazilatScreen> {
-  String _selectedLanguage = 'english';
-
-
   final List<Map<String, dynamic>> _namazTopics = [
     {
       'number': 1,
@@ -921,6 +917,474 @@ Signs of Proper Prayer:
 • تثبت القلب'''
       },
     },
+    {
+      'number': 7,
+      'titleKey': 'namaz_fazilat_7_fajr_prayer_virtues',
+      'title': 'Virtues of Fajr Prayer',
+      'titleUrdu': 'فجر کی نماز کے فضائل',
+      'titleHindi': 'फ़ज्र की नमाज़ की फ़ज़ीलत',
+      'titleArabic': 'فضائل صلاة الفجر',
+      'icon': Icons.wb_twilight,
+      'color': Colors.orange,
+      'details': {
+        'english': '''Virtues of Fajr Prayer
+
+Fajr is the most blessed and virtuous of the five daily prayers with unique rewards.
+
+Under Allah's Protection:
+• The Prophet ﷺ said: "Whoever prays Fajr will be under the protection of Allah." (Muslim)
+• This protection lasts the entire day
+• Angels testify about those who pray Fajr
+
+Two Sunnah Better Than the World:
+• The Prophet ﷺ said: "The two rak'ahs before Fajr are better than this world and all it contains." (Muslim)
+• He never missed these two rak'ahs, even while traveling
+• They should be prayed at home if possible
+
+Witnessed by Angels:
+• "Indeed, the recitation of Fajr is witnessed." (Quran 17:78)
+• Night and day angels gather during Fajr
+• They report to Allah that they left His servants while praying
+
+Reward of Hajj and Umrah:
+• "Whoever prays Fajr in congregation, then sits remembering Allah until the sun rises, then prays two rak'ahs (Ishraq), will have a reward like that of Hajj and Umrah - complete, complete, complete." (Tirmidhi)
+
+Light on the Day of Judgment:
+• "Give glad tidings to those who walk to the mosques in darkness of complete light on the Day of Resurrection." (Abu Dawud)
+
+Satan's Defeat:
+• The Prophet ﷺ said: "Satan ties three knots at the back of your head when you sleep. When you wake and remember Allah, a knot is untied. When you make wudu, a knot is untied. When you pray, all knots are untied." (Bukhari)
+
+Guaranteed Paradise:
+• "Whoever prays the two cold prayers (Fajr and Asr) will enter Paradise." (Bukhari)''',
+        'urdu': '''فجر کی نماز کے فضائل
+
+فجر پانچ وقت کی نمازوں میں سب سے زیادہ برکت والی ہے۔
+
+اللہ کی حفاظت میں:
+• نبی کریم ﷺ نے فرمایا: "جو فجر پڑھے وہ اللہ کی حفاظت میں ہے۔" (مسلم)
+• یہ حفاظت پورے دن رہتی ہے
+
+دو سنتیں دنیا سے بہتر:
+• نبی کریم ﷺ نے فرمایا: "فجر سے پہلے کی دو رکعتیں اس دنیا اور جو کچھ اس میں ہے سب سے بہتر ہیں۔" (مسلم)
+
+فرشتوں کی گواہی:
+• "بیشک فجر کی قراءت میں فرشتے حاضر ہوتے ہیں۔" (قرآن 17:78)
+• رات اور دن کے فرشتے فجر میں جمع ہوتے ہیں
+
+حج اور عمرہ کا ثواب:
+• "جو فجر جماعت سے پڑھے، پھر طلوع آفتاب تک اللہ کا ذکر کرتا رہے، پھر دو رکعت پڑھے، اسے مکمل حج اور عمرہ کا ثواب ملے گا۔" (ترمذی)
+
+قیامت کے دن نور:
+• "جو لوگ اندھیرے میں مسجدوں کی طرف چلتے ہیں انہیں قیامت کے دن مکمل نور کی خوشخبری دو۔" (ابو داؤد)
+
+شیطان کی شکست:
+• نبی کریم ﷺ نے فرمایا: "شیطان سونے پر تین گرہیں لگاتا ہے۔ جاگو تو ایک، وضو کرو تو ایک، نماز پڑھو تو سب کھل جاتی ہیں۔" (بخاری)
+
+جنت کی ضمانت:
+• "جو دو ٹھنڈی نمازیں (فجر اور عصر) پڑھے وہ جنت میں داخل ہوگا۔" (بخاری)''',
+        'hindi': '''फ़ज्र की नमाज़ की फ़ज़ीलत
+
+फ़ज्र पांच वक़्त की नमाज़ों में सबसे ज़्यादा बरकत वाली है।
+
+अल्लाह की हिफ़ाज़त में:
+• नबी करीम ﷺ ने फ़रमाया: "जो फ़ज्र पढ़े वो अल्लाह की हिफ़ाज़त में है।" (मुस्लिम)
+• यह हिफ़ाज़त पूरे दिन रहती है
+
+दो सुन्नतें दुनिया से बेहतर:
+• नबी करीम ﷺ ने फ़रमाया: "फ़ज्र से पहले की दो रकअतें इस दुनिया और जो कुछ उसमें है सबसे बेहतर हैं।" (मुस्लिम)
+
+फ़रिश्तों की गवाही:
+• "बेशक फ़ज्र की क़िराअत में फ़रिश्ते हाज़िर होते हैं।" (क़ुरआन 17:78)
+• रात और दिन के फ़रिश्ते फ़ज्र में जमा होते हैं
+
+हज और उमरा का सवाब:
+• "जो फ़ज्र जमाअत से पढ़े, फिर तुलू आफ़ताब तक अल्लाह का ज़िक्र करता रहे, फिर दो रकअत पढ़े, उसे मुकम्मल हज और उमरा का सवाब मिलेगा।" (तिर्मिज़ी)
+
+क़यामत के दिन नूर:
+• "जो लोग अंधेरे में मस्जिदों की तरफ़ चलते हैं उन्हें क़यामत के दिन मुकम्मल नूर की ख़ुशख़बरी दो।" (अबू दाऊद)
+
+शैतान की शिकस्त:
+• नबी करीम ﷺ ने फ़रमाया: "शैतान सोने पर तीन गांठें लगाता है। जागो तो एक, वुज़ू करो तो एक, नमाज़ पढ़ो तो सब खुल जाती हैं।" (बुख़ारी)
+
+जन्नत की ज़मानत:
+• "जो दो ठंडी नमाज़ें (फ़ज्र और अस्र) पढ़े वो जन्नत में दाख़िल होगा।" (बुख़ारी)''',
+        'arabic': '''فضائل صلاة الفجر
+
+صلاة الفجر من أعظم الصلوات وأكثرها بركة.
+
+في ذمة الله:
+• قال النبي ﷺ: "من صلى الفجر فهو في ذمة الله." (مسلم)
+• هذه الحماية تستمر طوال اليوم
+
+ركعتا الفجر خير من الدنيا:
+• قال النبي ﷺ: "ركعتا الفجر خير من الدنيا وما فيها." (مسلم)
+
+صلاة مشهودة:
+• "وَقُرْآنَ الْفَجْرِ إِنَّ قُرْآنَ الْفَجْرِ كَانَ مَشْهُودًا" (الإسراء: 78)
+• تجتمع ملائكة الليل والنهار في صلاة الفجر
+
+ثواب حجة وعمرة:
+• "من صلى الفجر في جماعة ثم قعد يذكر الله حتى تطلع الشمس ثم صلى ركعتين كان له أجر حجة وعمرة تامة." (الترمذي)
+
+نور يوم القيامة:
+• "بشر المشائين في الظلم إلى المساجد بالنور التام يوم القيامة." (أبو داود)
+
+هزيمة الشيطان:
+• قال النبي ﷺ: "يعقد الشيطان ثلاث عقد، فإذا استيقظ وذكر الله انحلت عقدة، وإذا توضأ انحلت عقدة، وإذا صلى انحلت عقده كلها." (البخا��ي)
+
+ضمان الجنة:
+• "من صلى البردين دخل الجنة." (البخاري)'''
+      },
+    },
+    {
+      'number': 8,
+      'titleKey': 'namaz_fazilat_8_tahajjud_virtues',
+      'title': 'Virtues of Tahajjud',
+      'titleUrdu': 'تہجد کے فضائل',
+      'titleHindi': 'तहज्जुद की फ़ज़ीलत',
+      'titleArabic': 'فضائل صلاة التهجد',
+      'icon': Icons.nightlight_round,
+      'color': Colors.indigo,
+      'details': {
+        'english': '''Virtues of Tahajjud (Night Prayer)
+
+Tahajjud is the most beloved voluntary prayer to Allah.
+
+Best Prayer After Fard:
+• The Prophet ﷺ said: "The best prayer after the obligatory prayers is prayer at night." (Muslim)
+
+Allah Descends to the Lowest Heaven:
+• The Prophet ﷺ said: "Our Lord descends every night to the lowest heaven in the last third of the night and says: 'Who will call upon Me that I may answer? Who will ask of Me that I may give?'" (Bukhari)
+
+Custom of the Righteous:
+• The Prophet ﷺ said: "You should pray Qiyam al-Layl, for it is the custom of the righteous who came before you. It brings you closer to your Lord and expiates sins." (Tirmidhi)
+
+Expiation of Sins:
+• Night prayer wipes away sins
+• The Prophet ﷺ said: "It expiates sins and expels disease from the body."
+
+Degrees Based on Recitation:
+• "Whoever prays Qiyam reciting ten verses will not be recorded among the negligent."
+• "Whoever recites one hundred verses will be recorded among the devout." (Abu Dawud)
+
+Path to Paradise:
+• Night prayer is one of the paths to Jannah
+• Those who pray at night will be called from a special gate
+
+Praise from Allah:
+• "They arise from their beds to call upon their Lord in fear and hope." (Quran 32:16)''',
+        'urdu': '''تہجد کے فضائل
+
+تہجد اللہ کو سب سے محبوب نفل نماز ہے۔
+
+فرض کے بعد بہترین نماز:
+• نبی کریم ﷺ نے فرمایا: "فرض نمازوں کے بعد سب سے بہترین نماز رات کی نماز ہے۔" (مسلم)
+
+اللہ آسمان دنیا پر اترتا ہے:
+• نبی کریم ﷺ نے فرمایا: "ہمارا رب ہر رات کے آخری تہائی میں آسمان دنیا پر اترتا ہے اور فرماتا ہے: 'کون مجھے پکارے؟ کون مجھ سے مانگے؟'" (بخاری)
+
+صالحین کی عادت:
+• نبی کریم ﷺ نے فرمایا: "قیام اللیل کرو، یہ تم سے پہلے صالحین کی عادت ہے، اللہ سے قریب کرتی اور گناہ مٹاتی ہے۔" (ترمذی)
+
+گناہوں کا کفارہ:
+• رات کی نماز گناہ مٹا دیتی ہے
+• نبی کریم ﷺ نے فرمایا: "یہ گناہ مٹاتی اور جسم سے بیماری نکالتی ہے۔"
+
+قراءت پر درجات:
+• "جو دس آیات پڑھ کر قیام کرے، غافلوں میں نہیں لکھا جائے گا۔"
+• "جو سو آیات پڑھے، عابدین میں لکھا جائے گا۔" (ابو داؤد)
+
+جنت کا راستہ:
+• رات کی نماز جنت کے راستوں میں سے ایک ہے
+• خاص دروازے سے بلایا جائے گا
+
+اللہ کی تعریف:
+• "ان کے پہلو بستروں سے اٹھتے ہیں اپنے رب کو خوف اور امید سے پکارتے ہیں۔" (قرآن 32:16)''',
+        'hindi': '''तहज्जुद की फ़ज़ीलत
+
+तहज्जुद अल्लाह को सबसे महबूब नफ़्ल नमाज़ है।
+
+फ़र्ज़ के बाद बेहतरीन नमाज़:
+• नबी करीम ﷺ ने फ़रमाया: "फ़र्ज़ नमाज़ों के बाद सबसे बेहतरीन नमाज़ रात की नमाज़ है।" (मुस्लिम)
+
+अल्लाह आसमान दुनिया पर उतरता है:
+• नबी करीम ﷺ ने फ़रमाया: "हमारा रब हर रात के आख़िरी तिहाई में आसमान दुनिया पर उतरता है और फ़रमाता है: 'कौन मुझे पुकारे? कौन मुझसे मांगे?'" (बुख़ारी)
+
+सालिहीन की आदत:
+• नबी करीम ﷺ ने फ़रमाया: "क़ियामुल लैल करो, यह तुमसे पहले सालिहीन की आदत है, अल्लाह से क़रीब करती और गुनाह मिटाती है।" (तिर्मिज़ी)
+
+गुनाहों का कफ़्फ़ारा:
+• रात की नमाज़ गुनाह मिटा देती है
+• नबी करीम ﷺ ने फ़रमाया: "यह गुनाह मिटाती और जिस्म से बीमारी निकालती है।"
+
+क़िराअत पर दर्जात:
+• "जो दस आयात पढ़कर क़ियाम करे, ग़ाफ़िलों में नहीं लिखा जाएगा।"
+• "जो सौ आयात पढ़े, आबिदीन में लिखा जाएगा।" (अबू दाऊद)
+
+जन्नत का रास्ता:
+• रात की नमाज़ जन्नत के रास्तों में से एक है
+• ख़ास दरवाज़े से बुलाया जाएगा
+
+अल्लाह की तारीफ़:
+• "उनके पहलू बिस्तरों से उठते हैं अपने रब को ख़ौफ़ और उम्मीद से पुकारते हैं।" (क़ुरआन 32:16)''',
+        'arabic': '''فضائل صلاة التهجد
+
+التهجد أحب صلاة نافلة إلى الله.
+
+أفضل الصلاة بعد الفريضة:
+• قال النبي ﷺ: "أفضل الصلاة بعد الفريضة صلاة الليل." (مسلم)
+
+نزول الله إلى السماء الدنيا:
+• قال النبي ﷺ: "ينزل ربنا كل ليلة إلى السماء الدنيا حين يبقى ثلث الليل الآخر فيقول: من يدعوني؟ من يسألني؟" (البخاري)
+
+عادة الصالحين:
+• قال النبي ﷺ: "عليكم بقيام الليل فإنه دأب الصالحين قبلكم، وقربة إلى الله تعالى، ومنهاة عن الإثم." (الترمذي)
+
+تكفير الذنوب:
+• صلاة الليل تمحو الذنوب
+• قال النبي ﷺ: "فإنه مطردة للداء عن الجسد."
+
+الدرجات حسب القراءة:
+• "من قام بعشر آيات لم يكتب من الغافلين."
+• "ومن قام بمائة آية كتب من القانتين." (أبو داود)
+
+طريق الجنة:
+• قيام الليل من طرق الجنة
+• المصلون بالليل يُدعون من باب خاص
+
+ثناء الله عليهم:
+• "تَتَجَافَىٰ جُنُوبُهُمْ عَنِ الْمَضَاجِعِ يَدْعُونَ رَبَّهُمْ خَوْفًا وَطَمَعًا" (السجدة: 16)'''
+      },
+    },
+    {
+      'number': 9,
+      'titleKey': 'namaz_fazilat_9_jumuah_virtues',
+      'title': 'Virtues of Jumu\'ah',
+      'titleUrdu': 'جمعہ کے فضائل',
+      'titleHindi': 'जुमा की फ़ज़ीलत',
+      'titleArabic': 'فضائل الجمعة',
+      'icon': Icons.calendar_today,
+      'color': Colors.cyan,
+      'details': {
+        'english': '''Virtues of Jumu'ah (Friday Prayer)
+
+Jumu'ah is the master of all days with unique blessings.
+
+Best Day of the Week:
+• The Prophet ﷺ said: "The best day on which the sun has risen is Friday. On it Adam was created, on it he entered Paradise, and the Hour will not be established except on Friday." (Muslim)
+
+Weekly Expiation of Sins:
+• "The five daily prayers and Jumu'ah to Jumu'ah are an expiation for what is between them." (Muslim)
+
+Reward of Fasting and Praying a Year:
+• "Whoever does ghusl on Friday, sets out early, walks and does not ride, comes close to the imam, listens and does not talk - for every step he will have the reward of fasting and praying for one year." (Tirmidhi)
+
+Hour of Accepted Dua:
+• The Prophet ﷺ said: "There is an hour on Friday during which a Muslim does not ask Allah for anything but He will give it to him." (Bukhari)
+
+Reward Based on Arrival Time:
+• "Angels stand at the door of the mosque. Whoever comes first gets the reward of sacrificing a camel, then a cow, then a ram." (Bukhari)
+
+Reciting Surah Al-Kahf:
+• "Whoever reads Surah Al-Kahf on Friday will have light between the two Fridays." (Nasai)
+
+Warning Against Missing:
+• "Whoever misses three Jumu'ahs out of negligence, Allah will seal his heart." (Tirmidhi)''',
+        'urdu': '''جمعہ کے فضائل
+
+جمعہ تمام دنوں کا سردار ہے۔
+
+ہفتے کا بہترین دن:
+• نبی کریم ﷺ نے فرمایا: "سورج جس دن نکلا ہے اس میں بہترین جمعہ ہے۔ اس دن آدم پیدا ہوئے، جنت میں داخل ہوئے، اور قیامت جمعہ کے دن ہوگی۔" (مسلم)
+
+ہفتہ وار گناہوں کا کفارہ:
+• "پانچ نمازیں اور جمعہ سے جمعہ تک درمیان کے گناہوں کا کفارہ ہیں۔" (مسلم)
+
+سال کے روزے اور نماز کا ثواب:
+• "جو جمعہ کو غسل کرے، جلدی نکلے، پیدل چلے، امام کے قریب بیٹھے، سنے اور بات نہ کرے - ہر قدم پر سال کے روزے اور نماز کا ثواب۔" (ترمذی)
+
+قبولیت دعا کی گھڑی:
+• نبی کریم ﷺ نے فرمایا: "جمعہ میں ایک گھڑی ہے جس میں مسلمان مانگے تو ضرور ملتا ہے۔" (بخاری)
+
+آنے کے وقت پر ثواب:
+• "فرشتے مسجد کے دروازے پر لکھتے ہیں۔ پہلے آنے والے کو اونٹ، پھر گائے، پھر مینڈھے کا ثواب۔" (بخاری)
+
+سورہ الکہف پڑھنا:
+• "جو جمعہ کو سورہ الکہف پڑھے اسے دو جمعوں کے درمیان نور ملے گا۔" (نسائی)
+
+چھوڑنے پر وعید:
+• "جو تین جمعے غفلت سے چھوڑے، اللہ دل پر مہر لگا دے گا۔" (ترمذی)''',
+        'hindi': '''जुमा की फ़ज़ीलत
+
+जुमा तमाम दिनों का सरदार है।
+
+हफ़्ते का बेहतरीन दिन:
+• नबी करीम ﷺ ने फ़रमाया: "सूरज जिस दिन निकला है उसमें बेहतरीन जुमा है। इस दिन आदम पैदा हुए, जन्नत में दाख़िल हुए, और क़यामत जुमा के दिन होगी।" (मुस्लिम)
+
+हफ़्तावार गुनाहों का कफ़्फ़ारा:
+• "पांच नमाज़ें और जुमा से जुमा तक दरमियान के गुनाहों का कफ़्फ़ारा हैं।" (मुस्लिम)
+
+साल के रोज़े और नमाज़ का सवाब:
+• "जो जुमा को ग़ुस्ल करे, जल्दी निकले, पैदल चले, इमाम के क़रीब बैठे, सुने और बात न करे - हर क़दम पर साल के रोज़े और नमाज़ का सवाब।" (तिर्मिज़ी)
+
+क़बूलियत दुआ की घड़ी:
+• नबी करीम ﷺ ने फ़रमाया: "जुमा में एक घड़ी है जिसमें मुसलमान मांगे तो ज़रूर मिलता है।" (बुख़ारी)
+
+आने के वक़्त पर सवाब:
+• "फ़रिश्ते मस्जिद के दरवाज़े पर लिखते हैं। पहले आने वाले को ऊंट, फिर गाय, फिर मेंढ़े का सवाब।" (बुख़ारी)
+
+सूरा अल-कह्फ़ पढ़ना:
+• "जो जुमा को सूरा अल-कह्फ़ पढ़े उसे दो जुमों के दरमियान नूर मिलेगा।" (नसाई)
+
+छोड़ने पर वईद:
+• "जो तीन जुमे ग़फ़लत से छोड़े, अल्लाह दिल पर मुहर लगा देगा।" (तिर्मिज़ी)''',
+        'arabic': '''فضائل الجمعة
+
+الجمعة سيد الأيام.
+
+خير يوم في الأسبوع:
+• قال النبي ﷺ: "خير يوم طلعت عليه الشمس يوم الجمعة، فيه خُلق آدم، وفيه أُدخل الجنة، ولا تقوم الساعة إلا في يوم الجمعة." (مسلم)
+
+تكفير الذنوب الأسبوعية:
+• "الصلوات الخمس والجمعة إلى الجمعة كفارة لما بينهن." (مسلم)
+
+ثواب صيام وصلاة سنة:
+• "من اغتسل يوم الجمعة ثم بكر وابتكر، ومشى ولم يركب، ودنا من الإمام فاستمع ولم يلغ، كان له بكل خطوة أجر سنة صيامها وقيامها." (الترمذي)
+
+ساعة الإجابة:
+• قال النبي ﷺ: "إن في الجمعة لساعة لا يوافقها عبد مسلم يسأل الله شيئاً إلا أعطاه إياه." (البخاري)
+
+الثواب حسب وقت الحضور:
+• "إذا كان يوم الجمعة وقفت الملائكة على باب المسجد يكتبون الأول فالأول." (البخاري)
+
+قراءة سورة الكهف:
+• "من قرأ سورة الكهف يوم الجمعة أضاء له من النور ما بين الجمعتين." (النسائي)
+
+التحذير من الترك:
+• "من ترك ثلاث جمع تهاوناً طبع الله على قلبه." (الترمذي)'''
+      },
+    },
+    {
+      'number': 10,
+      'titleKey': 'namaz_fazilat_10_sujood_virtues',
+      'title': 'Virtues of Prostration',
+      'titleUrdu': 'سجدے کے فضائل',
+      'titleHindi': 'सज्दे की फ़ज़ीलत',
+      'titleArabic': 'فضائل السجود',
+      'icon': Icons.south,
+      'color': Colors.brown,
+      'details': {
+        'english': '''Virtues of Prostration (Sujood)
+
+Sujood is the greatest pillar of prayer and the moment of closest proximity to Allah.
+
+Closest to Allah:
+• The Prophet ﷺ said: "The closest a servant is to his Lord is when he is prostrating, so increase your supplications therein." (Muslim)
+
+Command to Prostrate and Draw Near:
+• "Rather, prostrate and draw near [to Allah]." (Quran 96:19)
+
+Elevation and Forgiveness:
+• The Prophet ﷺ said: "Prostrate much, for there is no Muslim who prostrates to Allah except that Allah raises him one degree in Paradise and removes one sin from him." (Muslim)
+
+Satan Weeps:
+• The Prophet ﷺ said: "When the son of Adam prostrates, Satan withdraws weeping and says: 'Woe to me! He was commanded to prostrate and he prostrated, so Paradise is for him. I was commanded to prostrate and I refused, so Hellfire is for me.'" (Muslim)
+
+The Mark of Believers:
+• "Their mark will be on their faces from the traces of prostration." (Quran 48:29)
+• Light on the forehead on Day of Judgment
+
+Ultimate Humility:
+• Prostration is the ultimate expression of submission
+• The forehead on the ground, the heart raised to the heavens
+
+Best Position for Dua:
+• Make abundant dua in prostration
+• Dua in sujood is more likely to be answered''',
+        'urdu': '''سجدے کے فضائل
+
+سجدہ نماز کا سب سے بڑا رکن ہے اور اللہ سے سب سے زیادہ قربت کا لمحہ ہے۔
+
+اللہ سے سب سے قریب:
+• نبی کریم ﷺ نے فرمایا: "بندہ رب سے سب سے قریب سجدے میں ہوتا ہے، اس میں کثرت سے دعا کرو۔" (مسلم)
+
+سجدہ کرو اور قریب ہو جاؤ:
+• "سجدہ کرو اور [اللہ سے] قریب ہو جاؤ۔" (قرآن 96:19)
+
+درجات اور مغفرت:
+• نبی کریم ﷺ نے فرمایا: "بہت سجدے کرو، کوئی مسلمان سجدہ نہیں کرتا مگر اللہ ایک درجہ بلند اور ایک گناہ مٹاتا ہے۔" (مسلم)
+
+شیطان روتا ہے:
+• نبی کریم ﷺ نے فرمایا: "جب ابن آدم سجدہ کرتا ہے، شیطان روتا ہوا کہتا ہے: 'اسے سجدہ کا حکم ہوا تو کیا، اس کے لیے جنت۔ مجھے حکم ہوا تو انکار کیا، میرے لیے جہنم۔'" (مسلم)
+
+مومنوں کی نشانی:
+• "ان کی نشانی چہروں پر سجدوں کے نشان سے ہے۔" (قرآن 48:29)
+• قیامت کے دن پیشانی پر نور
+
+انتہائی عاجزی:
+• سجدہ تسلیم کا سب سے بڑا اظہار ہے
+• پیشانی زمین پر، دل آسمانوں کی طرف بلند
+
+دعا کے لیے بہترین حالت:
+• سجدے میں کثرت سے دعا کرو
+• سجدے میں دعا قبول ہونے کا زیادہ امکان ہے''',
+        'hindi': '''सज्दे की फ़ज़ीलत
+
+सज्दा नमाज़ का सबसे बड़ा रुक्न है और अल्लाह से सबसे ज़्यादा क़ुर्बत का लम्हा है।
+
+अल्लाह से सबसे क़रीब:
+• नबी करीम ﷺ ने फ़रमाया: "बंदा रब से सबसे क़रीब सज्दे में होता है, उसमें कसरत से दुआ करो।" (मुस्लिम)
+
+सज्दा करो और क़रीब हो जाओ:
+• "सज्दा करो और [अल्लाह से] क़रीब हो जाओ।" (क़ुरआन 96:19)
+
+दर्जात और मग़फ़िरत:
+• नबी करीम ﷺ ने फ़रमाया: "बहुत सज्दे करो, कोई मुसलमान सज्दा नहीं करता मगर अल्लाह एक दर्जा बुलंद और एक गुनाह मिटाता है।" (मुस्लिम)
+
+शैतान रोता है:
+• नबी करीम ﷺ ने फ़रमाया: "जब इब्ने आदम सज्दा करता है, शैतान रोता हुआ कहता है: 'उसे सज्दे का हुक्म हुआ तो किया, उसके लिए जन्नत। मुझे हुक्म हुआ तो इंकार किया, मेरे लिए जहन्नम।'" (मुस्लिम)
+
+मोमिनों की निशानी:
+• "उनकी निशानी चेहरों पर सज्दों के निशान से है।" (क़ुरआन 48:29)
+• क़यामत के दिन पेशानी पर नूर
+
+इंतिहाई आजिज़ी:
+• सज्दा तस्लीम का सबसे बड़ा इज़हार है
+• पेशानी ज़मीन पर, दिल आसमानों की तरफ़ बुलंद
+
+दुआ के लिए बेहतरीन हालत:
+• सज्दे में कसरत से दुआ करो
+• सज्दे में दुआ क़बूल होने का ज़्यादा इमकान है''',
+        'arabic': '''فضائل السجود
+
+السجود أعظم أركان الصلاة وأقرب ما يكون العبد من ربه.
+
+أقرب ما يكون العبد من ربه:
+• قال النبي ﷺ: "أقرب ما يكون العبد من ربه وهو ساجد، فأكثروا الدعاء." (مسلم)
+
+الأمر بالسجود والاقتراب:
+• "كَلَّا لَا تُطِعْهُ وَاسْجُدْ وَاقْتَرِب" (العلق: 19)
+
+الرفعة والمغفرة:
+• قال النبي ﷺ: "أكثروا السجود فإنه ليس من عبد يسجد لله سجدة إلا رفعه الله بها درجة، وحط عنه بها خطيئة." (مسلم)
+
+بكاء الشيطان:
+• قال النبي ﷺ: "إذا سجد ابن آدم اعتزل الشيطان يبكي يقول: أمر ابن آدم بالسجود فسجد فله الجنة، وأمرت بالسجود فأبيت فلي النار." (مسلم)
+
+سيماء المؤمنين:
+• "سِيمَاهُمْ فِي وُجُوهِهِم مِّنْ أَثَرِ السُّجُودِ" (الفتح: 29)
+• نور في الجبهة يوم القيامة
+
+غاية التواضع:
+• السجود أعلى مراتب الخضوع لله
+• الجبهة على الأرض والقلب معلق بالسماء
+
+أفضل حال للدعاء:
+• أكثروا من الدعاء في السجود
+• الدعاء في السجود أحرى بالإجابة'''
+      },
+    },
   ];
 
   @override
@@ -943,6 +1407,8 @@ Signs of Proper Prayer:
             fontSize: context.responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
       body: SingleChildScrollView(
@@ -980,8 +1446,8 @@ return Container(
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
-            offset: Offset(0, responsive.spacing(2)),
+            blurRadius: 10.0,
+            offset: Offset(0, 2.0),
           ),
         ],
       ),
@@ -994,16 +1460,16 @@ return Container(
             children: [
               // Number Badge
               Container(
-                width: responsive.spacing(50),
-                height: responsive.spacing(50),
+                width: responsive.iconLarge * 1.5,
+                height: responsive.iconLarge * 1.5,
                 decoration: BoxDecoration(
                   color: darkGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
                       color: darkGreen.withValues(alpha: 0.3),
-                      blurRadius: responsive.spacing(8),
-                      offset: Offset(0, responsive.spacing(2)),
+                      blurRadius: 8,
+                      offset: Offset(0, 2.0),
                     ),
                   ],
                 ),
@@ -1018,12 +1484,14 @@ return Container(
                   ),
                 ),
               ),
-              SizedBox(width: responsive.spacing(14)),
+              responsive.hSpaceSmall,
 
               // Title and Icon chip
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: (langCode == 'ur' || langCode == 'ar')
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
                   children: [
                     // Title
                     Text(
@@ -1033,9 +1501,13 @@ return Container(
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : darkGreen,
                       ),
-                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textDirection: (langCode == 'ur' || langCode == 'ar')
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
                     ),
-                    SizedBox(height: responsive.spacing(4)),
+                    responsive.vSpaceXSmall,
                     // Icon chip
                     Container(
                       padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
@@ -1051,13 +1523,17 @@ return Container(
                             size: responsive.textXSmall + 2,
                             color: emeraldGreen,
                           ),
-                          SizedBox(width: responsive.spacing(4)),
-                          Text(
-                            context.tr('namaz_fazilat'),
-                            style: TextStyle(
-                              fontSize: responsive.textXSmall,
-                              fontWeight: FontWeight.w600,
-                              color: emeraldGreen,
+                          responsive.hSpaceXSmall,
+                          Flexible(
+                            child: Text(
+                              context.tr('namaz_fazilat'),
+                              style: TextStyle(
+                                fontSize: responsive.textXSmall,
+                                fontWeight: FontWeight.w600,
+                                color: emeraldGreen,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -1089,7 +1565,6 @@ return Container(
 
   void _showTopicDetails(Map<String, dynamic> topic) {
     final details = topic['details'] as Map<String, String>;
-    final titleKey = topic['titleKey'] ?? 'namaz_fazilat';
     Navigator.push(
       context,
       MaterialPageRoute(

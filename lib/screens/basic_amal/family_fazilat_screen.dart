@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,8 +13,6 @@ class FamilyFazilatScreen extends StatefulWidget {
 }
 
 class _FamilyFazilatScreenState extends State<FamilyFazilatScreen> {
-  String _selectedLanguage = 'english';
-
   final List<Map<String, dynamic>> _familyTopics = [
     {
       'number': 1,
@@ -27,39 +24,245 @@ class _FamilyFazilatScreenState extends State<FamilyFazilatScreen> {
       'icon': Icons.elderly,
       'color': Colors.orange,
       'details': {
-        'english': '''Rights of Parents
+        'english': '''The Rights of Parents in Islam
 
-Parents hold the most honored position after Allah and His Messenger.
+Parents hold the highest and most honored position in Islam after Allah and His Messenger Muhammad ﷺ. The Quran mentions parents and their rights at least 15 times, emphasizing their supreme importance in a Muslim's life.
 
-Their Status in Islam:
-• "And your Lord has decreed that you not worship except Him, and to parents, good treatment." (Quran 17:23)
-• Obedience to parents is next to obedience to Allah
-• Being good to parents is among the best deeds
+THE SUPREME STATUS OF PARENTS:
+
+**Mentioned With Allah's Worship:**
+• "And your Lord has decreed that you not worship except Him, and to parents, good treatment. Whether one or both of them reach old age [while] with you, say not to them [so much as], 'uff,' and do not repel them but speak to them a noble word." (Quran 17:23)
+• Allah has placed obedience to parents immediately after His worship - the highest honor
+• This demonstrates that after fulfilling our duties to Allah, our primary obligation is to our parents
+• The commandment to honor parents is mentioned alongside Tawheed (Oneness of Allah)
+
+**Gratitude to Parents Equals Gratitude to Allah:**
+• "And We have enjoined upon man [care] for his parents. His mother carried him, [increasing her] in weakness upon weakness, and his weaning is in two years. Be grateful to Me and to your parents; to Me is the [final] destination." (Quran 31:14)
+• Gratitude to Allah is incomplete without showing gratitude to parents
+• Being thankful to parents is being thankful to Allah
+• Both mentioned together - showing their equal importance
+
+**Among the Most Beloved Deeds:**
+• A man asked: "O Messenger of Allah, which deed is most beloved to Allah?" The Prophet ﷺ replied: "Prayer at its proper time." He asked: "Then what?" He said: "Kindness and respect toward parents." He asked: "Then what?" He said: "Jihad in the path of Allah." (Sahih Bukhari & Muslim)
+• Honoring parents ranks second only to timely prayer
+• Above jihad and all other good deeds
+• Shows the immense reward for those who serve their parents
+
+THE TEN ESSENTIAL RIGHTS OF PARENTS:
+
+**1. OBEDIENCE IN LAWFUL MATTERS:**
+• Children must obey parents in all matters that do not contradict Islamic law
 • The Prophet ﷺ said: "The pleasure of the Lord is in the pleasure of the parents, and the anger of the Lord is in the anger of the parents." (Tirmidhi)
+• Obeying parents brings Allah's pleasure and blessings
+• Their satisfaction is a key to Paradise
+• However, if they command something against Islam, politely refuse but remain respectful
 
-Rights and Duties:
-• Speak to them with respect and kindness
-• Never say "Uff" (any word of disrespect) to them
-• Serve them with humility and love
-• Pray for them: "My Lord, have mercy upon them as they brought me up when I was small." (Quran 17:24)
-• Provide for their needs in old age
-• Seek their permission before major decisions
+**2. RESPECTFUL AND KIND TREATMENT:**
+• Never raise your voice to them
+• Never show anger or irritation
+• Do not say even "Uff" - the smallest expression of annoyance
+• "Whether one or both of them reach old age [while] with you, say not to them [so much as], 'uff'..." (Quran 17:23)
+• The word "Uff" represents any expression of disrespect, however small
+• Speak to them with a noble, gentle, and loving tone
+• Look at them with eyes full of mercy and compassion
 
-Special Status of Mother:
-• A man asked the Prophet ﷺ: "Who is most deserving of my good companionship?" He said: "Your mother." The man asked: "Then who?" He said: "Your mother." The man asked again: "Then who?" He said: "Your mother." The man asked again: "Then who?" He said: "Your father." (Bukhari & Muslim)
-• Paradise lies under the feet of mothers
-• Three times more right than the father
+**3. HUMILITY AND MERCY:**
+• "And lower to them the wing of humility out of mercy and say, 'My Lord, have mercy upon them as they brought me up [when I was] small.'" (Quran 17:24)
+• Show complete humility before them
+• Remember their sacrifices in raising you
+• Never be arrogant or proud in front of them
+• Treat them as gently as they treated you in childhood
+• Walk humbly, talk softly, and serve willingly
 
-Consequences of Disobedience:
-• Among the major sins in Islam
+**4. GRATITUDE AND APPRECIATION:**
+• Be constantly thankful for everything they have done
+• Recognize their countless sacrifices
+• Express your gratitude through words and actions
+• Remember: your mother carried you for nine months in pain
+• She nursed you, changed you, stayed awake nights for you
+• Your father worked tirelessly to provide for you
+• No amount of service can repay them for even one night of their care
+
+**5. FINANCIAL SUPPORT AND CARE:**
+• Provide for their needs, especially in old age
+• Ensure they have food, clothing, shelter, and medical care
+• Spend on them gladly and generously
+• The Prophet ﷺ said: "You and your wealth belong to your father." (Ibn Majah)
+• Never consider spending on them as a burden
+• It is a privilege and honor to support them
+• Allah will bless your wealth for caring for your parents
+
+**6. MAINTAINING FAMILY TIES:**
+• Visit them regularly - don't let distance separate you
+• Call them frequently if you live far away
+• Keep them in your thoughts and prayers always
+• The Prophet ﷺ said: "Whosoever believes in Allah and the Last Day, let him keep the ties of relationship." (Sahih Bukhari)
+• Visiting parents is among the most beloved acts to Allah
+• Their company is more valuable than any worldly pursuit
+
+**7. CONTINUOUS PRAYERS (DUAS):**
+• Prayer for parents is not optional - it is a divine command
+• "My Lord, have mercy upon them as they brought me up [when I was] small." (Quran 17:24)
+• Make dua for them in every prayer
+• Ask Allah to forgive their sins
+• Pray for their health, happiness, and long life
+• These duas are accepted and bring immense blessings
+• Continue making dua even after they pass away
+
+**8. CARE IN OLD AGE AND ILLNESS:**
+• This is the most critical time to serve them
+• When they grow weak, be their strength
+• When they forget, be patient and remind them gently
+• Never show frustration at their weakness
+• Serve them as they served you when you were helpless
+• Clean them, feed them, care for them with your own hands
+• The Prophet ﷺ said: "May he be disgraced! May he be disgraced! May he be disgraced!" It was asked: "Who, O Messenger of Allah?" He said: "The one who finds his parents in old age, one or both of them, and does not enter Paradise (by serving them)." (Sahih Muslim)
+• Allah has made serving elderly parents a direct ticket to Paradise
+
+**9. HONORING AFTER DEATH:**
+• The rights of parents continue even after their death
+• Make continuous dua and seek forgiveness for them
+• Give charity on their behalf (Sadaqah Jariyah)
+• Perform Hajj and Umrah for them
+• Pay off any debts they left
+• Fulfill their unfulfilled wishes
+• Maintain ties with their friends and relatives
+• The Prophet ﷺ said: "When a person dies, all their deeds end except three: ongoing charity, beneficial knowledge, or a righteous child who prays for them." (Sahih Muslim)
+• Your prayers can raise their ranks in Paradise
+
+**10. PATIENCE AND TOLERANCE:**
+• Be extremely patient with them, especially in old age
+• They may become forgetful, cranky, or difficult
+• Remember: they were patient with you during your childhood
+• Never complain about caring for them
+• This is your test from Allah
+• Endure with beautiful patience (Sabr Jameel)
+
+THE SUPREME STATUS OF THE MOTHER:
+
+**Three Times Greater Right Than the Father:**
+• A man came to the Prophet ﷺ and asked: "O Messenger of Allah, who among people is most deserving of my good companionship?" He said: "Your mother." The man asked: "Then who?" He said: "Your mother." He asked again: "Then who?" He said: "Your mother." He asked yet again: "Then who?" He said: "Your father." (Sahih Bukhari & Sahih Muslim)
+• Mother mentioned three times - father once
+• This shows mother has three times more rights
+• Due to her immense sacrifices during pregnancy, childbirth, and nursing
+
+**Why Mother Has Superior Rights:**
+• "His mother carried him, [increasing her] in weakness upon weakness, and his weaning is in two years." (Quran 31:14)
+• She carried you for nine difficult months
+• She endured the pain of childbirth
+• She nursed you and stayed awake countless nights
+• She sacrificed her health, comfort, and youth for you
+• Her body underwent permanent changes for your sake
+• No human being suffers more for another than a mother for her child
+
+**Paradise Under Her Feet:**
+• The Prophet ﷺ said: "Paradise lies under the feet of mothers." (Ahmad, Nasai)
+• Serving your mother is the path to Paradise
+• Her satisfaction opens the gates of Jannah
+• Her displeasure can close them
+• Every step you take to serve her brings you closer to Paradise
+
+THE FATHER'S HONORED STATUS:
+
+**Guardian and Provider:**
+• The father works tirelessly to provide for his family
+• He protects, guides, and teaches
+• "You and your wealth belong to your father." (Ibn Majah)
+• The father has the right to be served and honored
+• His pleasure is essential for success in both worlds
+
+**The Middle Door of Paradise:**
+• The Prophet ﷺ said: "The father is the middle gate of Paradise. So it is up to you whether you will protect this gate or destroy it." (Tirmidhi)
+• Serving your father is serving Allah
+• His prayers for you are answered
+• His blessings bring success
+
+SEVERE CONSEQUENCES OF DISOBEDIENCE:
+
+**Among the Greatest Sins:**
+• Disobedience to parents (Uquq al-Walidayn) is one of the major sins
+• The Prophet ﷺ said: "Shall I not inform you of the gravest of the grave sins?" We said: "Yes, O Messenger of Allah!" He said: "Associating partners with Allah and disobedience to parents." (Sahih Bukhari)
+• It is ranked just after shirk - the worst of all sins
+• This shows how serious this matter is in Allah's sight
+
+**Exclusion from Paradise:**
+• The Prophet ﷺ said: "Three people will not enter Paradise: One who is disobedient to parents, one who drinks alcohol habitually, and one who reminds others of his favors." (Ahmad)
+• Allah will not accept the deeds of one who is disobedient to parents
+• Their prayers may not be answered
+• Their good deeds may be rejected
+
+**Dua of Parents is Always Answered:**
+• Both the blessing (dua) and curse (baddua) of parents are accepted
 • "And fear Allah through whom you ask one another, and the wombs. Indeed Allah is ever, over you, an Observer." (Quran 4:1)
-• Dua of an oppressed parent is accepted
-• Punishment in this life and the hereafter
+• If a parent makes dua for you, Allah will grant it
+• If a parent curses you out of genuine pain, that curse is accepted
+• Never hurt your parents to the point where they make dua against you
 
-When Obedience is Not Required:
-• Only if they command you to commit shirk (associate partners with Allah)
-• "But if they endeavor to make you associate with Me that of which you have no knowledge, do not obey them but accompany them in this world with appropriate kindness." (Quran 31:15)
-• Even then, treat them with kindness and respect''',
+**Punishment in This World and the Hereafter:**
+• Disobedient children often face hardship in this life
+• Their own children may treat them the same way
+• "As you sow, so shall you reap"
+• In the Hereafter, severe punishment awaits
+• They will regret every moment they caused their parents pain
+
+LIMITS OF OBEDIENCE:
+
+**When Obedience is Not Required:**
+• Only ONE exception: if they command you to commit shirk (associate partners with Allah)
+• "But if they endeavor to make you associate with Me that of which you have no knowledge, do not obey them but accompany them in [this] world with appropriate kindness and follow the way of those who turn back to Me [in repentance]." (Quran 31:15)
+• Even if they ask you to do something against Islam, DO NOT obey in that matter
+• However, still treat them with utmost kindness and respect
+• Explain gently why you cannot obey in that particular matter
+• Never be harsh or rude, even when refusing
+
+**Balanced Approach:**
+• Obey them in all lawful matters
+• If they command something forbidden, politely decline
+• Continue to serve them, care for them, and love them
+• Separate the command from the person
+• You reject the command (if it's against Islam), not the parent
+
+IMMENSE REWARDS FOR HONORING PARENTS:
+
+**Entry to Paradise:**
+• The Prophet ﷺ said: "Shall I not tell you of the greatest of the great sins?" The companions said: "Certainly, O Messenger of Allah!" He said: "Associating partners with Allah, and being undutiful to parents."
+• Serving parents is a guaranteed path to Paradise
+• It is easier to please Allah through parents than through any other deed
+
+**Long Life and Increased Rizq (Sustenance):**
+• The Prophet ﷺ said: "Whoever wishes that his life be prolonged and his provision increased, let him maintain good ties with his kinship." (Sahih Bukhari)
+• Allah increases blessings in life and wealth for those who honor their parents
+• Their duas bring barakah (blessings) in everything
+
+**Companionship of the Prophet ﷺ in Paradise:**
+• By serving your parents in this life, you earn the companionship of the Prophet ﷺ in the next life
+• What greater reward could there be?
+
+**Forgiveness of Sins:**
+• Serving parents earns such immense reward that Allah forgives many sins
+• One act of kindness to parents can erase years of wrongdoing
+
+PRACTICAL WAYS TO HONOR PARENTS:
+
+• Greet them with a smile and kind words
+• Stand up when they enter the room (out of respect)
+• Help them with daily tasks without being asked
+• Listen to their stories and advice, even if repeated
+• Include them in family decisions
+• Never walk ahead of them - walk beside or behind them respectfully
+• Feed them with your own hands
+• Wash their clothes, clean their room
+• Massage their feet when they are tired
+• Take them for medical check-ups
+• Buy them gifts and make them happy
+• Introduce them with pride and honor to your friends
+• Never criticize them in front of others
+• Defend their honor if anyone speaks ill of them
+• Make their old age the best years of their life
+
+REMEMBER: Your parents are your Jannah (Paradise). Whoever has them, has everything. Whoever loses them, has lost the easiest path to Allah's pleasure. Serve them while you still have the chance, for once they are gone, you can never repay them.
+
+May Allah grant us all the ability to serve our parents with the best of character, and may He have mercy on them as they raised us when we were small. Ameen.''',
         'urdu': '''والدین کے حقوق
 
 والدین کو اللہ اور اس کے رسول کے بعد سب سے معزز مقام حاصل ہے۔
@@ -158,7 +361,7 @@ When Obedience is Not Required:
 متى لا تجب الطاعة:
 • فقط إذا أمرا بالشرك بالله
 • "وَإِن جَاهَدَاكَ عَلَىٰ أَن تُشْرِكَ بِي مَا لَيْسَ لَكَ بِهِ عِلْمٌ فَلَا تُطِعْهُمَا وَصَاحِبْهُمَا فِي الدُّنْيَا مَعْرُوفًا" (سورة لقمان: 15)
-• حتى في هذه الحالة، يجب معاملتهما بالإحسان والاحترام'''
+• حتى في هذه الحالة، يجب معاملتهما بالإحسان والاحترام''',
       },
     },
     {
@@ -171,50 +374,154 @@ When Obedience is Not Required:
       'icon': Icons.favorite,
       'color': Colors.pink,
       'details': {
-        'english': '''Rights of Spouse (Husband & Wife)
+        'english': '''The Rights of Husband and Wife in Islam
 
-Marriage is a sacred bond with mutual rights and responsibilities.
+Marriage (Nikah) in Islam is a sacred covenant blessed by Allah, designed to foster mutual love, respect, and understanding. It is the foundation of society and a path to Paradise.
 
-Rights of Wife:
-• Financial support - husband must provide food, clothing, and shelter
-• Kind treatment: "Live with them in kindness" (Quran 4:19)
-• The Prophet ﷺ said: "The best of you are those who are best to their wives." (Tirmidhi)
-• Respect and honor her in public and private
-• Help with household tasks (as the Prophet ﷺ did)
-• Spend quality time together
-• Protect her dignity and honor
-• Be patient with her shortcomings
-
-Rights of Husband:
-• Obedience in matters that are not sinful
-• Guard his wealth and property in his absence
-• Maintain the home and create a peaceful environment
-• The Prophet ﷺ said: "If a woman prays her five prayers, fasts her month, guards her chastity and obeys her husband, it will be said to her: 'Enter Paradise from whichever of its gates you wish.'" (Ahmad)
-• Respect and honor him
-• Be grateful for his efforts
-
-Mutual Rights:
-• Love, mercy, and compassion
+THE SACRED NATURE OF MARRIAGE:
 • "And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy." (Quran 30:21)
-• Fulfilling each other's needs
-• Consulting each other in family matters
+• Marriage brings tranquility, love, and mercy
+• "They are clothing for you and you are clothing for them." (Quran 2:187) - They protect, beautify, and complete each other
+• The Prophet ﷺ said: "Marriage is part of my Sunnah." (Ibn Majah)
+
+RIGHTS OF THE WIFE UPON HER HUSBAND:
+
+1. MAHR (DOWRY):
+• "And give the women their gifts graciously." (Quran 4:4)
+• Mandatory gift, wife's exclusive property
+• Symbolizes respect and commitment
+
+2. COMPLETE FINANCIAL MAINTENANCE:
+• "Men are the protectors and maintainers of women, because they support them from their means." (Quran 4:34)
+• Must provide food, clothing, shelter, medical care
+• Wife's own wealth remains hers alone
+• Even if she's wealthier, he must still provide
+
+3. KIND & RESPECTFUL TREATMENT:
+• "And live with them in kindness." (Quran 4:19)
+• The Prophet ﷺ said: "The best of you are those who are best to their wives." (Tirmidhi)
+• Speak gently, show appreciation, express love
+• Never be harsh, cruel, or abusive
+
+4. HELP WITH HOUSEHOLD TASKS:
+• The Prophet ﷺ helped his wives at home
+• Aisha (RA) said: "He would be in the service of his family." (Bukhari)
+• Helping at home is Sunnah and sign of good character
+
+5. QUALITY TIME TOGETHER:
+• Give her your time and attention
+• The Prophet ﷺ raced with Aisha, joked with her
+• Do not neglect her emotionally
+
+6. PROTECTION OF DIGNITY:
+• Guard her privacy and secrets
+• Never humiliate her publicly
+• Defend her honor
+• The Prophet ﷺ said spreading wife's secrets is among worst sins (Muslim)
+
+7. PHYSICAL INTIMACY WITH KINDNESS:
+• Fulfill her needs with gentleness
+• Be caring and considerate
+• The Prophet ﷺ taught kindness in intimate relations
+
+8. FAIRNESS IN POLYGAMY:
+• If multiple wives, MUST be absolutely fair
+• Equal time, spending, treatment
+• "And you will never be able to be equal between wives..." (Quran 4:129) - Strive for fairness
+
+9. PATIENCE WITH SHORTCOMINGS:
+• Everyone has flaws - be forgiving
+• The Prophet ﷺ said: "If he dislikes one characteristic, he will be pleased with another." (Muslim)
+
+10. RESPECTING HER FAMILY:
+• Be kind to her parents and relatives
+• Allow her to visit them
+• Help maintain those relationships
+
+RIGHTS OF THE HUSBAND UPON HIS WIFE:
+
+1. OBEDIENCE IN LAWFUL MATTERS:
+• Obey in matters not contradicting Islam
+• The Prophet ﷺ said: "If a woman prays her five prayers, fasts, guards her chastity and obeys her husband, enter Paradise from any gate you wish." (Ahmad)
+• No obedience in sin
+
+2. GUARDING HIS WEALTH:
+• Protect his possessions in his absence
+• Be responsible with resources
+• Do not waste or squander
+
+3. PEACEFUL HOME ENVIRONMENT:
+• Make home a place of comfort
+• Manage household efficiently
+• Welcome him warmly
+• Be cheerful and positive
+
+4. RESPECTING HIM:
+• Acknowledge his authority as head of household
+• Do not undermine him, especially publicly
+• Consult him in family matters
+
+5. GRATITUDE FOR HIS EFFORTS:
+• Appreciate what he does
+• The Prophet ﷺ warned against ingratitude to husbands (Bukhari)
+• Express thanks regularly
+
+6. GUARDING CHASTITY:
+• Maintain hijab and modesty
+• Do not allow non-mahram men when he's absent
+• Guard his honor and her own
+
+7. SEEKING PERMISSION TO LEAVE:
+• Ask permission for going out
+• For protection and coordination
+• He should be reasonable
+
+8. BEAUTIFYING FOR HIM:
+• Take care of appearance at home
+• Personal grooming matters
+• Wear nice clothes and fragrance
+
+9. RESPONDING TO INTIMACY:
+• Do not refuse without valid reason
+• The Prophet ﷺ said angels curse wife who refuses unreasonably (Bukhari & Muslim)
+• Unless valid excuse (illness, etc.)
+
+10. RESPECTING HIS FAMILY:
+• Be kind to his parents and family
+• Serve them with good character
+
+MUTUAL RIGHTS:
+
+• Love, mercy, compassion
+• Consultation in major decisions
 • Protecting each other's secrets
-• Forgiving each other's mistakes
-• Supporting during difficult times
+• Forgiving mistakes
+• Supporting in good and bad times
+• Making dua for each other
+• Working as a team
 
-Good Character in Marriage:
-• The Prophet ﷺ said: "The believers with the most complete faith are those with the best character, and the best of you are those who are best to their wives." (Tirmidhi)
+EXCELLENCE IN CHARACTER:
+• The Prophet ﷺ: "The best of you are best to their wives." (Tirmidhi)
 • Be playful and joyful together
-• Express appreciation regularly
-• Make dua for each other
-• Work as a team for the family
+• Express love and appreciation
+• Control anger, speak softly
 
-Conflict Resolution:
-• Resolve disputes with wisdom and patience
-• Avoid raising voice or harsh words
-• "And live with them honorably. But if you dislike them - perhaps you dislike a thing and Allah makes therein much good." (Quran 4:19)
+CONFLICT RESOLUTION:
+• Handle disagreements maturely
+• Avoid harsh words and raised voices
+• Don't let anger control you
 • Seek counseling if needed
-• Never go to bed angry with each other''',
+• Never go to bed angry
+• "And live with them in kindness." (Quran 4:19)
+
+FORBIDDEN IN MARRIAGE:
+• Physical/emotional abuse
+• Forcing spouse into sin
+• Withholding rights
+• Betrayal and infidelity
+• Revealing private matters
+
+May Allah bless all marriages with love, mercy, and barakah. Ameen.''',
         'urdu': '''شریک حیات کے حقوق (خاوند اور بیوی)
 
 نکاح ایک مقدس رشتہ ہے جس میں باہمی حقوق اور ذمہ داریاں ہیں۔
@@ -339,7 +646,7 @@ Conflict Resolution:
 • الصبر والتفاهم
 • تجنب المقارنة مع الآخرين
 • قضاء وقت ممتع معاً
-• الدعاء لبعضكما البعض'''
+• الدعاء لبعضكما البعض''',
       },
     },
     {
@@ -352,52 +659,92 @@ Conflict Resolution:
       'icon': Icons.child_care,
       'color': Colors.blue,
       'details': {
-        'english': '''Rights of Children
+        'english': '''The Rights of Children in Islam
 
-Children are a trust and blessing from Allah.
+Children are a precious trust from Allah - a blessing and test. Islam gave children comprehensive rights 1400 years ago that protect, nurture, and honor them.
 
-Basic Rights:
-• Good upbringing and education
-• The Prophet ﷺ said: "Every child is born on fitrah (natural disposition)." (Bukhari)
-• Teach them Islamic values and manners
-• Provide proper nutrition, clothing, and shelter
-• Love and affection equally among all children
-• Protect them from harm
+CHILDREN AS BLESSING:
+• "Wealth and children are adornment of worldly life." (Quran 18:46)
+• They are Amanah - you will be questioned about how you raised them
+• "Your wealth and children are only a trial." (Quran 64:15)
+• Properly raised children are ongoing charity after death (Sahih Muslim)
 
-Educational Rights:
-• Teach Quran and Islamic knowledge
-• "Command your children to pray when they become seven years old." (Abu Dawud)
-• Provide worldly education for their future
-• Teach good manners and character
-• Develop their talents and abilities
+THE 15 ESSENTIAL RIGHTS:
 
-Equal Treatment:
-• The Prophet ﷺ said: "Fear Allah and treat your children fairly." (Bukhari & Muslim)
-• Give gifts equally to all children
-• Show equal love and attention
-• Avoid favoritism
-• Be just in all matters concerning them
+1. RIGHT TO LIFE - No infanticide, every child deserves to be born
+2. RIGHT TO PROPER LINEAGE - Know their parents and family name
+3. RIGHT TO GOOD NAME - Meaningful names that don't mock
+4. RIGHT TO BASIC NEEDS - Food, shelter, clothing, medical care MUST be provided
+5. RIGHT TO LOVE & AFFECTION - The GREATEST right! Show love openly
+   • The Prophet ﷺ kissed his grandchildren
+   • "He who is not merciful will not be treated mercifully." (Bukhari)
+6. RIGHT TO EQUAL TREATMENT - "Fear Allah and treat children fairly." (Bukhari & Muslim)
+   • No favoritism! Equal gifts, time, love to ALL children
+7. RIGHT TO RELIGIOUS EDUCATION:
+   • Teach correct belief (Aqeedah) first
+   • "Command children to pray at seven years." (Abu Dawud)
+   • Teach Quran, Islamic manners, Halal/Haram
+8. RIGHT TO WORLDLY EDUCATION:
+   • Quality secular education for their future
+   • Develop intellect, talents, abilities
+   • "Seeking knowledge is obligatory." (Prophet ﷺ)
+9. RIGHT TO MORAL TRAINING:
+   • "Protect yourselves and families from Fire." (Quran 66:6)
+   • Teach honesty, kindness, respect, compassion
+10. RIGHT TO FITRAH:
+    • "Every child born on fitrah, parents make them Jew/Christian/Magian." (Bukhari)
+    • Raise in Islamic environment, protect pure nature
+11. RIGHT TO PROTECTION:
+    • Physical & emotional protection from harm
+    • Islam PROHIBITS child abuse - never hit, scold harshly
+    • Prophet ﷺ NEVER hit a child
+    • Protect from bad influences, inappropriate content
+12. RIGHT TO PLAY:
+    • Let children be children!
+    • Prophet's ﷺ three stages: Play (0-7), Discipline (7-14), Befriend (14-21)
+    • Allow age-appropriate fun and recreation
+13. RIGHT TO RESPECT:
+    • Never humiliate or embarrass
+    • Correct with gentleness
+    • Listen when they speak
+    • Prophet ﷺ greeted children with Salam
+14. RIGHT TO INHERITANCE:
+    • Boys and girls have Quranic right to inherit
+    • "For men is a share... for women is a share." (Quran 4:7)
+15. SPECIAL RIGHTS OF DAUGHTERS:
+    • "Whoever raises daughters well, they shield from Hellfire." (Bukhari & Muslim)
+    • "Whoever has 2-3 daughters and treats them well enters Paradise." (Tirmidhi)
+    • Raise with honor, education, dignity
+    • Do not consider them burden
+    • Prophet ﷺ loved his daughter Fatimah immensely
 
-Emotional Rights:
-• Show love and affection openly
-• The Prophet ﷺ would kiss and hug his grandchildren
-• Spend quality time with them
-• Listen to their concerns
-• Encourage and support them
-• Never abuse or humiliate them
+PARENTAL DUTIES:
 
-Moral Training:
-• Be a role model - children learn by example
-• Teach honesty, kindness, and respect
-• Instill love for Allah and His Messenger
-• Correct them with gentleness
-• "O you who have believed, protect yourselves and your families from a Fire." (Quran 66:6)
+BE A ROLE MODEL - Children learn by watching you
+SPEND QUALITY TIME - Most precious gift
+MAKE DUA - Pray for their guidance constantly
+COMMUNICATE WITH LOVE - Speak gently, encourage
+DISCIPLINE WITH WISDOM - Age-appropriate, never in anger
+PROTECT INNOCENCE - Monitor media, teach boundaries
+PREPARE FOR LIFE - Teach life skills, guide career/spouse choices
 
-Special Care for Daughters:
-• The Prophet ﷺ said: "Whoever has three daughters or sisters, or two daughters or sisters, and treats them well and fears Allah regarding them, will enter Paradise." (Tirmidhi)
-• Raise them with honor and respect
-• Protect their dignity
-• Educate them properly''',
+CONSEQUENCES OF NEGLECT:
+• Allah will question you on Judgment Day
+• "Every one is a shepherd responsible for their flock." (Bukhari & Muslim)
+• Children may rebel or leave Islam
+• No barakah in life
+• Punishment in both worlds
+
+REWARDS FOR FULFILLING RIGHTS:
+• Children become ongoing charity (Sadaqah Jariyah)
+• They make dua after your death
+• Shield from Hellfire (especially daughters)
+• High ranks in Paradise
+• Joy in old age
+
+REMEMBER: Your children are Allah's creation entrusted to you. Raise them with love, teach with wisdom, guide with patience, make constant dua.
+
+May Allah make our children coolness of our eyes and sources of ongoing charity. Ameen.''',
         'urdu': '''بچوں کے حقوق
 
 بچے اللہ کی امانت اور نعمت ہیں۔
@@ -530,7 +877,7 @@ Special Care for Daughters:
 
 الدعاء للأولاد:
 • "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ" (سورة الفرقان: 74)
-• الدعاء لهم بالصلاح والهداية'''
+• الدعاء لهم بالصلاح والهداية''',
       },
     },
     {
@@ -545,59 +892,252 @@ Special Care for Daughters:
       'details': {
         'english': '''Rights of Siblings
 
-Siblings share a special bond of love and mutual support.
+In Islam, the bond between siblings is sacred and blessed, built on a foundation of mutual love, respect, and lifelong support. Sibling relationships are among the most enduring connections in life, and Islam emphasizes maintaining these ties with compassion and righteousness.
 
-Brotherhood in Islam:
-• "The believers are but brothers, so make settlement between your brothers." (Quran 49:10)
-• Help each other in righteousness
-• Support in times of need
-• Protect each other's honor
-• Maintain strong ties throughout life
+Quranic Foundation of Brotherhood:
 
-Mutual Rights:
-• Love and compassion for each other
-• Respect each other's privacy
-• Give sincere advice when needed
+Allah says: "The believers are but brothers, so make settlement between your brothers. And fear Allah that you may receive mercy." (Quran 49:10)
+
+This verse establishes the fundamental principle that all believers are brothers and sisters in faith, with the biological sibling bond being even stronger. Allah commands us to maintain peace, unity, and mutual support among siblings.
+
+"And hold firmly to the rope of Allah all together and do not become divided. And remember the favor of Allah upon you - when you were enemies and He brought your hearts together and you became, by His favor, brothers." (Quran 3:103)
+
+10 Essential Mutual Rights of Siblings:
+
+1. Love and Compassion:
+Siblings must genuinely love each other for the sake of Allah. The Prophet ﷺ said: "None of you truly believes until he loves for his brother what he loves for himself." (Bukhari & Muslim)
+
+2. Respect and Honor:
+• Maintain dignity and honor in all interactions
+• Speak kindly and respectfully
+• Avoid mockery, ridicule, or belittling
+• Protect each other's reputation
+• "O you who have believed, let not a people ridicule [another] people." (Quran 49:11)
+
+3. Sincere Advice (Nasiha):
+• Give honest counsel when needed
+• Guide towards righteousness
+• Warn against harmful paths
+• Speak with wisdom and kindness
+• The Prophet ﷺ said: "Religion is sincerity." (Muslim)
+
+4. Material Support:
 • Share resources generously
-• Forgive mistakes and shortcomings
-• Avoid jealousy and competition
-• Celebrate each other's success
+• Assist during financial difficulties
+• Help in times of need without expectation
+• The Prophet ﷺ said: "The believer's shade on the Day of Resurrection will be his charity." (Tirmidhi)
 
-Supporting Siblings:
-• The Prophet ﷺ said: "Help your brother whether he is an oppressor or oppressed." When asked how to help an oppressor, he said: "Prevent him from oppressing." (Bukhari)
-• Stand up for them when they are wronged
-• Give them honest counsel
-• Assist in their legitimate needs
-• Make dua for them regularly
+5. Emotional Support:
+• Be present during hardships
+• Console in times of grief
+• Celebrate successes together
+• Listen with empathy
+• Share joys and sorrows
 
-Resolving Conflicts:
-• Address issues with wisdom and kindness
-• Seek forgiveness when you err
+6. Privacy and Confidentiality:
+• Respect personal boundaries
+• Keep secrets and private matters confidential
+• Don't spy or intrude without permission
+• Maintain trust at all times
+
+7. Forgiveness and Patience:
+• Overlook minor faults
+• Forgive mistakes quickly
+• Be patient with shortcomings
 • Don't hold grudges
-• Remember the bond of blood
-• Involve parents if needed for mediation
-• "And We have enjoined upon man to his parents good treatment." (Quran 31:14)
+• "And let them pardon and overlook. Would you not like that Allah should forgive you?" (Quran 24:22)
 
-Elder Siblings:
-• Guide younger siblings with love
-• Set good example
-• Be patient with their mistakes
+8. Avoiding Envy and Competition:
+• Celebrate each other's achievements
+• Avoid jealousy over blessings
+• Compete only in goodness
+• Support each other's growth
+• The Prophet ﷺ said: "Do not hate one another, and do not be jealous of one another, and do not turn away from each other, and be servants of Allah as brothers." (Bukhari)
+
+9. Making Dua (Supplication):
+• Pray for each other's wellbeing
+• Supplicate for their success
+• Ask Allah's protection for them
+• The Prophet ﷺ said: "The supplication of a Muslim for his brother in his absence will certainly be answered." (Muslim)
+
+10. Standing Up for Justice:
+The Prophet ﷺ said: "Help your brother whether he is an oppressor or oppressed." When asked how to help an oppressor, he said: "Prevent him from oppressing, for that is how you help him." (Bukhari)
+
+Special Responsibilities of Elder Siblings:
+
+Elder siblings hold a position of responsibility and should:
+
+1. Be Role Models:
+• Demonstrate good Islamic character
+• Practice what you preach
+• Show excellence in worship and conduct
+• Lead by example in all matters
+
+2. Guide with Wisdom:
 • Share knowledge and experience
-• Protect and care for them
+• Advise younger siblings with love
+• Teach Islamic values and manners
+• Be patient with their learning process
 
-Younger Siblings:
-• Respect elder siblings
-• Seek their advice
+3. Protect and Defend:
+• Guard younger siblings from harm
+• Stand up for them when needed
+• Provide a sense of security
+• Shield them from negative influences
+
+4. Share and Care:
+• Be generous with possessions
+• Help with their needs
+• Sacrifice for their wellbeing
+• Show compassion in difficult times
+
+5. Mediate and Unite:
+• Resolve conflicts among siblings
+• Maintain family harmony
+• Bridge gaps between family members
+• Foster unity and togetherness
+
+Responsibilities of Younger Siblings:
+
+Younger siblings should:
+
+1. Show Respect and Honor:
+• Speak respectfully to elder siblings
+• Value their advice and guidance
+• Acknowledge their sacrifices
+• Maintain proper conduct
+
+2. Seek Guidance:
 • Learn from their experience
+• Ask for advice in matters
+• Benefit from their wisdom
+• Follow good examples they set
+
+3. Provide Support:
+• Help when they need assistance
 • Support them as they age
+• Care for them in difficult times
 • Maintain connection throughout life
 
-Special Bond:
-• Sibling relationship is lifelong
-• The Prophet ﷺ maintained close ties with his foster siblings
-• Remember childhood memories with fondness
-• Keep communication regular
-• Gather family together when possible''',
+4. Express Gratitude:
+• Appreciate their efforts
+• Thank them for their sacrifices
+• Recognize their contributions
+• Show love and affection
+
+Special Brother-Sister Relationship:
+
+The relationship between brothers and sisters has unique qualities in Islam:
+
+1. Brothers' Duties Toward Sisters:
+• Protect their honor and dignity
+• Support them financially if needed
+• Guide them with respect and love
+• Be their guardian and supporter
+• The Prophet ﷺ said: "Whoever has three daughters or sisters, or two daughters or sisters, and lives with them in a good manner and has patience with them, and fears Allah with regard to them, will enter Paradise." (Tirmidhi)
+
+2. Sisters' Duties Toward Brothers:
+• Respect and honor them
+• Support their righteous endeavors
+• Maintain family ties
+• Make dua for their success
+• Be a source of comfort and strength
+
+Conflict Resolution Among Siblings:
+
+When conflicts arise, Islam teaches:
+
+1. Address Issues Immediately:
+• Don't let resentment build
+• Communicate openly and honestly
+• "And if two factions among the believers should fight, then make settlement between the two." (Quran 49:9)
+
+2. Seek Forgiveness Quickly:
+• Apologize when you're wrong
+• Accept apologies graciously
+• The Prophet ﷺ said: "It is not permissible for a Muslim to forsake his brother for more than three days." (Bukhari & Muslim)
+
+3. Involve Mediation:
+• Seek parents' guidance if needed
+• Ask respected family members to mediate
+• Focus on reconciliation, not winning
+• Remember the bond of blood and faith
+
+4. Focus on Solutions:
+• Look for win-win outcomes
+• Compromise when appropriate
+• Prioritize the relationship over ego
+• Keep the long-term bond in mind
+
+Severe Consequences of Breaking Sibling Ties:
+
+The Prophet ﷺ warned: "Whoever severs the ties of kinship will not enter Paradise." (Bukhari & Muslim)
+
+Breaking sibling relationships leads to:
+• Loss of barakah (blessings) in life
+• Prayers not being answered
+• Hardship and difficulties
+• Distance from Allah's mercy
+• Regret in this life and the Hereafter
+
+Immense Rewards for Maintaining Sibling Bonds:
+
+The Prophet ﷺ said: "Whoever would like his rizq (provision) to be increased and his life to be extended, should uphold the ties of kinship." (Bukhari & Muslim)
+
+Benefits include:
+• Increased provision and blessings
+• Extension of life
+• Entry into Paradise
+• Allah's pleasure and mercy
+• Happiness and peace in family
+• Strength and support network
+• Good reputation and honor
+• Protection from difficulties
+
+Practical Guidelines for Strengthening Sibling Bonds:
+
+1. Regular Communication:
+• Call or visit frequently
+• Check on their wellbeing
+• Share important life updates
+• Stay connected despite distances
+
+2. Quality Time Together:
+• Spend meaningful time together
+• Create positive memories
+• Gather for family occasions
+• Maintain childhood connections
+
+3. Express Love:
+• Say "I love you" regularly
+• Show affection appropriately
+• Acknowledge their importance
+• The Prophet ﷺ said: "When a man loves his brother, let him tell him that he loves him." (Abu Dawud)
+
+4. Participate in Each Other's Lives:
+• Attend important events
+• Celebrate milestones together
+• Support during challenges
+• Be present in good times and bad
+
+5. Avoid Harmful Behaviors:
+• No backbiting or gossip
+• No tale-bearing between siblings
+• No favoritism among children
+• No comparison or competition
+
+The Prophetic Example:
+
+The Prophet Muhammad ﷺ maintained beautiful relationships with his siblings and foster siblings:
+• He loved and honored his foster siblings
+• He visited and cared for his relatives
+• He taught the importance of family bonds
+• He reconciled between disputing brothers
+• He showed equal love and justice to all
+
+Remember: The sibling bond is one of Allah's greatest blessings. It's a relationship that should be nurtured with love, maintained with care, and preserved through thick and thin. Your siblings are gifts from Allah - companions in this journey of life and potential companions in Paradise.
+
+May Allah bless all sibling relationships with love, harmony, and righteousness. Ameen.''',
         'urdu': '''بہن بھائیوں کے حقوق
 
 بہن بھائیوں میں محبت اور باہمی مدد کا خاص رشتہ ہے۔
@@ -747,7 +1287,7 @@ Special Bond:
 • التواصل المستمر
 • الزيارات المنتظمة
 • المساعدة المالية عند الحاجة
-• الدعاء لبعضهم البعض'''
+• الدعاء لبعضهم البعض''',
       },
     },
     {
@@ -760,61 +1300,273 @@ Special Bond:
       'icon': Icons.family_restroom,
       'color': Colors.teal,
       'details': {
-        'english': '''Extended Family Rights
+        'english': '''Extended Family Rights (Silat ar-Rahm)
 
-Maintaining ties with extended family is a religious duty.
+In Islam, maintaining ties with extended family (Silat ar-Rahm) is not merely recommended but obligatory. The Arabic term "Rahm" literally means "womb," signifying that all relatives connected through blood deserve honor, care, and continuous relationship. Breaking these ties is among the major sins in Islam.
 
-Importance of Family Ties:
-• "And fear Allah through whom you ask one another, and the wombs. Indeed Allah is ever, over you, an Observer." (Quran 4:1)
-• Silat ar-Rahm (maintaining family ties) increases lifespan and provision
-• The Prophet ﷺ said: "Whoever would like his provision to be increased and his lifespan to be extended should maintain family ties." (Bukhari)
-• Breaking family ties is a major sin
+The Supreme Importance of Family Ties in Islam:
 
-Rights of Grandparents:
-• Honor and respect like parents
-• Visit them regularly
-• Care for them in old age
-• Seek their blessings and prayers
-• Learn from their wisdom and experience
-• The Prophet ﷺ gave special care to his grandfather Abdul Muttalib
+Allah commands: "And fear Allah through whom you ask one another, and the wombs. Indeed Allah is ever, over you, an Observer." (Quran 4:1)
 
-Rights of Uncles and Aunts:
-• Maternal uncle has status close to father
+This verse establishes that maintaining family ties is so important that Allah joins it with Taqwa (fear of Allah). He watches how we treat our relatives.
+
+"And those who break the covenant of Allah after contracting it and sever that which Allah has ordered to be joined and cause corruption on earth. It is those who are the losers." (Quran 2:27)
+
+The Prophet ﷺ said: "Whoever would like his provision to be increased and his lifespan to be extended should maintain family ties." (Bukhari & Muslim)
+
+He also warned: "The one who severs the ties of kinship will not enter Paradise." (Bukhari & Muslim)
+
+Rights of Grandparents (Dada, Dadi, Nana, Nani):
+
+Grandparents hold a status nearly equal to parents and deserve immense respect:
+
+1. Honor and Deep Respect:
+• Treat them with utmost reverence
+• Never speak harshly or raise your voice
+• Stand when they enter the room
+• Seek their blessings regularly
+• The Prophet ﷺ showed great love and respect to his grandfather Abdul Muttalib
+
+2. Regular Visits and Companionship:
+• Visit them frequently, not just on occasions
+• Spend quality time listening to their stories
+• Include them in family activities
+• Don't leave them feeling lonely or abandoned
+• The Prophet ﷺ said: "He who does not show mercy to our young ones, or acknowledge the rights of our elders, is not one of us." (Tirmidhi)
+
+3. Comprehensive Care in Old Age:
+• Attend to their physical needs
+• Ensure proper medical care
+• Help with daily tasks they can't manage
+• Make them feel valued and needed
+• Never show frustration or annoyance
+• "Your Lord has decreed that you not worship except Him, and to parents, good treatment. Whether one or both of them reach old age [while] with you, say not to them [so much as], 'uff,' and do not repel them but speak to them a noble word." (Quran 17:23)
+
+4. Seek Their Wisdom:
+• Learn from their life experiences
+• Ask for their advice in matters
+• Preserve family history through their stories
+• Benefit from their knowledge and insights
+
+5. Make Dua for Them:
+• Supplicate for their health and wellbeing
+• Pray for their forgiveness
+• Ask Allah to grant them Jannah
+• Continue making dua even after they pass
+
+Rights of Uncles and Aunts (Chacha, Phupho, Mama, Khala):
+
+1. Paternal Uncle (Chacha) - Father's Brother:
+• Represents father in his absence
+• Has authority and respect close to father
+• The Prophet ﷺ said: "The paternal uncle is equivalent to one's father." (Tirmidhi)
+• Obey and respect them like father
+• Seek their guidance in important matters
+• Support them financially if needed
+
+2. Paternal Aunt (Phupho) - Father's Sister:
+• Holds high status as father's closest relative
+• The Prophet ﷺ treated his paternal aunt Safiyyah with great honor
+• Maintain close ties and show affection
+• Visit her and check on her wellbeing
+• Include her in family decisions
+
+3. Maternal Uncle (Mama) - Mother's Brother:
+• Has special status in Islam
+• The Prophet ﷺ said: "The maternal uncle is the father." (Bukhari)
+• The Prophet ﷺ honored his uncle Abu Talib greatly
+• Show deep respect and love
+• Maintain strong relationship
+• Value his role in the family
+
+4. Maternal Aunt (Khala) - Mother's Sister:
 • The Prophet ﷺ said: "The maternal aunt is like the mother." (Bukhari)
-• Paternal uncle represents father in his absence
-• Show them respect and honor
-• Maintain regular contact
-• Help them in times of need
+• Should be treated with motherly affection
+• Visit her regularly
+• Care for her needs
+• Seek her blessings and prayers
 
-Rights of Cousins:
-• They are like siblings
-• Support each other
-• Maintain good relations
-• Share in joys and sorrows
-• Help in difficult times
-• Avoid disputes over inheritance
-
-Visiting Family:
-• Regular visits strengthen bonds
-• Especially important during illness
-• Attend family gatherings
-• Share meals together
+General Rights of All Uncles and Aunts:
+• Speak respectfully and politely
+• Visit them regularly
+• Help in times of difficulty
+• Invite them to family gatherings
 • Remember them on special occasions
-• Use modern technology to stay connected if far
+• Support them financially if they're in need
+• Make dua for them
+• Maintain contact even if they live far
 
-Financial Support:
-• Help poor relatives before others
-• Charity to relatives has double reward
-• The Prophet ﷺ said: "Charity to the poor is charity, and charity to a relative is two things: charity and upholding family ties." (Tirmidhi)
-• Share wealth during times of hardship
+Rights of Cousins (Family Bonds):
 
-Resolving Family Disputes:
-• Act as peacemaker
-• Don't take sides based on bias
-• Seek justice and fairness
-• Forgive and overlook mistakes
-• Remember the importance of family unity
-• "So fear Allah and amend that which is between you." (Quran 8:1)''',
+Cousins are like extended siblings and deserve:
+
+1. Mutual Love and Support:
+• Treat them like brothers and sisters
+• The Prophet ﷺ maintained close bonds with his cousins
+• Support each other in righteous endeavors
+• Share in joys and sorrows
+• Help during difficult times
+
+2. Avoid Family Rivalries:
+• Don't compete negatively
+• Avoid jealousy over worldly matters
+• Don't dispute over inheritance unfairly
+• Remember blood bonds are more important than wealth
+• "Wealth and children are [but] adornment of the worldly life. But the enduring good deeds are better to your Lord for reward." (Quran 18:46)
+
+3. Maintain Communication:
+• Stay in regular contact
+• Attend family gatherings together
+• Celebrate achievements together
+• Console during losses
+• Bridge gaps in the family
+
+4. Unite the Family:
+• Be a force for family unity
+• Reconcile disputes between relatives
+• Encourage family gatherings
+• Preserve family traditions and bonds
+
+Rights of Nephews and Nieces:
+
+1. Show Love and Affection:
+• The Prophet ﷺ showed great love to his grandsons and nephews
+• Play with them and make them feel valued
+• Give them gifts and treats
+• Be a positive role model
+
+2. Guide and Educate:
+• Teach them Islamic values
+• Share knowledge and wisdom
+• Correct them with kindness
+• Support their education and growth
+
+3. Support Their Parents:
+• Help their parents in raising them
+• Assist financially if needed
+• Babysit or help when parents need support
+• Be a reliable family support system
+
+Comprehensive Guidelines for Maintaining Extended Family Ties:
+
+1. Regular Visits (Ziyarat):
+The Prophet ﷺ said: "Whoever believes in Allah and the Last Day, let him maintain the ties of kinship." (Bukhari & Muslim)
+
+• Visit relatives regularly, not just during Eid or weddings
+• Don't wait for them to visit first
+• Visit especially during illness or hardship
+• Attend family gatherings and celebrations
+• Make time despite busy schedules
+
+2. Communication:
+• Call or message regularly to check on them
+• Use modern technology (video calls, WhatsApp) if distance is a barrier
+• Remember birthdays and special occasions
+• Share good news and seek advice
+• Don't let distance or time weaken bonds
+
+3. Financial Support (Sadaqah):
+The Prophet ﷺ said: "Charity to the poor is charity, and charity to a relative is two things: charity and upholding the ties of kinship." (Tirmidhi)
+
+• Help poor relatives before helping strangers
+• Charity to family has double reward
+• Don't make them feel obligated
+• Give with dignity and respect
+• Support them in times of crisis
+
+4. Emotional Support:
+• Be present during difficult times
+• Console during grief and loss
+• Celebrate during happy occasions
+• Listen to their concerns
+• Offer encouragement and positive words
+
+5. Mediation and Reconciliation:
+"So fear Allah and amend that which is between you and obey Allah and His Messenger, if you should be believers." (Quran 8:1)
+
+• Act as a peacemaker in family disputes
+• Don't fuel conflicts or take sides based on bias
+• Seek justice and fairness for all
+• Forgive mistakes and overlook faults
+• Remember unity is more important than winning arguments
+
+6. Respect and Honor:
+• Address elders with respectful titles
+• Speak politely to all relatives
+• Never gossip about family members
+• Protect family honor and reputation
+• Defend relatives when they're wronged
+
+Severe Consequences of Severing Family Ties:
+
+Allah warns: "Would you then, if you were given authority, cause corruption in the land and sever your ties of kinship? Those are the ones that Allah has cursed, so He deafened them and blinded their vision." (Quran 47:22-23)
+
+The Prophet ﷺ warned: "No one who severs the ties of kinship will enter Paradise." (Bukhari & Muslim)
+
+Consequences include:
+• Removal from Allah's mercy
+• Prayers not being answered
+• Decrease in provision and blessings
+• Shortened lifespan
+• Family conflicts and problems
+• Hardship in this life
+• Punishment in the Hereafter
+• Entry to Paradise is denied until repentance
+
+Immense Rewards for Maintaining Family Ties:
+
+The Prophet ﷺ said: "Ar-Rahm (the womb/family ties) is suspended from the Throne and says: 'Whoever keeps me, Allah will keep him, and whoever severs me, Allah will sever him.'" (Bukhari & Muslim)
+
+Rewards include:
+• Increased provision (rizq)
+• Extended lifespan
+• Barakah in wealth and time
+• Allah's mercy and pleasure
+• Protection from difficulties
+• Answered prayers
+• Happy, harmonious family life
+• High status in Paradise
+• Ease at the time of death
+
+Special Cases - What If Relatives Are Difficult?
+
+1. If They Wrong You:
+• Still maintain ties from your side
+• The Prophet ﷺ said: "The one who maintains ties is not the one who reciprocates, but the one who maintains ties with those who sever them." (Bukhari)
+• Don't cut ties in response to their cutting
+• Keep visiting even if they don't
+• Forgive their mistakes
+
+2. If They Are Sinful:
+• Maintain ties while disapproving of sin
+• Advise them with wisdom and kindness
+• Don't support their wrongdoing
+• Make dua for their guidance
+• Never sever ties due to their sins
+
+3. If Distance Separates You:
+• Modern technology makes it easy to connect
+• Call, message, or video call regularly
+• Visit when possible during holidays
+• Send gifts and financial support if needed
+• Distance is not an excuse to cut ties
+
+Practical Action Plan:
+
+1. Make a list of all your extended family members
+2. Reconnect with those you haven't contacted recently
+3. Set reminders to call or visit relatives regularly
+4. Attend family gatherings and organize some yourself
+5. Help relatives in need
+6. Reconcile any disputes within the family
+7. Make sincere dua for all your relatives
+8. Teach your children the importance of family ties
+9. Be the one who initiates contact, don't wait
+10. Make intention to please Allah through maintaining ties
+
+Remember: Every phone call, every visit, every act of kindness toward relatives is an act of worship that brings you closer to Allah and increases your blessings in this life and the next.
+
+May Allah help us all maintain strong, loving bonds with our extended families and grant us the reward of Jannah through upholding Silat ar-Rahm. Ameen.''',
         'urdu': '''وسیع خاندان کے حقوق
 
 وسیع خاندان کے ساتھ تعلقات برقرار رکھنا دینی فریضہ ہے۔
@@ -979,7 +1731,7 @@ Resolving Family Disputes:
 • السعي للعدل والإنصاف
 • المسامحة والتغاضي عن الأخطاء
 • تذكر أهمية وحدة الأسرة
-• "فَاتَّقُوا اللَّهَ وَأَصْلِحُوا ذَاتَ بَيْنِكُمْ" (سورة الأنفال: 1)'''
+• "فَاتَّقُوا اللَّهَ وَأَصْلِحُوا ذَاتَ بَيْنِكُمْ" (سورة الأنفال: 1)''',
       },
     },
     {
@@ -992,72 +1744,377 @@ Resolving Family Disputes:
       'icon': Icons.home,
       'color': Colors.green,
       'details': {
-        'english': '''Building Strong Families
+        'english': '''Building Strong Families: A Comprehensive Islamic Guide
 
-A strong family is the foundation of a strong society.
+In Islam, the family is the cornerstone of society and the primary unit through which faith, values, and culture are transmitted from one generation to the next. A strong, righteous family is not just beneficial for its members but is essential for building a healthy Muslim community and pleasing Allah.
 
-Islamic Home Environment:
-• Start with Bismillah and Salam
-• Regular family prayers together
-• Recitation of Quran in the home
-• Islamic decorations and reminders
-• Avoid haram entertainment
-• Create atmosphere of peace and tranquility
+The Quranic Vision of Family:
 
-Family Time:
-• Eat at least one meal together daily
-• Family meetings to discuss issues
-• Game nights and fun activities
-• The Prophet ﷺ would race with Aisha (RA)
-• Create family traditions
-• Technology-free quality time
+Allah says: "And among His Signs is this, that He created for you mates from among yourselves, that you may dwell in tranquility with them, and He has put love and mercy between your hearts. Verily in that are Signs for those who reflect." (Quran 30:21)
 
-Teaching Islamic Values:
-• Lead by example - children watch parents
-• Daily Quran lessons
-• Discuss Islamic stories and history
-• Teach through everyday situations
-• Encourage questions and discussions
-• Make Islam attractive and joyful
+This verse highlights that family is built on three divine foundations:
+1. Sakina (Tranquility and Peace)
+2. Mawadda (Love and Affection)
+3. Rahma (Mercy and Compassion)
 
-Communication:
-• Listen actively to each family member
-• Express feelings openly but respectfully
-• Weekly family meetings
-• One-on-one time with each child
-• Share accomplishments and concerns
-• Create safe space for discussion
+The Prophet ﷺ said: "The best of you are those who are best to their families, and I am the best among you to my family." (Tirmidhi)
 
-Financial Planning:
-• Avoid debt and interest
-• Live within means
-• Save for future needs
-• Teach children about money management
-• Regular charity as a family
-• Trust in Allah's provision
+1. Creating an Islamic Home Environment:
 
-Supporting Each Other:
-• Celebrate achievements together
-• Comfort in times of difficulty
-• Make dua for each family member daily
-• Be patient with each other's flaws
+Transform Your House into a Sanctuary:
+
+Starting the Day Right:
+• Begin every day with Bismillah and morning adhkar
+• Greet family members with "Assalamu Alaikum"
+• The Prophet ﷺ said: "When a man enters his house and mentions Allah's name on entering and on his food, Satan says: 'You have no place to spend the night and no supper.'" (Muslim)
+• Pray Fajr together as a family when possible
+• Make dua for family before leaving for work/school
+
+Physical Environment:
+• Keep your home clean and organized - cleanliness is half of faith
+• Display Quranic verses and Islamic calligraphy
+• Have a dedicated prayer area (Musalla)
+• Keep copies of Quran accessible
+• Islamic books for different age groups
+• Remove or avoid haram images and decorations
+
+Spiritual Atmosphere:
+• Recite Quran daily in the home - even if just a few verses
+• The Prophet ﷺ said: "The house in which Quran is recited, the angels attend it, devils leave it, and it appears to the inhabitants of heaven like a star." (Tirmidhi)
+• Play Quran recitation regularly
+• Establish family prayers together
+• Make dhikr audible so children learn
+• Avoid music and entertainment that contradicts Islamic values
+
+Evening Routine:
+• Gather for Maghrib prayer
+• Recite evening adhkar as a family
+• The Prophet ﷺ would make dua for protection before sleep
+• Sleep with wudu when possible
+• Teach children bedtime duas
+
+2. Quality Family Time - The Prophetic Way:
+
+Daily Togetherness:
+• Eat at least one meal together daily without distractions
+• The Prophet ﷺ ate with his family and made it a time of bonding
+• Turn off TV, phones, and tablets during meals
+• Share stories of the day
+• Discuss Islamic teachings during meals
+
+Weekly Family Activities:
+• Friday family gatherings after Jummah
+• Weekend outings to halal places (parks, museums, nature)
+• Game nights with permissible games
+• The Prophet ﷺ would race with Aisha (RA) and play with children
+• Cooking together
+• Quranic memorization competitions
+• Family sports activities
+
+Creating Meaningful Traditions:
+• Special Ramadan family rituals
+• Eid celebrations with unique family customs
+• Monthly family meetings
+• Birthday celebrations (halal manner)
+• Seasonal traditions (Hajj time gatherings, etc.)
+• Document family memories through photos and videos
+
+3. Effective Communication - The Heart of Family:
+
+The Prophetic Communication Model:
+
+Active Listening:
+• The Prophet ﷺ gave full attention when someone spoke to him
+• Put away distractions when family members talk
+• Make eye contact and show genuine interest
+• Don't interrupt or dismiss feelings
+• Listen to understand, not to respond
+
+Respectful Expression:
+• Speak with kindness even in disagreement
+• "And speak to people good [words]" (Quran 2:83)
+• Avoid harsh words, mockery, or sarcasm
+• Use "I feel" statements instead of "You always"
+• The Prophet ﷺ never spoke harshly to his family
+
+Weekly Family Meetings:
+• Designated time for all to share openly
+• Discuss plans, concerns, and achievements
+• Make decisions together
+• Resolve conflicts
+• Assign responsibilities fairly
+• Celebrate successes
+
+One-on-One Time:
+• Each parent should spend individual time with each child
+• The Prophet ﷺ gave special attention to each family member
+• Understand each child's unique needs
+• Build individual bonds
+• Create safe space for personal concerns
+
+Encouraging Questions:
+• Welcome children's questions about Islam and life
+• Answer honestly and age-appropriately
+• "Ask the people of knowledge if you do not know" (Quran 16:43)
+• Never dismiss or ridicule questions
+• Research together if you don't know the answer
+
+4. Teaching Islamic Values - Practical Methods:
+
+Lead by Example:
+• Children learn most from what they see
+• The Prophet ﷺ said: "Every child is born in a state of fitrah (natural disposition), then his parents make him into a Jew, Christian, or Magian." (Bukhari)
+• Practice what you preach
+• Your actions speak louder than lectures
+• Model prayer, kindness, honesty, and patience
+
+Daily Islamic Education:
+• Short daily Quran lessons (even 5-10 minutes)
+• Teach one Hadith per week
+• Stories of Prophets and Sahaba
+• Age-appropriate Islamic books
+• Videos of Islamic content (verified sources)
+• Tafsir discussions at family level
+
+Make Islam Attractive:
+• Present Islam as a mercy and blessing
+• Focus on love of Allah, not just fear
+• Celebrate Islamic achievements and history
+• Make worship enjoyable, not burdensome
+• Reward good behavior Islamically
+• The Prophet ﷺ made religion easy and encouraged gentleness
+
+Practical Application:
+• Discuss Islamic values in daily situations
+• When shopping: talk about halal earnings
+• When seeing poor: discuss charity and empathy
+• During conflicts: apply Islamic conflict resolution
+• In success: teach gratitude to Allah
+• In hardship: teach patience and trust in Allah
+
+5. Financial Planning - The Islamic Way:
+
+Halal Income:
+• Ensure all earnings are from halal sources
+• "O you who have believed, eat from the good things which We have provided for you and be grateful to Allah." (Quran 2:172)
+• Avoid interest (riba) completely
+• Don't work in haram industries
+• The Prophet ﷺ said: "Allah is Pure and accepts only what is pure." (Muslim)
+
+Living Within Means:
+• Don't try to match others' lifestyles
+• Be content with Allah's provision
+• "And whoever fears Allah - He will make for him a way out and will provide for him from where he does not expect." (Quran 65:2-3)
+• Avoid debt and loans when possible
+• Save for emergencies and future
+
+Teaching Children Money Management:
+• Give age-appropriate allowances
+• Teach saving, spending, and giving
+• Involve children in family budgeting
+• Explain difference between needs and wants
+• Practice delayed gratification
+• Teach them to earn through halal means
+
+Regular Family Charity:
+• The Prophet ﷺ said: "Charity does not decrease wealth." (Muslim)
+• Involve children in sadaqah decisions
+• Support orphans and poor together
+• Contribute to Islamic causes as a family
+• Make charity a joyful family activity
+
+Trust in Allah's Provision:
+• "And whoever relies upon Allah - then He is sufficient for him." (Quran 65:3)
+• Teach children that Allah is the Provider
+• Don't obsess over wealth accumulation
+• Be generous and Allah will increase you
+• Make dua for halal provision
+
+6. Mutual Support - Building Unbreakable Bonds:
+
+Celebrating Together:
+• Acknowledge and celebrate achievements
+• Graduations, memorization milestones, etc.
+• Islamic achievements (learning prayer, hijab, etc.)
+• Make them feel valued and important
+• The Prophet ﷺ praised and encouraged his companions
+
+Comforting in Hardship:
+• Be present during difficult times
+• Listen without judging
+• Help practically and emotionally
+• Make dua together during trials
+• "And seek help through patience and prayer" (Quran 2:45)
+• Share burdens as a family unit
+
+Daily Duas:
+• Make dua for each family member by name
+• Morning and evening protection duas
+• Duas before sleep for family safety
+• Specific duas for each person's needs
+• The Prophet ﷺ constantly made dua for his family
+
+Patience and Forgiveness:
+• Accept that everyone makes mistakes
+• The Prophet ﷺ said: "All children of Adam are sinners, and the best of sinners are those who repent." (Tirmidhi)
 • Forgive quickly and sincerely
-• Work as a team
+• Don't hold grudges within family
+• Overlook minor faults
+• Focus on good qualities
 
-Extended Family Involvement:
-• Regular gatherings with grandparents
-• Cousin relationships
-• Family reunions
-• Sharing responsibilities
-• Preserving family history
-• Passing down traditions
+Teamwork:
+• Work together on family projects
+• Share household responsibilities fairly
+• Support each other's goals
+• Make decisions together
+• "And cooperate in righteousness and piety" (Quran 5:2)
 
-Legacy Building:
-• "When a person dies, his deeds come to an end except for three: ongoing charity, beneficial knowledge, or a righteous child who prays for him." (Muslim)
-• Raise children who will remember you in dua
-• Create traditions that continue
+7. Extended Family Integration:
+
+Regular Gatherings:
+• The Prophet ﷺ emphasized maintaining family ties
+• Weekly or monthly visits to grandparents
+• Organize family reunions annually
+• Include extended family in celebrations
+• Bridge generational gaps
+
+Cousin Relationships:
+• Encourage children to bond with cousins
+• Group activities with extended family
+• Preserve sibling bonds from next generation
+• Create cousin group chats and connections
+
+Preserving Family Legacy:
 • Record family Islamic history
-• Establish family endowments''',
+• Interview elders about their experiences
+• Document family tree
+• Share stories of righteous ancestors
+• Teach children their heritage
+
+Sharing Responsibilities:
+• Help elderly relatives together as a family
+• Collective support for family members in need
+• Rotate hosting family gatherings
+• Care for sick relatives as a team
+
+8. Building Lasting Legacy:
+
+The Prophetic Hadith:
+"When a person dies, his deeds come to an end except for three: ongoing charity (Sadaqah Jariyah), beneficial knowledge, or a righteous child who prays for him." (Muslim)
+
+These three represent your eternal investment:
+
+Sadaqah Jariyah:
+• Build wells, mosques, Islamic schools as a family
+• Plant trees together
+• Establish family endowments (waqf)
+• Support orphans long-term
+• Create Islamic content that benefits others
+
+Beneficial Knowledge:
+• Teach Quran and Islamic knowledge
+• Write beneficial books or articles
+• Support Islamic education initiatives
+• Share knowledge through social media
+• Mentor others in your profession with Islamic ethics
+
+Righteous Children:
+• This is the primary family legacy
+• Raise children who will remember you in dua
+• The Prophet ﷺ said: "The best of what a man leaves behind are three: a righteous child who supplicates for him, ongoing charity, and knowledge that is benefited from after him." (Ibn Majah)
+• Focus on their spiritual development
+• Teach them to make dua for parents
+• Model righteousness yourself
+
+Practical Legacy Building:
+• Create family constitution based on Islamic values
+• Establish family traditions of worship
+• Start family charitable projects
+• Record your Islamic advice for future generations
+• Make annual family goals for spiritual growth
+• Document your Islamic journey for children to learn from
+
+9. Overcoming Modern Challenges:
+
+Technology Balance:
+• Set clear boundaries for screen time
+• No devices during family meals or prayer times
+• Monitor children's online activities
+• Use parental controls wisely
+• Model healthy technology use
+• Designate "tech-free" family time
+
+Peer Pressure:
+• Build children's Islamic identity strongly
+• Teach them to be proud Muslims
+• Equip them with knowledge to answer questions
+• Create Muslim friend circles
+• Support them when they face challenges
+• The Prophet ﷺ said: "A person is upon the religion of his friend, so let one of you look at whom he befriends." (Tirmidhi)
+
+Maintaining Islamic Values in Non-Muslim Society:
+• Make home a strong Islamic haven
+• Regular connection with Muslim community
+• Islamic schools or weekend classes
+• Honest conversations about challenges
+• Balance integration without assimilation
+
+10. Daily Action Plan for Strong Families:
+
+Morning:
+✓ Wake up for Fajr together
+✓ Morning adhkar as a family
+✓ Breakfast together when possible
+✓ Bismillah and dua before leaving home
+
+During Day:
+✓ Check in with family members
+✓ Make dua for them
+✓ Stay connected through messages
+✓ Earn halal and work honestly
+
+Evening:
+✓ Maghrib prayer together
+✓ Quality family dinner
+✓ Quran recitation
+✓ Family conversation time
+✓ Help with homework/responsibilities
+
+Before Sleep:
+✓ Evening adhkar together
+✓ Bedtime stories (Islamic)
+✓ Individual time with each child
+✓ Family dua
+✓ Sleep with wudu
+
+Weekly:
+✓ Friday Jummah together
+✓ Weekend family activity
+✓ Visit relatives
+✓ Family meeting
+✓ Charity activity
+
+Monthly:
+✓ Extended family gathering
+✓ Review family goals
+✓ Special outing
+✓ Islamic education assessment
+✓ Financial review
+
+Conclusion:
+
+Building a strong Islamic family is the most important project of your life. It requires:
+• Sincere intention to please Allah
+• Consistent effort and patience
+• Following the Prophetic example
+• Mutual love and respect
+• Continuous learning and improvement
+
+Remember: Your family is your first responsibility and your pathway to Jannah. Invest in them with your time, love, knowledge, and dua.
+
+The Prophet ﷺ said: "The best of you are those who are best to their families, and I am the best among you to my family." (Tirmidhi)
+
+May Allah bless our families with faith, love, health, and righteousness. May He make our homes filled with His remembrance and our children the coolness of our eyes. May He unite us with our families in Jannatul Firdaus. Ameen.''',
         'urdu': '''مضبوط خاندان بنانا
 
 مضبوط خاندان مضبوط معاشرے کی بنیاد ہے۔
@@ -1255,7 +2312,7 @@ Legacy Building:
 • الصدقة والإنفاق
 • حسن الخلق والتعامل
 • الدعاء للأسرة
-• الشكر على النعم'''
+• الشكر على النعم''',
       },
     },
   ];
@@ -1282,26 +2339,31 @@ Legacy Building:
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: context.responsive.paddingRegular,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _familyTopics.length,
-              itemBuilder: (context, index) {
-                final topic = _familyTopics[index];
-                return _buildTopicCard(topic, isDark);
-              },
+      body: Builder(
+        builder: (context) {
+          final langCode = context.languageProvider.languageCode;
+          final isRtl = langCode == 'ur' || langCode == 'ar';
+          return SingleChildScrollView(
+            padding: context.responsive.paddingRegular,
+            child: Column(
+              crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _familyTopics.length,
+                  itemBuilder: (context, index) {
+                    final topic = _familyTopics[index];
+                    return _buildTopicCard(topic, isDark);
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
-
 
   Widget _buildTopicCard(Map<String, dynamic> topic, bool isDark) {
     final langCode = context.languageProvider.languageCode;
@@ -1323,8 +2385,8 @@ Legacy Building:
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
-            offset: Offset(0, responsive.spacing(2)),
+            blurRadius: 10.0,
+            offset: Offset(0, 2.0),
           ),
         ],
       ),
@@ -1337,16 +2399,16 @@ Legacy Building:
             children: [
               // Number Badge
               Container(
-                width: responsive.spacing(50),
-                height: responsive.spacing(50),
+                width: responsive.iconLarge * 1.5,
+                height: responsive.iconLarge * 1.5,
                 decoration: BoxDecoration(
                   color: darkGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
                       color: darkGreen.withValues(alpha: 0.3),
-                      blurRadius: responsive.spacing(8),
-                      offset: Offset(0, responsive.spacing(2)),
+                      blurRadius: 8,
+                      offset: Offset(0, 2.0),
                     ),
                   ],
                 ),
@@ -1361,12 +2423,14 @@ Legacy Building:
                   ),
                 ),
               ),
-              SizedBox(width: responsive.spacing(14)),
+              responsive.hSpaceSmall,
 
               // Title and Icon chip
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: (langCode == 'ur' || langCode == 'ar')
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
                   children: [
                     // Title
                     Text(
@@ -1376,15 +2440,24 @@ Legacy Building:
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : darkGreen,
                       ),
-                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                      textDirection: (langCode == 'ur' || langCode == 'ar')
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: responsive.spacing(4)),
+                    responsive.vSpaceXSmall,
                     // Icon chip
                     Container(
-                      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
+                      padding: responsive.paddingSymmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFE8F3ED),
-                        borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                        borderRadius: BorderRadius.circular(
+                          responsive.radiusSmall,
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -1394,13 +2467,17 @@ Legacy Building:
                             size: responsive.textXSmall + 2,
                             color: emeraldGreen,
                           ),
-                          SizedBox(width: responsive.spacing(4)),
-                          Text(
-                            context.tr('family_fazilat'),
-                            style: TextStyle(
-                              fontSize: responsive.textXSmall,
-                              fontWeight: FontWeight.w600,
-                              color: emeraldGreen,
+                          responsive.hSpaceXSmall,
+                          Flexible(
+                            child: Text(
+                              context.tr('family_fazilat'),
+                              style: TextStyle(
+                                fontSize: responsive.textXSmall,
+                                fontWeight: FontWeight.w600,
+                                color: emeraldGreen,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],

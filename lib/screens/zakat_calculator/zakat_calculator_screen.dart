@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/settings_provider.dart';
-import 'zakat_guide_screen.dart';
 
 class ZakatCalculatorScreen extends StatefulWidget {
   const ZakatCalculatorScreen({super.key});
@@ -137,8 +135,8 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
 
             // Result Icon
             Container(
-              width: responsive.iconSize(80),
-              height: responsive.iconSize(80),
+              width: responsive.iconXXLarge * 2,
+              height: responsive.iconXXLarge * 2,
               decoration: BoxDecoration(
                 color: _isEligible
                     ? AppColors.primary.withValues(alpha: 0.1)
@@ -147,7 +145,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
               ),
               child: Icon(
                 _isEligible ? Icons.volunteer_activism : Icons.info_outline,
-                size: responsive.iconSize(40),
+                size: responsive.iconXLarge,
                 color: _isEligible ? AppColors.primary : Colors.grey,
               ),
             ),
@@ -244,19 +242,31 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: responsive.textMedium,
-              fontWeight: isBold ? FontWeight.bold : null,
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: responsive.textMedium,
+                fontWeight: isBold ? FontWeight.bold : null,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          Text(
-            _currencyFormat.format(value),
-            style: TextStyle(
-              fontSize: responsive.textMedium,
-              fontWeight: isBold ? FontWeight.bold : null,
-              color: isBold ? AppColors.primary : null,
+          SizedBox(width: responsive.spaceSmall),
+          Expanded(
+            flex: 2,
+            child: Text(
+              _currencyFormat.format(value),
+              style: TextStyle(
+                fontSize: responsive.textMedium,
+                fontWeight: isBold ? FontWeight.bold : null,
+                color: isBold ? AppColors.primary : null,
+              ),
+              textAlign: TextAlign.end,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -293,10 +303,6 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
             children: [
               // Country Info Card
               _buildCountryCard(isDark, responsive),
-              SizedBox(height: responsive.spaceRegular),
-
-              // Zakat Guide Button
-              _buildZakatGuideButton(isDark, responsive),
               SizedBox(height: responsive.spaceRegular),
 
               // Nisab Info Card
@@ -445,8 +451,8 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
       child: Row(
         children: [
           Container(
-            width: responsive.spacing(50),
-            height: responsive.spacing(50),
+            width: responsive.iconXLarge * 1.5,
+            height: responsive.iconXLarge * 1.5,
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(responsive.radiusMedium),
@@ -470,6 +476,8 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: responsive.spaceXSmall),
                 Text(
@@ -478,6 +486,8 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                     fontSize: responsive.textSmall,
                     color: Colors.white.withValues(alpha: 0.9),
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -488,87 +498,6 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
             tooltip: context.tr('change_country'),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildZakatGuideButton(bool isDark, ResponsiveUtils responsive) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const ZakatGuideScreen()),
-        );
-      },
-      child: Container(
-        width: double.infinity,
-        padding: responsive.paddingRegular,
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.darkCard : Colors.white,
-          borderRadius: BorderRadius.circular(responsive.radiusLarge),
-          border: Border.all(
-            color: isDark ? Colors.grey.shade700 : const Color(0xFF8AAF9A),
-            width: 1.5,
-          ),
-          boxShadow: isDark
-              ? null
-              : [
-                  BoxShadow(
-                    color: const Color(0xFF0A5C36).withValues(alpha: 0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: responsive.paddingMedium,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(responsive.radiusMedium),
-              ),
-              child: Icon(
-                Icons.menu_book_rounded,
-                color: AppColors.primary,
-                size: responsive.iconLarge,
-              ),
-            ),
-            SizedBox(width: responsive.spaceRegular),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context.tr('zakat_guide'),
-                    style: TextStyle(
-                      fontSize: responsive.textRegular,
-                      fontWeight: FontWeight.bold,
-                      color: isDark
-                          ? AppColors.darkTextPrimary
-                          : AppColors.textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: responsive.spaceXSmall),
-                  Text(
-                    context.tr('zakat_explanation'),
-                    style: TextStyle(
-                      fontSize: responsive.textSmall,
-                      color: isDark
-                          ? AppColors.darkTextSecondary
-                          : AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.arrow_forward_ios,
-              color: AppColors.primary,
-              size: responsive.iconSmall,
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -605,14 +534,18 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
             children: [
               Icon(Icons.info, color: AppColors.secondary, size: responsive.iconMedium),
               SizedBox(width: responsive.spaceSmall),
-              Text(
-                context.tr('current_nisab_threshold'),
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: responsive.textRegular,
-                  color: isDark
-                      ? AppColors.darkTextPrimary
-                      : AppColors.textPrimary,
+              Expanded(
+                child: Text(
+                  context.tr('current_nisab_threshold'),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: responsive.textRegular,
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -632,6 +565,8 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                             ? AppColors.darkTextSecondary
                             : AppColors.textSecondary,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       _currencyFormat.format(goldNisab),
@@ -642,6 +577,8 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                             ? AppColors.darkTextPrimary
                             : AppColors.textPrimary,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       '(${nisabGoldGrams}g)',
@@ -667,6 +604,8 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                             ? AppColors.darkTextSecondary
                             : AppColors.textSecondary,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       _currencyFormat.format(silverNisab),
@@ -677,6 +616,8 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                             ? AppColors.darkTextPrimary
                             : AppColors.textPrimary,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       '(${nisabSilverGrams}g)',
@@ -721,25 +662,28 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
 
   Widget _buildPriceInfo(String label, double price, bool isDark, ResponsiveUtils responsive) {
     return Container(
-      padding: responsive.paddingSymmetric(horizontal: 12, vertical: 8),
+      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
         color: isDark
             ? AppColors.primary.withValues(alpha: 0.2)
             : AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(responsive.radiusSmall),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
             style: TextStyle(
-              fontSize: responsive.textSmall,
+              fontSize: responsive.textXSmall,
               color: isDark
                   ? AppColors.darkTextSecondary
                   : AppColors.textSecondary,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
+          SizedBox(height: responsive.spaceXSmall),
           Text(
             _currencyFormat.format(price),
             style: TextStyle(
@@ -747,6 +691,8 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
               fontWeight: FontWeight.bold,
               color: AppColors.primary,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

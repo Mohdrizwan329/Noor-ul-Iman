@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,8 +13,6 @@ class JahannamFazilatScreen extends StatefulWidget {
 }
 
 class _JahannamFazilatScreenState extends State<JahannamFazilatScreen> {
-  String _selectedLanguage = 'english';
-
   final List<Map<String, dynamic>> _jahannamTopics = [
     {
       'number': 1,
@@ -29,42 +26,107 @@ class _JahannamFazilatScreenState extends State<JahannamFazilatScreen> {
       'details': {
         'english': '''Description of Jahannam (Hellfire)
 
-Jahannam is the place of eternal punishment prepared by Allah for disbelievers and sinners.
+Jahannam is the abode of eternal punishment prepared by Allah Almighty for disbelievers, polytheists, hypocrites, and unrepentant sinners. It is a place of unimaginable torment and suffering.
 
-Reality of Hellfire:
-• "Indeed, Hell is lying in wait, a destination for the transgressors." (Quran 78:21-22)
-• Created by Allah as a place of justice and punishment
+MEANING AND REALITY:
+• The Arabic word "Jahannam" means "a dark storm" or "a stern expression"
+• It is a real, physical place that exists now and will exist forever
+• "Indeed, Hell is lying in wait, a destination for the transgressors. They will remain therein for ages [unending]." (Quran 78:21-23)
+• Created by Allah as a manifestation of His perfect justice
+• It serves as the ultimate consequence for those who reject faith and commit grave injustices
+
+THE CREATION OF HELLFIRE:
+• When Hell was created, Allah kept it burning for one thousand years until it became red
+• Then it was heated for another thousand years until it turned bright white
+• Finally heated again for another thousand years until the flames became pitch black
+• This pitch-black fire is what exists today - the most intense form of fire
 • Real fire that is 70 times hotter than worldly fire
-• The Prophet ﷺ said: "The fire you kindle is one of 70 parts of the fire of Hell." (Bukhari)
+• The Prophet ﷺ said: "The fire you kindle is one of 70 parts of the fire of Hell." (Sahih Bukhari)
+• The fire never extinguishes, never decreases, and never requires fuel to maintain
 
-Its Size and Vastness:
-• Extremely vast and bottomless
+ITS SIZE AND VASTNESS:
+• Jahannam is extremely vast and bottomless - beyond human comprehension
 • "On the Day when We will say to Hell: 'Are you filled?' It will say: 'Are there any more?'" (Quran 50:30)
-• The Prophet ﷺ said: "A stone thrown into Hell would fall for 70 years before reaching its bottom."
-• So huge that it needs 70,000 angels to pull it on the Day of Judgment
+• The Prophet ﷺ said: "A stone as big as seven khalifat (huge camels) thrown from the edge of Hell would fall for seventy years before reaching its bottom." (Sahih Muslim)
+• So enormous that it needs 70,000 angels to pull each of its seven gates on the Day of Judgment
+• The Messenger ﷺ described it: "Jahannam is built inside like a well with side posts, and beside each post there is an angel carrying an iron mace"
+• Has a width that would take years to traverse
+• Contains valleys, mountains, and endless depths of torment
 
-The Fire of Hell:
-• Never extinguishes or decreases
-• "Their Lord gives them good tidings of mercy from Him and approval and of gardens for them wherein is enduring pleasure." (Quran 9:21)
-• Fuel: People and stones
-• "O you who have believed, protect yourselves and your families from a Fire whose fuel is people and stones." (Quran 66:6)
+FUEL OF HELLFIRE:
+• Primary fuel: People and stones (idols)
+• "O you who have believed, protect yourselves and your families from a Fire whose fuel is people and stones, over which are [appointed] angels, harsh and severe; they do not disobey Allah in what He commands them but do what they are commanded." (Quran 66:6)
+• The disbelievers themselves become fuel, continuously burning
+• Never needs additional fuel - self-sustaining by Allah's command
+• "And they will have no food except from a poisonous, thorny plant" (Quran 88:6)
 
-Physical Descriptions:
-• Intense heat that melts everything
-• Darkness within darkness
-• Foul smells and smoke
-• Boiling water and pus to drink
-• Tree of Zaqqum with bitter fruit
-• Chains, shackles, and iron collars
+STRUCTURE AND PHYSICAL FEATURES:
+• Seven distinct levels/gates, each deeper and more severe than the last
+• "It has seven gates; for every gate is of them a portion designated." (Quran 15:43-44)
+• Made of walls of fire, floors of fire, and ceilings of fire
+• Contains mountains of fire and valleys of fire
+• Rivers of boiling water, pus, and blood flow through it
+• Extreme darkness within darkness despite the intense flames
+• The fire gives off no light - only burning heat
+• Filled with scorching winds and black smoke
+• Foul, unbearable smells that suffocate
 
-Gates of Hell:
-• Seven gates, each for different types of sinners
-• "And indeed, Hell is the promised place for them all. It has seven gates; for every gate is of them a portion designated." (Quran 15:43-44)
+THE INTENSITY OF ITS HEAT:
+• Heat so intense it melts everything - skin, flesh, bones, and organs
+• The Prophet ﷺ said: "The mildest punishment for a person in Hell will be that burning coals will be placed under the arch of his feet which will cause his brain to boil." (Sahih Bukhari)
+• "And what can make you know what is Hell-Fire? It spares not, nor does it leave [anything]. It scorches the skin." (Quran 74:27-29)
+• If even one drop of Jahannam's fire fell on earth, it would destroy all life
+• The Prophet ﷺ said: "If one drop from Az-Zaqqum were to land in this world, the people of earth and all their means of sustenance would be destroyed. So how must it be for the one who must eat it?" (Tirmidhi)
 
-The Horror:
-• If a bucket of Hellfire was revealed to earth, everything would burn
-• Its roar and fury frighten even the angels
-• The Prophet ﷺ heard its breathing and became concerned for his Ummah''',
+THE TREE OF ZAQQUM:
+• A cursed tree that springs from the bottom of Hellfire
+• "Indeed, the tree of Zaqqum is food for the sinful. Like murky oil, it boils within bellies, like the boiling of scalding water." (Quran 44:43-46)
+• "Verily, the tree of Zaqqum will be the food of the sinners. It is like boiling oil, it will boil in the bellies, like the boiling of scalding water." (Quran 44:43-46)
+• Its fruits are described as resembling the heads of devils (Quran 37:62-65)
+• Extremely bitter and causes immense internal pain
+• Does not satisfy hunger but increases suffering
+
+SOUNDS OF HELL:
+• Hell has a terrifying roar and fury
+• "When they are thrown into it, they hear from it a [dreadful] inhaling while it boils up. It almost bursts with rage." (Quran 67:7-8)
+• Continuous screaming, wailing, and crying of its inhabitants
+• The sound of chains being dragged
+• The crackling and roaring of the flames
+• So terrifying that even the angels fear it
+
+THE ETERNAL NATURE:
+• For disbelievers and polytheists: ETERNAL punishment with no end
+• "And they will cry out therein, 'Our Lord, remove us; we will do righteousness - other than what we were doing!' But did We not grant you life enough for whoever would remember therein to remember? And the warner had come to you. So taste [the punishment], for there is not for the wrongdoers any helper." (Quran 35:37)
+• "They will wish to get out of the Fire, but never are they to emerge from it, and for them is an enduring punishment." (Quran 5:37)
+• Time in Hell: "Abiding therein for ages [unending]" (Quran 78:23)
+• No death, no relief, no escape - only continuous suffering
+• "Indeed, whoever comes to his Lord as a criminal - indeed, for him is Hell; he will neither die therein nor live." (Quran 20:74)
+
+THE HORROR BEYOND IMAGINATION:
+• If a bucket of Hellfire were revealed to earth, everything would burn instantly
+• Its roar and fury frighten even the angels of Allah
+• The Prophet ﷺ heard Hell's breathing and became deeply concerned for his Ummah
+• He ﷺ said: "If you knew what I know, you would laugh little and weep much." (Sahih Bukhari)
+• No eye has seen, no ear has heard such punishment
+• The Prophet ﷺ would often cry when thinking about Hellfire
+• He said: "Hell is surrounded by desires, and Paradise is surrounded by hardships"
+
+PURPOSE AND WISDOM:
+• Demonstrates Allah's perfect justice - every sin has its consequence
+• Warning and deterrent for humanity to choose righteousness
+• Purification for sinful believers before entering Paradise
+• Eternal abode for those who rejected Allah's mercy and guidance
+• "And whoever disobeys Allah and His Messenger and transgresses His limits - He will put him into the Fire to abide eternally therein, and he will have a humiliating punishment." (Quran 4:14)
+
+CONVERSATION BETWEEN PARADISE AND HELL:
+• The Prophet ﷺ narrated that Paradise and Hell argued before Allah
+• Hell said: "I have been favored with the arrogant and tyrants"
+• Paradise said: "What is the matter with me? Only the weak and humble enter me"
+• Allah said to Paradise: "You are My Mercy which I bestow on whom I wish"
+• And to Hell: "You are My punishment with which I punish whom I wish"
+• (Sahih Bukhari & Muslim)
+
+May Allah protect us all from the punishment of Hellfire and grant us entry into Paradise. Ameen.''',
         'urdu': '''جہنم کی تفصیل
 
 جہنم ابدی عذاب کی جگہ ہے جسے اللہ نے کافروں اور گنہگاروں کے لیے تیار کیا ہے۔
@@ -180,7 +242,7 @@ The Horror:
 • "خَالِدِينَ فِيهَا أَبَدًا" (سورة الجن: 23)
 • لا يموتون فيها ولا يحيون
 • "لَا يُقْضَىٰ عَلَيْهِمْ فَيَمُوتُوا" (سورة فاطر: 36)
-• عذاب دائم لا ينقطع'''
+• عذاب دائم لا ينقطع''',
       },
     },
     {
@@ -193,54 +255,167 @@ The Horror:
       'icon': Icons.layers,
       'color': Colors.deepOrange,
       'details': {
-        'english': '''Levels of Hellfire
+        'english': '''The Seven Levels of Hellfire
 
-Hell has different levels, each with varying degrees of punishment according to the severity of sins.
+Jahannam is not a single uniform place of punishment, but rather consists of seven distinct levels or gates, each with varying degrees of torment. The deeper the level, the more severe the punishment.
 
-Seven Levels of Jahannam:
-1. Jahannam - The first level for sinful Muslims who will eventually be forgiven
-2. Laza - For Christians
-3. Al-Hutamah - For Jews
-4. Sa'ir - For the Sabians
-5. Saqar - For the Magians (fire-worshippers)
-6. Al-Jahim - For idol worshippers
-7. Hawiyah - The deepest level for hypocrites
+QURANIC FOUNDATION:
+• "It has seven gates; for every gate is of them a portion designated." (Quran 15:43-44)
+• "And indeed, Hell is the promised place for them all." (Quran 15:43)
+• The seven levels were mentioned in authentic Hadith and became widely accepted in Islamic teachings
+• Each level corresponds to one of the seven names of Hell mentioned in the Quran
+• Assignment to levels is based on the severity and type of sins committed
 
-Lowest Level - For Hypocrites:
-• "Indeed, the hypocrites will be in the lowest depths of the Fire." (Quran 4:145)
-• Worst punishment for those who pretended to be Muslims
-• The Prophet ﷺ said hypocrisy is worse than open disbelief
-• No escape from this level
+THE SEVEN LEVELS IN ORDER (FROM TOP TO BOTTOM):
 
-Levels Based on Sins:
-• Each person according to their deeds
-• "For all there are degrees from what they have done." (Quran 6:132)
-• Major sins lead to deeper levels
-• Oppressors and tyrants in severe punishment
-• Those who spread corruption face intense torment
+**1. JAHANNAM (جَهَنَّم) - The First Level:**
+• The uppermost and least severe level (though still extremely painful)
+• Primarily for sinful Muslims who died without repenting from major sins
+• Those who committed sins like abandoning prayer, consuming interest (riba), breaking family ties
+• NOT eternal for Muslims - they may eventually be cleansed and forgiven
+• The Prophet ﷺ said: "People will come out of Hell after having been therein. They will be called the Jahannamiyyun (people of Hell)." (Sahih Bukhari)
+• Punishment here includes: Burning flames, chains, and torment
+• Duration: Until their sins are purified, then Allah's mercy may save them
+• Those who had even an atom's weight of faith will eventually leave
 
-Temporary vs Permanent:
-• Sinful Muslims: May be punished then forgiven and enter Paradise
-• Disbelievers and Hypocrites: Eternal punishment, never leaving
-• "They will wish to get out of the Fire, but never are they to emerge from it." (Quran 5:37)
+**2. LADHAA/LAZA (لَظَىٰ) - The Second Level:**
+• Mentioned in Quran 70:15: "No! Indeed, it is the Flame [of Hell], A remover of exteriors"
+• For those who denied Allah and His prophets but didn't commit shirk (polytheism)
+• Includes those who knew the truth but deliberately rejected it
+• Polytheists and those who associated partners with Allah
+• The fire here removes and burns external layers of skin repeatedly
+• Intense flames that peel away flesh layer by layer
+• Punishment includes: Continuous burning, renewal of skin for repeated torment
+• "As often as their skins are roasted through, We will replace them with other skins so they may taste the punishment." (Quran 4:56)
 
-Movement Between Levels:
-• Allah may increase or decrease punishment based on His wisdom
-• Intercession of the Prophet ﷺ may save some Muslims
-• No intercession for disbelievers
-• Ultimate justice from Allah
+**3. SAQAR (سَقَر) - The Third Level:**
+• "I will drive him into Saqar. And what can make you know what is Saqar? It lets nothing remain and leaves nothing [unburned], altering the skins." (Quran 74:26-29)
+• For those who neglected prayer (one of the greatest sins)
+• For those who didn't give charity and refused to help the poor
+• For those who denied the Day of Judgment
+• For the Magians (fire-worshippers) and Zoroastrians
+• This fire scorches the skin completely - "It spares not, nor does it leave"
+• Extreme heat that burns continuously without pause
+• The Prophet ﷺ said: "A person neglecting his Salah shall remain in Jahannam for one Huqb (80 years, each day equivalent to 1000 years)"
 
-The Degrees of Heat:
-• Each level hotter than the one above
-• Bottom levels have unimaginable heat
-• Al-Hawiyah (bottomless pit) has the most severe fire
-• The Prophet ﷺ said some people will have fire only at their ankles, while others will be submerged completely
+**4. AL-HUTAMAH (ٱلْحُطَمَة) - The Fourth Level:**
+• "No! He will surely be thrown into the Crusher. And what can make you know what is the Crusher? It is the fire of Allah, [eternally] fueled, which mounts directed at the hearts." (Quran 104:4-7)
+• The "Crusher" or "Breaker" - crushes and breaks everything
+• For those who consumed wealth in falsehood and hoarded money
+• For greedy tyrants, usurers, and those who withheld Zakat
+• For slanderers and those who caused division in communities
+• For the Jews who distorted their scriptures and rejected prophets
+• Fire that reaches the hearts and internal organs
+• Punishment: Being crushed repeatedly, fire burning from inside out
+• "It mounts directed at the hearts" - most painful internal burning
 
-Warning for Believers:
-• Even believers may taste Hellfire for their sins
-• Seek forgiveness constantly
-• Avoid major sins especially
-• The Prophet ﷺ warned: "Paradise is surrounded by hardships and Hell is surrounded by desires."''',
+**5. JAHEEM (جَحِيم) - The Fifth Level:**
+• "And those who disbelieved will be driven to Hell in groups." (Quran 39:71)
+• For idol worshippers and those who worshipped false gods
+• For those who led others astray from the path of Allah
+• For major disbelievers who openly denied Allah
+• Extremely intense blazing fire
+• Name means "blazing fire" or "fierce blaze"
+• Continuous torture with no moment of rest
+• Inhabitants are driven in groups and thrown in
+• Fire so intense it can be heard roaring from far away
+
+**6. SA'EER (سَعِير) - The Sixth Level:**
+• "Soon I will drive him into Hellfire. And what can make you know what is Hellfire?" (Quran 74:26-27)
+• For satanic forces and devils (Shayateen)
+• For their human followers who obeyed Satan over Allah
+• For tyrants, dictators, and corrupt rulers who abused authority
+• For those who spread misguidance through media, influence, or policy
+• For religious hypocrites who used Islam for worldly gain
+• Extremely fierce blazing fire
+• Punishment includes: Being bound with devils, continuous torment
+• "And when they are thrown into it at a narrow place therein bound in chains, they will cry out thereupon for destruction." (Quran 25:13)
+
+**7. AL-HAWIYAH (ٱلْهَاوِيَة) - The Seventh and Lowest Level:**
+• "And what can make you know what that is? It is a Fire, intensely hot." (Quran 101:9-11)
+• The deepest, darkest, and most painful level of Hell
+• The "Bottomless Pit" or "Abyss" - no end to its depth
+• Primarily for HYPOCRITES (Munafiqun) - the worst of all people
+• "Indeed, the hypocrites will be in the lowest depths of the Fire - and never will you find for them a helper." (Quran 4:145)
+• For those who pretended to be Muslims but disbelieved inside
+• For backbiters and those who destroyed others' reputations
+• For non-believers who died in a state of disbelief
+• Heat so intense it cannot be imagined
+• Darkest level with no light, only burning torment
+• NO ESCAPE - eternal punishment with no relief
+• Distance to fall: The Prophet ﷺ said a stone would fall for 70 years to reach the bottom
+
+THE INTENSITY INCREASES WITH DEPTH:
+• Each level is progressively hotter, darker, and more painful than the one above
+• The punishment becomes more severe as one descends
+• The distance between each level is tremendous
+• Heat multiplies as you go deeper
+• The lowest levels have unimaginable, indescribable torment
+• Some people will have fire only at their ankles (lightest), while others will be completely submerged (most severe)
+• The Prophet ﷺ said: "The person who will have the least punishment among the people of Hell on the Day of Resurrection will be a man under whose arch of the feet will be placed two smoldering embers, and his brain will boil because of them." (Sahih Muslim)
+
+PRINCIPLES OF DIVINE JUSTICE:
+• "For all there are degrees from what they have done, and [it is] so that He may fully compensate them for their deeds, and they will not be wronged." (Quran 6:132)
+• Each person receives punishment exactly matching their sins
+• No one is wronged - perfect justice from Allah
+• Greater sins = deeper levels = more severe punishment
+• The punishment fits the crime perfectly
+
+TEMPORARY vs ETERNAL PUNISHMENT:
+
+**For Sinful Muslims (Believers with Major Sins):**
+• May enter the first level (Jahannam) if they died without repentance
+• Punishment is temporary, not eternal
+• Duration depends on the severity of sins and Allah's wisdom
+• Intercession of Prophet Muhammad ﷺ may save them
+• Allah's mercy may forgive them at any time
+• "Allah does not forgive association with Him, but He forgives what is less than that for whom He wills." (Quran 4:48)
+• Eventually will leave Hell and enter Paradise
+• Will be called "Al-Jahannamiyyun" (the people who were in Jahannam)
+
+**For Disbelievers, Polytheists, and Hypocrites:**
+• Eternal punishment with absolutely no escape
+• "They will wish to get out of the Fire, but never are they to emerge from it, and for them is an enduring punishment." (Quran 5:37)
+• No intercession will benefit them
+• No reduction in punishment - only increase
+• "Abiding therein eternally" (Quran 98:6)
+• Will remain "ages upon ages" without end (Quran 78:23)
+
+SPECIAL PUNISHMENT FOR HYPOCRITES:
+• Hypocrites receive the worst punishment - lowest level
+• Worse than open disbelievers because they deceived Muslims
+• The Prophet ﷺ said: "The hypocrite is more dangerous to the Ummah than open disbelievers"
+• They will have no helpers, no supporters
+• Their punishment will be the most severe and humiliating
+• "And never will you find for them any protector or helper" (Quran 4:145)
+
+THE VARIOUS DEGREES OF HEAT:
+• Each level has progressively more intense heat
+• Bottom levels (Hawiyah, Sa'eer, Jaheem) have heat beyond comprehension
+• Some will be punished with fire at ankles only
+• Some up to knees, some up to waist
+• Some completely immersed in fire
+• The Prophet ﷺ saw in a vision: "Some up to their ankles, some up to their knees, some up to their waists, and some up to their necks" (Sahih Muslim)
+
+WHO ASSIGNS PEOPLE TO LEVELS:
+• Allah Almighty in His perfect justice
+• Based on the complete record of deeds (Book of Deeds)
+• Nothing is hidden - every deed is accounted for
+• "So whoever does an atom's weight of good shall see it, and whoever does an atom's weight of evil shall see it." (Quran 99:7-8)
+• Angels present the record, Allah judges with perfect fairness
+
+HOPE AND WARNING FOR BELIEVERS:
+• Avoid all major sins, especially: Shirk, murder, adultery, theft, lying, backbiting
+• Pray five times daily without fail
+• Give Zakat and charity regularly
+• Be kind to parents and maintain family ties
+• Seek Allah's forgiveness constantly through repentance
+• Perform good deeds to outweigh bad ones
+• Remember: "Indeed, good deeds do away with misdeeds." (Quran 11:114)
+• The Prophet ﷺ warned: "Paradise is surrounded by hardships, and Hell is surrounded by desires"
+• Control desires, resist temptations, and fear Allah
+
+May Allah protect us from all levels of Hellfire and grant us the highest levels of Paradise. Ameen.''',
         'urdu': '''جہنم کے درجات
 
 جہنم کے مختلف درجات ہیں، ہر ایک میں گناہوں کی شدت کے مطابق مختلف سزائیں ہیں۔
@@ -377,7 +552,7 @@ Warning for Believers:
 • "لِكُلٍّ دَرَجَاتٌ مِّمَّا عَمِلُوا" (سورة الأنعام: 132)
 • يتفاوت العذاب بحسب الذنوب
 • أخف أهل النار عذاباً من له نعلان من نار
-• أشدهم عذاباً المنافقون والمشركون'''
+• أشدهم عذاباً المنافقون والمشركون''',
       },
     },
     {
@@ -608,7 +783,7 @@ The Way to Avoid:
 
 العاقون للوالدين:
 • من أكبر الكبائر
-• قال النبي ﷺ: "ألا أنبئكم بأكبر الكبائر؟" قالوا: بلى، قال: "الإشراك بالله، وعقوق الوالدين" (البخاري)'''
+• قال النبي ﷺ: "ألا أنبئكم بأكبر الكبائر؟" قالوا: بلى، قال: "الإشراك بالله، وعقوق الوالدين" (البخاري)''',
       },
     },
     {
@@ -849,7 +1024,7 @@ No Relief or Escape:
 • "وَالَّذِينَ كَفَرُوا لَهُمْ نَارُ جَهَنَّمَ" (سورة فاطر: 36)
 • لا راحة ولا نوم
 • لا يموتون ولا يحيون
-• "كُلَّمَا خَبَتْ زِدْنَاهُمْ سَعِيرًا" (سورة الإسراء: 97)'''
+• "كُلَّمَا خَبَتْ زِدْنَاهُمْ سَعِيرًا" (سورة الإسراء: 97)''',
       },
     },
     {
@@ -1133,7 +1308,7 @@ Constant Dua:
 • "رَبَّنَا اصْرِفْ عَنَّا عَذَابَ جَهَنَّمَ" (سورة الفرقان: 65)
 • اللهم أجرني من النار
 • اللهم إني أعوذ بك من النار
-• الإكثار من الدعاء والتضرع'''
+• الإكثار من الدعاء والتضرع''',
       },
     },
     {
@@ -1397,7 +1572,7 @@ The Wise Take Heed:
 • "مِن قَبْلِ أَن يَأْتِيَ أَحَدَكُمُ الْمَوْتُ" (سورة المنافقون: 10)
 • المبادرة إلى التوبة
 • الإكثار من الأعمال الصالحة
-• تذكر الموت والآخرة'''
+• تذكر الموت والآخرة''',
       },
     },
   ];
@@ -1424,26 +1599,33 @@ The Wise Take Heed:
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: context.responsive.paddingRegular,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _jahannamTopics.length,
-              itemBuilder: (context, index) {
-                final topic = _jahannamTopics[index];
-                return _buildTopicCard(topic, isDark);
-              },
+      body: Builder(
+        builder: (context) {
+          final langCode = context.languageProvider.languageCode;
+          final isRtl = langCode == 'ur' || langCode == 'ar';
+          return SingleChildScrollView(
+            padding: context.responsive.paddingRegular,
+            child: Column(
+              crossAxisAlignment: isRtl
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
+              children: [
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _jahannamTopics.length,
+                  itemBuilder: (context, index) {
+                    final topic = _jahannamTopics[index];
+                    return _buildTopicCard(topic, isDark);
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
-
 
   Widget _buildTopicCard(Map<String, dynamic> topic, bool isDark) {
     final langCode = context.languageProvider.languageCode;
@@ -1452,7 +1634,7 @@ The Wise Take Heed:
     const darkGreen = Color(0xFF0A5C36);
     const emeraldGreen = Color(0xFF1E8F5A);
     const lightGreenBorder = Color(0xFF8AAF9A);
-return Container(
+    return Container(
       margin: responsive.paddingOnly(bottom: 10),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : Colors.white,
@@ -1464,8 +1646,8 @@ return Container(
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
-            offset: Offset(0, responsive.spacing(2)),
+            blurRadius: 10.0,
+            offset: Offset(0, 2.0),
           ),
         ],
       ),
@@ -1478,16 +1660,16 @@ return Container(
             children: [
               // Number Badge
               Container(
-                width: responsive.spacing(50),
-                height: responsive.spacing(50),
+                width: responsive.iconLarge * 1.5,
+                height: responsive.iconLarge * 1.5,
                 decoration: BoxDecoration(
                   color: darkGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
                       color: darkGreen.withValues(alpha: 0.3),
-                      blurRadius: responsive.spacing(8),
-                      offset: Offset(0, responsive.spacing(2)),
+                      blurRadius: 8,
+                      offset: Offset(0, 2.0),
                     ),
                   ],
                 ),
@@ -1502,12 +1684,14 @@ return Container(
                   ),
                 ),
               ),
-              SizedBox(width: responsive.spacing(14)),
+              responsive.hSpaceSmall,
 
               // Title and Icon chip
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: (langCode == 'ur' || langCode == 'ar')
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
                   children: [
                     // Title
                     Text(
@@ -1517,15 +1701,24 @@ return Container(
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : darkGreen,
                       ),
-                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                      textDirection: (langCode == 'ur' || langCode == 'ar')
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: responsive.spacing(4)),
+                    responsive.vSpaceXSmall,
                     // Icon chip
                     Container(
-                      padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
+                      padding: responsive.paddingSymmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFE8F3ED),
-                        borderRadius: BorderRadius.circular(responsive.radiusSmall),
+                        borderRadius: BorderRadius.circular(
+                          responsive.radiusSmall,
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -1535,13 +1728,17 @@ return Container(
                             size: responsive.textXSmall + 2,
                             color: emeraldGreen,
                           ),
-                          SizedBox(width: responsive.spacing(4)),
-                          Text(
-                            context.tr('jahannam_fazilat'),
-                            style: TextStyle(
-                              fontSize: responsive.textXSmall,
-                              fontWeight: FontWeight.w600,
-                              color: emeraldGreen,
+                          responsive.hSpaceXSmall,
+                          Flexible(
+                            child: Text(
+                              context.tr('jahannam_fazilat'),
+                              style: TextStyle(
+                                fontSize: responsive.textXSmall,
+                                fontWeight: FontWeight.w600,
+                                color: emeraldGreen,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -1573,7 +1770,6 @@ return Container(
 
   void _showTopicDetails(Map<String, dynamic> topic) {
     final details = topic['details'] as Map<String, String>;
-    final titleKey = topic['titleKey'] ?? 'jahannam_fazilat';
     Navigator.push(
       context,
       MaterialPageRoute(

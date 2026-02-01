@@ -4,7 +4,7 @@ import 'package:intl/intl.dart' hide TextDirection;
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/language_provider.dart';
 
 class CalendarScreen extends StatefulWidget {
@@ -64,11 +64,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
   List<String> _getWeekdayHeaders(String langCode) {
     switch (langCode) {
       case 'ur':
-        return AppStrings.daysOfWeekShortUrdu;
+        return AppStrings.islamicDaysOfWeekUrdu;
       case 'ar':
-        return AppStrings.daysOfWeekShortArabic;
+        return AppStrings.islamicDaysOfWeekArabic;
       case 'hi':
-        return AppStrings.daysOfWeekShortHindi;
+        return AppStrings.islamicDaysOfWeekHindi;
       default:
         return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     }
@@ -103,24 +103,25 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildTodayCard() {
+    final responsive = ResponsiveUtils(context);
     final langCode = context.watch<LanguageProvider>().languageCode;
     final today = HijriCalendar.now();
     final gregorianToday = DateTime.now();
 
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
+      margin: responsive.paddingAll(16),
+      padding: responsive.paddingAll(20),
       decoration: BoxDecoration(
         gradient: AppColors.headerGradient,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
       ),
       child: Column(
         children: [
           Text(
             context.tr('today'),
-            style: const TextStyle(color: Colors.white70, fontSize: 16),
+            style: TextStyle(color: Colors.white70, fontSize: responsive.fontSize(16)),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: responsive.spacing(8)),
           Text(
             (langCode == 'ar' || langCode == 'ur')
                 ? '${_getUrduArabicNumerals(today.hDay, langCode)} ${_getMonthName(today.hMonth - 1, langCode)} ${_getUrduArabicNumerals(today.hYear, langCode)} ${context.tr('ah')}'
@@ -129,20 +130,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 : '${today.hDay} ${today.longMonthName} ${today.hYear} ${context.tr('ah')}',
             style: TextStyle(
               color: Colors.white,
-              fontSize: (langCode == 'ar' || langCode == 'ur') ? 26 : 28,
+              fontSize: responsive.fontSize((langCode == 'ar' || langCode == 'ur') ? 26 : 28),
               fontWeight: FontWeight.bold,
             ),
             textDirection: (langCode == 'ar' || langCode == 'ur') ? TextDirection.rtl : TextDirection.ltr,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: responsive.spacing(4)),
           Text(
             _getGregorianDateString(gregorianToday, langCode),
-            style: const TextStyle(color: Colors.white70, fontSize: 16),
+            style: TextStyle(color: Colors.white70, fontSize: responsive.fontSize(16)),
             textDirection: (langCode == 'ar' || langCode == 'ur') ? TextDirection.rtl : TextDirection.ltr,
-          ),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-
-            ],
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -150,14 +152,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildMonthNavigation() {
+    final responsive = ResponsiveUtils(context);
     final langCode = context.watch<LanguageProvider>().languageCode;
     final isRTL = langCode == 'ur' || langCode == 'ar';
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: responsive.paddingSymmetric(horizontal: 16, vertical: 0),
       child: Container(
         decoration: BoxDecoration(
           gradient: AppColors.headerGradient,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -169,22 +172,29 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 color: Colors.white,
               ),
             ),
-            Row(
-              children: [
-                Text(
-                  _getMonthName(_currentHijriMonth - 1, langCode),
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                  textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
-                ),
-                SizedBox(width: 10),
-                Text(
-                  (langCode == 'ar' || langCode == 'ur')
-                      ? '${_getUrduArabicNumerals(_currentHijriYear, langCode)} ${context.tr('ah')}'
-                      : '$_currentHijriYear ${context.tr('ah')}',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                  textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
-                ),
-              ],
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Text(
+                      _getMonthName(_currentHijriMonth - 1, langCode),
+                      style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(16)),
+                      textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  SizedBox(width: responsive.spacing(10)),
+                  Text(
+                    (langCode == 'ar' || langCode == 'ur')
+                        ? '${_getUrduArabicNumerals(_currentHijriYear, langCode)} ${context.tr('ah')}'
+                        : '$_currentHijriYear ${context.tr('ah')}',
+                    style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(16)),
+                    textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
+                  ),
+                ],
+              ),
             ),
             IconButton(
               onPressed: _nextMonth,
@@ -200,6 +210,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildCalendarGrid() {
+    final responsive = ResponsiveUtils(context);
     const darkGreen = Color(0xFF0A5C36);
     const lightGreenBorder = Color(0xFF8AAF9A);
 
@@ -230,17 +241,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
         today.hMonth == _currentHijriMonth && today.hYear == _currentHijriYear;
 
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
+      margin: responsive.paddingAll(16),
+      padding: responsive.paddingAll(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.borderRadius(18)),
         border: Border.all(color: lightGreenBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            blurRadius: responsive.spacing(10),
+            offset: Offset(0, responsive.spacing(2)),
           ),
         ],
       ),
@@ -252,7 +263,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             children: List.generate(7, (index) {
               final isFriday = index == 5;
               return SizedBox(
-                width: 40,
+                width: responsive.spacing(40),
                 child: Text(
                   weekdayHeaders[index],
                   textAlign: TextAlign.center,
@@ -261,13 +272,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     color: isFriday
                         ? AppColors.primary
                         : AppColors.textSecondary,
-                    fontSize: isUrdu ? 12 : 14,
+                    fontSize: responsive.fontSize(isUrdu ? 12 : 14),
                   ),
                 ),
               );
             }),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: responsive.spacing(12)),
 
           // Calendar days
           GridView.builder(
@@ -316,7 +327,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         fontWeight: isToday || isSelected
                             ? FontWeight.bold
                             : null,
-                        fontSize: 16,
+                        fontSize: responsive.fontSize(16),
                       ),
                     ),
                   ),
@@ -330,60 +341,55 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildImportantDates() {
+    final responsive = ResponsiveUtils(context);
     final langCode = context.watch<LanguageProvider>().languageCode;
     final isUrdu = langCode == 'ur';
 
     // Important dates with month number (1-12) for filtering
     final allImportantDates = [
       _ImportantDateWithMonth(
-        1,
-        1,
-        'islamic_new_year',
-        Icons.celebration,
-      ),
-      _ImportantDateWithMonth(1, 10, 'ashura_event', Icons.star),
-      _ImportantDateWithMonth(
-        3,
-        12,
-        'mawlid_an_nabi',
-        Icons.mosque,
+        1, 1, 'islamic_new_year', Icons.celebration,
+        descriptionKey: 'islamic_new_year_desc',
       ),
       _ImportantDateWithMonth(
-        7,
-        27,
-        'isra_miraj',
-        Icons.nights_stay,
+        1, 10, 'ashura_event', Icons.star,
+        descriptionKey: 'ashura_desc',
       ),
       _ImportantDateWithMonth(
-        8,
-        15,
-        'shab_e_barat',
-        Icons.auto_awesome,
+        3, 12, 'mawlid_an_nabi', Icons.mosque,
+        descriptionKey: 'mawlid_desc',
       ),
       _ImportantDateWithMonth(
-        9,
-        1,
-        'start_of_ramadan',
-        Icons.brightness_2,
-      ),
-      _ImportantDateWithMonth(9, 27, 'laylat_al_qadr', Icons.star),
-      _ImportantDateWithMonth(
-        10,
-        1,
-        'eid_ul_fitr_event',
-        Icons.celebration,
+        7, 27, 'isra_miraj', Icons.nights_stay,
+        descriptionKey: 'isra_miraj_desc',
       ),
       _ImportantDateWithMonth(
-        12,
-        9,
-        'day_of_arafah',
-        Icons.terrain,
+        8, 15, 'shab_e_barat', Icons.auto_awesome,
+        descriptionKey: 'shab_e_barat_desc',
       ),
       _ImportantDateWithMonth(
-        12,
-        10,
-        'eid_ul_adha_event',
-        Icons.celebration,
+        9, 1, 'start_of_ramadan', Icons.brightness_2,
+        descriptionKey: 'ramadan_start_desc',
+      ),
+      _ImportantDateWithMonth(
+        9, 27, 'laylat_al_qadr', Icons.star,
+        descriptionKey: 'laylat_al_qadr_desc',
+      ),
+      _ImportantDateWithMonth(
+        10, 1, 'eid_ul_fitr_event', Icons.celebration,
+        descriptionKey: 'eid_ul_fitr_desc',
+      ),
+      _ImportantDateWithMonth(
+        12, 8, 'day_of_hajj', Icons.flight_takeoff,
+        descriptionKey: 'hajj_desc',
+      ),
+      _ImportantDateWithMonth(
+        12, 9, 'day_of_arafah', Icons.terrain,
+        descriptionKey: 'arafah_desc',
+      ),
+      _ImportantDateWithMonth(
+        12, 10, 'eid_ul_adha_event', Icons.celebration,
+        descriptionKey: 'eid_ul_adha_desc',
       ),
     ];
 
@@ -395,7 +401,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     // If no important dates this month, show message
     if (currentMonthDates.isEmpty) {
       return Container(
-        margin: const EdgeInsets.all(16),
+        margin: responsive.paddingAll(16),
         child: Column(
           crossAxisAlignment: isUrdu
               ? CrossAxisAlignment.end
@@ -408,11 +414,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
               style: Theme.of(context).textTheme.headlineSmall,
               textDirection: isUrdu ? TextDirection.rtl : TextDirection.ltr,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: responsive.spacing(16)),
             Center(
               child: Text(
                 context.tr('no_important_dates_this_month'),
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: responsive.fontSize(16)),
                 textDirection: (langCode == 'ar' || langCode == 'ur') ? TextDirection.rtl : TextDirection.ltr,
               ),
             ),
@@ -422,7 +428,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
 
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: responsive.paddingAll(16),
       child: Column(
         crossAxisAlignment: isUrdu
             ? CrossAxisAlignment.end
@@ -435,7 +441,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             style: Theme.of(context).textTheme.headlineSmall,
             textDirection: isUrdu ? TextDirection.rtl : TextDirection.ltr,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: responsive.spacing(12)),
           ...currentMonthDates.map((date) {
             const darkGreen = Color(0xFF0A5C36);
             const emeraldGreen = Color(0xFF1E8F5A);
@@ -446,43 +452,44 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ? '${_getUrduArabicNumerals(date.day, langCode)} ${_getMonthName(_currentHijriMonth - 1, langCode)}'
                 : '${date.day} ${_getMonthName(_currentHijriMonth - 1, langCode)}';
             final nameText = context.tr(date.translationKey);
+            final descText = date.descriptionKey != null ? context.tr(date.descriptionKey!) : '';
 
             return Container(
-              margin: const EdgeInsets.only(bottom: 10),
+              margin: EdgeInsets.only(bottom: responsive.spacing(10)),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(responsive.borderRadius(18)),
                 border: Border.all(color: lightGreenBorder, width: 1.5),
                 boxShadow: [
                   BoxShadow(
                     color: darkGreen.withValues(alpha: 0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
+                    blurRadius: responsive.spacing(10),
+                    offset: Offset(0, responsive.spacing(2)),
                   ),
                 ],
               ),
               child: Padding(
-                padding: const EdgeInsets.all(14),
+                padding: responsive.paddingAll(14),
                 child: Row(
                   children: [
                     if (!isUrdu) ...[
                       Container(
-                        width: 48,
-                        height: 48,
+                        width: responsive.spacing(48),
+                        height: responsive.spacing(48),
                         decoration: BoxDecoration(
                           color: darkGreen,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
                               color: darkGreen.withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
+                              blurRadius: responsive.spacing(8),
+                              offset: Offset(0, responsive.spacing(2)),
                             ),
                           ],
                         ),
-                        child: Icon(date.icon, color: Colors.white, size: 22),
+                        child: Icon(date.icon, color: Colors.white, size: responsive.iconSize(22)),
                       ),
-                      const SizedBox(width: 14),
+                      SizedBox(width: responsive.spacing(14)),
                     ],
                     Expanded(
                       child: Column(
@@ -492,29 +499,31 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         children: [
                           Text(
                             nameText,
-                            style: const TextStyle(
-                              fontSize: 16,
+                            style: TextStyle(
+                              fontSize: responsive.fontSize(16),
                               fontWeight: FontWeight.bold,
                               color: darkGreen,
                             ),
                             textDirection: isUrdu
                                 ? TextDirection.rtl
                                 : TextDirection.ltr,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: responsive.spacing(4)),
                           Container(
-                            padding: const EdgeInsets.symmetric(
+                            padding: responsive.paddingSymmetric(
                               horizontal: 8,
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
                               color: lightGreenChip,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
                             ),
                             child: Text(
                               dateText,
-                              style: const TextStyle(
-                                fontSize: 11,
+                              style: TextStyle(
+                                fontSize: responsive.fontSize(11),
                                 fontWeight: FontWeight.w600,
                                 color: emeraldGreen,
                               ),
@@ -523,26 +532,41 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   : TextDirection.ltr,
                             ),
                           ),
+                          if (descText.isNotEmpty) ...[
+                            SizedBox(height: responsive.spacing(6)),
+                            Text(
+                              descText,
+                              style: TextStyle(
+                                fontSize: responsive.fontSize(12),
+                                color: Colors.grey[600],
+                              ),
+                              textDirection: (langCode == 'ar' || langCode == 'ur')
+                                  ? TextDirection.rtl
+                                  : TextDirection.ltr,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ],
                       ),
                     ),
                     if (isUrdu) ...[
-                      const SizedBox(width: 14),
+                      SizedBox(width: responsive.spacing(14)),
                       Container(
-                        width: 48,
-                        height: 48,
+                        width: responsive.spacing(48),
+                        height: responsive.spacing(48),
                         decoration: BoxDecoration(
                           color: darkGreen,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
                               color: darkGreen.withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
+                              blurRadius: responsive.spacing(8),
+                              offset: Offset(0, responsive.spacing(2)),
                             ),
                           ],
                         ),
-                        child: Icon(date.icon, color: Colors.white, size: 22),
+                        child: Icon(date.icon, color: Colors.white, size: responsive.iconSize(22)),
                       ),
                     ],
                   ],
@@ -596,11 +620,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
     // Show selected date info
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(ResponsiveUtils(context).borderRadius(20))),
       ),
       builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
+        padding: ResponsiveUtils(context).paddingAll(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -613,10 +637,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
               style: Theme.of(context).textTheme.headlineSmall,
               textDirection: (langCode == 'ar' || langCode == 'ur') ? TextDirection.rtl : TextDirection.ltr,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: ResponsiveUtils(context).spacing(8)),
             Text(
               _getGregorianDateString(_selectedGregorianDate, langCode),
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: ResponsiveUtils(context).fontSize(16)),
               textDirection: (langCode == 'ar' || langCode == 'ur') ? TextDirection.rtl : TextDirection.ltr,
             ),
           ],
@@ -631,11 +655,13 @@ class _ImportantDateWithMonth {
   final int day;
   final String translationKey;
   final IconData icon;
+  final String? descriptionKey;
 
   _ImportantDateWithMonth(
     this.month,
     this.day,
     this.translationKey,
-    this.icon,
-  );
+    this.icon, {
+    this.descriptionKey,
+  });
 }

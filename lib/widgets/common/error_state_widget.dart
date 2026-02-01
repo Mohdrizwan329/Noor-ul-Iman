@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
-import '../../core/utils/spacing.dart';
+import '../../core/utils/app_utils.dart';
 
 /// Reusable error state widget.
 /// Displays error icon, message, and optional retry button.
@@ -27,6 +26,7 @@ class ErrorStateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final responsive = context.responsive;
 
     return Center(
       child: Column(
@@ -34,18 +34,14 @@ class ErrorStateWidget extends StatelessWidget {
         children: [
           Icon(
             Icons.error_outline,
-            size: 64,
+            size: responsive.iconXXLarge,
             color: isDark ? Colors.grey.shade600 : Colors.grey,
           ),
           VSpace.large,
           Text(
             message,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: isDark
-                  ? AppColors.darkTextSecondary
-                  : AppColors.textSecondary,
-            ),
+            style: AppTextStyles.bodyLarge(context),
           ),
           if (onRetry != null) ...[
             VSpace.large,

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_assets.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/language_provider.dart';
-import '../permissions/permissions_screen.dart';
+import '../auth/login_screen.dart';
 
 class LanguageSelectionScreen extends StatefulWidget {
   const LanguageSelectionScreen({super.key});
@@ -63,8 +63,15 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
 
     if (!mounted) return;
 
+    // Request permissions before navigating
+    await Permission.location.request();
+    await Permission.notification.request();
+    await Permission.scheduleExactAlarm.request();
+
+    if (!mounted) return;
+
     navigator.pushReplacement(
-      MaterialPageRoute(builder: (context) => const PermissionsScreen()),
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
     );
   }
 
@@ -127,17 +134,23 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: responsive.spacing(32),
+              height: responsive.spacing(32),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(responsive.radiusSmall),
               ),
-              padding: const EdgeInsets.all(4),
+              padding: EdgeInsets.all(responsive.spacing(4)),
               child: Image.asset(AppAssets.appLogo, fit: BoxFit.contain),
             ),
-            const SizedBox(width: 8),
-            Text(context.tr('choose_language')),
+            SizedBox(width: responsive.spacing(8)),
+            Flexible(
+              child: Text(
+                context.tr('choose_language'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
         automaticallyImplyLeading: false,
@@ -153,7 +166,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
                 children: [
                   // Urdu Subtitle (Top)
                   Container(
-                    height: 80,
+                    height: responsive.spacing(80),
                     width: double.infinity,
                     decoration: BoxDecoration(
                       gradient: isDark
@@ -167,7 +180,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
                             )
                           : AppColors.primaryGradient,
                       borderRadius: BorderRadius.circular(
-                        responsive.spacing(18),
+                        responsive.radiusLarge,
                       ),
                       border: Border.all(
                         color: isDark
@@ -180,8 +193,8 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
                           color: isDark
                               ? Colors.black.withValues(alpha: 0.2)
                               : AppColors.primary.withValues(alpha: 0.15),
-                          blurRadius: 10,
-                          offset: const Offset(0, 2),
+                          blurRadius: responsive.spacing(10),
+                          offset: Offset(0, responsive.spacing(2)),
                         ),
                       ],
                     ),
@@ -206,7 +219,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
                     child: Text(
                       'Select Your Language',
                       style: TextStyle(
-                        fontSize: responsive.textLarge,
+                        fontSize: responsive.fontSize(18),
                         fontWeight: FontWeight.bold,
                         color: isDark
                             ? AppColors.darkTextPrimary
@@ -318,7 +331,7 @@ class _LanguageCardState extends State<_LanguageCard>
           width: double.infinity,
           decoration: BoxDecoration(
             color: isDark ? AppColors.darkCard : Colors.white,
-            borderRadius: BorderRadius.circular(responsive.spacing(18)),
+            borderRadius: BorderRadius.circular(responsive.radiusLarge),
             border: Border.all(
               color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
               width: 1.5,
@@ -328,8 +341,8 @@ class _LanguageCardState extends State<_LanguageCard>
                 : [
                     BoxShadow(
                       color: AppColors.primary.withValues(alpha: 0.08),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
+                      blurRadius: responsive.spacing(10),
+                      offset: Offset(0, responsive.spacing(2)),
                     ),
                   ],
           ),
@@ -338,8 +351,8 @@ class _LanguageCardState extends State<_LanguageCard>
             children: [
               // Flag Icon in Circle
               Container(
-                width: responsive.iconSize(60),
-                height: responsive.iconSize(60),
+                width: responsive.spacing(60),
+                height: responsive.spacing(60),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
@@ -352,7 +365,7 @@ class _LanguageCardState extends State<_LanguageCard>
                 child: Center(
                   child: Text(
                     widget.icon,
-                    style: TextStyle(fontSize: responsive.spacing(35)),
+                    style: TextStyle(fontSize: responsive.fontSize(35)),
                   ),
                 ),
               ),
@@ -367,7 +380,7 @@ class _LanguageCardState extends State<_LanguageCard>
                     Text(
                       widget.name,
                       style: TextStyle(
-                        fontSize: responsive.textXLarge,
+                        fontSize: responsive.fontSize(20),
                         fontWeight: FontWeight.bold,
                         color: isDark
                             ? AppColors.darkTextPrimary
@@ -375,7 +388,7 @@ class _LanguageCardState extends State<_LanguageCard>
                         fontFamily:
                             widget.languageCode == 'ar' ||
                                 widget.languageCode == 'ur'
-                            ? 'Amiri'
+                            ? 'Poppins'
                             : null,
                       ),
                     ),
@@ -384,7 +397,7 @@ class _LanguageCardState extends State<_LanguageCard>
                     Text(
                       widget.nativeName,
                       style: TextStyle(
-                        fontSize: responsive.textMedium,
+                        fontSize: responsive.fontSize(16),
                         color: isDark
                             ? AppColors.darkTextSecondary
                             : AppColors.textSecondary,
@@ -396,8 +409,8 @@ class _LanguageCardState extends State<_LanguageCard>
               responsive.hSpaceMedium,
               // Forward Arrow Button
               Container(
-                width: responsive.iconSize(32),
-                height: responsive.iconSize(32),
+                width: responsive.spacing(32),
+                height: responsive.spacing(32),
                 decoration: BoxDecoration(
                   gradient: AppColors.primaryGradient,
                   shape: BoxShape.circle,

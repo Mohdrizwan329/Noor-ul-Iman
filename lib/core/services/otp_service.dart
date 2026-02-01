@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class OtpService {
   // TODO: Replace these with your actual EmailJS credentials after setup
@@ -137,6 +138,41 @@ class OtpService {
       return {
         'success': false,
         'error': 'Network error: ${e.toString()}',
+      };
+    }
+  }
+
+  /// Reset password for the given email
+  /// Reset password using Firebase Authentication
+  /// IMPORTANT: Passwords are managed by Firebase Auth, NOT Firestore
+  /// Returns a map with 'success' key (bool) and 'message' or 'error' key (String)
+  static Future<Map<String, dynamic>> resetPassword(
+    String email,
+    String newPassword,
+  ) async {
+    try {
+      // SECURITY NOTE: This method requires the user to be signed in
+      // For a proper password reset flow, use Firebase Auth's email reset link
+      // This is a simplified version for OTP-based reset
+
+      final auth = FirebaseAuth.instance;
+
+      // First, try to sign in with a temporary credential to verify user exists
+      // Note: This won't work without the old password
+      // Instead, we'll send a password reset email
+
+      debugPrint('Sending password reset email to: ${email.toLowerCase()}');
+
+      await auth.sendPasswordResetEmail(email: email.toLowerCase());
+
+      return {
+        'success': true,
+        'message': 'Password reset email sent. Please check your inbox.',
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'error': 'Error resetting password: ${e.toString()}',
       };
     }
   }

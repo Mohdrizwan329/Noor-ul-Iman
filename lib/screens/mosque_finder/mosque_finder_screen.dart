@@ -6,8 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/location_service.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/language_provider.dart';
 
 class MosqueFinderScreen extends StatefulWidget {
@@ -24,6 +23,13 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
   String? _error;
   Position? _currentPosition;
   String? _currentLanguage;
+
+  // Multiple Overpass API endpoints for fallback
+  final List<String> _overpassEndpoints = [
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://overpass.openstreetmap.ru/api/interpreter',
+  ];
 
   @override
   void initState() {
@@ -43,8 +49,8 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
         _currentPosition != null) {
       _currentLanguage = newLanguage;
       _refreshData();
-    } else if (_currentLanguage == null) {
-      _currentLanguage = newLanguage;
+    } else {
+      _currentLanguage ??= newLanguage;
     }
   }
 
@@ -119,17 +125,18 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
       }
 
       // Using Overpass API (OpenStreetMap) to find mosques
-      // Search for nodes, ways, and relations within 2km radius
+      // Search for nodes, ways, and relations within 5km radius
+      // Increased timeout to 45 seconds for larger search area
       final query =
           '''
-        [out:json][timeout:25];
+        [out:json][timeout:45];
         (
-          node["amenity"="place_of_worship"]["religion"="muslim"](around:2000,${_currentPosition!.latitude},${_currentPosition!.longitude});
-          way["amenity"="place_of_worship"]["religion"="muslim"](around:2000,${_currentPosition!.latitude},${_currentPosition!.longitude});
-          relation["amenity"="place_of_worship"]["religion"="muslim"](around:2000,${_currentPosition!.latitude},${_currentPosition!.longitude});
-          node["building"="mosque"](around:2000,${_currentPosition!.latitude},${_currentPosition!.longitude});
-          way["building"="mosque"](around:2000,${_currentPosition!.latitude},${_currentPosition!.longitude});
-          relation["building"="mosque"](around:2000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          node["amenity"="place_of_worship"]["religion"="muslim"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          way["amenity"="place_of_worship"]["religion"="muslim"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          relation["amenity"="place_of_worship"]["religion"="muslim"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          node["building"="mosque"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          way["building"="mosque"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          relation["building"="mosque"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
         );
         out center;
       ''';
@@ -138,209 +145,338 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
         'Mosque Finder: Searching for mosques near ${_currentPosition!.latitude}, ${_currentPosition!.longitude}',
       );
 
-      final response = await http.post(
-        Uri.parse('https://overpass-api.de/api/interpreter'),
-        body: query,
-      );
+      // Try multiple endpoints with retry logic for reliability
+      http.Response? response;
+      String? lastError;
+      bool success = false;
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final elements = data['elements'] as List? ?? [];
+      for (
+        int endpointIndex = 0;
+        endpointIndex < _overpassEndpoints.length;
+        endpointIndex++
+      ) {
+        final endpoint = _overpassEndpoints[endpointIndex];
+        debugPrint(
+          'Mosque Finder: Trying endpoint ${endpointIndex + 1}/${_overpassEndpoints.length}: $endpoint',
+        );
 
-        debugPrint('Mosque Finder: Found ${elements.length} elements from API');
+        // Try each endpoint up to 2 times
+        for (int attempt = 1; attempt <= 2; attempt++) {
+          try {
+            debugPrint('Mosque Finder: Attempt $attempt for $endpoint');
 
-        final mosques = <MosqueModel>[];
-        final processedIds = <String>{};
-        final processedCoords = <String>{};
-        int skippedNoTags = 0;
-        int skippedDuplicates = 0;
-        int skippedNoCoords = 0;
+            response = await http
+                .post(
+                  Uri.parse(endpoint),
+                  body: query,
+                  headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                  },
+                )
+                .timeout(
+                  const Duration(seconds: 60),
+                  onTimeout: () {
+                    throw Exception('Timeout after 60 seconds');
+                  },
+                );
 
-        for (final element in elements) {
-          final tags = element['tags'];
-          final elementType = element['type'];
-          final id = element['id'].toString();
-
-          // Skip elements without tags (these are way nodes, not actual POIs)
-          if (tags == null || tags.isEmpty) {
-            skippedNoTags++;
-            continue;
-          }
-
-          // Get lat/lon - handle both nodes and ways
-          double? lat;
-          double? lon;
-
-          if (element['lat'] != null && element['lon'] != null) {
-            // Node element
-            lat = element['lat'].toDouble();
-            lon = element['lon'].toDouble();
-          } else if (element['center'] != null) {
-            // Way element with center
-            lat = element['center']['lat']?.toDouble();
-            lon = element['center']['lon']?.toDouble();
-          }
-
-          // Skip if no coordinates available
-          if (lat == null || lon == null) {
-            skippedNoCoords++;
-            final name = tags['name'] ?? tags['name:en'] ?? 'Unknown';
-            debugPrint(
-              'Mosque Finder: Skipped $elementType $id "$name" - no coordinates (has center: ${element['center'] != null})',
-            );
-            continue;
-          }
-
-          // Create composite key using element type + ID (OSM IDs are unique per type)
-          final compositeId = '$elementType:$id';
-
-          // Create coordinate key rounded to 5 decimal places (~1 meter precision)
-          final coordKey =
-              '${lat.toStringAsFixed(5)},${lon.toStringAsFixed(5)}';
-
-          // Skip if we've already processed this element (by composite ID or coordinates)
-          if (processedIds.contains(compositeId) ||
-              processedCoords.contains(coordKey)) {
-            skippedDuplicates++;
-            debugPrint(
-              'Mosque Finder: Skipped duplicate - type=$elementType, id=$id, coords=$coordKey',
-            );
-            continue;
-          }
-
-          processedIds.add(compositeId);
-          processedCoords.add(coordKey);
-
-          // Try to get name in current language, fallback to default languages
-          final rawName =
-              tags[osmLangTag] ??
-              tags['name:$currentLang'] ??
-              tags['name'] ??
-              tags['name:en'] ??
-              defaultMosqueName;
-
-          // Transliterate name if not in English
-          final name = currentLang == 'en'
-              ? rawName
-              : _transliterateName(rawName, currentLang);
-
-          final distanceInMeters = _locationService.calculateDistance(
-            _currentPosition!.latitude,
-            _currentPosition!.longitude,
-            lat,
-            lon,
-          );
-          final distance = distanceInMeters / 1000; // Convert to kilometers
-
-          final mosqueAddress = _buildAddress(
-            tags,
-            defaultAddress,
-            currentLang,
-          );
-          final mosque = MosqueModel(
-            id: id,
-            name: name,
-            address: mosqueAddress,
-            latitude: lat,
-            longitude: lon,
-            distance: distance,
-            phone: tags['phone'] ?? tags['contact:phone'],
-            website: tags['website'] ?? tags['contact:website'],
-            openingHours: tags['opening_hours'],
-          );
-
-          debugPrint(
-            'Adding mosque: name="$name", address="$mosqueAddress", distance=${distance.toStringAsFixed(2)}km',
-          );
-          mosques.add(mosque);
-        }
-
-        // Remove duplicates based on name and proximity (within 100 meters)
-        final uniqueMosques = <MosqueModel>[];
-        final seenMosques = <String, MosqueModel>{};
-
-        for (final mosque in mosques) {
-          // Create a key based on name and rounded distance (to nearest 100m)
-          final distanceKey = (mosque.distance * 10).round() / 10; // Round to 0.1km
-          final key = '${mosque.name.toLowerCase()}_$distanceKey';
-
-          if (!seenMosques.containsKey(key)) {
-            seenMosques[key] = mosque;
-            uniqueMosques.add(mosque);
-          } else {
-            // If we already have a mosque with this name at this distance,
-            // keep the one with more information (has address, phone, etc.)
-            final existing = seenMosques[key]!;
-            final hasMoreInfo = (mosque.address != defaultAddress && existing.address == defaultAddress) ||
-                                (mosque.phone != null && existing.phone == null) ||
-                                (mosque.website != null && existing.website == null);
-
-            if (hasMoreInfo) {
-              // Replace with the one that has more information
-              uniqueMosques.remove(existing);
-              uniqueMosques.add(mosque);
-              seenMosques[key] = mosque;
+            // Check response status
+            if (response.statusCode == 200) {
               debugPrint(
-                'Mosque Finder: Replaced duplicate "$key" with more detailed version',
+                'Mosque Finder: ✓ Success with $endpoint on attempt $attempt',
               );
+              success = true;
+              break;
+            } else if (response.statusCode == 429) {
+              // Rate limited - try next endpoint immediately
+              lastError = 'Server busy (rate limited)';
+              debugPrint('Mosque Finder: Rate limited, trying next endpoint');
+              break;
+            } else if (response.statusCode == 504 ||
+                response.statusCode >= 500) {
+              // Server error - retry with delay
+              lastError = 'Server error (${response.statusCode})';
+              debugPrint('Mosque Finder: Server error ${response.statusCode}');
+              if (attempt < 2) {
+                await Future.delayed(Duration(seconds: attempt * 2));
+              }
             } else {
-              debugPrint(
-                'Mosque Finder: Skipped duplicate "$key"',
-              );
+              // Client error - don't retry this endpoint
+              lastError = 'Request failed (${response.statusCode})';
+              debugPrint('Mosque Finder: Client error ${response.statusCode}');
+              break;
+            }
+          } catch (e) {
+            lastError = e.toString();
+            debugPrint(
+              'Mosque Finder: Error on $endpoint attempt $attempt: $e',
+            );
+            if (attempt < 2) {
+              // Exponential backoff before retry
+              await Future.delayed(Duration(seconds: attempt * 2));
             }
           }
         }
 
-        debugPrint('Mosque Finder: After deduplication: ${uniqueMosques.length} unique mosques');
-
-        // Sort by distance
-        uniqueMosques.sort((a, b) => a.distance.compareTo(b.distance));
-
-        debugPrint('Mosque Finder: Processing Summary:');
-        debugPrint('  - Total elements from API: ${elements.length}');
-        debugPrint('  - Skipped (no tags): $skippedNoTags');
-        debugPrint('  - Skipped (duplicates by ID/coords): $skippedDuplicates');
-        debugPrint('  - Skipped (no coordinates): $skippedNoCoords');
-        debugPrint('  - Initially processed: ${mosques.length} mosques');
-        debugPrint('  - After name/distance dedup: ${uniqueMosques.length} unique mosques');
-
-        if (!mounted) return;
-        setState(() {
-          _mosques = uniqueMosques;
-          _isLoading = false;
-        });
-      } else {
-        final errorMsg = 'API Error: Status ${response.statusCode}';
-        debugPrint('Mosque Finder: $errorMsg');
-        debugPrint('Response body: ${response.body}');
-        if (!mounted) return;
-        setState(() {
-          _error = errorMsg;
-          _isLoading = false;
-        });
+        // If successful, break out of endpoint loop
+        if (success) break;
       }
+
+      // If all attempts failed, throw error
+      if (!success || response == null || response.statusCode != 200) {
+        throw Exception(lastError ?? 'All servers are currently unavailable');
+      }
+
+      // Parse successful response
+      final data = json.decode(response.body);
+      final elements = data['elements'] as List? ?? [];
+
+      debugPrint('Mosque Finder: Found ${elements.length} elements from API');
+
+      final mosques = <MosqueModel>[];
+      final processedIds = <String>{};
+      final processedCoords = <String>{};
+      int skippedNoTags = 0;
+      int skippedDuplicates = 0;
+      int skippedNoCoords = 0;
+
+      for (final element in elements) {
+        final tags = element['tags'];
+        final elementType = element['type'];
+        final id = element['id'].toString();
+
+        // Skip elements without tags (these are way nodes, not actual POIs)
+        if (tags == null || tags.isEmpty) {
+          skippedNoTags++;
+          continue;
+        }
+
+        // Get lat/lon - handle both nodes and ways
+        double? lat;
+        double? lon;
+
+        if (element['lat'] != null && element['lon'] != null) {
+          // Node element
+          lat = element['lat'].toDouble();
+          lon = element['lon'].toDouble();
+        } else if (element['center'] != null) {
+          // Way element with center
+          lat = element['center']['lat']?.toDouble();
+          lon = element['center']['lon']?.toDouble();
+        }
+
+        // Skip if no coordinates available
+        if (lat == null || lon == null) {
+          skippedNoCoords++;
+          final name = tags['name'] ?? tags['name:en'] ?? 'Unknown';
+          debugPrint(
+            'Mosque Finder: Skipped $elementType $id "$name" - no coordinates (has center: ${element['center'] != null})',
+          );
+          continue;
+        }
+
+        // Create composite key using element type + ID (OSM IDs are unique per type)
+        final compositeId = '$elementType:$id';
+
+        // Create coordinate key rounded to 5 decimal places (~1 meter precision)
+        final coordKey = '${lat.toStringAsFixed(5)},${lon.toStringAsFixed(5)}';
+
+        // Skip if we've already processed this element (by composite ID or coordinates)
+        if (processedIds.contains(compositeId) ||
+            processedCoords.contains(coordKey)) {
+          skippedDuplicates++;
+          debugPrint(
+            'Mosque Finder: Skipped duplicate - type=$elementType, id=$id, coords=$coordKey',
+          );
+          continue;
+        }
+
+        processedIds.add(compositeId);
+        processedCoords.add(coordKey);
+
+        // Try to get name in current language, fallback to default languages
+        final rawName =
+            tags[osmLangTag] ??
+            tags['name:$currentLang'] ??
+            tags['name'] ??
+            tags['name:en'] ??
+            defaultMosqueName;
+
+        // Transliterate name if not in English
+        final name = currentLang == 'en'
+            ? rawName
+            : _transliterateName(rawName, currentLang);
+
+        final distanceInMeters = _locationService.calculateDistance(
+          _currentPosition!.latitude,
+          _currentPosition!.longitude,
+          lat,
+          lon,
+        );
+        final distance = distanceInMeters / 1000; // Convert to kilometers
+
+        final mosqueAddress = _buildAddress(tags, defaultAddress, currentLang);
+        final mosque = MosqueModel(
+          id: id,
+          name: name,
+          address: mosqueAddress,
+          latitude: lat,
+          longitude: lon,
+          distance: distance,
+          phone: tags['phone'] ?? tags['contact:phone'],
+          website: tags['website'] ?? tags['contact:website'],
+          openingHours: tags['opening_hours'],
+        );
+
+        debugPrint(
+          'Adding mosque: name="$name", address="$mosqueAddress", distance=${distance.toStringAsFixed(2)}km',
+        );
+        mosques.add(mosque);
+      }
+
+      // Remove duplicates based on name and proximity (within 100 meters)
+      final uniqueMosques = <MosqueModel>[];
+      final seenMosques = <String, MosqueModel>{};
+
+      for (final mosque in mosques) {
+        // Create a key based on name and rounded distance (to nearest 100m)
+        final distanceKey =
+            (mosque.distance * 10).round() / 10; // Round to 0.1km
+        final key = '${mosque.name.toLowerCase()}_$distanceKey';
+
+        if (!seenMosques.containsKey(key)) {
+          seenMosques[key] = mosque;
+          uniqueMosques.add(mosque);
+        } else {
+          // If we already have a mosque with this name at this distance,
+          // keep the one with more information (has address, phone, etc.)
+          final existing = seenMosques[key]!;
+          final hasMoreInfo =
+              (mosque.address != defaultAddress &&
+                  existing.address == defaultAddress) ||
+              (mosque.phone != null && existing.phone == null) ||
+              (mosque.website != null && existing.website == null);
+
+          if (hasMoreInfo) {
+            // Replace with the one that has more information
+            uniqueMosques.remove(existing);
+            uniqueMosques.add(mosque);
+            seenMosques[key] = mosque;
+            debugPrint(
+              'Mosque Finder: Replaced duplicate "$key" with more detailed version',
+            );
+          } else {
+            debugPrint('Mosque Finder: Skipped duplicate "$key"');
+          }
+        }
+      }
+
+      debugPrint(
+        'Mosque Finder: After deduplication: ${uniqueMosques.length} unique mosques',
+      );
+
+      // Sort by distance
+      uniqueMosques.sort((a, b) => a.distance.compareTo(b.distance));
+
+      debugPrint('Mosque Finder: Processing Summary:');
+      debugPrint('  - Total elements from API: ${elements.length}');
+      debugPrint('  - Skipped (no tags): $skippedNoTags');
+      debugPrint('  - Skipped (duplicates by ID/coords): $skippedDuplicates');
+      debugPrint('  - Skipped (no coordinates): $skippedNoCoords');
+      debugPrint('  - Initially processed: ${mosques.length} mosques');
+      debugPrint(
+        '  - After name/distance dedup: ${uniqueMosques.length} unique mosques',
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _mosques = uniqueMosques;
+        _isLoading = false;
+      });
     } catch (e, stackTrace) {
       debugPrint('Mosque Finder Error: $e');
       debugPrint('Stack trace: $stackTrace');
+
+      // Provide user-friendly error messages
+      String userFriendlyError;
+      if (e.toString().contains('Timeout')) {
+        userFriendlyError =
+            'Connection timeout. Please check your internet and try again.';
+      } else if (e.toString().contains('SocketException') ||
+          e.toString().contains('Network')) {
+        userFriendlyError =
+            'No internet connection. Please check your network.';
+      } else if (e.toString().contains('rate limited')) {
+        userFriendlyError =
+            'Service is busy. Please wait a moment and try again.';
+      } else if (e.toString().contains('Server error')) {
+        userFriendlyError = 'Server temporarily unavailable. Please try again.';
+      } else if (e.toString().contains('unavailable')) {
+        userFriendlyError =
+            'Service temporarily unavailable. Pull down to retry.';
+      } else {
+        userFriendlyError = 'Unable to load mosques. Pull down to retry.';
+      }
+
       if (!mounted) return;
       setState(() {
-        _error = 'Failed to load mosques: $e';
+        _error = userFriendlyError;
         _isLoading = false;
       });
     }
   }
 
   String _transliterateName(String name, String currentLang) {
-    // If already in target language or is default placeholder, return as is
-    if (name.contains('मस्जिद') ||
-        name.contains('مسجد') ||
-        name.contains('Mosque')) {
+    // If already in target language, return as is
+    if (name.contains('मस्जिद') || name.contains('مسجد')) {
       return name;
+    }
+
+    // Replace English word "Mosque" with target language equivalent
+    String translatedName = name;
+    if (currentLang == 'hi') {
+      translatedName = translatedName
+          .replaceAll('Mosque', 'मस्जिद')
+          .replaceAll('mosque', 'मस्जिद')
+          .replaceAll('MOSQUE', 'मस्जिद')
+          .replaceAll('Masjid', 'मस्जिद')
+          .replaceAll('masjid', 'मस्जिद');
+    } else if (currentLang == 'ur') {
+      translatedName = translatedName
+          .replaceAll('Mosque', 'مسجد')
+          .replaceAll('mosque', 'مسجد')
+          .replaceAll('MOSQUE', 'مسجد')
+          .replaceAll('Masjid', 'مسجد')
+          .replaceAll('masjid', 'مسجد');
+    } else if (currentLang == 'ar') {
+      translatedName = translatedName
+          .replaceAll('Mosque', 'مسجد')
+          .replaceAll('mosque', 'مسجد')
+          .replaceAll('MOSQUE', 'مسجد')
+          .replaceAll('Masjid', 'مسجد')
+          .replaceAll('masjid', 'مسجد');
     }
 
     // Simple transliteration maps for common letters
     if (currentLang == 'hi') {
-      return name
+      // First replace common English words in mosque names
+      translatedName = translatedName
+          .replaceAll('Town', 'टाउन')
+          .replaceAll('town', 'टाउन')
+          .replaceAll('City', 'शहर')
+          .replaceAll('city', 'शहर')
+          .replaceAll('Central', 'केंद्रीय')
+          .replaceAll('central', 'केंद्रीय')
+          .replaceAll('Grand', 'बड़ी')
+          .replaceAll('grand', 'बड़ी')
+          .replaceAll('Jamia', 'जामिआ')
+          .replaceAll('Jama', 'जामा')
+          .replaceAll('Islamic', 'इस्लामिक')
+          .replaceAll('islamic', 'इस्लामिक')
+          .replaceAll('Main', 'मुख्य')
+          .replaceAll('main', 'मुख्य');
+
+      return translatedName
           .replaceAll('A', 'ए')
           .replaceAll('B', 'बी')
           .replaceAll('C', 'सी')
@@ -394,7 +530,24 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
           .replaceAll('y', 'य')
           .replaceAll('z', 'ज');
     } else if (currentLang == 'ur') {
-      return name
+      // First replace common English words in mosque names
+      translatedName = translatedName
+          .replaceAll('Town', 'ٹاؤن')
+          .replaceAll('town', 'ٹاؤن')
+          .replaceAll('City', 'شہر')
+          .replaceAll('city', 'شہر')
+          .replaceAll('Central', 'مرکزی')
+          .replaceAll('central', 'مرکزی')
+          .replaceAll('Grand', 'بڑی')
+          .replaceAll('grand', 'بڑی')
+          .replaceAll('Jamia', 'جامعہ')
+          .replaceAll('Jama', 'جامع')
+          .replaceAll('Islamic', 'اسلامی')
+          .replaceAll('islamic', 'اسلامی')
+          .replaceAll('Main', 'مرکزی')
+          .replaceAll('main', 'مرکزی');
+
+      return translatedName
           .replaceAll('A', 'اے')
           .replaceAll('B', 'بی')
           .replaceAll('C', 'سی')
@@ -422,7 +575,24 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
           .replaceAll('Y', 'وائی')
           .replaceAll('Z', 'زیڈ');
     } else if (currentLang == 'ar') {
-      return name
+      // First replace common English words in mosque names
+      translatedName = translatedName
+          .replaceAll('Town', 'بلدة')
+          .replaceAll('town', 'بلدة')
+          .replaceAll('City', 'مدينة')
+          .replaceAll('city', 'مدينة')
+          .replaceAll('Central', 'مركزي')
+          .replaceAll('central', 'مركزي')
+          .replaceAll('Grand', 'كبير')
+          .replaceAll('grand', 'كبير')
+          .replaceAll('Jamia', 'جامع')
+          .replaceAll('Jama', 'جامع')
+          .replaceAll('Islamic', 'إسلامي')
+          .replaceAll('islamic', 'إسلامي')
+          .replaceAll('Main', 'رئيسي')
+          .replaceAll('main', 'رئيسي');
+
+      return translatedName
           .replaceAll('A', 'ا')
           .replaceAll('B', 'ب')
           .replaceAll('C', 'س')
@@ -451,7 +621,7 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
           .replaceAll('Z', 'ز');
     }
 
-    return name; // Return original for English
+    return translatedName; // Return translated name for all languages
   }
 
   String _buildAddress(
@@ -561,6 +731,8 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
                             fontSize: responsive.textLarge,
                             fontWeight: FontWeight.bold,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         SizedBox(height: responsive.spaceXSmall),
                         Container(
@@ -574,12 +746,15 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
                               responsive.radiusMedium,
                             ),
                           ),
-                          child: Text(
-                            '${_formatDistance(mosque.distance)} ${context.tr('away')}',
-                            style: TextStyle(
-                              color: AppColors.secondaryDark,
-                              fontWeight: FontWeight.w600,
-                              fontSize: responsive.textSmall,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              '${_formatDistance(mosque.distance)} ${context.tr('away')}',
+                              style: TextStyle(
+                                color: AppColors.secondaryDark,
+                                fontWeight: FontWeight.w600,
+                                fontSize: responsive.textSmall,
+                              ),
                             ),
                           ),
                         ),
@@ -649,8 +824,16 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
     return Padding(
       padding: responsive.paddingOnly(bottom: 12),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: responsive.iconSmall, color: Colors.grey[600]),
+          Padding(
+            padding: EdgeInsets.only(top: responsive.spacing(2)),
+            child: Icon(
+              icon,
+              size: responsive.iconSmall,
+              color: Colors.grey[600],
+            ),
+          ),
           SizedBox(width: responsive.spaceMedium),
           Expanded(
             child: Text(
@@ -659,6 +842,8 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
                 color: Colors.grey[700],
                 fontSize: responsive.textMedium,
               ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -813,7 +998,7 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
+            blurRadius: 10.0,
             offset: const Offset(0, 2),
           ),
         ],
@@ -836,7 +1021,7 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
                   boxShadow: [
                     BoxShadow(
                       color: darkGreen.withValues(alpha: 0.3),
-                      blurRadius: responsive.spacing(8),
+                      blurRadius: 8,
                       offset: Offset(0, responsive.spacing(2)),
                     ),
                   ],
@@ -850,29 +1035,14 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
               SizedBox(width: responsive.spaceMedium),
               // Mosque info
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      mosque.name,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: responsive.fontSize(15),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: responsive.spaceXSmall),
-                    Text(
-                      mosque.address,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: responsive.textSmall,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                child: Text(
+                  mosque.name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: responsive.fontSize(15),
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               SizedBox(width: responsive.spaceSmall),

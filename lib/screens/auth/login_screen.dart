@@ -3,11 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_assets.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
-import '../../core/utils/validators.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/auth/auth_text_field.dart';
+import '../../widgets/auth/phone_number_field.dart';
 import '../../screens/main/main_screen.dart';
 import 'signup_screen.dart';
 import '../../core/services/otp_service.dart';
@@ -23,21 +22,64 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isPhoneInput = false; // Auto-detect if input is phone number
+  String _completePhoneNumber = '';
+  bool _isTransitioning = false; // Flag to prevent immediate switch back
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.addListener(_detectInputType);
+  }
 
   @override
   void dispose() {
+    _emailController.removeListener(_detectInputType);
     _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void _detectInputType() {
+    final text = _emailController.text.trim();
+    // Check if input starts with numbers (phone number)
+    final startsWithNumber =
+        text.isNotEmpty && RegExp(r'^[0-9+]').hasMatch(text);
+    if (startsWithNumber && !_isPhoneInput && !_isTransitioning) {
+      // Remove listener temporarily to prevent loop
+      _emailController.removeListener(_detectInputType);
+      _isTransitioning = true;
+      _emailController.clear();
+      setState(() {
+        _isPhoneInput = true;
+      });
+      // Re-add listener after state change
+      _emailController.addListener(_detectInputType);
+      // Reset transition flag after a short delay
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _isTransitioning = false;
+      });
+    }
   }
 
   Future<void> _signInWithEmail() async {
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = context.read<AuthProvider>();
+
+    // Clear any previous errors
+    authProvider.clearError();
+
+    // Get email or phone based on input type
+    final emailOrPhone = _isPhoneInput
+        ? _completePhoneNumber
+        : _emailController.text.trim();
+
     final success = await authProvider.signInWithEmail(
-      email: _emailController.text.trim(),
+      email: emailOrPhone,
       password: _passwordController.text,
       context: context,
     );
@@ -51,12 +93,16 @@ class _LoginScreenState extends State<LoginScreen> {
         (route) => false,
       );
     } else {
-      // Show error
+      // Error is automatically set in AuthProvider and will be displayed
+      // Scroll to top to make error visible
       if (authProvider.error != null) {
+        // Optional: Show snackbar for additional feedback
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(authProvider.error!),
             backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 4),
           ),
         );
       }
@@ -73,13 +119,6 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const MainScreen()),
         (route) => false,
-      );
-    } else if (authProvider.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(authProvider.error!),
-          backgroundColor: Colors.red,
-        ),
       );
     }
   }
@@ -101,25 +140,14 @@ class _LoginScreenState extends State<LoginScreen> {
             return Dialog(
               backgroundColor: Colors.transparent,
               child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: isDark
-                        ? [const Color(0xFF5C6BC0), const Color(0xFF7986CB)]
-                        : [const Color(0xFF81C784), const Color(0xFF66BB6A)],
+                constraints: BoxConstraints(
+                  maxWidth: responsive.value(
+                    mobile: responsive.screenWidth * 0.9,
+                    tablet: 600,
                   ),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: isDark
-                          ? const Color(0x40000000)
-                          : const Color(0x3081C784),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
+                  maxHeight: responsive.screenHeight * 0.85,
                 ),
+                decoration: AppDecorations.gradient(context),
                 padding: responsive.paddingAll(32),
                 child: Form(
                   key: formKey,
@@ -139,54 +167,43 @@ class _LoginScreenState extends State<LoginScreen> {
                         // Icon
                         Center(
                           child: Container(
-                            width: responsive.iconSize(100),
-                            height: responsive.iconSize(100),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withAlpha(50),
-                                  blurRadius: 15,
-                                  offset: const Offset(0, 5),
-                                ),
-                              ],
-                            ),
+                            width: responsive.spacing(100),
+                            height: responsive.spacing(100),
+                            decoration: AppDecorations.circularIcon(context),
                             child: Icon(
                               Icons.lock_reset,
-                              size: responsive.iconXXLarge,
+                              size: responsive.iconSize(48),
                               color: isDark
                                   ? const Color(0xFF5C6BC0)
                                   : const Color(0xFF4CAF50),
                             ),
                           ),
                         ),
-                        SizedBox(height: responsive.spaceLarge),
+                        SizedBox(height: responsive.spacing(20)),
                         // Title
                         Center(
                           child: Text(
                             context.tr('reset_password'),
                             style: TextStyle(
-                              fontSize: responsive.textXXLarge,
+                              fontSize: responsive.fontSize(24),
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
                           ),
                         ),
-                        SizedBox(height: responsive.spaceSmall),
+                        SizedBox(height: responsive.spacing(8)),
                         // Instructions
                         Center(
                           child: Text(
                             context.tr('reset_password_instructions'),
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: responsive.textMedium,
-                              color: Colors.white.withAlpha(230),
-                              height: 1.5,
+                              fontSize: responsive.fontSize(16),
+                              color: const Color(0xE6FFFFFF),
                             ),
                           ),
                         ),
-                        SizedBox(height: responsive.spaceLarge),
+                        SizedBox(height: responsive.spacing(20)),
                         // Email Field
                         AuthTextField(
                           controller: emailController,
@@ -197,11 +214,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           validator: (value) =>
                               Validators.validateEmail(value, context),
                         ),
-                        SizedBox(height: responsive.spaceLarge),
+                        SizedBox(height: responsive.spacing(20)),
                         // Send Reset Link Button
                         SizedBox(
                           width: double.infinity,
-                          height: 56,
+                          height: responsive.spacing(56),
                           child: ElevatedButton(
                             onPressed: isLoading
                                 ? null
@@ -217,37 +234,25 @@ class _LoginScreenState extends State<LoginScreen> {
                                           .trim()
                                           .toLowerCase();
 
-                                      // Check if email exists in Firestore by querying email field
-                                      final userQuery = await FirebaseFirestore
-                                          .instance
-                                          .collection('users')
-                                          .where('email', isEqualTo: email)
-                                          .limit(1)
-                                          .get();
-
-                                      if (userQuery.docs.isEmpty) {
-                                        setState(() => isLoading = false);
+                                      // Validate email format
+                                      if (!email.contains('@') ||
+                                          !email.contains('.')) {
                                         if (!context.mounted) return;
-
-                                        // Show error message
                                         ScaffoldMessenger.of(
                                           context,
                                         ).showSnackBar(
                                           SnackBar(
                                             content: Text(
-                                              context.tr(
-                                                'email_not_registered',
-                                              ),
+                                              context.tr('email_invalid'),
                                             ),
                                             backgroundColor: Colors.red,
-                                            duration: const Duration(
-                                              seconds: 3,
-                                            ),
                                           ),
                                         );
+                                        setState(() => isLoading = false);
                                         return;
                                       }
 
+                                      // Send OTP directly - Firebase will handle if email doesn't exist
                                       await OtpService.sendOtp(email);
 
                                       setState(() => isLoading = false);
@@ -262,18 +267,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                     } catch (e) {
                                       setState(() => isLoading = false);
                                       if (!context.mounted) return;
-
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Error: ${e.toString()}',
-                                          ),
-                                          backgroundColor: Colors.red,
-                                          duration: const Duration(seconds: 3),
-                                        ),
-                                      );
                                     }
                                   },
                             style: ElevatedButton.styleFrom(
@@ -296,14 +289,14 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             child: isLoading
-                                ? const CircularProgressIndicator(
+                                ? CircularProgressIndicator(
                                     color: Colors.white,
-                                    strokeWidth: 3,
+                                    strokeWidth: responsive.spacing(3),
                                   )
                                 : Text(
                                     context.tr('send_reset_link'),
                                     style: TextStyle(
-                                      fontSize: responsive.textLarge,
+                                      fontSize: responsive.fontSize(18),
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -327,7 +320,6 @@ class _LoginScreenState extends State<LoginScreen> {
     bool isLoading = false;
     String? generatedOtp;
     bool loadingOtp = true;
-    String? errorMessage;
 
     // Fetch OTP from Firestore
     Future<void> fetchGeneratedOtp(
@@ -396,25 +388,14 @@ class _LoginScreenState extends State<LoginScreen> {
             return Dialog(
               backgroundColor: Colors.transparent,
               child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: isDark
-                        ? [const Color(0xFF5C6BC0), const Color(0xFF7986CB)]
-                        : [const Color(0xFF81C784), const Color(0xFF66BB6A)],
+                constraints: BoxConstraints(
+                  maxWidth: responsive.value(
+                    mobile: responsive.screenWidth * 0.9,
+                    tablet: 600,
                   ),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: isDark
-                          ? const Color(0x40000000)
-                          : const Color(0x3081C784),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
+                  maxHeight: responsive.screenHeight * 0.85,
                 ),
+                decoration: AppDecorations.gradient(context),
                 padding: responsive.paddingAll(32),
                 child: SingleChildScrollView(
                   child: Column(
@@ -430,76 +411,67 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       // Icon
                       Container(
-                        width: responsive.iconSize(100),
-                        height: responsive.iconSize(100),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withAlpha(50),
-                              blurRadius: 15,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
+                        width: responsive.spacing(100),
+                        height: responsive.spacing(100),
+                        decoration: AppDecorations.circularIcon(context),
                         child: Icon(
                           Icons.mail_lock,
-                          size: responsive.iconXXLarge,
+                          size: responsive.iconSize(48),
                           color: isDark
                               ? const Color(0xFF5C6BC0)
                               : const Color(0xFF4CAF50),
                         ),
                       ),
-                      SizedBox(height: responsive.spaceLarge),
+                      SizedBox(height: responsive.spacing(20)),
                       // Title
                       Text(
                         context.tr('verify_otp'),
                         style: TextStyle(
-                          fontSize: responsive.textXXLarge,
+                          fontSize: responsive.fontSize(24),
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
-                      SizedBox(height: responsive.spaceSmall),
+                      SizedBox(height: responsive.spacing(8)),
                       // Instructions
                       Text(
                         '${context.tr('enter_4_digit_code_sent_to')}\n$email',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: responsive.textMedium,
-                          color: Colors.white.withAlpha(230),
-                          height: 1.5,
+                          fontSize: responsive.fontSize(16),
+                          color: const Color(0xE6FFFFFF),
                         ),
                       ),
-                      SizedBox(height: responsive.spaceMedium),
+                      SizedBox(height: responsive.spacing(12)),
                       // Display Generated OTP
                       if (loadingOtp)
                         Column(
                           children: [
-                            const CircularProgressIndicator(
+                            CircularProgressIndicator(
                               color: Colors.white,
-                              strokeWidth: 2,
+                              strokeWidth: responsive.spacing(2),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: responsive.spacing(8)),
                             Text(
                               context.tr('loading_otp'),
                               style: TextStyle(
-                                color: Colors.white.withAlpha(204),
-                                fontSize: 12,
+                                fontSize: responsive.fontSize(12),
+                                color: const Color(0xB3FFFFFF),
                               ),
                             ),
                           ],
                         )
                       else if (generatedOtp != null)
                         Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: responsive.paddingAll(16),
                           decoration: BoxDecoration(
                             color: Colors.white.withAlpha(25),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(
+                              responsive.borderRadius(12),
+                            ),
                             border: Border.all(
                               color: Colors.white.withAlpha(76),
-                              width: 1,
+                              width: responsive.spacing(1),
                             ),
                           ),
                           child: Column(
@@ -510,63 +482,65 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Icon(
                                     Icons.visibility,
                                     color: Colors.white.withAlpha(204),
-                                    size: 16,
+                                    size: responsive.iconSize(16),
                                   ),
-                                  const SizedBox(width: 8),
+                                  SizedBox(width: responsive.spacing(8)),
                                   Text(
                                     context.tr('your_otp_code'),
                                     style: TextStyle(
                                       color: Colors.white.withAlpha(204),
-                                      fontSize: 12,
+                                      fontSize: responsive.fontSize(12),
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: responsive.spacing(8)),
                               Text(
                                 generatedOtp!,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 32,
+                                  fontSize: responsive.fontSize(32),
                                   fontWeight: FontWeight.bold,
-                                  letterSpacing: 8,
+                                  letterSpacing: responsive.spacing(8),
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              SizedBox(height: responsive.spacing(4)),
                               Text(
                                 context.tr('copy_code_below'),
                                 style: TextStyle(
                                   color: Colors.white.withAlpha(153),
-                                  fontSize: 11,
+                                  fontSize: responsive.fontSize(11),
                                 ),
                               ),
                               if (generatedOtp!.contains('Error') ||
                                   generatedOtp!.contains('Unable'))
                                 Padding(
-                                  padding: const EdgeInsets.only(top: 12),
+                                  padding: EdgeInsets.only(
+                                    top: responsive.spacing(12),
+                                  ),
                                   child: TextButton.icon(
                                     onPressed: () =>
                                         fetchGeneratedOtp(setState),
-                                    icon: const Icon(
+                                    icon: Icon(
                                       Icons.refresh,
                                       color: Colors.white,
-                                      size: 16,
+                                      size: responsive.iconSize(16),
                                     ),
                                     label: Text(
                                       context.tr('retry'),
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 12,
+                                        fontSize: responsive.fontSize(12),
                                       ),
                                     ),
                                     style: TextButton.styleFrom(
                                       backgroundColor: Colors.white.withAlpha(
                                         25,
                                       ),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 8,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: responsive.spacing(16),
+                                        vertical: responsive.spacing(8),
                                       ),
                                     ),
                                   ),
@@ -574,22 +548,22 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                         ),
-                      SizedBox(height: responsive.spaceLarge),
+                      SizedBox(height: responsive.spacing(20)),
                       // OTP Input Fields
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: List.generate(4, (index) {
                           return SizedBox(
-                            width: 60,
-                            height: 70,
+                            width: responsive.spacing(60),
+                            height: responsive.spacing(70),
                             child: TextField(
                               controller: controllers[index],
                               focusNode: focusNodes[index],
                               textAlign: TextAlign.center,
                               keyboardType: TextInputType.number,
                               maxLength: 1,
-                              style: const TextStyle(
-                                fontSize: 24,
+                              style: TextStyle(
+                                fontSize: responsive.fontSize(24),
                                 fontWeight: FontWeight.bold,
                               ),
                               inputFormatters: [
@@ -600,20 +574,26 @@ class _LoginScreenState extends State<LoginScreen> {
                                 filled: true,
                                 fillColor: Colors.white,
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(
+                                    responsive.borderRadius(12),
+                                  ),
                                   borderSide: BorderSide.none,
                                 ),
                                 enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(
+                                    responsive.borderRadius(12),
+                                  ),
                                   borderSide: BorderSide.none,
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(
+                                    responsive.borderRadius(12),
+                                  ),
                                   borderSide: BorderSide(
                                     color: isDark
                                         ? const Color(0xFF5C6BC0)
                                         : const Color(0xFF4CAF50),
-                                    width: 2,
+                                    width: responsive.spacing(2),
                                   ),
                                 ),
                               ),
@@ -621,7 +601,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 if (value.length == 1 && index < 3) {
                                   focusNodes[index + 1].requestFocus();
                                 }
-                                setState(() => errorMessage = null);
                               },
                               onTap: () {
                                 controllers[index].selection =
@@ -635,21 +614,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           );
                         }),
                       ),
-                      if (errorMessage != null) ...[
-                        SizedBox(height: responsive.spaceSmall),
-                        Text(
-                          errorMessage!,
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                      SizedBox(height: responsive.spaceLarge),
+                      SizedBox(height: responsive.spacing(20)),
                       // Verify Button
                       SizedBox(
                         width: double.infinity,
-                        height: 56,
+                        height: responsive.spacing(56),
                         child: ElevatedButton(
                           onPressed: isLoading
                               ? null
@@ -659,16 +628,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                       .join();
 
                                   if (otp.length != 4) {
-                                    setState(() {
-                                      errorMessage =
-                                          'Please enter complete OTP';
-                                    });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          context.tr('enter_complete_otp'),
+                                        ),
+                                        backgroundColor: Colors.red,
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
                                     return;
                                   }
 
                                   setState(() {
                                     isLoading = true;
-                                    errorMessage = null;
                                   });
 
                                   try {
@@ -688,52 +661,61 @@ class _LoginScreenState extends State<LoginScreen> {
                                     } else {
                                       setState(() {
                                         isLoading = false;
-                                        errorMessage =
-                                            result['error'] ??
-                                            'Invalid OTP. Please try again.';
                                       });
+
+                                      if (!context.mounted) return;
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            result['error'] ??
+                                                'Invalid OTP. Please try again.',
+                                          ),
+                                          backgroundColor: Colors.red,
+                                          behavior: SnackBarBehavior.floating,
+                                        ),
+                                      );
                                     }
                                   } catch (e) {
                                     setState(() {
                                       isLoading = false;
-                                      errorMessage = 'Error: ${e.toString()}';
                                     });
+
+                                    if (!context.mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Error: ${e.toString()}'),
+                                        backgroundColor: Colors.red,
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
                                   }
                                 },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: isLoading
-                                ? const Color(0xFFFFD700)
-                                : (isDark
-                                      ? const Color(0xFF5C6BC0)
-                                      : const Color(0xFF4CAF50)),
-                            elevation: 8,
-                            shadowColor: Colors.black.withAlpha(80),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              side: isLoading
-                                  ? const BorderSide(
-                                      color: Color(0xFFFFD700),
-                                      width: 2,
-                                    )
-                                  : BorderSide.none,
-                            ),
+                          style: AppButtonStyles.white(
+                            context,
+                            border: isLoading
+                                ? const BorderSide(
+                                    color: Color(0xFFFFD700),
+                                    width: 2,
+                                  )
+                                : null,
                           ),
                           child: isLoading
-                              ? const CircularProgressIndicator(
+                              ? CircularProgressIndicator(
                                   color: Colors.white,
-                                  strokeWidth: 3,
+                                  strokeWidth: responsive.spacing(3),
                                 )
                               : Text(
                                   context.tr('verify_otp'),
-                                  style: const TextStyle(
-                                    fontSize: 18,
+                                  style: TextStyle(
+                                    fontSize: responsive.fontSize(18),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                         ),
                       ),
-                      SizedBox(height: responsive.spaceMedium),
+                      SizedBox(height: responsive.spacing(12)),
                       // Resend OTP
                       TextButton(
                         onPressed: () async {
@@ -755,10 +737,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                         child: Text(
                           context.tr('resend_otp'),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
                             fontWeight: FontWeight.w600,
+                            fontSize: responsive.fontSize(16),
                           ),
                         ),
                       ),
@@ -791,25 +773,7 @@ class _LoginScreenState extends State<LoginScreen> {
             return Dialog(
               backgroundColor: Colors.transparent,
               child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: isDark
-                        ? [const Color(0xFF5C6BC0), const Color(0xFF7986CB)]
-                        : [const Color(0xFF81C784), const Color(0xFF66BB6A)],
-                  ),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: isDark
-                          ? const Color(0x40000000)
-                          : const Color(0x3081C784),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
+                decoration: AppDecorations.gradient(context),
                 padding: responsive.paddingAll(32),
                 child: Form(
                   key: formKey,
@@ -827,49 +791,48 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         // Icon
                         Container(
-                          width: responsive.iconSize(100),
-                          height: responsive.iconSize(100),
+                          width: responsive.spacing(100),
+                          height: responsive.spacing(100),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withAlpha(50),
-                                blurRadius: 15,
-                                offset: const Offset(0, 5),
+                                blurRadius: responsive.spacing(15),
+                                offset: Offset(0, responsive.spacing(5)),
                               ),
                             ],
                           ),
                           child: Icon(
                             Icons.lock_open,
-                            size: responsive.iconXXLarge,
+                            size: responsive.iconSize(48),
                             color: isDark
                                 ? const Color(0xFF5C6BC0)
                                 : const Color(0xFF4CAF50),
                           ),
                         ),
-                        SizedBox(height: responsive.spaceLarge),
+                        SizedBox(height: responsive.spacing(20)),
                         // Title
                         Text(
                           context.tr('reset_password'),
                           style: TextStyle(
-                            fontSize: responsive.textXXLarge,
+                            fontSize: responsive.fontSize(24),
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
                         ),
-                        SizedBox(height: responsive.spaceSmall),
+                        SizedBox(height: responsive.spacing(8)),
                         // Instructions
                         Text(
                           '${context.tr('create_new_password_for')}\n$email',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: responsive.textMedium,
-                            color: Colors.white.withAlpha(230),
-                            height: 1.5,
+                            fontSize: responsive.fontSize(16),
+                            color: const Color(0xE6FFFFFF),
                           ),
                         ),
-                        SizedBox(height: responsive.spaceLarge),
+                        SizedBox(height: responsive.spacing(20)),
                         // New Password Field
                         AuthTextField(
                           controller: passwordController,
@@ -880,7 +843,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           validator: (value) =>
                               Validators.validatePassword(value, context),
                         ),
-                        SizedBox(height: responsive.spaceMedium),
+                        SizedBox(height: responsive.spacing(12)),
                         // Confirm Password Field
                         AuthTextField(
                           controller: confirmPasswordController,
@@ -895,11 +858,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 context,
                               ),
                         ),
-                        SizedBox(height: responsive.spaceLarge),
+                        SizedBox(height: responsive.spacing(20)),
                         // Reset Password Button
                         SizedBox(
                           width: double.infinity,
-                          height: 56,
+                          height: responsive.spacing(56),
                           child: ElevatedButton(
                             onPressed: isLoading
                                 ? null
@@ -910,15 +873,25 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                     setState(() => isLoading = true);
 
-                                    // Simulate API call
-                                    await Future.delayed(
-                                      const Duration(seconds: 2),
-                                    );
+                                    try {
+                                      final result =
+                                          await OtpService.resetPassword(
+                                            email,
+                                            passwordController.text,
+                                          );
 
-                                    if (!context.mounted) return;
+                                      setState(() => isLoading = false);
 
-                                    // Close reset password dialog
-                                    Navigator.pop(dialogContext);
+                                      if (!context.mounted) return;
+
+                                      if (result['success'] == true) {
+                                        // Close reset password dialog
+                                        Navigator.pop(dialogContext);
+                                      }
+                                    } catch (e) {
+                                      setState(() => isLoading = false);
+                                      if (!context.mounted) return;
+                                    }
                                   },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white,
@@ -930,24 +903,26 @@ class _LoginScreenState extends State<LoginScreen> {
                               elevation: 8,
                               shadowColor: Colors.black.withAlpha(80),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(
+                                  responsive.borderRadius(16),
+                                ),
                                 side: isLoading
-                                    ? const BorderSide(
-                                        color: Color(0xFFFFD700),
-                                        width: 2,
+                                    ? BorderSide(
+                                        color: const Color(0xFFFFD700),
+                                        width: responsive.spacing(2),
                                       )
                                     : BorderSide.none,
                               ),
                             ),
                             child: isLoading
-                                ? const CircularProgressIndicator(
+                                ? CircularProgressIndicator(
                                     color: Colors.white,
-                                    strokeWidth: 3,
+                                    strokeWidth: responsive.spacing(3),
                                   )
                                 : Text(
                                     context.tr('reset_password'),
                                     style: TextStyle(
-                                      fontSize: responsive.textLarge,
+                                      fontSize: responsive.fontSize(18),
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -968,26 +943,24 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final responsive = ResponsiveUtils(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: responsive.spacing(32),
+              height: responsive.spacing(32),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
               ),
-              padding: const EdgeInsets.all(4),
+              padding: responsive.paddingAll(4),
               child: Image.asset(AppAssets.appLogo, fit: BoxFit.contain),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: responsive.spacing(8)),
             Text(context.tr('sign_in')),
           ],
         ),
@@ -996,25 +969,7 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SingleChildScrollView(
           padding: responsive.paddingAll(24),
           child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: isDark
-                    ? [const Color(0xFF5C6BC0), const Color(0xFF7986CB)]
-                    : [const Color(0xFF81C784), const Color(0xFF66BB6A)],
-              ),
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: isDark
-                      ? const Color(0x40000000)
-                      : const Color(0x3081C784),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
+            decoration: AppDecorations.gradient(context),
             padding: responsive.paddingAll(32),
             child: Form(
               key: _formKey,
@@ -1024,53 +979,81 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Logo
                   Center(
                     child: Container(
-                      width: responsive.iconSize(100),
-                      height: responsive.iconSize(100),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(50),
-                            blurRadius: 15,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(4),
+                      width: responsive.spacing(100),
+                      height: responsive.spacing(100),
+                      decoration: AppDecorations.circularIcon(context),
+                      padding: responsive.paddingAll(4),
                       child: ClipOval(
                         child: Image.asset(
-                          'assets/images/Applogo.png',
+                          AppAssets.appLogo,
                           fit: BoxFit.cover,
                         ),
                       ),
                     ),
                   ),
-                  SizedBox(height: responsive.spaceLarge),
+                  SizedBox(height: responsive.spacing(20)),
                   // Welcome Back
                   Center(
                     child: Text(
                       context.tr('welcome_back'),
                       style: TextStyle(
-                        fontSize: responsive.textXXLarge,
+                        fontSize: responsive.fontSize(24),
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
                   ),
 
-                  SizedBox(height: responsive.spaceLarge),
-                  // Email Field
-                  AuthTextField(
-                    controller: _emailController,
-                    hintText: context.tr('enter_email'),
-                    labelText: context.tr('email'),
-                    prefixIcon: Icons.email_outlined,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) =>
-                        Validators.validateEmail(value, context),
-                  ),
-                  SizedBox(height: responsive.spaceMedium),
+                  SizedBox(height: responsive.spacing(20)),
+                  // Smart Email/Phone Input Field
+                  if (_isPhoneInput)
+                    Builder(
+                      builder: (ctx) {
+                        // Store translations before validator callback
+                        final mobileRequired = ctx.tr('mobile_required');
+                        final invalidMobile = ctx.tr('invalid_mobile');
+                        return PhoneNumberField(
+                          controller: _phoneController,
+                          labelText: ctx.tr('mobile_number'),
+                          hintText: ctx.tr('enter_mobile'),
+                          onChanged: (completeNumber) {
+                            _completePhoneNumber = completeNumber;
+                            // Switch back to email if phone is empty
+                            if (_phoneController.text.isEmpty &&
+                                !_isTransitioning) {
+                              setState(() {
+                                _isPhoneInput = false;
+                                _completePhoneNumber = '';
+                              });
+                            }
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return mobileRequired;
+                            }
+                            if (value.length < 10) {
+                              return invalidMobile;
+                            }
+                            return null;
+                          },
+                        );
+                      },
+                    )
+                  else
+                    AuthTextField(
+                      controller: _emailController,
+                      hintText: context.tr('enter_email_or_phone'),
+                      labelText: context.tr('email'),
+                      prefixIcon: Icons.email_outlined,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return context.tr('email_or_phone_required');
+                        }
+                        return Validators.validateEmail(value, context);
+                      },
+                    ),
+                  SizedBox(height: responsive.spacing(12)),
                   // Password Field
                   AuthTextField(
                     controller: _passwordController,
@@ -1081,7 +1064,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     validator: (value) =>
                         Validators.validatePassword(value, context),
                   ),
-                  SizedBox(height: responsive.spaceSmall),
+                  SizedBox(height: responsive.spacing(8)),
                   // Forgot Password
                   Align(
                     alignment: Alignment.centerRight,
@@ -1091,115 +1074,85 @@ class _LoginScreenState extends State<LoginScreen> {
                         context.tr('forgot_password'),
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: responsive.textMedium,
                           fontWeight: FontWeight.w600,
+                          fontSize: responsive.fontSize(16),
                         ),
                       ),
                     ),
                   ),
-                  SizedBox(height: responsive.spaceMedium),
+                  SizedBox(height: responsive.spacing(12)),
                   // Sign In Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: authProvider.isLoading
-                          ? null
-                          : _signInWithEmail,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: authProvider.isLoading
-                            ? const Color(0xFFFFD700)
-                            : (isDark
-                                  ? const Color(0xFF5C6BC0)
-                                  : const Color(0xFF4CAF50)),
-                        elevation: 8,
-                        shadowColor: Colors.black.withAlpha(80),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          side: authProvider.isLoading
+                  Consumer<AuthProvider>(
+                    builder: (context, authProvider, _) => SizedBox(
+                      width: double.infinity,
+                      height: responsive.spacing(56),
+                      child: ElevatedButton(
+                        onPressed: authProvider.isLoading
+                            ? null
+                            : _signInWithEmail,
+                        style: AppButtonStyles.white(
+                          context,
+                          border: authProvider.isLoading
                               ? const BorderSide(
                                   color: Color(0xFFFFD700),
                                   width: 2,
                                 )
-                              : BorderSide.none,
+                              : null,
                         ),
-                      ),
-                      child: authProvider.isLoading
-                          ? const CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 3,
-                            )
-                          : Text(
-                              context.tr('sign_in'),
-                              style: TextStyle(
-                                fontSize: responsive.textLarge,
-                                fontWeight: FontWeight.bold,
+                        child: authProvider.isLoading
+                            ? CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: responsive.spacing(3),
+                              )
+                            : Text(
+                                context.tr('sign_in'),
+                                style: TextStyle(
+                                  fontSize: responsive.fontSize(18),
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
+                      ),
                     ),
                   ),
-                  SizedBox(height: responsive.spaceLarge),
+                  SizedBox(height: responsive.spacing(20)),
                   // Divider with "Or"
-                  Row(
-                    children: [
-                      const Expanded(
-                        child: Divider(
-                          color: Color(0x80FFFFFF),
-                          thickness: 1.5,
+                  AppDecorations.dividerWithText(
+                    context,
+                    text: context.tr('or_continue_with'),
+                  ),
+                  SizedBox(height: responsive.spacing(20)),
+                  // Social Sign In Button
+                  Consumer<AuthProvider>(
+                    builder: (context, authProvider, _) => SizedBox(
+                      width: double.infinity,
+                      height: responsive.spacing(56),
+                      child: OutlinedButton.icon(
+                        onPressed: authProvider.isLoading
+                            ? null
+                            : _signInWithGoogle,
+                        style: AppButtonStyles.outlined(
+                          context,
+                          borderColor: Colors.white,
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.white.withAlpha(25),
                         ),
-                      ),
-                      Padding(
-                        padding: responsive.paddingSymmetric(horizontal: 16),
-                        child: Text(
-                          context.tr('or_continue_with'),
+                        icon: Icon(
+                          Icons.g_mobiledata,
+                          size: responsive.iconSize(24),
+                          color: Colors.white,
+                        ),
+                        label: Text(
+                          'Google',
                           style: TextStyle(
-                            color: const Color(0xE6FFFFFF),
-                            fontSize: responsive.textSmall,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: responsive.fontSize(16),
                           ),
                         ),
                       ),
-                      const Expanded(
-                        child: Divider(
-                          color: Color(0x80FFFFFF),
-                          thickness: 1.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: responsive.spaceLarge),
-                  // Social Sign In Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: OutlinedButton.icon(
-                      onPressed: authProvider.isLoading
-                          ? null
-                          : _signInWithGoogle,
-                      style: OutlinedButton.styleFrom(
-                        padding: responsive.paddingSymmetric(vertical: 12),
-                        backgroundColor: Colors.white.withAlpha(25),
-                        side: const BorderSide(color: Colors.white, width: 2),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      icon: const Icon(
-                        Icons.g_mobiledata,
-                        size: 24,
-                        color: Colors.white,
-                      ),
-                      label: const Text(
-                        'Google',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
                     ),
                   ),
-                  SizedBox(height: responsive.spaceLarge),
+                  SizedBox(height: responsive.spacing(20)),
                   // Sign Up Link
                   Center(
                     child: TextButton(
@@ -1214,7 +1167,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: RichText(
                         text: TextSpan(
                           style: TextStyle(
-                            fontSize: responsive.textMedium,
+                            fontSize: responsive.fontSize(16),
                             color: Colors.white,
                           ),
                           children: [

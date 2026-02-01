@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/language_provider.dart';
 import '../../data/models/dua_model.dart';
 import '../../widgets/common/search_bar_widget.dart';
+import '../../widgets/common/header_action_button.dart';
 
 class DuaDetailScreen extends StatefulWidget {
   final DuaModel dua;
@@ -45,20 +43,6 @@ class _DuaDetailScreenState extends State<DuaDetailScreen> {
     }
   }
 
-  // Helper method to get language name
-  String _getLanguageName(BuildContext context, DuaLanguage language) {
-    switch (language) {
-      case DuaLanguage.hindi:
-        return context.tr('hindi');
-      case DuaLanguage.urdu:
-        return context.tr('urdu');
-      case DuaLanguage.arabic:
-        return context.tr('arabic');
-      case DuaLanguage.english:
-        return context.tr('english');
-    }
-  }
-
   // Helper method to get Dua title based on language
   String _getDuaTitle(DuaModel dua, DuaLanguage language) {
     switch (language) {
@@ -67,7 +51,8 @@ class _DuaDetailScreenState extends State<DuaDetailScreen> {
       case DuaLanguage.hindi:
         return dua.titleHindi ?? dua.title;
       case DuaLanguage.arabic:
-        return dua.titleUrdu ?? dua.title; // Arabic users will see Urdu or English title
+        return dua.titleUrdu ??
+            dua.title; // Arabic users will see Urdu or English title
       case DuaLanguage.english:
         return dua.title;
     }
@@ -188,17 +173,7 @@ class _DuaDetailScreenState extends State<DuaDetailScreen> {
     }
 
     if (textToSpeak.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              showTranslation
-                  ? context.tr('no_translation_for_audio')
-                  : context.tr('no_arabic_text'),
-            ),
-          ),
-        );
-      }
+      if (mounted) {}
       return;
     }
 
@@ -239,31 +214,23 @@ class _DuaDetailScreenState extends State<DuaDetailScreen> {
 
   void _copyDua(DuaModel dua, DuaLanguage selectedLanguage) {
     final translation = dua.getTranslation(selectedLanguage);
-    final text =
-        '''
-${dua.arabic}
-${dua.transliteration}
-$translation
-— ${dua.getReference(selectedLanguage)}
-''';
-    Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(
+    ActionHelpers.copyFormattedContent(
       context,
-    ).showSnackBar(SnackBar(content: Text(context.tr('copied'))));
+      arabicText: dua.arabic,
+      translation: translation,
+      reference: dua.getReference(selectedLanguage),
+      title: _getDuaTitle(dua, selectedLanguage),
+    );
   }
 
   void _shareDua(DuaModel dua, DuaLanguage selectedLanguage) {
-    final shareText =
-        '''
-${_getDuaTitle(dua, selectedLanguage)}
-
-${dua.getTranslation(selectedLanguage)}
-
-${context.tr('reference')}: ${dua.getReference(selectedLanguage)}
-
-- ${context.tr('shared_from_app')}
-''';
-    Share.share(shareText);
+    final translation = dua.getTranslation(selectedLanguage);
+    ActionHelpers.shareFormattedContent(
+      arabicText: dua.arabic,
+      translation: translation,
+      reference: dua.getReference(selectedLanguage),
+      title: _getDuaTitle(dua, selectedLanguage),
+    );
   }
 
   @override
@@ -292,14 +259,13 @@ ${context.tr('reference')}: ${dua.getReference(selectedLanguage)}
           style: TextStyle(
             fontSize: responsive.textLarge,
             fontWeight: FontWeight.bold,
-            fontFamily: selectedLanguage == DuaLanguage.urdu
-                ? 'NotoNastaliq'
-                : selectedLanguage == DuaLanguage.arabic
-                    ? 'Amiri'
-                    : null,
+            fontFamily: 'Poppins',
           ),
-          textDirection: (selectedLanguage == DuaLanguage.urdu ||
-                         selectedLanguage == DuaLanguage.arabic)
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textDirection:
+              (selectedLanguage == DuaLanguage.urdu ||
+                  selectedLanguage == DuaLanguage.arabic)
               ? TextDirection.rtl
               : TextDirection.ltr,
         ),
@@ -372,36 +338,59 @@ ${context.tr('reference')}: ${dua.getReference(selectedLanguage)}
     final showTranslation = _cardsWithTranslation.contains(cardIndex);
     final isPlaying = _playingCardIndex == cardIndex && _isSpeaking;
     final cardNumber = cardIndex + 1;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Get language code from DuaLanguage enum
+    String langCode;
+    switch (selectedLanguage) {
+      case DuaLanguage.urdu:
+        langCode = 'ur';
+      case DuaLanguage.hindi:
+        langCode = 'hi';
+      case DuaLanguage.arabic:
+        langCode = 'ar';
+      case DuaLanguage.english:
+        langCode = 'en';
+    }
+
+    // Get translation based on selected language
+    final translation = dua.getTranslation(selectedLanguage);
+
+    // Green theme colors matching Seven Kalma screen
+    const darkGreen = Color(0xFF0A5C36);
+    const lightGreenBorder = Color(0xFF8AAF9A);
+    const lightGreenChip = Color(0xFFE8F3ED);
 
     return Container(
       key: _cardKeys[cardIndex],
-      margin: responsive.paddingOnly(bottom: 12),
+      margin: responsive.paddingOnly(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
         border: Border.all(
           color: isPlaying
               ? AppColors.primaryLight
-              : AppColors.lightGreenBorder,
+              : (isDark ? Colors.grey.shade700 : lightGreenBorder),
           width: isPlaying ? 2 : 1.5,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
-            offset: Offset(0, responsive.spacing(2)),
-          ),
-        ],
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: darkGreen.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Header with number badge, title, and action buttons
           Container(
-            padding: responsive.paddingSymmetric(horizontal: 12, vertical: 8),
+            padding: responsive.paddingSymmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: isPlaying
-                  ? AppColors.primaryLight.withValues(alpha: 0.1)
-                  : AppColors.lightGreenChip,
+              color: isDark ? Colors.grey.shade800 : lightGreenChip,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(responsive.radiusLarge),
                 topRight: Radius.circular(responsive.radiusLarge),
@@ -409,21 +398,21 @@ ${context.tr('reference')}: ${dua.getReference(selectedLanguage)}
             ),
             child: Column(
               children: [
+                // First row: Number badge and title
                 Row(
                   children: [
+                    // Number badge
                     Container(
-                      width: responsive.spacing(40),
-                      height: responsive.spacing(40),
+                      width: responsive.spacing(36),
+                      height: responsive.spacing(36),
                       decoration: BoxDecoration(
-                        color: isPlaying
-                            ? AppColors.primaryLight
-                            : AppColors.primary,
+                        color: isPlaying ? AppColors.primaryLight : darkGreen,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.3),
-                            blurRadius: responsive.spacing(6),
-                            offset: Offset(0, responsive.spacing(2)),
+                            color: darkGreen.withValues(alpha: 0.3),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
@@ -439,31 +428,28 @@ ${context.tr('reference')}: ${dua.getReference(selectedLanguage)}
                       ),
                     ),
                     responsive.hSpaceMedium,
+                    // Title
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Title based on selected language
-                          Text(
-                            _getDuaTitle(dua, selectedLanguage),
-                            style: TextStyle(
-                              fontSize: responsive.textSmall,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primary,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
+                      child: Text(
+                        _getDuaTitle(dua, selectedLanguage),
+                        style: TextStyle(
+                          fontSize: responsive.textMedium,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : darkGreen,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
                 responsive.vSpaceSmall,
+                // Second row: Action buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildHeaderActionButton(
+                    // Audio Button
+                    HeaderActionButton(
                       icon: isPlaying ? Icons.stop : Icons.volume_up,
                       label: isPlaying
                           ? context.tr('stop')
@@ -475,172 +461,84 @@ ${context.tr('reference')}: ${dua.getReference(selectedLanguage)}
                         selectedLanguage,
                       ),
                       isActive: isPlaying,
+                      activeColor: darkGreen,
                     ),
-                    _buildHeaderActionButton(
+                    // Translate Button
+                    HeaderActionButton(
                       icon: Icons.translate,
                       label: context.tr('translate'),
                       onTap: () => _toggleCardTranslation(cardIndex),
                       isActive: showTranslation,
+                      activeColor: darkGreen,
                     ),
-                    _buildHeaderActionButton(
+                    // Copy Button
+                    HeaderActionButton(
                       icon: Icons.copy,
                       label: context.tr('copy'),
                       onTap: () => _copyDua(dua, selectedLanguage),
-                      isActive: false,
+                      activeColor: darkGreen,
                     ),
-                    _buildHeaderActionButton(
+                    // Share Button
+                    HeaderActionButton(
                       icon: Icons.share,
                       label: context.tr('share'),
                       onTap: () => _shareDua(dua, selectedLanguage),
-                      isActive: false,
+                      activeColor: darkGreen,
                     ),
                   ],
                 ),
               ],
             ),
           ),
-          GestureDetector(
-            onTap: () {
-              if (isPlaying && !showTranslation) {
-                _stopPlaying();
-              } else if (!showTranslation) {
-                _playDua(dua, cardIndex, false, selectedLanguage);
-              }
-            },
-            child: Container(
-              margin: responsive.paddingSymmetric(horizontal: 12, vertical: 8),
-              padding: responsive.paddingAll(12),
-              decoration: (isPlaying && !showTranslation)
-                  ? BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(
-                        responsive.radiusMedium,
-                      ),
-                    )
-                  : null,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (isPlaying && !showTranslation)
-                    Padding(
-                      padding: EdgeInsets.only(
-                        right: responsive.spaceSmall,
-                        top: responsive.spaceSmall,
-                      ),
-                      child: Icon(
-                        Icons.volume_up,
-                        size: responsive.iconSmall,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  Expanded(
-                    child: Text(
-                      dua.arabic,
-                      style: TextStyle(
-                        fontFamily: 'Amiri',
-                        fontSize: responsive.fontSize(26),
-                        height: 2.0,
-                        color: (isPlaying && !showTranslation)
-                            ? AppColors.primary
-                            : AppColors.primary,
-                      ),
-                      textAlign: TextAlign.center,
-                      textDirection: TextDirection.rtl,
-                    ),
-                  ),
-                ],
+
+          // Arabic text
+          Container(
+            padding: responsive.paddingAll(16),
+            child: Text(
+              dua.arabic,
+              textAlign: TextAlign.center,
+              textDirection: TextDirection.rtl,
+              style: TextStyle(
+                fontSize: responsive.textXLarge,
+                fontFamily: 'Scheherazade',
+                height: 2.0,
+                color: isDark ? Colors.white : darkGreen,
               ),
             ),
           ),
+
+          // Translation (only visible when translate button is clicked)
           if (showTranslation)
-            GestureDetector(
-              onTap: () {
-                if (isPlaying && showTranslation) {
-                  _stopPlaying();
-                } else {
-                  _playDua(dua, cardIndex, true, selectedLanguage);
-                }
-              },
-              child: Container(
-                margin: responsive.paddingSymmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                padding: responsive.paddingAll(12),
-                decoration: BoxDecoration(
-                  color: (isPlaying && showTranslation)
-                      ? AppColors.primary.withValues(alpha: 0.1)
-                      : Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(responsive.radiusMedium),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (isPlaying && showTranslation)
-                      Padding(
-                        padding: EdgeInsets.only(
-                          right: responsive.spaceSmall,
-                          top: responsive.spaceXSmall,
-                        ),
-                        child: Icon(
-                          Icons.volume_up,
-                          size: responsive.iconSmall,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.translate,
-                                size: responsive.iconSmall,
-                                color: AppColors.primary,
-                              ),
-                              SizedBox(width: responsive.spaceSmall),
-                              Text(
-                                '${context.tr('translation')} (${_getLanguageName(context, selectedLanguage)})',
-                                style: TextStyle(
-                                  fontSize: responsive.textSmall,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: responsive.spaceMedium),
-                          Text(
-                            dua.getTranslation(selectedLanguage),
-                            style: TextStyle(
-                              fontSize: responsive.textMedium,
-                              height: 1.6,
-                              color: (isPlaying && showTranslation)
-                                  ? AppColors.primary
-                                  : Colors.black87,
-                              fontFamily: selectedLanguage == DuaLanguage.arabic
-                                  ? 'Amiri'
-                                  : null,
-                            ),
-                            textDirection: (selectedLanguage == DuaLanguage.urdu ||
-                                           selectedLanguage == DuaLanguage.arabic)
-                                ? TextDirection.rtl
-                                : TextDirection.ltr,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+            Container(
+              padding: responsive.paddingAll(16),
+              decoration: BoxDecoration(
+                color: lightGreenChip.withValues(alpha: 0.5),
+              ),
+              child: Text(
+                translation,
+                textAlign: langCode == 'ur' || langCode == 'ar'
+                    ? TextAlign.right
+                    : TextAlign.left,
+                textDirection: langCode == 'ur' || langCode == 'ar'
+                    ? TextDirection.rtl
+                    : TextDirection.ltr,
+                style: TextStyle(
+                  fontSize: responsive.textMedium,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.textSecondary,
+                  height: 1.8,
                 ),
               ),
             ),
+
+          // Reference footer
           Container(
-            padding: responsive.paddingAll(12),
+            padding: responsive.paddingSymmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
-              ),
+              color: isDark
+                  ? Colors.grey.shade800.withValues(alpha: 0.3)
+                  : lightGreenChip.withValues(alpha: 0.3),
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(responsive.radiusLarge),
                 bottomRight: Radius.circular(responsive.radiusLarge),
@@ -648,57 +546,16 @@ ${context.tr('reference')}: ${dua.getReference(selectedLanguage)}
             ),
             child: Text(
               dua.getReference(selectedLanguage),
-              style: TextStyle(
-                fontSize: responsive.textXSmall,
-                color: AppColors.textHint,
+              style: AppTextStyles.caption(context).copyWith(
+                color: isDark ? Colors.grey.shade400 : AppColors.textHint,
                 fontStyle: FontStyle.italic,
               ),
               textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildHeaderActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    required bool isActive,
-  }) {
-    final responsive = context.responsive;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(responsive.radiusMedium),
-        child: Container(
-          padding: responsive.paddingSymmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: isActive ? AppColors.primaryLight : AppColors.lightGreenChip,
-            borderRadius: BorderRadius.circular(responsive.radiusMedium),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: responsive.iconSize(22),
-                color: isActive ? Colors.white : AppColors.primary,
-              ),
-              SizedBox(height: responsive.spaceXSmall),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: responsive.textXSmall,
-                  color: isActive ? Colors.white : AppColors.primary,
-                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
+import '../../core/services/background_location_service.dart';
 import '../home/home_screen.dart';
 import '../quran/quran_screen.dart';
 import '../prayer_times/prayer_times_screen.dart';
@@ -16,6 +16,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  final BackgroundLocationService _locationService = BackgroundLocationService();
 
   final List<Widget> _screens = const [
     HomeScreen(),
@@ -23,6 +24,22 @@ class _MainScreenState extends State<MainScreen> {
     PrayerTimesScreen(),
     SettingsScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Start background location tracking
+    _locationService.startLocationTracking();
+    debugPrint('📍 Background location tracking started');
+  }
+
+  @override
+  void dispose() {
+    // Stop background location tracking
+    _locationService.stopLocationTracking();
+    debugPrint('📍 Background location tracking stopped');
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +56,8 @@ class _MainScreenState extends State<MainScreen> {
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: responsive.spacing(20),
-              offset: Offset(0, responsive.spacing(-5)),
+              blurRadius: 20,
+              offset: const Offset(0, -5.0),
             ),
           ],
         ),
@@ -87,9 +104,9 @@ class _MainScreenState extends State<MainScreen> {
               color: isSelected
                   ? AppColors.secondary
                   : Colors.white.withValues(alpha: 0.7),
-              size: responsive.iconMedium,
+              size: responsive.iconSize(24),
             ),
-            SizedBox(height: responsive.spaceXSmall),
+            SizedBox(height: responsive.spacing(4)),
             Text(
               label,
               style: TextStyle(

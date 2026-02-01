@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/language_provider.dart';
 import 'islamic_name_detail_screen.dart';
@@ -275,8 +274,8 @@ class _PanjatanScreenState extends State<PanjatanScreen> {
                 : [
                     BoxShadow(
                       color: darkGreen.withValues(alpha: 0.08),
-                      blurRadius: responsive.spacing(10),
-                      offset: Offset(0, responsive.spacing(2)),
+                      blurRadius: 10.0,
+                      offset: Offset(0, 2.0),
                     ),
                   ],
           ),
@@ -319,8 +318,8 @@ class _PanjatanScreenState extends State<PanjatanScreen> {
                 children: [
                   // Circular badge
                   Container(
-                    width: responsive.spacing(50),
-                    height: responsive.spacing(50),
+                    width: responsive.iconLarge * 1.5,
+                    height: responsive.iconLarge * 1.5,
                     decoration: BoxDecoration(
                       color: isDark ? emeraldGreen : darkGreen,
                       shape: BoxShape.circle,
@@ -336,7 +335,7 @@ class _PanjatanScreenState extends State<PanjatanScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(width: responsive.spacing(14)),
+                  responsive.hSpaceSmall,
                   // Name
                   Expanded(
                     child: Text(
@@ -345,15 +344,17 @@ class _PanjatanScreenState extends State<PanjatanScreen> {
                         fontSize: responsive.textRegular,
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : darkGreen,
-                        fontFamily: languageCode == 'ar' ? 'Amiri' : (languageCode == 'ur' ? 'NotoNastaliq' : null),
+                        fontFamily: 'Poppins',
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       textDirection: (languageCode == 'ar' || languageCode == 'ur') ? TextDirection.rtl : TextDirection.ltr,
                     ),
                   ),
                   // Circular forward arrow
                   Container(
-                    width: responsive.spacing(32),
-                    height: responsive.spacing(32),
+                    width: 32,
+                    height: 32,
                     decoration: BoxDecoration(
                       color: isDark ? emeraldGreen.withValues(alpha: 0.2) : const Color(0xFFE8F3ED),
                       shape: BoxShape.circle,

@@ -4,9 +4,8 @@ import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/qibla_calculator.dart';
-import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/app_utils.dart';
 import '../../core/services/location_service.dart';
-import '../../core/utils/localization_helper.dart';
 
 class QiblaScreen extends StatefulWidget {
   const QiblaScreen({super.key});
@@ -24,6 +23,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
   String? _error;
   double? _distanceToKaaba;
   bool _hasCompass = true;
+  bool _isSaved = false;
 
   @override
   void initState() {
@@ -106,18 +106,13 @@ class _QiblaScreenState extends State<QiblaScreen> {
         return;
       }
 
-      // Get location
+      // Get initial location
       _currentPosition = await _locationService.getCurrentLocation();
 
       if (_currentPosition != null) {
-        _qiblaDirection = QiblaCalculator.getQiblaDirection(
-          _currentPosition!.latitude,
-          _currentPosition!.longitude,
-        );
-        _distanceToKaaba = QiblaCalculator.getDistanceToKaaba(
-          _currentPosition!.latitude,
-          _currentPosition!.longitude,
-        );
+        _updateQiblaData();
+        // Start listening to real-time location updates
+        _startLocationStream();
       } else {
         _error = unableToGetLocation;
       }
@@ -130,6 +125,47 @@ class _QiblaScreenState extends State<QiblaScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  void _updateQiblaData() {
+    if (_currentPosition != null) {
+      _qiblaDirection = QiblaCalculator.getQiblaDirection(
+        _currentPosition!.latitude,
+        _currentPosition!.longitude,
+      );
+      _distanceToKaaba = QiblaCalculator.getDistanceToKaaba(
+        _currentPosition!.latitude,
+        _currentPosition!.longitude,
+      );
+    }
+  }
+
+  void _startLocationStream() {
+    // Listen to real-time location updates (every 5 seconds or 10 meters movement)
+    Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.best,
+        distanceFilter: 10, // Update every 10 meters
+        timeLimit: Duration(seconds: 5),
+      ),
+    ).listen(
+      (Position position) {
+        if (mounted) {
+          setState(() {
+            _currentPosition = position;
+            _updateQiblaData();
+            _error = null;
+          });
+        }
+      },
+      onError: (error) {
+        if (mounted) {
+          setState(() {
+            _error = error.toString();
+          });
+        }
+      },
+    );
   }
 
   @override
@@ -185,6 +221,9 @@ class _QiblaScreenState extends State<QiblaScreen> {
                   responsive.vSpaceSmall,
                   Text(
                     '${context.tr('distance_to_kaaba')}: ${QiblaCalculator.formatDistance(_distanceToKaaba!)}',
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: responsive.textMedium,
@@ -205,8 +244,8 @@ class _QiblaScreenState extends State<QiblaScreen> {
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: responsive.spacing(20),
-                  spreadRadius: responsive.spacing(5),
+                  blurRadius: 20,
+                  spreadRadius: 5.0,
                 ),
               ],
             ),
@@ -421,8 +460,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
         final compassRotation = -(_compassHeading ?? 0) * (math.pi / 180);
         final qiblaRotation = (qiblaFromNorth - (_compassHeading ?? 0)) * (math.pi / 180);
 
-        // Check if facing Qibla (within 5 degrees)
-        // Properly handle circular angle difference
+        // Calculate accurate alignment percentage
         double rawDifference = qiblaFromNorth - (_compassHeading ?? 0);
         // Normalize to -180 to 180 range
         while (rawDifference > 180) {
@@ -432,7 +470,20 @@ class _QiblaScreenState extends State<QiblaScreen> {
           rawDifference += 360;
         }
         final difference = rawDifference.abs();
-        final isFacingQibla = difference < 5;
+        final isFacingQibla = difference < 1.5; // 100% alignment within 1.5 degrees
+
+        // Calculate alignment percentage (100% at 0 degrees, 0% at 90+ degrees)
+        int alignmentPercentage = ((90 - difference.clamp(0, 90)) / 90 * 100).toInt().clamp(0, 100);
+
+        // Determine direction to turn
+        String directionText = '';
+        if (isFacingQibla) {
+          directionText = context.tr('perfect_alignment');
+        } else if (rawDifference > 0) {
+          directionText = '${context.tr('turn_right')} ${difference.toStringAsFixed(1)}°';
+        } else {
+          directionText = '${context.tr('turn_left')} ${difference.toStringAsFixed(1)}°';
+        }
 
         // Responsive compass size
         final compassSize = responsive.widthPercent(80).clamp(250.0, 350.0);
@@ -450,17 +501,30 @@ class _QiblaScreenState extends State<QiblaScreen> {
           padding: responsive.paddingXLarge,
           child: Column(
             children: [
-              // Info Card
-              _buildInfoCard(isFacingQibla),
+              // Info Card with alignment percentage
+              _buildInfoCard(isFacingQibla, alignmentPercentage, directionText),
               responsive.vSpaceXXLarge,
 
-              // Compass
+              // Compass with alignment indicator
               SizedBox(
                 width: compassSize,
                 height: compassSize,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
+                    // Alignment percentage background ring
+                    SizedBox(
+                      width: compassSize,
+                      height: compassSize,
+                      child: CircularProgressIndicator(
+                        value: alignmentPercentage / 100,
+                        strokeWidth: 8,
+                        backgroundColor: Colors.grey[300],
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          isFacingQibla ? AppColors.success : AppColors.primary,
+                        ),
+                      ),
+                    ),
                     // Compass background
                     Transform.rotate(
                       angle: compassRotation,
@@ -473,8 +537,8 @@ class _QiblaScreenState extends State<QiblaScreen> {
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.1),
-                              blurRadius: responsive.spacing(20),
-                              spreadRadius: responsive.spacing(5),
+                              blurRadius: 20,
+                              spreadRadius: 5.0,
                             ),
                           ],
                         ),
@@ -526,14 +590,43 @@ class _QiblaScreenState extends State<QiblaScreen> {
                       ),
                     ),
 
-                    // Center indicator
+                    // Center indicator with alignment percentage
                     Container(
-                      width: responsive.spacing(20),
-                      height: responsive.spacing(20),
+                      width: responsive.spacing(80),
+                      height: responsive.spacing(80),
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        color: isFacingQibla ? AppColors.success : AppColors.primary,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 3),
+                        border: Border.all(color: Colors.white, width: responsive.spacing(3)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: (isFacingQibla ? AppColors.success : AppColors.primary)
+                                .withValues(alpha: 0.5),
+                            blurRadius: 20,
+                            spreadRadius: 5,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '$alignmentPercentage%',
+                            style: TextStyle(
+                              fontSize: responsive.textXXLarge,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            isFacingQibla ? context.tr('perfect_label') : context.tr('aligned_label'),
+                            style: TextStyle(
+                              fontSize: responsive.textSmall,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -545,26 +638,8 @@ class _QiblaScreenState extends State<QiblaScreen> {
               _buildDirectionInfo(qiblaFromNorth),
               responsive.vSpaceXLarge,
 
-              // Calibration hint
-              Container(
-                padding: responsive.paddingRegular,
-                decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(responsive.radiusMedium),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.info_outline, color: Colors.orange, size: responsive.iconMedium),
-                    SizedBox(width: responsive.spaceMedium),
-                    Expanded(
-                      child: Text(
-                        context.tr('accurate_reading_tip'),
-                        style: TextStyle(fontSize: responsive.textSmall),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // Dua Section
+              _buildDuaSection(),
             ],
           ),
         );
@@ -572,7 +647,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
     );
   }
 
-  Widget _buildInfoCard(bool isFacingQibla) {
+  Widget _buildInfoCard(bool isFacingQibla, int alignmentPercentage, String directionText) {
     final responsive = context.responsive;
 
     return Container(
@@ -588,24 +663,69 @@ class _QiblaScreenState extends State<QiblaScreen> {
       ),
       child: Column(
         children: [
-          Icon(
-            isFacingQibla ? Icons.check_circle : Icons.explore,
-            color: Colors.white,
-            size: responsive.iconXXLarge,
-          ),
-          responsive.vSpaceMedium,
+          // Alignment Percentage
+          if (isFacingQibla)
+            Container(
+              padding: responsive.paddingSmall,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(responsive.radiusMedium),
+              ),
+              child: Text(
+                context.tr('perfectly_aligned_100'),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: responsive.textLarge,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
+                ),
+              ),
+            ),
+          SizedBox(height: responsive.spacing(2)),
+
           Text(
             isFacingQibla ? context.tr('facing_qibla') : context.tr('turn_to_face_qibla'),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: Colors.white,
               fontSize: responsive.textXXLarge,
               fontWeight: FontWeight.bold,
             ),
           ),
+
+          // Direction indicator
+          if (!isFacingQibla)
+            Container(
+              padding: responsive.paddingSmall,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(responsive.radiusMedium),
+              ),
+              child: Text(
+                directionText,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: responsive.textMedium,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+
           if (_distanceToKaaba != null) ...[
             responsive.vSpaceSmall,
             Text(
               '${context.tr('distance_to_kaaba')}: ${QiblaCalculator.formatDistance(_distanceToKaaba!)}',
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: Colors.white70,
                 fontSize: responsive.textMedium,
@@ -657,6 +777,208 @@ class _QiblaScreenState extends State<QiblaScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildDuaSection() {
+    final responsive = context.responsive;
+
+    return Container(
+      width: double.infinity,
+      padding: responsive.paddingLarge,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusXXLarge),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 20,
+            spreadRadius: 5.0,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title
+          Text(
+            context.tr('qibla_dua'),
+            style: TextStyle(
+              fontSize: responsive.textXLarge,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+            ),
+          ),
+          responsive.vSpaceRegular,
+
+          // Dua in Arabic
+          Container(
+            padding: responsive.paddingRegular,
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(responsive.radiusMedium),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.tr('qibla_dua_text'),
+                  textAlign: TextAlign.right,
+                  overflow: TextOverflow.clip,
+                  style: TextStyle(
+                    fontSize: responsive.textLarge,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                    height: 1.8,
+                  ),
+                ),
+                responsive.vSpaceRegular,
+                Text(
+                  '${context.tr('translation_label')} ${context.tr('qibla_dua_translation')}',
+                  textAlign: TextAlign.left,
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: responsive.textSmall,
+                    color: Colors.grey[700],
+                    fontStyle: FontStyle.italic,
+                    height: 1.6,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          responsive.vSpaceRegular,
+
+          // Meaning/Explanation
+          Container(
+            padding: responsive.paddingRegular,
+            decoration: BoxDecoration(
+              color: Colors.blue.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(responsive.radiusMedium),
+              border: Border.all(
+                color: Colors.blue.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.tr('qibla_dua_meaning_title'),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: responsive.textMedium,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue.shade700,
+                  ),
+                ),
+                responsive.vSpaceSmall,
+                Text(
+                  context.tr('qibla_dua_meaning'),
+                  textAlign: TextAlign.justify,
+                  maxLines: 6,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: responsive.textSmall,
+                    color: Colors.grey[700],
+                    height: 1.6,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          responsive.vSpaceXLarge,
+
+          // Action Buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // Save/Unsave Button
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _isSaved = !_isSaved;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          _isSaved
+                              ? context.tr('saved_successfully')
+                              : context.tr('removed_successfully'),
+                        ),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                  icon: Icon(_isSaved ? Icons.bookmark : Icons.bookmark_border),
+                  label: Text(_isSaved ? context.tr('saved') : context.tr('save')),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _isSaved ? AppColors.success : AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: responsive.paddingSymmetric(vertical: 12),
+                  ),
+                ),
+              ),
+              SizedBox(width: responsive.spaceMedium),
+
+              // Delete Button
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    _showDeleteConfirmation();
+                  },
+                  icon: const Icon(Icons.delete_outline),
+                  label: Text(context.tr('delete')),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red.shade400,
+                    foregroundColor: Colors.white,
+                    padding: responsive.paddingSymmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text(context.tr('confirm_delete')),
+        content: Text(context.tr('delete_dua_confirmation')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(context.tr('cancel')),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                _isSaved = false;
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(context.tr('deleted_successfully')),
+                  duration: const Duration(seconds: 2),
+                  backgroundColor: Colors.red.shade400,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade400,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(context.tr('delete')),
+          ),
+        ],
+      ),
     );
   }
 }

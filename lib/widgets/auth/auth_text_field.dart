@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
+import '../../core/utils/app_utils.dart';
 
 class AuthTextField extends StatefulWidget {
   final TextEditingController controller;
@@ -54,6 +54,9 @@ class _AuthTextFieldState extends State<AuthTextField> {
       textCapitalization: widget.textCapitalization,
       onTap: widget.onTap,
       readOnly: widget.readOnly,
+      enableInteractiveSelection: true,
+      autocorrect: false,
+      enableSuggestions: false,
       style: TextStyle(
         fontSize: responsive.textMedium,
         color: isDark ? AppColors.darkTextPrimary : Colors.black87,
@@ -71,7 +74,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
         ),
         floatingLabelStyle: TextStyle(
           color: isDark ? AppColors.darkTextSecondary : AppColors.primary,
-          fontSize: 17,
+          fontSize: responsive.fontSize(17),
           fontWeight: FontWeight.bold,
         ),
         prefixIcon: Icon(

@@ -31,7 +31,15 @@ class AppStrings {
   static const String qiblaCompass = 'Qibla Compass';
   static const String calibrateCompass = 'Calibrate Compass';
   static const String facingQibla = 'Facing Qibla';
-  static const String degreesFromNorth = 'degrees from North';
+  static const String degreesFromNorth = 'Degrees from North';
+  static const String qiblaDua = 'Qibla Dua';
+  static const String saved = 'Saved';
+  static const String savedSuccessfully = 'Saved successfully';
+  static const String removedSuccessfully = 'Removed successfully';
+  static const String deletedSuccessfully = 'Deleted successfully';
+  static const String confirmDelete = 'Confirm Delete';
+  static const String deleteDuaConfirmation = 'Are you sure you want to delete this dua?';
+  static const String delete = 'Delete';
 
   // Quran
   static const String holyQuran = 'Holy Quran';
@@ -206,6 +214,28 @@ class AppStrings {
     'Saturday',
   ];
 
+  // Islamic Days of Week (English transliteration)
+  static const List<String> islamicDaysOfWeek = [
+    'Ahad',
+    'Ithnayn',
+    'Thulatha',
+    'Arba\'a',
+    'Khamis',
+    'Jumu\'ah',
+    'Sabt',
+  ];
+
+  // Islamic Days of Week Short (English)
+  static const List<String> islamicDaysOfWeekShort = [
+    'Ahad',
+    'Ithn',
+    'Thul',
+    'Arba',
+    'Kham',
+    'Jum',
+    'Sabt',
+  ];
+
   // Days of Week in Urdu
   static const List<String> daysOfWeekUrdu = [
     'اتوار',
@@ -270,6 +300,39 @@ class AppStrings {
     'गुरु',
     'शुक्र',
     'शनि',
+  ];
+
+  // Islamic Days of Week in Hindi
+  static const List<String> islamicDaysOfWeekHindi = [
+    'अहद',
+    'इस्नैन',
+    'सुलासा',
+    'अरबा',
+    'खमीस',
+    'जुमा',
+    'सब्त',
+  ];
+
+  // Islamic Days of Week in Urdu
+  static const List<String> islamicDaysOfWeekUrdu = [
+    'اتوار',
+    'پیر',
+    'منگل',
+    'بدھ',
+    'جمعرات',
+    'جمعہ',
+    'ہفتہ',
+  ];
+
+  // Islamic Days of Week in Arabic
+  static const List<String> islamicDaysOfWeekArabic = [
+    'أحد',
+    'إثنين',
+    'ثلاثاء',
+    'أربعاء',
+    'خميس',
+    'جمعة',
+    'سبت',
   ];
 
   // Urdu numerals
@@ -346,8 +409,8 @@ class AppStrings {
   // Search Strings
   static const String searchHintQuran = 'Search Quran, Duas, Hadith...';
   static const String searchInCategory = 'Search in this category...';
-  static const String searchDuas = 'Search dus...';
-  static const String searchHadith = 'Search hadith...';
+  static const String searchDuas = 'Search Duas...';
+  static const String searchHadith = 'Search Hadith...';
   static const String speakToSearch = 'Speak to search';
   static const String speakSurahName = 'Speak Surah name to search';
 
@@ -366,8 +429,49 @@ class AppStrings {
 
   // Tasbih
   static const String tasbihCounter = 'Tasbih Counter';
+  static const String meaning = 'Meaning';
+  static const String clearAllData = 'Clear all history and data?';
+  static const String resetCounterMessage = 'Are you sure you want to reset the counter?';
 
   // Screen Titles
   static const String duain = 'Duain';
   static const String para = 'Para';
+
+  // Ramadan Duas
+  static const String duaSeeingNewMoon = 'Dua When Seeing New Moon';
+  static const String duaForSuhoor = 'Dua for Suhoor (Sehri)';
+  static const String duaWhileFasting = 'Dua While Fasting';
+  static const String duaForIftar = 'Dua for Iftar';
+  static const String duaWhenBreakingFast = 'Dua When Breaking Fast';
+  static const String duaSeekingForgiveness = 'Dua for Seeking Forgiveness';
+  static const String duaForLaylatulQadr = 'Dua for Laylatul Qadr';
+  static const String duaForTaraweeh = 'Dua for Taraweeh';
+  static const String duaEndOfRamadan = 'Dua at End of Ramadan';
+  static const String duaForEid = 'Dua for Eid (Takbeer)';
+
+  // Ramadan Tracker
+  static const String ramadanTrackerTitle = 'Ramadan Tracker';
+  static const String ramadanMubarak = 'Ramadan Mubarak';
+  static const String dayOfRamadan = 'Day {day} of Ramadan';
+  static const String trackYourFasting = 'Track Your Fasting';
+  static const String fastingDaysRamadan = 'Fasting Days - Ramadan {year}';
+  static const String suhoorEnds = 'Suhoor Ends';
+  static const String iftarTime = 'Iftar Time';
+  static const String statistics = 'Statistics';
+  static const String missed = 'Missed';
+  static const String pending = 'Pending';
+  static const String day = 'Day';
+  static const String selectFastingStatus = 'Select fasting status';
+  static const String ramadanDuas = 'Ramadan Duas';
+  static const String noLocationData = 'Location data not available';
+  static const String refresh = 'Refresh';
+
+  // Weekdays
+  static const String mon = 'Mon';
+  static const String tue = 'Tue';
+  static const String wed = 'Wed';
+  static const String thu = 'Thu';
+  static const String fri = 'Fri';
+  static const String sat = 'Sat';
+  static const String sun = 'Sun';
 }

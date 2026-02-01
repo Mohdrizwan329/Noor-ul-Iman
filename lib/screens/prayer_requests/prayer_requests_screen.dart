@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 
 class PrayerRequestsScreen extends StatefulWidget {
   const PrayerRequestsScreen({super.key});
@@ -81,12 +80,6 @@ class _PrayerRequestsScreenState extends State<PrayerRequestsScreen>
     _requestController.clear();
     Navigator.pop(context);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.tr('prayer_request_added')),
-        backgroundColor: AppColors.primary,
-      ),
-    );
   }
 
   void _markAsAnswered(PrayerRequest request) {
@@ -101,12 +94,6 @@ class _PrayerRequestsScreenState extends State<PrayerRequestsScreen>
     });
     _saveRequests();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.tr('prayer_answered')),
-        backgroundColor: Colors.green,
-      ),
-    );
   }
 
   void _deleteRequest(PrayerRequest request) {
@@ -124,7 +111,7 @@ class _PrayerRequestsScreenState extends State<PrayerRequestsScreen>
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        toolbarHeight: responsive.spacing(50),
+        toolbarHeight: 50.0,
         title: Text(
           context.tr('prayer_requests'),
           style: TextStyle(fontSize: responsive.textLarge),
@@ -170,7 +157,7 @@ class _PrayerRequestsScreenState extends State<PrayerRequestsScreen>
           children: [
             Icon(
               answered ? Icons.check_circle_outline : Icons.volunteer_activism,
-              size: responsive.iconSize(64),
+              size: 64.0,
               color: Colors.grey[400],
             ),
             SizedBox(height: responsive.spaceRegular),

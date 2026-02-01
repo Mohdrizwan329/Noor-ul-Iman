@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/settings_provider.dart';
 import 'basic_amal_detail_screen.dart';
 
@@ -14,7 +13,7 @@ class SavabFazilatScreen extends StatefulWidget {
 }
 
 class _SavabFazilatScreenState extends State<SavabFazilatScreen> {
-  String _selectedLanguage = 'english';
+
 
   final List<Map<String, dynamic>> _savabTopics = [
     {
@@ -1068,6 +1067,750 @@ Protecting Through Dua:
 • ربنا تقبل منا إنك أنت السميع العليم'''
       },
     },
+    {
+      'number': 7,
+      'titleKey': 'savab_fazilat_7_quran_recitation',
+      'title': 'Savab of Quran Recitation',
+      'titleUrdu': 'قرآن پڑھنے کا ثواب',
+      'titleHindi': 'क़ुरआन पढ़ने का सवाब',
+      'titleArabic': 'ثواب تلاوة القرآن',
+      'icon': Icons.menu_book,
+      'color': Colors.indigo,
+      'details': {
+        'english': '''Savab of Quran Recitation
+
+The Quran is the word of Allah, and its recitation carries immense rewards.
+
+Ten Rewards Per Letter:
+• The Prophet ﷺ said: "Whoever recites a letter from Allah's Book, he receives the reward from it, and the reward is multiplied by ten."
+• "I am not saying that 'Alif, Laam, Meem' is one letter, but 'Alif' is a letter, 'Laam' is a letter, and 'Meem' is a letter." (Tirmidhi)
+• This means reading "Bismillah" alone gives 190 rewards!
+
+Double Reward for Struggling Readers:
+• "The one who is proficient in the Quran will be with the noble and obedient angels."
+• "And the one who recites with difficulty, stammering or struggling through its verses, will have TWICE that reward." (Bukhari & Muslim)
+• Don't be discouraged if reading is difficult - you get even more reward!
+
+Reward of Night Recitation:
+• "Whoever recites ten verses in night prayer will not be recorded among the forgetful."
+• "Whoever recites a hundred verses will be recorded among the devout."
+• "Whoever recites a thousand verses will be recorded among those who pile up good deeds." (Abu Dawud)
+
+Best of People:
+• The Prophet ﷺ said: "The best of you are those who learn the Quran and teach it to others." (Bukhari)
+• Teaching Quran is Sadaqah Jariyah - continuous reward even after death
+
+Specific Surahs and Their Virtues:
+• Surah Al-Fatihah: Greatest Surah in the Quran
+• Ayat al-Kursi after every prayer: Nothing prevents entry to Paradise except death
+• Surah Al-Ikhlas: Equal to one-third of the Quran
+• Surah Al-Mulk before sleep: Protection from grave punishment
+• Last two verses of Al-Baqarah at night: Sufficient protection
+
+Reward for Listening:
+• "Whoever listens to a verse from the Book of Allah will have a multiplied reward, and whoever recites it, it will serve as light for him on Day of Judgment." (Ahmad)
+
+Completing the Quran:
+• Angels make dua for the one who completes recitation
+• The Prophet ﷺ said: "Recite the Quran, for it will come as an intercessor for its people on Day of Resurrection." (Muslim)''',
+        'urdu': '''قرآن پڑھنے کا ثواب
+
+قرآن اللہ کا کلام ہے، اور اس کی تلاوت میں بے حد ثواب ہے۔
+
+ہر حرف پر دس نیکیاں:
+• نبی کریم ﷺ نے فرمایا: "جو اللہ کی کتاب سے ایک حرف پڑھے، اسے اس پر ثواب ملتا ہے، اور ثواب دس گنا ہو جاتا ہے۔"
+• "میں یہ نہیں کہتا کہ 'الم' ایک حرف ہے، بلکہ 'الف' ایک حرف ہے، 'لام' ایک حرف ہے، اور 'میم' ایک حرف ہے۔" (ترمذی)
+• اس کا مطلب صرف "بسم اللہ" پڑھنے سے 190 نیکیاں ملتی ہیں!
+
+مشکل سے پڑھنے والوں کو دگنا ثواب:
+• "جو قرآن میں ماہر ہے وہ معزز اور فرمانبردار فرشتوں کے ساتھ ہوگا۔"
+• "اور جو مشکل سے پڑھتا ہے، اٹکتے ہوئے، اسے دگنا ثواب ملے گا۔" (بخاری و مسلم)
+• اگر پڑھنا مشکل ہے تو حوصلہ شکنی نہ کریں - آپ کو زیادہ ثواب ملتا ہے!
+
+رات کی تلاوت کا ثواب:
+• "جو رات کی نماز میں دس آیات پڑھے، غافلوں میں نہیں لکھا جائے گا۔"
+• "جو سو آیات پڑھے، عبادت گزاروں میں لکھا جائے گا۔"
+• "جو ہزار آیات پڑھے، نیکیوں کے ڈھیر لگانے والوں میں لکھا جائے گا۔" (ابو داؤد)
+
+بہترین لوگ:
+• نبی کریم ﷺ نے فرمایا: "تم میں سے بہترین وہ ہیں جو قرآن سیکھیں اور دوسروں کو سکھائیں۔" (بخاری)
+• قرآن سکھانا صدقہ جاریہ ہے - موت کے بعد بھی جاری ثواب
+
+مخصوص سورتوں کی فضیلت:
+• سورہ الفاتحہ: قرآن کی سب سے عظیم سورت
+• ہر نماز کے بعد آیت الکرسی: موت کے سوا جنت میں داخلے میں کچھ نہیں روکتا
+• سورہ الاخلاص: قرآن کے ایک تہائی کے برابر
+• سونے سے پہلے سورہ الملک: قبر کے عذاب سے حفاظت
+• سورہ البقرہ کی آخری دو آیات رات کو: کافی حفاظت
+
+سننے کا ثواب:
+• "جو اللہ کی کتاب سے ایک آیت سنے اسے کئی گنا ثواب ملے گا، اور جو پڑھے، قیامت کے دن اس کے لیے روشنی ہوگی۔" (احمد)
+
+قرآن مکمل کرنا:
+• فرشتے ختم قرآن کرنے والے کے لیے دعا کرتے ہیں
+• نبی کریم ﷺ نے فرمایا: "قرآن پڑھو، کیونکہ یہ قیامت کے دن اپنے پڑھنے والوں کی سفارش کرے گا۔" (مسلم)''',
+        'hindi': '''क़ुरआन पढ़ने का सवाब
+
+क़ुरआन अल्लाह का कलाम है, और इसकी तिलावत में बेहद सवाब है।
+
+हर हर्फ़ पर दस नेकियां:
+• नबी करीम ﷺ ने फ़रमाया: "जो अल्लाह की किताब से एक हर्फ़ पढ़े, उसे उस पर सवाब मिलता है, और सवाब दस गुना हो जाता है।"
+• "मैं यह नहीं कहता कि 'अलिफ़ लाम मीम' एक हर्फ़ है, बल्कि 'अलिफ़' एक हर्फ़ है, 'लाम' एक हर्फ़ है, और 'मीम' एक हर्फ़ है।" (तिर्मिज़ी)
+• इसका मतलब सिर्फ़ "बिस्मिल्लाह" पढ़ने से 190 नेकियां मिलती हैं!
+
+मुश्किल से पढ़ने वालों को दोगुना सवाब:
+• "जो क़ुरआन में माहिर है वो मुअज़्ज़ज़ और फ़रमांबरदार फ़रिश्तों के साथ होगा।"
+• "और जो मुश्किल से पढ़ता है, अटकते हुए, उसे दोगुना सवाब मिलेगा।" (बुख़ारी व मुस्लिम)
+• अगर पढ़ना मुश्किल है तो हौसला शिकनी न करें - आपको ज़्यादा सवाब मिलता है!
+
+रात की तिलावत का सवाब:
+• "जो रात की नमाज़ में दस आयात पढ़े, ग़ाफ़िलों में नहीं लिखा जाएगा।"
+• "जो सौ आयात पढ़े, इबादतगुज़ारों में लिखा जाएगा।"
+• "जो हज़ार आयात पढ़े, नेकियों के ढेर लगाने वालों में लिखा जाएगा।" (अबू दाऊद)
+
+बेहतरीन लोग:
+• नबी करीम ﷺ ने फ़रमाया: "तुम में से बेहतरीन वो हैं जो क़ुरआन सीखें और दूसरों को सिखाएं।" (बुख़ारी)
+• क़ुरआन सिखाना सदक़ा जारिया है - मौत के बाद भी जारी सवाब
+
+मख़सूस सूरतों की फ़ज़ीलत:
+• सूरा अल-फ़ातिहा: क़ुरआन की सबसे अज़ीम सूरत
+• हर नमाज़ के बाद आयतुल कुर्सी: मौत के सिवा जन्नत में दाख़िले में कुछ नहीं रोकता
+• सूरा अल-इख़्लास: क़ुरआन के एक तिहाई के बराबर
+• सोने से पहले सूरा अल-मुल्क: क़ब्र के अज़ाब से हिफ़ाज़त
+• सूरा अल-बक़रा की आख़िरी दो आयात रात को: काफ़ी हिफ़ाज़त
+
+सुनने का सवाब:
+• "जो अल्लाह की किताब से एक आयत सुने उसे कई गुना सवाब मिलेगा, और जो पढ़े, क़यामत के दिन उसके लिए रोशनी होगी।" (अहमद)
+
+क़ुरआन मुकम्मल करना:
+• फ़रिश्ते ख़त्म क़ुरआन करने वाले के लिए दुआ करते हैं
+• नबी करीम ﷺ ने फ़रमाया: "क़ुरआन पढ़ो, क्योंकि यह क़यामत के दिन अपने पढ़ने वालों की सिफ़ारिश करेगा।" (मुस्लिम)''',
+        'arabic': '''ثواب تلاوة القرآن
+
+القرآن كلام الله، وتلاوته فيها أجر عظيم.
+
+عشر حسنات بكل حرف:
+• قال النبي ﷺ: "من قرأ حرفاً من كتاب الله فله حسنة، والحسنة بعشر أمثالها."
+• "لا أقول ألم حرف، ولكن ألف حرف، ولام حرف، وميم حرف." (الترمذي)
+• أي أن قراءة "بسم الله" وحدها تعطي 190 حسنة!
+
+مضاعفة الأجر للمتعسر:
+• "الماهر بالقرآن مع السفرة الكرام البررة."
+• "والذي يقرأ القرآن ويتتعتع فيه وهو عليه شاق له أجران." (البخاري ومسلم)
+• لا تيأس إن كانت القراءة صعبة - لك أجر مضاعف!
+
+ثواب القراءة ليلاً:
+• "من قرأ بعشر آيات في قيام الليل لم يكتب من الغافلين."
+• "ومن قرأ بمائة آية كتب من القانتين."
+• "ومن قرأ بألف آية كتب من المقنطرين." (أبو داود)
+
+خير الناس:
+• قال النبي ﷺ: "خيركم من تعلم القرآن وعلمه." (البخاري)
+• تعليم القرآن صدقة جارية - أجر مستمر بعد الموت
+
+فضائل السور:
+• سورة الفاتحة: أعظم سورة في القرآن
+• آية الكرسي بعد كل صلاة: لم يمنعه من دخول الجنة إلا الموت
+• سورة الإخلاص: تعدل ثلث القرآن
+• سورة الملك قبل النوم: تحمي من عذاب القبر
+• آخر آيتين من البقرة ليلاً: تكفيان
+
+ثواب الاستماع:
+• "من استمع إلى آية من كتاب الله كتب له حسنة مضاعفة، ومن تلاها كانت له نوراً يوم القيامة." (أحمد)
+
+ختم القرآن:
+• الملائكة تدعو لمن يختم القرآن
+• قال النبي ﷺ: "اقرؤوا القرآن فإنه يأتي يوم القيامة شفيعاً لأصحابه." (مسلم)'''
+      },
+    },
+    {
+      'number': 8,
+      'titleKey': 'savab_fazilat_8_prayer_rewards',
+      'title': 'Savab of Prayer (Namaz)',
+      'titleUrdu': 'نماز کا ثواب',
+      'titleHindi': 'नमाज़ का सवाब',
+      'titleArabic': 'ثواب الصلاة',
+      'icon': Icons.mosque,
+      'color': Colors.brown,
+      'details': {
+        'english': '''Savab of Prayer (Namaz)
+
+Prayer is the greatest act of worship and the most beloved deed to Allah.
+
+Five Daily Prayers:
+• "The five daily prayers and Jumu'ah to Jumu'ah is an expiation of sins committed between them, as long as one avoids major sins." (Muslim)
+• Prayer was given as 5 in place of 50 - each prayer has tenfold reward
+• It is the first thing a person will be questioned about on Day of Judgment
+
+Congregation Prayer (Jama'at):
+• "Prayer in congregation is twenty-seven times better than prayer alone." (Bukhari & Muslim)
+• Walking to the mosque - every step removes a sin and raises a rank
+• Waiting in the mosque for prayer - like being in prayer
+• Angels make dua for those sitting in the mosque
+
+Tahajjud (Night Prayer):
+• "The best prayer after the obligatory prayers is prayer in the depths of night." (Muslim)
+• Allah descends to the lowest heaven in the last third of night and says: "Who will call upon Me that I may answer? Who will ask of Me that I may give?"
+• Sign of the righteous - they sleep little and seek forgiveness at dawn
+
+Fajr Prayer:
+• "Whoever prays Fajr in congregation, then sits remembering Allah until sunrise, then prays two rak'ah, receives reward of complete Hajj and Umrah." (Tirmidhi)
+• "Whoever prays Fajr is under Allah's protection."
+• Two rak'ah before Fajr are better than the world and everything in it
+
+12 Rak'ah Sunnah Daily:
+• "Whoever prays 12 rak'ah during the day and night, a house will be built for him in Paradise."
+• 2 before Fajr, 4 before Zuhr, 2 after Zuhr, 2 after Maghrib, 2 after Isha
+
+Friday Prayer (Jumu'ah):
+• Master of all days - reward of Hajj for complete observance
+• Going early to Jumu'ah: first hour like sacrificing a camel, second hour a cow, third a ram...
+• Hour of accepted dua on Friday
+
+Other Nafl Prayers:
+• Ishraaq after sunrise - reward of Hajj and Umrah
+• Duha (Chaasht) - fulfills charity for every joint
+• Awwabin after Maghrib (6 rak'ah) - reward of 12 years worship
+• Tahiyyat al-Masjid when entering mosque
+• Tahiyyat al-Wudu after ablution''',
+        'urdu': '''نماز کا ثواب
+
+نماز سب سے بڑی عبادت اور اللہ کو سب سے محبوب عمل ہے۔
+
+پانچ وقت کی نمازیں:
+• "پانچ وقت کی نمازیں اور جمعہ سے جمعہ تک درمیان کے گناہوں کا کفارہ ہیں، جب تک کبیرہ گناہوں سے بچا جائے۔" (مسلم)
+• نماز 50 کی جگہ 5 دی گئی - ہر نماز کا دس گنا ثواب
+• قیامت کے دن سب سے پہلے نماز کا حساب ہوگا
+
+جماعت کی نماز:
+• "جماعت کی نماز اکیلے نماز سے ستائیس گنا افضل ہے۔" (بخاری و مسلم)
+• مسجد کی طرف چلنا - ہر قدم گناہ مٹاتا اور درجہ بلند کرتا ہے
+• مسجد میں نماز کا انتظار - نماز میں ہونے کے برابر
+• فرشتے مسجد میں بیٹھنے والوں کے لیے دعا کرتے ہیں
+
+تہجد (رات کی نماز):
+• "فرض نمازوں کے بعد سب سے افضل نماز رات کے اندھیرے میں ہے۔" (مسلم)
+• اللہ رات کے آخری تہائی میں آسمان دنیا پر اترتا ہے اور فرماتا ہے: "کون مجھے پکارے گا کہ میں جواب دوں؟ کون مجھ سے مانگے گا کہ میں دوں؟"
+• صالحین کی نشانی - کم سوتے ہیں اور فجر سے پہلے معافی مانگتے ہیں
+
+فجر کی نماز:
+• "جو فجر جماعت سے پڑھے، پھر طلوع آفتاب تک اللہ کا ذکر کرتا رہے، پھر دو رکعت پڑھے، اسے مکمل حج و عمرہ کا ثواب ملتا ہے۔" (ترمذی)
+• "جو فجر پڑھے وہ اللہ کی پناہ میں ہے۔"
+• فجر سے پہلے دو رکعت دنیا اور جو کچھ اس میں ہے سب سے بہتر ہیں
+
+روزانہ 12 رکعت سنت:
+• "جو دن رات میں 12 رکعت پڑھے، اس کے لیے جنت میں گھر بنایا جائے گا۔"
+• فجر سے پہلے 2، ظہر سے پہلے 4، ظہر کے بعد 2، مغرب کے بعد 2، عشاء کے بعد 2
+
+جمعہ کی نماز:
+• تمام دنوں کا سردار - مکمل ادائیگی پر حج کا ثواب
+• جمعہ میں جلدی آنا: پہلے گھنٹے اونٹ کی قربانی، دوسرے گھنٹے گائے، تیسرے مینڈھا...
+• جمعہ کو قبولیت دعا کی گھڑی
+
+دیگر نفل نمازیں:
+• طلوع آفتاب کے بعد اشراق - حج و عمرہ کا ثواب
+• چاشت (ضحی) - ہر جوڑ کا صدقہ ادا کرتی ہے
+• مغرب کے بعد اوابین (6 رکعت) - 12 سال عبادت کا ثواب
+• مسجد میں داخل ہونے پر تحیۃ المسجد
+• وضو کے بعد تحیۃ الوضو''',
+        'hindi': '''नमाज़ का सवाब
+
+नमाज़ सबसे बड़ी इबादत और अल्लाह को सबसे महबूब अमल है।
+
+पांच वक़्त की नमाज़ें:
+• "पांच वक़्त की नमाज़ें और जुमा से जुमा तक दरमियान के गुनाहों का कफ़्फ़ारा हैं, जब तक कबीरा गुनाहों से बचा जाए।" (मुस्लिम)
+• नमाज़ 50 की जगह 5 दी गई - हर नमाज़ का दस गुना सवाब
+• क़यामत के दिन सबसे पहले नमाज़ का हिसाब होगा
+
+जमाअत की नमाज़:
+• "जमाअत की नमाज़ अकेले नमाज़ से सत्ताईस गुना अफ़ज़ल है।" (बुख़ारी व मुस्लिम)
+• मस्जिद की तरफ़ चलना - हर क़दम गुनाह मिटाता और दर्जा बुलंद करता है
+• मस्जिद में नमाज़ का इंतिज़ार - नमाज़ में होने के बराबर
+• फ़रिश्ते मस्जिद में बैठने वालों के लिए दुआ करते हैं
+
+तहज्जुद (रात की नमाज़):
+• "फ़र्ज़ नमाज़ों के बाद सबसे अफ़ज़ल नमाज़ रात के अंधेरे में है।" (मुस्लिम)
+• अल्लाह रात के आख़िरी तिहाई में आसमान दुनिया पर उतरता है और फ़रमाता है: "कौन मुझे पुकारेगा कि मैं जवाब दूं? कौन मुझसे मांगेगा कि मैं दूं?"
+• सालिहीन की निशानी - कम सोते हैं और फ़ज्र से पहले माफ़ी मांगते हैं
+
+फ़ज्र की नमाज़:
+• "जो फ़ज्र जमाअत से पढ़े, फिर तुलूए आफ़्ताब तक अल्लाह का ज़िक्र करता रहे, फिर दो रकअत पढ़े, उसे मुकम्मल हज व उमरा का सवाब मिलता है।" (तिर्मिज़ी)
+• "जो फ़ज्र पढ़े वो अल्लाह की पनाह में है।"
+• फ़ज्र से पहले दो रकअत दुनिया और जो कुछ उसमें है सबसे बेहतर हैं
+
+रोज़ाना 12 रकअत सुन्नत:
+• "जो दिन रात में 12 रकअत पढ़े, उसके लिए जन्नत में घर बनाया जाएगा।"
+• फ़ज्र से पहले 2, ज़ुहर से पहले 4, ज़ुहर के बाद 2, मग़रिब के बाद 2, इशा के बाद 2
+
+जुमा की नमाज़:
+• तमाम दिनों का सरदार - मुकम्मल अदायगी पर हज का सवाब
+• जुमा में जल्दी आना: पहले घंटे ऊंट की क़ुर्बानी, दूसरे घंटे गाय, तीसरे मेंढ़ा...
+• जुमा को क़बूलियत दुआ की घड़ी
+
+दीगर नफ़्ल नमाज़ें:
+• तुलूए आफ़्ताब के बाद इशराक़ - हज व उमरा का सवाब
+• चाश्त (ज़ुहा) - हर जोड़ का सदक़ा अदा करती है
+• मग़रिब के बाद अव्वाबीन (6 रकअत) - 12 साल इबादत का सवाब
+• मस्जिद में दाख़िल होने पर तहिय्यतुल मस्जिद
+• वुज़ू के बाद तहिय्यतुल वुज़ू''',
+        'arabic': '''ثواب الصلاة
+
+الصلاة أعظم العبادات وأحب الأعمال إلى الله.
+
+الصلوات الخمس:
+• "الصلوات الخمس والجمعة إلى الجمعة كفارة لما بينهن ما اجتنبت الكبائر." (مسلم)
+• الصلاة فُرضت خمسين ثم خُففت إلى خمس - كل صلاة بعشر أمثالها
+• أول ما يحاسب عليه العبد يوم القيامة
+
+صلاة الجماعة:
+• "صلاة الجماعة أفضل من صلاة الفذ بسبع وعشرين درجة." (البخاري ومسلم)
+• المشي إلى المسجد - كل خطوة تحط خطيئة وترفع درجة
+• انتظار الصلاة في المسجد - كالصلاة
+• الملائكة تدعو للجالس في المسجد
+
+صلاة التهجد:
+• "أفضل الصلاة بعد المكتوبة صلاة الليل." (مسلم)
+• ينزل الله في الثلث الأخير ويقول: "من يدعوني فأستجيب له؟ من يسألني فأعطيه؟"
+• علامة الصالحين - قليلو النوم يستغفرون بالأسحار
+
+صلاة الفجر:
+• "من صلى الفجر في جماعة ثم قعد يذكر الله حتى تطلع الشمس ثم صلى ركعتين كان له أجر حجة وعمرة تامة." (الترمذي)
+• "من صلى الفجر فهو في ذمة الله."
+• ركعتا الفجر خير من الدنيا وما فيها
+
+12 ركعة سنة يومياً:
+• "من صلى اثنتي عشرة ركعة في يوم وليلة بُني له بيت في الجنة."
+• ركعتان قبل الفجر، وأربع قبل الظهر وركعتان بعدها، وركعتان بعد المغرب، وركعتان بعد العشاء
+
+صلاة الجمعة:
+• سيد الأيام - أجر حجة للمحافظة عليها
+• التبكير للجمعة: الساعة الأولى كأنه قرب بدنة، والثانية بقرة، والثالثة كبش...
+• ساعة الإجابة يوم الجمعة
+
+صلوات نافلة أخرى:
+• الإشراق بعد طلوع الشمس - أجر حجة وعمرة
+• صلاة الضحى - تجزئ عن صدقة كل سلامى
+• الأوابين بعد المغرب (6 ركعات) - ثواب 12 سنة عبادة
+• تحية المسجد عند الدخول
+• تحية الوضوء بعد الوضوء'''
+      },
+    },
+    {
+      'number': 9,
+      'titleKey': 'savab_fazilat_9_charity_rewards',
+      'title': 'Savab of Charity (Sadaqah)',
+      'titleUrdu': 'صدقہ کا ثواب',
+      'titleHindi': 'सदक़े का सवाब',
+      'titleArabic': 'ثواب الصدقة',
+      'icon': Icons.favorite,
+      'color': Colors.red,
+      'details': {
+        'english': '''Savab of Charity (Sadaqah & Zakat)
+
+Charity is one of the most rewarding deeds in Islam.
+
+Multiplied Rewards:
+• "The example of those who spend in the way of Allah is like a seed that sprouts seven ears; in each ear is a hundred grains. Allah multiplies for whom He wills." (Quran 2:261)
+• One dirham of charity can become 700 or more in reward
+• "Those who give charity, men and women, and lend to Allah a goodly loan—it will be multiplied for them." (Quran 57:18)
+
+Allah's Promise:
+• The Prophet ﷺ said: "Allah says: 'Spend, O son of Adam, and I shall spend on you.'" (Bukhari & Muslim)
+• Charity does not decrease wealth - it increases it
+• Protection from calamities and hardship
+
+Charity Extinguishes Sins:
+• The Prophet ﷺ said: "Charity extinguishes sins just as water extinguishes fire." (Tirmidhi)
+• Even small charity removes sins
+• Regular charity purifies the heart and wealth
+
+Shade on Day of Judgment:
+• "Seven will be shaded by Allah on the Day when there is no shade except His shade... a man who gives charity so secretly that his left hand does not know what his right hand has given." (Bukhari)
+• Secret charity is 70 times more rewarding than public charity
+
+Best Forms of Charity:
+• "The best charity is giving water to drink." (Ahmad)
+• Feeding the hungry - especially during fasting
+• Helping the orphan and widow
+• Building wells, mosques, or hospitals (Sadaqah Jariyah)
+
+Continuous Reward (Sadaqah Jariyah):
+• "When a person dies, his deeds end except for three: ongoing charity, beneficial knowledge, or a righteous child who prays for him." (Muslim)
+• Examples: building a well, planting trees, teaching Quran
+
+Special Times for Charity:
+• Ramadan - rewards multiplied by thousands
+• Fridays - blessed day for giving
+• Days of hardship for others
+• When you have abundance
+
+Feeding a Fasting Person:
+• "Whoever gives iftar to a fasting person will have a reward like his, without reducing the fasting person's reward at all." (Tirmidhi)
+
+A Smile is Charity:
+• "Your smile to your brother is charity."
+• "Removing harm from the road is charity."
+• "A good word is charity."
+• Even intention to give charity when unable earns reward''',
+        'urdu': '''صدقہ کا ثواب
+
+صدقہ اسلام میں سب سے زیادہ ثواب والے اعمال میں سے ہے۔
+
+کئی گنا ثواب:
+• "جو لوگ اللہ کی راہ میں خرچ کرتے ہیں ان کی مثال اس دانے جیسی ہے جس سے سات بالیں نکلیں؛ ہر بالی میں سو دانے۔ اللہ جسے چاہے کئی گنا بڑھا دیتا ہے۔" (قرآن 2:261)
+• صدقے کا ایک درہم 700 یا اس سے زیادہ ثواب بن سکتا ہے
+• "جو مرد و عورت صدقہ دیتے ہیں اور اللہ کو اچھا قرض دیتے ہیں، ان کے لیے کئی گنا بڑھایا جائے گا۔" (قرآن 57:18)
+
+اللہ کا وعدہ:
+• نبی کریم ﷺ نے فرمایا: "اللہ فرماتا ہے: 'خرچ کرو اے ابن آدم، میں تم پر خرچ کروں گا۔'" (بخاری و مسلم)
+• صدقہ مال نہیں گھٹاتا - بلکہ بڑھاتا ہے
+• مصیبتوں اور تکلیف سے حفاظت
+
+صدقہ گناہ مٹاتا ہے:
+• نبی کریم ﷺ نے فرمایا: "صدقہ گناہوں کو ایسے بجھاتا ہے جیسے پانی آگ کو بجھاتا ہے۔" (ترمذی)
+• چھوٹا صدقہ بھی گناہ مٹاتا ہے
+• باقاعدہ صدقہ دل اور مال کو پاک کرتا ہے
+
+قیامت کے دن سایہ:
+• "سات لوگوں کو اللہ اس دن سایہ دے گا جب اس کے سائے کے سوا کوئی سایہ نہ ہوگا... وہ شخص جو اتنی خفیہ صدقہ دے کہ بائیں ہاتھ کو پتا نہ چلے دائیں ہاتھ نے کیا دیا۔" (بخاری)
+• خفیہ صدقہ علانیہ سے 70 گنا زیادہ ثواب رکھتا ہے
+
+صدقے کی بہترین شکلیں:
+• "سب سے بہترین صدقہ پانی پلانا ہے۔" (احمد)
+• بھوکوں کو کھانا کھلانا - خاص کر روزے میں
+• یتیم اور بیوہ کی مدد
+• کنواں، مسجد، یا ہسپتال بنانا (صدقہ جاریہ)
+
+جاری ثواب (صدقہ جاریہ):
+• "جب آدمی مر جاتا ہے تو اس کے اعمال ختم ہو جاتے ہیں سوائے تین کے: جاری صدقہ، نفع بخش علم، یا نیک اولاد جو اس کے لیے دعا کرے۔" (مسلم)
+• مثالیں: کنواں بنانا، درخت لگانا، قرآن سکھانا
+
+صدقے کے خاص اوقات:
+• رمضان - ہزاروں گنا ثواب
+• جمعہ - صدقے کا بابرکت دن
+• دوسروں کی تکلیف کے دن
+• جب آپ کے پاس فراوانی ہو
+
+روزہ دار کو افطار:
+• "جو روزہ دار کو افطار کرائے اسے اس جیسا ثواب ملے گا، روزہ دار کے ثواب میں کوئی کمی نہیں ہوگی۔" (ترمذی)
+
+مسکراہٹ صدقہ ہے:
+• "اپنے بھائی کو دیکھ کر مسکرانا صدقہ ہے۔"
+• "راستے سے تکلیف دہ چیز ہٹانا صدقہ ہے۔"
+• "اچھی بات صدقہ ہے۔"
+• صدقہ نہ دے سکنے کی صورت میں نیت کرنا بھی ثواب لاتا ہے''',
+        'hindi': '''सदक़े का सवाब
+
+सदक़ा इस्लाम में सबसे ज़्यादा सवाब वाले आमाल में से है।
+
+कई गुना सवाब:
+• "जो लोग अल्लाह की राह में ख़र्च करते हैं उनकी मिसाल उस दाने जैसी है जिससे सात बालियां निकलीं; हर बाली में सौ दाने। अल्लाह जिसे चाहे कई गुना बढ़ा देता है।" (क़ुरआन 2:261)
+• सदक़े का एक दिरहम 700 या उससे ज़्यादा सवाब बन सकता है
+• "जो मर्द व औरत सदक़ा देते हैं और अल्लाह को अच्छा क़र्ज़ देते हैं, उनके लिए कई गुना बढ़ाया जाएगा।" (क़ुरआन 57:18)
+
+अल्लाह का वादा:
+• नबी करीम ﷺ ने फ़रमाया: "अल्लाह फ़रमाता है: 'ख़र्च करो ऐ इब्ने आदम, मैं तुम पर ख़र्च करूंगा।'" (बुख़ारी व मुस्लिम)
+• सदक़ा माल नहीं घटाता - बल्कि बढ़ाता है
+• मुसीबतों और तकलीफ़ से हिफ़ाज़त
+
+सदक़ा गुनाह मिटाता है:
+• नबी करीम ﷺ ने फ़रमाया: "सदक़ा गुनाहों को ऐसे बुझाता है जैसे पानी आग को बुझाता है।" (तिर्मिज़ी)
+• छोटा सदक़ा भी गुनाह मिटाता है
+• बाक़ायदा सदक़ा दिल और माल को पाक करता है
+
+क़यामत के दिन साया:
+• "सात लोगों को अल्लाह उस दिन साया देगा जब उसके साये के सिवा कोई साया न होगा... वो शख़्स जो इतना ख़ुफ़िया सदक़ा दे कि बाएं हाथ को पता न चले दाएं हाथ ने क्या दिया।" (बुख़ारी)
+• ख़ुफ़िया सदक़ा अलानिया से 70 गुना ज़्यादा सवाब रखता है
+
+सदक़े की बेहतरीन शक्लें:
+• "सबसे बेहतरीन सदक़ा पानी पिलाना है।" (अहमद)
+• भूखों को खाना खिलाना - ख़ास कर रोज़े में
+• यतीम और बेवा की मदद
+• कुआं, मस्जिद, या हस्पताल बनाना (सदक़ा जारिया)
+
+जारी सवाब (सदक़ा जारिया):
+• "जब आदमी मर जाता है तो उसके आमाल ख़त्म हो जाते हैं सिवाए तीन के: जारी सदक़ा, नफ़ाबख़्श इल्म, या नेक औलाद जो उसके लिए दुआ करे।" (मुस्लिम)
+• मिसालें: कुआं बनाना, दरख़्त लगाना, क़ुरआन सिखाना
+
+सदक़े के ख़ास औक़ात:
+• रमज़ान - हज़ारों गुना सवाब
+• जुमा - सदक़े का बाबरकत दिन
+• दूसरों की तकलीफ़ के दिन
+• जब आपके पास फ़रावानी हो
+
+रोज़ादार को इफ़्तार:
+• "जो रोज़ादार को इफ़्तार कराए उसे उस जैसा सवाब मिलेगा, रोज़ादार के सवाब में कोई कमी नहीं होगी।" (तिर्मिज़ी)
+
+मुस्कुराहट सदक़ा है:
+• "अपने भाई को देखकर मुस्कुराना सदक़ा है।"
+• "रास्ते से तकलीफ़देह चीज़ हटाना सदक़ा है।"
+• "अच्छी बात सदक़ा है।"
+• सदक़ा न दे सकने की सूरत में नीयत करना भी सवाब लाता है''',
+        'arabic': '''ثواب الصدقة
+
+الصدقة من أعظم الأعمال ثواباً في الإسلام.
+
+مضاعفة الأجر:
+• "مَّثَلُ الَّذِينَ يُنفِقُونَ أَمْوَالَهُمْ فِي سَبِيلِ اللَّهِ كَمَثَلِ حَبَّةٍ أَنبَتَتْ سَبْعَ سَنَابِلَ فِي كُلِّ سُنبُلَةٍ مِّائَةُ حَبَّةٍ وَاللَّهُ يُضَاعِفُ لِمَن يَشَاءُ" (البقرة: 261)
+• الدرهم الواحد يصبح 700 أو أكثر في الأجر
+• "إِنَّ الْمُصَّدِّقِينَ وَالْمُصَّدِّقَاتِ وَأَقْرَضُوا اللَّهَ قَرْضًا حَسَنًا يُضَاعَفُ لَهُمْ" (الحديد: 18)
+
+وعد الله:
+• قال النبي ﷺ: "قال الله: أنفق يا ابن آدم أُنفق عليك." (البخاري ومسلم)
+• الصدقة لا تنقص المال بل تزيده
+• حماية من المصائب والشدائد
+
+الصدقة تطفئ الخطايا:
+• قال النبي ﷺ: "الصدقة تطفئ الخطيئة كما يطفئ الماء النار." (الترمذي)
+• حتى الصدقة القليلة تمحو الذنوب
+• الصدقة المنتظمة تطهر القلب والمال
+
+الظل يوم القيامة:
+• "سبعة يظلهم الله في ظله يوم لا ظل إلا ظله... ورجل تصدق بصدقة فأخفاها حتى لا تعلم شماله ما تنفق يمينه." (البخاري)
+• صدقة السر أفضل من العلانية بسبعين ضعفاً
+
+أفضل أنواع الصدقة:
+• "أفضل الصدقة سقي الماء." (أحمد)
+• إطعام الجائع - خاصة في الصيام
+• كفالة اليتيم والأرملة
+• بناء الآبار والمساجد والمستشفيات (صدقة جارية)
+
+الأجر المستمر (الصدقة الجارية):
+• "إذا مات الإنسان انقطع عمله إلا من ثلاثة: صدقة جارية، أو علم ينتفع به، أو ولد صالح يدعو له." (مسلم)
+• مثل: حفر بئر، غرس شجر، تعليم قرآن
+
+أوقات خاصة للصدقة:
+• رمضان - الأجر مضاعف بآلاف المرات
+• الجمعة - يوم مبارك للعطاء
+• أيام الشدة على الآخرين
+• عند الغنى والسعة
+
+تفطير الصائم:
+• "من فطّر صائماً كان له مثل أجره غير أنه لا ينقص من أجر الصائم شيء." (الترمذي)
+
+التبسم صدقة:
+• "تبسمك في وجه أخيك صدقة."
+• "إماطة الأذى عن الطريق صدقة."
+• "الكلمة الطيبة صدقة."
+• حتى نية الصدقة عند العجز لها أجر'''
+      },
+    },
+    {
+      'number': 10,
+      'titleKey': 'savab_fazilat_10_hajj_umrah_rewards',
+      'title': 'Savab of Hajj & Umrah',
+      'titleUrdu': 'حج و عمرہ کا ثواب',
+      'titleHindi': 'हज व उमरा का सवाब',
+      'titleArabic': 'ثواب الحج والعمرة',
+      'icon': Icons.location_city,
+      'color': Colors.deepPurple,
+      'details': {
+        'english': '''Savab of Hajj & Umrah
+
+Hajj and Umrah are among the greatest acts of worship with immense rewards.
+
+Hajj - The Fifth Pillar:
+• "Whoever performs Hajj for Allah's sake and does not commit any obscenity or wickedness, he returns (free from sins) as on the day his mother gave birth to him." (Bukhari & Muslim)
+• Complete forgiveness of all previous sins
+• Obligatory once in a lifetime for those who can afford it
+
+The Reward of Accepted Hajj:
+• "The reward for an accepted Hajj is nothing but Paradise." (Bukhari & Muslim)
+• Hajj Mabroor (accepted Hajj) has no reward except Jannah
+• Signs of acceptance: returning a better person, avoiding sins
+
+Day of Arafah:
+• "There is no day on which Allah frees more people from Hellfire than the Day of Arafah." (Muslim)
+• Allah boasts to the angels about the pilgrims
+• Dua on Arafah is readily accepted
+• Fasting on Arafah (for non-pilgrims) expiates sins of two years
+
+Tawaf Around the Kaaba:
+• Every step in Tawaf removes a sin and records a good deed
+• Like praying - be in state of purity
+• Seven circuits around the Kaaba carry immense reward
+• Touching or kissing the Black Stone forgives sins
+
+Sa'i Between Safa and Marwa:
+• Walking between these mountains is worship
+• Commemorating Hajar's (AS) search for water
+• Every step is rewarded
+
+Rewards of Umrah:
+• "Umrah is an expiation for the sins committed between it and the previous Umrah." (Bukhari & Muslim)
+• Umrah in Ramadan equals the reward of Hajj
+• Can be performed any time of year
+• Recommended to perform repeatedly
+
+Zamzam Water:
+• "The water of Zamzam is for whatever it is drunk for." (Ibn Majah)
+• Blessed water from the well of Ismail (AS)
+• Drinking with intention for healing, knowledge, or needs
+
+Prayer in Masjid al-Haram:
+• One prayer in Masjid al-Haram equals 100,000 prayers elsewhere
+• Staying in the Haram area multiplies all good deeds
+
+Visiting Madinah:
+• Prayer in Masjid al-Nabawi equals 1,000 prayers elsewhere
+• Visiting the Prophet's ﷺ grave - blessed journey
+• Praying in Rawdah - a garden from the gardens of Paradise
+• "Whoever visits my grave, my intercession becomes due for him." (Daraqutni)''',
+        'urdu': '''حج و عمرہ کا ثواب
+
+حج و عمرہ سب سے بڑی عبادات میں سے ہیں جن کا بے حد ثواب ہے۔
+
+حج - پانچواں رکن:
+• "جو اللہ کی رضا کے لیے حج کرے اور کوئی فحش یا برا کام نہ کرے، وہ ایسے لوٹتا ہے جیسے اس کی ماں نے اسے جنم دیا تھا۔" (بخاری و مسلم)
+• تمام پچھلے گناہوں کی مکمل معافی
+• زندگی میں ایک بار فرض ہے جو استطاعت رکھتے ہوں
+
+حج مقبول کا ثواب:
+• "حج مقبول کا ثواب جنت کے سوا کچھ نہیں۔" (بخاری و مسلم)
+• حج مبرور کا بدلہ صرف جنت ہے
+• قبولیت کی علامات: بہتر انسان بن کر لوٹنا، گناہوں سے بچنا
+
+عرفہ کا دن:
+• "کوئی دن ایسا نہیں جس میں اللہ عرفہ کے دن سے زیادہ لوگوں کو جہنم سے آزاد کرے۔" (مسلم)
+• اللہ فرشتوں کے سامنے حاجیوں پر فخر کرتا ہے
+• عرفہ کی دعا فوری قبول ہوتی ہے
+• عرفہ کا روزہ (غیر حاجیوں کے لیے) دو سال کے گناہ مٹاتا ہے
+
+کعبہ کا طواف:
+• طواف کا ہر قدم گناہ مٹاتا اور نیکی لکھتا ہے
+• نماز کی طرح - با وضو ہونا ضروری ہے
+• کعبہ کے سات چکروں کا بے حد ثواب ہے
+• حجر اسود کو چھونا یا چومنا گناہ معاف کرتا ہے
+
+صفا و مروہ کی سعی:
+• ان پہاڑوں کے درمیان چلنا عبادت ہے
+• حضرت ہاجرہ علیہا السلام کی پانی کی تلاش کی یاد
+• ہر قدم کا ثواب ہے
+
+عمرہ کا ثواب:
+• "عمرہ پچھلے عمرہ سے لے کر درمیان کے گناہوں کا کفارہ ہے۔" (بخاری و مسلم)
+• رمضان میں عمرہ حج کے ثواب کے برابر ہے
+• سال کے کسی بھی وقت کیا جا سکتا ہے
+• بار بار کرنا مستحب ہے
+
+زمزم کا پانی:
+• "زمزم کا پانی جس نیت سے پیا جائے اسی کے لیے ہے۔" (ابن ماجہ)
+• حضرت اسماعیل علیہ السلام کے کنویں کا بابرکت پانی
+• شفا، علم، یا ضرورت کی نیت سے پینا
+
+مسجد الحرام میں نماز:
+• مسجد الحرام میں ایک نماز دوسری جگہ ایک لاکھ نمازوں کے برابر ہے
+• حرم میں رہنا تمام نیکیوں کو کئی گنا کر دیتا ہے
+
+مدینہ کی زیارت:
+• مسجد نبوی میں نماز دوسری جگہ ہزار نمازوں کے برابر ہے
+• نبی کریم ﷺ کی قبر مبارک کی زیارت - بابرکت سفر
+• روضہ میں نماز - جنت کے باغوں میں سے ایک باغ
+• "جو میری قبر کی زیارت کرے، اس کے لیے میری شفاعت واجب ہو جاتی ہے۔" (دارقطنی)''',
+        'hindi': '''हज व उमरा का सवाब
+
+हज व उमरा सबसे बड़ी इबादात में से हैं जिनका बेहद सवाब है।
+
+हज - पांचवां रुक्न:
+• "जो अल्लाह की रज़ा के लिए हज करे और कोई फ़हश या बुरा काम न करे, वो ऐसे लौटता है जैसे उसकी मां ने उसे जन्म दिया था।" (बुख़ारी व मुस्लिम)
+• तमाम पिछले गुनाहों की मुकम्मल माफ़ी
+• ज़िंदगी में एक बार फ़र्ज़ है जो इस्तिताअत रखते हों
+
+हज मक़बूल का सवाब:
+• "हज मक़बूल का सवाब जन्नत के सिवा कुछ नहीं।" (बुख़ारी व मुस्लिम)
+• हज मबरूर का बदला सिर्फ़ जन्नत है
+• क़बूलियत की अलामात: बेहतर इंसान बनकर लौटना, गुनाहों से बचना
+
+अरफ़ा का दिन:
+• "कोई दिन ऐसा नहीं जिसमें अल्लाह अरफ़ा के दिन से ज़्यादा लोगों को जहन्नम से आज़ाद करे।" (मुस्लिम)
+• अल्लाह फ़रिश्तों के सामने हाजियों पर फ़ख़्र करता है
+• अरफ़ा की दुआ फ़ौरन क़बूल होती है
+• अरफ़ा का रोज़ा (ग़ैर हाजियों के लिए) दो साल के गुनाह मिटाता है
+
+काबा का तवाफ़:
+• तवाफ़ का हर क़दम गुनाह मिटाता और नेकी लिखता है
+• नमाज़ की तरह - बा वुज़ू होना ज़रूरी है
+• काबा के सात चक्करों का बेहद सवाब है
+• हजर असवद को छूना या चूमना गुनाह माफ़ करता है
+
+सफ़ा व मरवा की सई:
+• इन पहाड़ों के दरमियान चलना इबादत है
+• हज़रत हाजरा अलैहस्सलाम की पानी की तलाश की याद
+• हर क़दम का सवाब है
+
+उमरा का सवाब:
+• "उमरा पिछले उमरा से लेकर दरमियान के गुनाहों का कफ़्फ़ारा है।" (बुख़ारी व मुस्लिम)
+• रमज़ान में उमरा हज के सवाब के बराबर है
+• साल के किसी भी वक़्त किया जा सकता है
+• बार बार करना मुस्तहब है
+
+ज़मज़म का पानी:
+• "ज़मज़म का पानी जिस नीयत से पिया जाए उसी के लिए है।" (इब्न माजा)
+• हज़रत इस्माईल अलैहिस्सलाम के कुएं का बाबरकत पानी
+• शिफ़ा, इल्म, या ज़रूरत की नीयत से पीना
+
+मस्जिद अल-हराम में नमाज़:
+• मस्जिद अल-हराम में एक नमाज़ दूसरी जगह एक लाख नमाज़ों के बराबर है
+• हरम में रहना तमाम नेकियों को कई गुना कर देता है
+
+मदीना की ज़ियारत:
+• मस्जिद नबवी में नमाज़ दूसरी जगह हज़ार नमाज़ों के बराबर है
+• नबी करीम ﷺ की क़ब्र मुबारक की ज़ियारत - बाबरकत सफ़र
+• रौज़ा में नम��ज़ - जन्नत के बाग़ों में से एक बाग़
+• "जो मेरी क़ब्र की ज़ियारत करे, उसके लिए मेरी शफ़ाअत वाजिब हो जाती है।" (दारक़ुतनी)''',
+        'arabic': '''ثواب الحج والعمرة
+
+الحج والعمرة من أعظم العبادات ذات الأجر العظيم.
+
+الحج - الركن الخامس:
+• "من حج لله فلم يرفث ولم يفسق رجع كيوم ولدته أمه." (البخاري ومسلم)
+• مغفرة كاملة لجميع الذنوب السابقة
+• واجب مرة في العمر لمن استطاع
+
+ثواب الحج المبرور:
+• "الحج المبرور ليس له جزاء إلا الجنة." (البخاري ومسلم)
+• الحج المبرور جزاؤه الجنة فقط
+• علامات القبول: العودة إنساناً أفضل، اجتناب الذنوب
+
+يوم عرفة:
+• "ما من يوم أكثر من أن يعتق الله فيه عبداً من النار من يوم عرفة." (مسلم)
+• الله يباهي بالحجاج أمام الملائكة
+• الدعاء في عرفة مستجاب
+• صيام عرفة (لغير الحجاج) يكفر سنتين
+
+الطواف حول الكعبة:
+• كل خطوة في الطواف تحط خطيئة وتكتب حسنة
+• كالصلاة - يجب أن تكون على طهارة
+• سبعة أشواط حول الكعبة لها أجر عظيم
+• استلام الحجر الأسود أو تقبيله يغفر الذنوب
+
+السعي بين الصفا والمروة:
+• المشي بين الجبلين عبادة
+• إحياء ذكرى بحث هاجر عليها السلام عن الماء
+• كل خطوة لها أجر
+
+ثواب العمرة:
+• "العمرة إلى العمرة كفارة لما بينهما." (البخاري ومسلم)
+• العمرة في رمضان تعدل حجة
+• يمكن أداؤها في أي وقت من السنة
+• يستحب تكرارها
+
+ماء زمزم:
+• "ماء زمزم لما شرب له." (ابن ماجه)
+• ماء مبارك من بئر إسماعيل عليه السلام
+• الشرب بنية الشفاء أو العلم أو الحاجة
+
+الصلاة في المسجد الحرام:
+• صلاة في المسجد الحرام تعدل مائة ألف صلاة
+• المكث في الحرم يضاعف الحسنات
+
+زيارة المدينة:
+• الصلاة في المسجد النبوي تعدل ألف صلاة
+• زيارة قبر النبي ﷺ - رحلة مباركة
+• الصلاة في الروضة - روضة من رياض الجنة
+• "من زار قبري وجبت له شفاعتي." (الدارقطني)'''
+      },
+    },
   ];
 
   @override
@@ -1092,11 +1835,15 @@ Protecting Through Dua:
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: context.responsive.paddingRegular,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: Builder(
+        builder: (context) {
+          final langCode = context.languageProvider.languageCode;
+          final isRtl = langCode == 'ur' || langCode == 'ar';
+          return SingleChildScrollView(
+            padding: context.responsive.paddingRegular,
+            child: Column(
+              crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -1107,35 +1854,13 @@ Protecting Through Dua:
               },
             ),
           ],
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  PopupMenuItem<String> _buildLanguageMenuItem(String value, String label) {
-    return PopupMenuItem(
-      value: value,
-      child: Row(
-        children: [
-          Icon(
-            _selectedLanguage == value ? Icons.check_circle : Icons.circle_outlined,
-            color: _selectedLanguage == value ? AppColors.primary : Colors.grey,
-            size: context.responsive.iconSmall,
-          ),
-          SizedBox(width: context.responsive.spaceSmall),
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: _selectedLanguage == value
-                  ? FontWeight.bold
-                  : FontWeight.normal,
-              color: _selectedLanguage == value ? AppColors.primary : null,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildTopicCard(Map<String, dynamic> topic, bool isDark) {
     final langCode = context.languageProvider.languageCode;
@@ -1156,8 +1881,8 @@ return Container(
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
-            offset: Offset(0, responsive.spacing(2)),
+            blurRadius: 10.0,
+            offset: Offset(0, 2.0),
           ),
         ],
       ),
@@ -1170,16 +1895,16 @@ return Container(
             children: [
               // Number Badge
               Container(
-                width: responsive.spacing(50),
-                height: responsive.spacing(50),
+                width: responsive.iconLarge * 1.5,
+                height: responsive.iconLarge * 1.5,
                 decoration: BoxDecoration(
                   color: darkGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
                       color: darkGreen.withValues(alpha: 0.3),
-                      blurRadius: responsive.spacing(8),
-                      offset: Offset(0, responsive.spacing(2)),
+                      blurRadius: 8,
+                      offset: Offset(0, 2.0),
                     ),
                   ],
                 ),
@@ -1194,12 +1919,14 @@ return Container(
                   ),
                 ),
               ),
-              SizedBox(width: responsive.spacing(14)),
+              responsive.hSpaceSmall,
 
               // Title and Icon chip
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: (langCode == 'ur' || langCode == 'ar')
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
                   children: [
                     // Title
                     Text(
@@ -1209,9 +1936,11 @@ return Container(
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : darkGreen,
                       ),
-                      textDirection: langCode == 'ur' ? TextDirection.rtl : TextDirection.ltr,
+                      textDirection: (langCode == 'ur' || langCode == 'ar') ? TextDirection.rtl : TextDirection.ltr,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: responsive.spacing(4)),
+                    responsive.vSpaceXSmall,
                     // Icon chip
                     Container(
                       padding: responsive.paddingSymmetric(horizontal: 8, vertical: 2),
@@ -1227,13 +1956,17 @@ return Container(
                             size: responsive.textXSmall + 2,
                             color: emeraldGreen,
                           ),
-                          SizedBox(width: responsive.spacing(4)),
-                          Text(
-                            context.tr('savab_fazilat'),
-                            style: TextStyle(
-                              fontSize: responsive.textXSmall,
-                              fontWeight: FontWeight.w600,
-                              color: emeraldGreen,
+                          responsive.hSpaceXSmall,
+                          Flexible(
+                            child: Text(
+                              context.tr('savab_fazilat'),
+                              style: TextStyle(
+                                fontSize: responsive.textXSmall,
+                                fontWeight: FontWeight.w600,
+                                color: emeraldGreen,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -1265,7 +1998,6 @@ return Container(
 
   void _showTopicDetails(Map<String, dynamic> topic) {
     final details = topic['details'] as Map<String, String>;
-    final titleKey = topic['titleKey'] ?? 'savab_fazilat';
     Navigator.push(
       context,
       MaterialPageRoute(

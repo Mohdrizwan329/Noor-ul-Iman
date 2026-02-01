@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/settings_provider.dart';
 import '../../widgets/common/search_bar_widget.dart';
 import 'basic_amal_detail_screen.dart';
@@ -15,7 +14,6 @@ class MonthNameFazilatScreen extends StatefulWidget {
 }
 
 class _MonthNameFazilatScreenState extends State<MonthNameFazilatScreen> {
-  String _selectedLanguage = 'english';
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -921,11 +919,11 @@ Recommended Acts:
     },
     {
       'number': 8,
-      'titleKey': 'month_name_fazilat_8_ramadan',
+      'titleKey': 'month_name_fazilat_8_shaban',
       'title': 'Sha\'ban',
       'titleUrdu': 'شعبان',
       'titleHindi': 'शाबान',
-      'titleArabic': 'رمضان',
+      'titleArabic': 'شعبان',
       'icon': Icons.calendar_month,
       'color': Colors.pink,
       'details': {
@@ -1028,48 +1026,48 @@ Important:
 अहम:
 • रमज़ान से एक या दो दिन पहले रोज़ा रखना बंद करें
 • नबी करीम ﷺ ने फ़रमाया: "रमज़ान से एक या दो दिन पहले रोज़ा रखकर उससे आगे न बढ़ो।" (बुख़ारी)''',
-        'arabic': '''شهر رمضان
+        'arabic': '''شهر شعبان
 
-أفضل شهور السنة وشهر الصيام المفروض.
+الشهر الثامن من السنة الهجرية، يسبق شهر رمضان المبارك مباشرة.
 
-فضل شهر رمضان:
-• "شَهْرُ رَمَضَانَ الَّذِي أُنزِلَ فِيهِ الْقُرْآنُ" (سورة البقرة: 185)
-• فيه ليلة القدر خير من ألف شهر
-• تفتح فيه أبواب الجنة
-• تغلق فيه أبواب النار
-• تصفد فيه الشياطين
+معنى الاسم:
+• "شعبان" من "تشعّب" أي تفرّق
+• كان العرب يتشعبون فيه للغارات
+• قيل: لتشعب الخير فيه
 
-الصيام:
-• ركن من أركان الإسلام
-• واجب على كل مسلم بالغ عاقل
-• من الفجر إلى المغرب
-• "كُتِبَ عَلَيْكُمُ الصِّيَامُ" (سورة البقرة: 183)
+فضل شهر شعبان:
+• كان النبي ﷺ يصوم معظمه
+• قالت عائشة رضي الله عنها: "ما رأيت رسول الله ﷺ استكمل صيام شهر قط إلا رمضان، وما رأيته في شهر أكثر صياماً منه في شعبان" (البخاري ومسلم)
 
-القيام:
-• قيام رمضان سنة مؤكدة
-• صلاة التراويح
-• قال النبي ﷺ: "من قام رمضان إيماناً واحتساباً غفر له ما تقدم من ذنبه" (البخاري)
+ليلة النصف من شعبان:
+• وردت أحاديث في فضلها، اختلف العلماء في صحتها
+• يُستحب العبادة فيها دون اعتبارها واجبة
+• تجنب البدع والغلو
 
-ليلة القدر:
-• خير من ألف شهر
-• "إِنَّا أَنزَلْنَاهُ فِي لَيْلَةِ الْقَدْرِ" (سورة القدر: 1)
-• في العشر الأواخر من رمضان
-• الأرجح في الوتر منها
+الاستعداد لرمضان:
+• أفضل وقت للتدريب على صيام رمضان
+• زيادة تلاوة القرآن
+• قال النبي ﷺ: "ذاك شهر يغفل الناس عنه بين رجب ورمضان" (النسائي)
 
-زكاة الفطر:
-• واجبة على كل مسلم
-• تطهير للصائم
-• طعمة للمساكين
-• قبل صلاة العيد''',
+الأعمال المستحبة:
+• صيام التطوع (خاصة النصف الأول)
+• نهى النبي ﷺ عن الصيام في النصف الثاني إلا لمن له عادة
+• زيادة الأعمال الصالحة
+• مراجعة وحفظ القرآن
+• قضاء ما فات من رمضان الماضي
+
+تنبيه مهم:
+• التوقف عن الصيام قبل رمضان بيوم أو يومين
+• قال النبي ﷺ: "لا تقدموا رمضان بصوم يوم أو يومين" (البخاري)''',
       },
     },
     {
       'number': 9,
-      'titleKey': 'month_name_fazilat_9_shawwal',
+      'titleKey': 'month_name_fazilat_9_ramadan',
       'title': 'Ramadan',
       'titleUrdu': 'رمضان',
       'titleHindi': 'रमज़ान',
-      'titleArabic': 'شوال',
+      'titleArabic': 'رمضان',
       'icon': Icons.calendar_month,
       'color': Colors.amber,
       'details': {
@@ -1172,53 +1170,53 @@ Suhoor (Pre-dawn meal):
 
 सहरी:
 • नबी करीम ﷺ ने फ़रमाया: "सहरी खाओ, इसमें बरकत है।" (बुख़ारी)''',
-        'arabic': '''شهر شوال
+        'arabic': '''شهر رمضان
 
-العاشر من شهور السنة وفيه عيد الفطر.
+أفضل شهور السنة وشهر الصيام المفروض.
 
-عيد الفطر:
-• أول أيام شوال
-• عيد المسلمين بعد رمضان
-• صلاة العيد سنة مؤكدة
-• "فَصَلِّ لِرَبِّكَ وَانْحَرْ" (سورة الكوثر: 2)
+فضل شهر رمضان:
+• "شَهْرُ رَمَضَانَ الَّذِي أُنزِلَ فِيهِ الْقُرْآنُ" (سورة البقرة: 185)
+• فيه ليلة القدر خير من ألف شهر
+• تفتح فيه أبواب الجنة
+• تغلق فيه أبواب النار
+• تصفد فيه الشياطين
 
-صيام ستة من شوال:
-• قال النبي ﷺ: "من صام رمضان ثم أتبعه ستاً من شوال كان كصيام الدهر" (مسلم)
-• تصام متتابعة أو متفرقة
-• بعد عيد الفطر
-• أجر عظيم
+الصيام:
+• ركن من أركان الإسلام
+• واجب على كل مسلم بالغ عاقل
+• من الفجر إلى المغرب
+• "كُتِبَ عَلَيْكُمُ الصِّيَامُ" (سورة البقرة: 183)
 
-فضل الصيام بعد رمضان:
-• دليل على قبول رمضان
-• الحسنة بعشر أمثالها
-• رمضان (30 × 10 = 300) + شوال (6 × 10 = 60) = 360 يوماً
+القيام:
+• قيام رمضان سنة مؤكدة
+• صلاة التراويح
+• قال النبي ﷺ: "من قام رمضان إيماناً واحتساباً غفر له ما تقدم من ذنبه" (البخاري)
 
-آداب العيد:
-• الاغتسال والتطيب
-• لبس أحسن الثياب
-• التكبير من الفجر
-• الفطر قبل الصلاة
-• الذهاب من طريق والعودة من آخر
+ليلة القدر:
+• خير من ألف شهر
+• "إِنَّا أَنزَلْنَاهُ فِي لَيْلَةِ الْقَدْرِ" (سورة القدر: 1)
+• في العشر الأواخر من رمضان
+• الأرجح في الوتر منها
 
-صلة الرحم:
-• زيارة الأقارب
-• التهنئة بالعيد
-• التسامح والمودة
-• إدخال السرور
+زكاة الفطر:
+• واجبة على كل مسلم
+• تطهير للصائم
+• طعمة للمساكين
+• قبل صلاة العيد
 
-شكر النعمة:
-• شكر الله على إتمام رمضان
-• الاستمرار على الطاعة
-• عدم العودة للمعاصي''',
+الإفطار والسحور:
+• السنة الإفطار على تمر وماء
+• الدعاء عند الإفطار مستجاب
+• "تسحروا فإن في السحور بركة" (البخاري)''',
       },
     },
     {
       'number': 10,
-      'titleKey': 'month_name_fazilat_10_dhulhijjah',
+      'titleKey': 'month_name_fazilat_10_shawwal',
       'title': 'Shawwal',
       'titleUrdu': 'شوال',
       'titleHindi': 'शव्वाल',
-      'titleArabic': 'ذو الحجة',
+      'titleArabic': 'شوال',
       'icon': Icons.calendar_month,
       'color': Colors.lime,
       'details': {
@@ -1318,52 +1316,52 @@ Acts of Worship:
 • छह दिन के रोज़े
 • रमज़ान के छूटे रोज़े पूरे करना
 • रमज़ान की अच्छी आदतें जारी रखना''',
-        'arabic': '''ذو الحجة
+        'arabic': '''شهر شوال
 
-الثاني عشر من شهور السنة وفيه الحج وعيد الأضحى.
+العاشر من شهور السنة الهجرية وفيه عيد الفطر المبارك.
 
-فضل شهر ذي الحجة:
-• من الأشهر الحرم
-• فيه أفضل أيام الدنيا
-• "وَالْفَجْرِ * وَلَيَالٍ عَشْرٍ" (سورة الفجر: 1-2)
-• العشر الأوائل منه أفضل أيام العام
+عيد الفطر:
+• أول أيام شوال
+• عيد المسلمين بعد إتمام صيام رمضان
+• صلاة العيد سنة مؤكدة
+• يحرم صيام يوم العيد
+• إخراج زكاة الفطر قبل الصلاة
 
-العشر الأوائل:
-• قال النبي ﷺ: "ما من أيام العمل الصالح فيهن أحب إلى الله من هذه الأيام" (البخاري)
-• يستحب الإكثار من العمل الصالح
-• التكبير والتهليل والتحميد
-• الصيام والصدقة
+صيام ستة من شوال:
+• قال النبي ﷺ: "من صام رمضان ثم أتبعه ستاً من شوال كان كصيام الدهر" (مسلم)
+• يمكن صيامها متتابعة أو متفرقة
+• الأفضل البدء بها بعد العيد مباشرة
+• أجر عظيم لمن صامها
 
-يوم عرفة:
-• التاسع من ذي الحجة
-• أعظم أيام السنة
-• قال النبي ﷺ: "صيام يوم عرفة أحتسب على الله أن يكفر السنة التي قبله والسنة التي بعده" (مسلم)
-• ركن الحج الأعظم
+حساب الأجر:
+• رمضان = 30 × 10 = 300 يوم
+• شوال = 6 × 10 = 60 يوم
+• المجموع = 360 يوماً (سنة كاملة)
 
-يوم النحر:
-• العاشر من ذي الحجة
-• عيد الأضحى
-• أعظم الأيام عند الله
-• "إِنَّ أَوَّلَ بَيْتٍ وُضِعَ لِلنَّاسِ" (سورة آل عمران: 96)
+آداب العيد:
+• الاغتسال والتطيب
+• لبس أحسن الثياب
+• التكبير من الفجر حتى الصلاة
+• الفطر على تمرات قبل الصلاة
+• الذهاب من طريق والعودة من آخر
 
-الأضحية:
-• سنة مؤكدة
-• ذبح الأنعام تقرباً إلى الله
-• "فَصَلِّ لِرَبِّكَ وَانْحَرْ" (سورة الكوثر: 2)
-• توزيع اللحم على الفقراء
+صلة الرحم:
+• زيارة الأقارب والأرحام
+• التهنئة بالعيد
+• التسامح والمودة
+• إدخال السرور على الأهل
 
-الحج:
-• الركن الخامس من أركان الإسلام
-• واجب على المستطيع مرة في العمر
-• "وَلِلَّهِ عَلَى النَّاسِ حِجُّ الْبَيْتِ" (سورة آل عمران: 97)''',
+أحداث تاريخية:
+• زواج النبي ﷺ من عائشة رضي الله عنها في شوال''',
       },
     },
     {
       'number': 11,
+      'titleKey': 'month_name_fazilat_11_dhulqadah',
       'title': 'Dhul-Qa\'dah',
       'titleUrdu': 'ذوالقعدہ',
       'titleHindi': 'ज़ुलक़ादा',
-      'titleArabic': 'النص العربي',
+      'titleArabic': 'ذو القعدة',
       'icon': Icons.calendar_month,
       'color': Colors.brown,
       'details': {
@@ -1507,10 +1505,11 @@ Reminder:
     },
     {
       'number': 12,
+      'titleKey': 'month_name_fazilat_12_dhulhijjah',
       'title': 'Dhul-Hijjah',
       'titleUrdu': 'ذوالحجہ',
       'titleHindi': 'ज़ुलहिज्जा',
-      'titleArabic': 'النص العربي',
+      'titleArabic': 'ذو الحجة',
       'icon': Icons.calendar_month,
       'color': Colors.deepOrange,
       'details': {
@@ -1731,21 +1730,21 @@ Recommended Acts:
             filteredMonths.isEmpty
                 ? Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(32),
+                      padding: context.responsive.paddingAll(32),
                       child: Column(
                         children: [
                           Icon(
                             Icons.search_off,
-                            size: 64,
+                            size: context.responsive.iconLarge * 2,
                             color: isDark
                                 ? Colors.grey.shade600
                                 : Colors.grey.shade400,
                           ),
-                          const SizedBox(height: 16),
+                          context.responsive.vSpaceRegular,
                           Text(
                             context.tr('no_months_found'),
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: context.responsive.textRegular,
                               color: isDark
                                   ? Colors.grey.shade400
                                   : Colors.grey.shade600,
@@ -1771,33 +1770,6 @@ Recommended Acts:
     );
   }
 
-  PopupMenuItem<String> _buildLanguageMenuItem(String value, String label) {
-    return PopupMenuItem(
-      value: value,
-      child: Row(
-        children: [
-          Icon(
-            _selectedLanguage == value
-                ? Icons.check_circle
-                : Icons.circle_outlined,
-            color: _selectedLanguage == value ? AppColors.primary : Colors.grey,
-            size: context.responsive.iconSmall,
-          ),
-          SizedBox(width: context.responsive.spaceSmall),
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: _selectedLanguage == value
-                  ? FontWeight.bold
-                  : FontWeight.normal,
-              color: _selectedLanguage == value ? AppColors.primary : null,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildMonthCard(Map<String, dynamic> month, bool isDark) {
     final langCode = context.languageProvider.languageCode;
     final title = context.tr(month['titleKey'] ?? 'month_name');
@@ -1818,8 +1790,8 @@ Recommended Acts:
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
-            offset: Offset(0, responsive.spacing(2)),
+            blurRadius: 10.0,
+            offset: Offset(0, 2.0),
           ),
         ],
       ),
@@ -1832,16 +1804,16 @@ Recommended Acts:
             children: [
               // Month Number Badge
               Container(
-                width: responsive.spacing(50),
-                height: responsive.spacing(50),
+                width: responsive.iconLarge * 1.5,
+                height: responsive.iconLarge * 1.5,
                 decoration: BoxDecoration(
                   color: darkGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
                       color: darkGreen.withValues(alpha: 0.3),
-                      blurRadius: responsive.spacing(8),
-                      offset: Offset(0, responsive.spacing(2)),
+                      blurRadius: 8,
+                      offset: Offset(0, 2.0),
                     ),
                   ],
                 ),
@@ -1856,12 +1828,14 @@ Recommended Acts:
                   ),
                 ),
               ),
-              SizedBox(width: responsive.spacing(14)),
+              responsive.hSpaceSmall,
 
               // Title and Icon chip
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: (langCode == 'ur' || langCode == 'ar')
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
                   children: [
                     // Title
                     Text(
@@ -1871,11 +1845,13 @@ Recommended Acts:
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : darkGreen,
                       ),
-                      textDirection: langCode == 'ur'
+                      textDirection: (langCode == 'ur' || langCode == 'ar')
                           ? TextDirection.rtl
                           : TextDirection.ltr,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: responsive.spacing(4)),
+                    responsive.vSpaceXSmall,
                     // Icon chip
                     Container(
                       padding: responsive.paddingSymmetric(
@@ -1896,13 +1872,17 @@ Recommended Acts:
                             size: responsive.textXSmall + 2,
                             color: emeraldGreen,
                           ),
-                          SizedBox(width: responsive.spacing(4)),
-                          Text(
-                            '${context.tr('islamic_month')} ${month['number']}',
-                            style: TextStyle(
-                              fontSize: responsive.textXSmall,
-                              fontWeight: FontWeight.w600,
-                              color: emeraldGreen,
+                          responsive.hSpaceXSmall,
+                          Flexible(
+                            child: Text(
+                              '${context.tr('islamic_month')} ${month['number']}',
+                              style: TextStyle(
+                                fontSize: responsive.textXSmall,
+                                fontWeight: FontWeight.w600,
+                                color: emeraldGreen,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],

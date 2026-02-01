@@ -6,8 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/location_service.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/language_provider.dart';
 
 class HalalFinderScreen extends StatefulWidget {
@@ -24,6 +23,13 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
   String? _error;
   Position? _currentPosition;
   String? _currentLanguage;
+
+  // Multiple Overpass API endpoints for fallback
+  final List<String> _overpassEndpoints = [
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://overpass.openstreetmap.ru/api/interpreter',
+  ];
 
   @override
   void initState() {
@@ -43,8 +49,8 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
         _currentPosition != null) {
       _currentLanguage = newLanguage;
       _refreshData();
-    } else if (_currentLanguage == null) {
-      _currentLanguage = newLanguage;
+    } else {
+      _currentLanguage ??= newLanguage;
     }
   }
 
@@ -130,26 +136,106 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
       }
 
       // Combined query for both restaurants and groceries
+      // Search within 5km radius with 45 second timeout
       final query =
           '''
-        [out:json][timeout:25];
+        [out:json][timeout:45];
         (
-          node["amenity"="restaurant"]["cuisine"~"halal|muslim|arabic|turkish|pakistani|indian|middle_eastern"](around:10000,${_currentPosition!.latitude},${_currentPosition!.longitude});
-          node["amenity"="fast_food"]["cuisine"~"halal|muslim|arabic|turkish|pakistani|indian|middle_eastern"](around:10000,${_currentPosition!.latitude},${_currentPosition!.longitude});
-          node["diet:halal"="yes"](around:10000,${_currentPosition!.latitude},${_currentPosition!.longitude});
-          node["halal"="yes"](around:10000,${_currentPosition!.latitude},${_currentPosition!.longitude});
-          node["shop"="butcher"]["halal"="yes"](around:10000,${_currentPosition!.latitude},${_currentPosition!.longitude});
-          node["shop"="supermarket"]["halal"="yes"](around:10000,${_currentPosition!.latitude},${_currentPosition!.longitude});
-          node["shop"="convenience"]["halal"="yes"](around:10000,${_currentPosition!.latitude},${_currentPosition!.longitude});
-          node["shop"="grocery"]["halal"="yes"](around:10000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          node["amenity"="restaurant"]["cuisine"~"halal|muslim|arabic|turkish|pakistani|indian|middle_eastern"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          node["amenity"="fast_food"]["cuisine"~"halal|muslim|arabic|turkish|pakistani|indian|middle_eastern"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          node["diet:halal"="yes"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          node["halal"="yes"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          node["shop"="butcher"]["halal"="yes"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          node["shop"="supermarket"]["halal"="yes"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          node["shop"="convenience"]["halal"="yes"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
+          node["shop"="grocery"]["halal"="yes"](around:5000,${_currentPosition!.latitude},${_currentPosition!.longitude});
         );
         out body;
       ''';
 
-      final response = await http.post(
-        Uri.parse('https://overpass-api.de/api/interpreter'),
-        body: query,
+      debugPrint(
+        'Halal Finder: Searching near ${_currentPosition!.latitude}, ${_currentPosition!.longitude}',
       );
+
+      // Try multiple endpoints with retry logic for reliability
+      http.Response? response;
+      String? lastError;
+      bool success = false;
+
+      for (
+        int endpointIndex = 0;
+        endpointIndex < _overpassEndpoints.length;
+        endpointIndex++
+      ) {
+        final endpoint = _overpassEndpoints[endpointIndex];
+        debugPrint(
+          'Halal Finder: Trying endpoint ${endpointIndex + 1}/${_overpassEndpoints.length}: $endpoint',
+        );
+
+        // Try each endpoint up to 2 times
+        for (int attempt = 1; attempt <= 2; attempt++) {
+          try {
+            debugPrint('Halal Finder: Attempt $attempt for $endpoint');
+
+            response = await http
+                .post(
+                  Uri.parse(endpoint),
+                  body: query,
+                  headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                  },
+                )
+                .timeout(
+                  const Duration(seconds: 60),
+                  onTimeout: () {
+                    throw Exception('Timeout after 60 seconds');
+                  },
+                );
+
+            // Check response status
+            if (response.statusCode == 200) {
+              debugPrint(
+                'Halal Finder: ✓ Success with $endpoint on attempt $attempt',
+              );
+              success = true;
+              break;
+            } else if (response.statusCode == 429) {
+              // Rate limited - try next endpoint immediately
+              lastError = 'Server busy (rate limited)';
+              debugPrint('Halal Finder: Rate limited, trying next endpoint');
+              break;
+            } else if (response.statusCode == 504 ||
+                response.statusCode >= 500) {
+              // Server error - retry with delay
+              lastError = 'Server error (${response.statusCode})';
+              debugPrint('Halal Finder: Server error ${response.statusCode}');
+              if (attempt < 2) {
+                await Future.delayed(Duration(seconds: attempt * 2));
+              }
+            } else {
+              // Client error - don't retry this endpoint
+              lastError = 'Request failed (${response.statusCode})';
+              debugPrint('Halal Finder: Client error ${response.statusCode}');
+              break;
+            }
+          } catch (e) {
+            lastError = e.toString();
+            debugPrint('Halal Finder: Error on $endpoint attempt $attempt: $e');
+            if (attempt < 2) {
+              // Exponential backoff before retry
+              await Future.delayed(Duration(seconds: attempt * 2));
+            }
+          }
+        }
+
+        // If successful, break out of endpoint loop
+        if (success) break;
+      }
+
+      // If all attempts failed, throw error
+      if (!success || response == null || response.statusCode != 200) {
+        throw Exception(lastError ?? 'All servers are currently unavailable');
+      }
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -225,10 +311,34 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
           _isLoading = false;
         });
       }
-    } catch (e) {
-      debugPrint('Error searching halal places: $e');
+    } catch (e, stackTrace) {
+      debugPrint('Halal Finder Error: $e');
+      debugPrint('Stack trace: $stackTrace');
+
+      // Provide user-friendly error messages
+      String userFriendlyError;
+      if (e.toString().contains('Timeout')) {
+        userFriendlyError =
+            'Connection timeout. Please check your internet and try again.';
+      } else if (e.toString().contains('SocketException') ||
+          e.toString().contains('Network')) {
+        userFriendlyError =
+            'No internet connection. Please check your network.';
+      } else if (e.toString().contains('rate limited')) {
+        userFriendlyError =
+            'Service is busy. Please wait a moment and try again.';
+      } else if (e.toString().contains('Server error')) {
+        userFriendlyError = 'Server temporarily unavailable. Please try again.';
+      } else if (e.toString().contains('unavailable')) {
+        userFriendlyError =
+            'Service temporarily unavailable. Pull down to retry.';
+      } else {
+        userFriendlyError = 'Unable to load halal places. Pull down to retry.';
+      }
+
       if (!mounted) return;
       setState(() {
+        _error = userFriendlyError;
         _isLoading = false;
       });
     }
@@ -286,7 +396,7 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
   }
 
   String _transliterateName(String name, String currentLang) {
-    // If already in target language or is default placeholder, return as is
+    // If already in target language, return as is
     if (name.contains('रेस्टोरेंट') ||
         name.contains('ریستوراں') ||
         name.contains('مطعم') ||
@@ -294,6 +404,67 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
         name.contains('اسٹور') ||
         name.contains('متجر')) {
       return name;
+    }
+
+    // Replace English words with target language equivalent
+    String translatedName = name;
+    if (currentLang == 'hi') {
+      translatedName = translatedName
+          .replaceAll('Restaurant', 'रेस्टोरेंट')
+          .replaceAll('restaurant', 'रेस्टोरेंट')
+          .replaceAll('RESTAURANT', 'रेस्टोरेंट')
+          .replaceAll('Store', 'स्टोर')
+          .replaceAll('store', 'स्टोर')
+          .replaceAll('Shop', 'दुकान')
+          .replaceAll('shop', 'दुकान')
+          .replaceAll('Cafe', 'कैफे')
+          .replaceAll('cafe', 'कैफे')
+          .replaceAll('Kitchen', 'किचन')
+          .replaceAll('kitchen', 'किचन')
+          .replaceAll('Food', 'खाना')
+          .replaceAll('food', 'खाना')
+          .replaceAll('Market', 'बाज़ार')
+          .replaceAll('market', 'बाज़ार')
+          .replaceAll('Grill', 'ग्रिल')
+          .replaceAll('grill', 'ग्रिल');
+    } else if (currentLang == 'ur') {
+      translatedName = translatedName
+          .replaceAll('Restaurant', 'ریستوراں')
+          .replaceAll('restaurant', 'ریستوراں')
+          .replaceAll('RESTAURANT', 'ریستوراں')
+          .replaceAll('Store', 'اسٹور')
+          .replaceAll('store', 'اسٹور')
+          .replaceAll('Shop', 'دکان')
+          .replaceAll('shop', 'دکان')
+          .replaceAll('Cafe', 'کیفے')
+          .replaceAll('cafe', 'کیفے')
+          .replaceAll('Kitchen', 'کچن')
+          .replaceAll('kitchen', 'کچن')
+          .replaceAll('Food', 'کھانا')
+          .replaceAll('food', 'کھانا')
+          .replaceAll('Market', 'بازار')
+          .replaceAll('market', 'بازار')
+          .replaceAll('Grill', 'گرل')
+          .replaceAll('grill', 'گرل');
+    } else if (currentLang == 'ar') {
+      translatedName = translatedName
+          .replaceAll('Restaurant', 'مطعم')
+          .replaceAll('restaurant', 'مطعم')
+          .replaceAll('RESTAURANT', 'مطعم')
+          .replaceAll('Store', 'متجر')
+          .replaceAll('store', 'متجر')
+          .replaceAll('Shop', 'محل')
+          .replaceAll('shop', 'محل')
+          .replaceAll('Cafe', 'مقهى')
+          .replaceAll('cafe', 'مقهى')
+          .replaceAll('Kitchen', 'مطبخ')
+          .replaceAll('kitchen', 'مطبخ')
+          .replaceAll('Food', 'طعام')
+          .replaceAll('food', 'طعام')
+          .replaceAll('Market', 'سوق')
+          .replaceAll('market', 'سوق')
+          .replaceAll('Grill', 'شواء')
+          .replaceAll('grill', 'شواء');
     }
 
     // Simple transliteration maps for common letters
@@ -352,7 +523,7 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
           .replaceAll('y', 'य')
           .replaceAll('z', 'ज');
     } else if (currentLang == 'ur') {
-      return name
+      return translatedName
           .replaceAll('A', 'اے')
           .replaceAll('B', 'بی')
           .replaceAll('C', 'سی')
@@ -380,7 +551,7 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
           .replaceAll('Y', 'وائی')
           .replaceAll('Z', 'زیڈ');
     } else if (currentLang == 'ar') {
-      return name
+      return translatedName
           .replaceAll('A', 'ا')
           .replaceAll('B', 'ب')
           .replaceAll('C', 'س')
@@ -409,7 +580,7 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
           .replaceAll('Z', 'ز');
     }
 
-    return name; // Return original for English
+    return translatedName; // Return translated name for all languages
   }
 
   String _buildAddress(
@@ -590,34 +761,44 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
                         SizedBox(height: responsive.spaceXSmall),
                         Row(
                           children: [
-                            Container(
-                              padding: responsive.paddingSymmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.secondary.withValues(
-                                  alpha: 0.2,
+                            Flexible(
+                              child: Container(
+                                padding: responsive.paddingSymmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
                                 ),
-                                borderRadius: BorderRadius.circular(
-                                  responsive.radiusMedium,
+                                decoration: BoxDecoration(
+                                  color: AppColors.secondary.withValues(
+                                    alpha: 0.2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(
+                                    responsive.radiusMedium,
+                                  ),
                                 ),
-                              ),
-                              child: Text(
-                                _translateCuisine(place.cuisine),
-                                style: TextStyle(
-                                  color: AppColors.secondaryDark,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: responsive.textSmall,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    _translateCuisine(place.cuisine),
+                                    style: TextStyle(
+                                      color: AppColors.secondaryDark,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: responsive.textSmall,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
                               ),
                             ),
                             SizedBox(width: responsive.spaceSmall),
-                            Text(
-                              '${_formatDistance(place.distance)} ${context.tr('away')}',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: responsive.textSmall,
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                '${_formatDistance(place.distance)} ${context.tr('away')}',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: responsive.textSmall,
+                                ),
                               ),
                             ),
                           ],
@@ -630,7 +811,10 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
               responsive.vSpaceLarge,
               _buildDetailRow(Icons.location_on, place.address),
               if (place.openingHours != null)
-                _buildDetailRow(Icons.access_time, _translateOpeningHours(place.openingHours!)),
+                _buildDetailRow(
+                  Icons.access_time,
+                  _translateOpeningHours(place.openingHours!),
+                ),
               if (place.phone != null)
                 _buildDetailRow(Icons.phone, place.phone!),
               responsive.vSpaceLarge,
@@ -688,8 +872,16 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
     return Padding(
       padding: responsive.paddingOnly(bottom: 12),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: responsive.iconSmall, color: Colors.grey[600]),
+          Padding(
+            padding: EdgeInsets.only(top: responsive.spacing(2)),
+            child: Icon(
+              icon,
+              size: responsive.iconSmall,
+              color: Colors.grey[600],
+            ),
+          ),
           SizedBox(width: responsive.spaceMedium),
           Expanded(
             child: Text(
@@ -698,6 +890,8 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
                 color: Colors.grey[700],
                 fontSize: responsive.textMedium,
               ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -866,7 +1060,7 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
-            blurRadius: responsive.spacing(10),
+            blurRadius: 10.0,
             offset: const Offset(0, 2),
           ),
         ],
@@ -898,7 +1092,7 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
                       ? Icons.restaurant
                       : Icons.store,
                   color: Colors.white,
-                  size: responsive.iconSize(22),
+                  size: 22.0,
                 ),
               ),
               SizedBox(width: responsive.spaceMedium),
@@ -909,41 +1103,15 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
                     Row(
                       children: [
                         Expanded(
-                          child: RichText(
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: context.tr(
-                                    place.type == HalalPlaceType.restaurant
-                                        ? 'restaurant'
-                                        : 'grocery',
-                                  ),
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: responsive.fontSize(11),
-                                    color: darkGreen,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: ' • ',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: responsive.textMedium,
-                                    color: Colors.grey[400],
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: place.name,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: responsive.textMedium,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
+                          child: Text(
+                            place.name,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: responsive.textMedium,
+                              color: Colors.black,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         if (place.isHalalCertified)
@@ -958,26 +1126,19 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
                                 responsive.radiusSmall,
                               ),
                             ),
-                            child: Text(
-                              context.tr('halal'),
-                              style: TextStyle(
-                                color: Colors.green,
-                                fontSize: responsive.fontSize(9),
-                                fontWeight: FontWeight.bold,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                context.tr('halal'),
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontSize: responsive.fontSize(9),
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
                       ],
-                    ),
-                    SizedBox(height: responsive.spacing(2)),
-                    Text(
-                      place.address,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: responsive.textSmall,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -997,12 +1158,15 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
                         responsive.radiusMedium,
                       ),
                     ),
-                    child: Text(
-                      _formatDistance(place.distance),
-                      style: TextStyle(
-                        color: darkGreen,
-                        fontWeight: FontWeight.w600,
-                        fontSize: responsive.fontSize(11),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        _formatDistance(place.distance),
+                        style: TextStyle(
+                          color: darkGreen,
+                          fontWeight: FontWeight.w600,
+                          fontSize: responsive.fontSize(11),
+                        ),
                       ),
                     ),
                   ),

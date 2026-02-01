@@ -121,10 +121,19 @@ class BackgroundLocationService {
         // Schedule notifications for new prayer times
         final adhanProvider = AdhanProvider();
         await adhanProvider.initialize();
+
+        // Update location for location-aware notifications
+        final city = _locationService.currentCity ?? '';
+        adhanProvider.updateLocation(
+          city: city,
+          latitude: position.latitude,
+          longitude: position.longitude,
+        );
+
         await adhanProvider.schedulePrayerNotifications(prayerTimes);
 
         debugPrint('Prayer times updated for new location');
-        debugPrint('Lat: ${position.latitude}, Lon: ${position.longitude}');
+        debugPrint('City: $city, Lat: ${position.latitude}, Lon: ${position.longitude}');
       }
     } catch (e) {
       debugPrint('Error updating prayer times: $e');

@@ -19,6 +19,7 @@ class QuranProvider with ChangeNotifier {
   SurahModel? _currentSurah;
   List<AyahModel> _currentJuzAyahs = [];
   List<AyahModel> _currentJuzTranslation = [];
+  List<AyahModel> _currentJuzTransliteration = [];
   List<AyahModel> _currentTranslation = [];
   List<AyahModel> _currentTransliteration = [];
   bool _isLoading = false;
@@ -37,6 +38,7 @@ class QuranProvider with ChangeNotifier {
   SurahModel? get currentSurah => _currentSurah;
   List<AyahModel> get currentJuzAyahs => _currentJuzAyahs;
   List<AyahModel> get currentJuzTranslation => _currentJuzTranslation;
+  List<AyahModel> get currentJuzTransliteration => _currentJuzTransliteration;
   List<AyahModel> get currentTranslation => _currentTranslation;
   List<AyahModel> get currentTransliteration => _currentTransliteration;
   bool get isLoading => _isLoading;
@@ -141,32 +143,41 @@ class QuranProvider with ChangeNotifier {
     _error = null;
     _currentJuzAyahs = [];
     _currentJuzTranslation = [];
+    _currentJuzTransliteration = [];
     notifyListeners();
 
     try {
-      // Fetch Arabic text for juz
-      final arabicResponse = await http.get(
-        Uri.parse('$_baseUrl/juz/$juzNumber/ar.alafasy'),
-      );
+      // Fetch Arabic text, translation, and transliteration in parallel
+      final responses = await Future.wait([
+        http.get(Uri.parse('$_baseUrl/juz/$juzNumber/ar.alafasy')),
+        http.get(Uri.parse('$_baseUrl/juz/$juzNumber/$_selectedTranslation')),
+        http.get(Uri.parse('$_baseUrl/juz/$juzNumber/en.transliteration')),
+      ]);
 
-      if (arabicResponse.statusCode == 200) {
-        final data = json.decode(arabicResponse.body);
+      // Parse Arabic text
+      if (responses[0].statusCode == 200) {
+        final data = json.decode(responses[0].body);
         if (data['code'] == 200 && data['data'] != null) {
           final ayahsData = data['data']['ayahs'] as List;
           _currentJuzAyahs = ayahsData.map((ayah) => AyahModel.fromJson(ayah)).toList();
         }
       }
 
-      // Fetch translation for juz
-      final translationResponse = await http.get(
-        Uri.parse('$_baseUrl/juz/$juzNumber/$_selectedTranslation'),
-      );
-
-      if (translationResponse.statusCode == 200) {
-        final data = json.decode(translationResponse.body);
+      // Parse translation
+      if (responses[1].statusCode == 200) {
+        final data = json.decode(responses[1].body);
         if (data['code'] == 200 && data['data'] != null) {
           final ayahsData = data['data']['ayahs'] as List;
           _currentJuzTranslation = ayahsData.map((ayah) => AyahModel.fromJson(ayah)).toList();
+        }
+      }
+
+      // Parse transliteration
+      if (responses[2].statusCode == 200) {
+        final data = json.decode(responses[2].body);
+        if (data['code'] == 200 && data['data'] != null) {
+          final ayahsData = data['data']['ayahs'] as List;
+          _currentJuzTransliteration = ayahsData.map((ayah) => AyahModel.fromJson(ayah)).toList();
         }
       }
     } catch (e) {

@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/models/hadith_model.dart';
-import '../services/translation_service.dart';
 
 // Hadith Language enum
 enum HadithLanguage { english, urdu, hindi, arabic }
@@ -318,16 +317,7 @@ class HadithProvider with ChangeNotifier {
               }
             }
 
-            // If Hindi is selected, translate English to Hindi
-            if (_selectedLanguage == HadithLanguage.hindi) {
-              _currentHadiths = hadithsList;
-              notifyListeners();
-
-              // Translate in background
-              _translateHadithsToHindi(hadithsList);
-            } else {
-              _currentHadiths = hadithsList;
-            }
+            _currentHadiths = hadithsList;
           }
         } catch (e) {
           debugPrint('Error parsing response: $e');
@@ -345,33 +335,6 @@ class HadithProvider with ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
-  }
-
-  // Translate hadiths to Hindi in background
-  Future<void> _translateHadithsToHindi(List<HadithModel> hadiths) async {
-    for (final hadith in hadiths) {
-      if (hadith.english.isNotEmpty && hadith.hindi.isEmpty) {
-        try {
-          final hindiText = await TranslationService.translateToHindi(
-            hadith.english,
-          );
-          // Find the hadith in current list by hadith number and update it
-          final index = _currentHadiths.indexWhere(
-            (h) => h.hadithNumber == hadith.hadithNumber,
-          );
-          if (index != -1 && index < _currentHadiths.length) {
-            _currentHadiths[index] = _currentHadiths[index].copyWith(
-              hindi: hindiText,
-            );
-            notifyListeners();
-          }
-        } catch (e) {
-          debugPrint(
-            'Hindi translation error for hadith ${hadith.hadithNumber}: $e',
-          );
-        }
-      }
-    }
   }
 
   // Fetch all hadiths for a collection (paginated)
@@ -462,11 +425,6 @@ class HadithProvider with ChangeNotifier {
           }).toList();
 
           _currentHadiths.addAll(newHadiths);
-
-          // If Hindi is selected, translate in background
-          if (_selectedLanguage == HadithLanguage.hindi) {
-            _translateHadithsToHindi(newHadiths);
-          }
         }
       } else {
         _error = 'Failed to fetch hadiths';

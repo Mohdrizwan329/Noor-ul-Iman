@@ -5,9 +5,9 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:share_plus/share_plus.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
+import '../../core/services/location_service.dart';
 import '../../data/models/dua_model.dart';
 import '../../providers/prayer_provider.dart';
 import '../../providers/settings_provider.dart';
@@ -20,9 +20,12 @@ class FastingTimesScreen extends StatefulWidget {
   State<FastingTimesScreen> createState() => _FastingTimesScreenState();
 }
 
-class _FastingTimesScreenState extends State<FastingTimesScreen> {
+class _FastingTimesScreenState extends State<FastingTimesScreen>
+    with WidgetsBindingObserver {
   Timer? _timer;
+  Timer? _midnightTimer;
   bool _isFastingTime = false;
+  DateTime _lastCheckedDate = DateTime.now();
 
   // Track which month cards are expanded
   final Set<int> _expandedMonths = {};
@@ -37,8 +40,59 @@ class _FastingTimesScreenState extends State<FastingTimesScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _startTimer();
+    _startMidnightTimer();
     _initTts();
+    _initializePrayerTimes();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      _checkAndRefreshIfNeeded();
+    }
+  }
+
+  void _checkAndRefreshIfNeeded() {
+    final now = DateTime.now();
+    if (now.day != _lastCheckedDate.day ||
+        now.month != _lastCheckedDate.month ||
+        now.year != _lastCheckedDate.year) {
+      setState(() {
+        _lastCheckedDate = now;
+      });
+      _refreshPrayerTimes();
+    }
+  }
+
+  void _initializePrayerTimes() {
+    final prayerProvider = context.read<PrayerProvider>();
+    if (prayerProvider.todayPrayerTimes == null) {
+      prayerProvider.initialize();
+    }
+  }
+
+  void _startMidnightTimer() {
+    final now = DateTime.now();
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    final durationUntilMidnight = tomorrow.difference(now);
+
+    _midnightTimer = Timer(durationUntilMidnight, () {
+      if (mounted) {
+        setState(() {
+          _lastCheckedDate = DateTime.now();
+        });
+        _refreshPrayerTimes();
+        _startMidnightTimer(); // Restart for next day
+      }
+    });
+  }
+
+  Future<void> _refreshPrayerTimes() async {
+    final prayerProvider = context.read<PrayerProvider>();
+    await prayerProvider.initialize();
   }
 
   @override
@@ -97,7 +151,9 @@ class _FastingTimesScreenState extends State<FastingTimesScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
+    _midnightTimer?.cancel();
     _flutterTts.stop();
     super.dispose();
   }
@@ -192,6 +248,10 @@ class _FastingTimesScreenState extends State<FastingTimesScreen> {
               padding: responsive.paddingRegular,
               child: Column(
                 children: [
+                  // Location Banner
+                  _buildLocationBanner(isDark, responsive),
+                  SizedBox(height: responsive.spaceMedium),
+
                   // Current Month Fasting Dates
                   _buildCurrentMonthFastingCard(hijriDate, isDark, responsive),
                   SizedBox(height: responsive.spaceLarge),
@@ -211,6 +271,14 @@ class _FastingTimesScreenState extends State<FastingTimesScreen> {
 
                   // Dua Cards
                   _buildDuaSection(isDark, responsive),
+                  SizedBox(height: responsive.spaceLarge),
+
+                  // Fasting Virtues Section
+                  _buildFastingVirtuesSection(isDark, responsive),
+                  SizedBox(height: responsive.spaceLarge),
+
+                  // Fasting Rules Section
+                  _buildFastingRulesSection(isDark, responsive),
                   SizedBox(height: responsive.spaceLarge),
 
                   // Islamic 12 Months Fasting Chart
@@ -256,6 +324,102 @@ class _FastingTimesScreenState extends State<FastingTimesScreen> {
     );
   }
 
+  Widget _buildLocationBanner(bool isDark, ResponsiveUtils responsive) {
+    final locationService = LocationService();
+    final city = locationService.currentCity;
+    final country = locationService.currentCountry;
+    final position = locationService.currentPosition;
+
+    String locationText;
+    if (city != null && city.isNotEmpty) {
+      locationText = country != null && country.isNotEmpty
+          ? '$city, $country'
+          : city;
+    } else if (position != null) {
+      locationText = '${position.latitude.toStringAsFixed(2)}°, ${position.longitude.toStringAsFixed(2)}°';
+    } else {
+      locationText = context.tr('loading');
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: responsive.paddingSymmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isDark
+              ? [AppColors.darkCard, AppColors.darkCard]
+              : [AppColors.primaryLight.withValues(alpha: 0.15), AppColors.primary.withValues(alpha: 0.08)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : AppColors.primaryLight,
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: responsive.paddingAll(8),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.location_on,
+              color: AppColors.primary,
+              size: responsive.iconSize(20),
+            ),
+          ),
+          SizedBox(width: responsive.spacing(12)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    locationText,
+                    style: TextStyle(
+                      fontSize: responsive.fontSize(15),
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                    ),
+                    maxLines: 1,
+                  ),
+                ),
+                SizedBox(height: responsive.spacing(2)),
+                Text(
+                  '${context.tr('calculation_method')}: Karachi',
+                  style: TextStyle(
+                    fontSize: responsive.fontSize(11),
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: () async {
+              await _refreshPrayerTimes();
+              if (mounted) {
+                setState(() {});
+              }
+            },
+            icon: Icon(
+              Icons.refresh,
+              color: AppColors.primary,
+              size: responsive.iconSize(22),
+            ),
+            tooltip: context.tr('refresh'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStatusCard(bool isDark, ResponsiveUtils responsive) {
     return Container(
       width: double.infinity,
@@ -279,14 +443,21 @@ class _FastingTimesScreenState extends State<FastingTimesScreen> {
             size: responsive.iconLarge,
           ),
           SizedBox(width: responsive.spaceMedium),
-          Text(
-            _isFastingTime
-                ? context.tr('currently_fasting')
-                : context.tr('not_fasting_time'),
-            style: TextStyle(
-              fontSize: responsive.textXLarge,
-              fontWeight: FontWeight.bold,
-              color: _isFastingTime ? Colors.green : Colors.orange,
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                _isFastingTime
+                    ? context.tr('currently_fasting')
+                    : context.tr('not_fasting_time'),
+                style: TextStyle(
+                  fontSize: responsive.textXLarge,
+                  fontWeight: FontWeight.bold,
+                  color: _isFastingTime ? Colors.green : Colors.orange,
+                ),
+                maxLines: 1,
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
         ],
@@ -365,22 +536,32 @@ class _FastingTimesScreenState extends State<FastingTimesScreen> {
             child: Icon(icon, color: color, size: responsive.iconLarge),
           ),
           SizedBox(height: responsive.spaceMedium),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: responsive.textSmall,
-              color: isDark
-                  ? AppColors.darkTextSecondary
-                  : AppColors.textSecondary,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: responsive.textSmall,
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.textSecondary,
+              ),
+              maxLines: 1,
+              textAlign: TextAlign.center,
             ),
           ),
           SizedBox(height: responsive.spaceXSmall),
-          Text(
-            time,
-            style: TextStyle(
-              fontSize: responsive.textTitle,
-              fontWeight: FontWeight.bold,
-              color: color,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              time,
+              style: TextStyle(
+                fontSize: responsive.textTitle,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+              maxLines: 1,
+              textAlign: TextAlign.center,
             ),
           ),
         ],
@@ -423,12 +604,6 @@ $currentTranslation
 ''';
 
     Clipboard.setData(ClipboardData(text: textToCopy));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.tr('dua_copied')),
-        duration: const Duration(seconds: 2),
-      ),
-    );
   }
 
   void _shareDua(BuildContext context, Map<String, dynamic> dua) {
@@ -505,25 +680,92 @@ $currentTranslation
 
   List<Map<String, dynamic>> get _fastingDuas => [
     {
-      'titleKey': 'dua_for_suhoor',
-      'arabic': 'وَبِصَوْمِ غَدٍ نَّوَيْتُ مِنْ شَهْرِ رَمَضَانَ',
-      'transliteration': 'Wa bisawmi ghadinn nawaytu min shahri Ramadan',
-      'hindi': 'मैं कल रमज़ान के महीने का रोज़ा रखने की नियत करता/करती हूँ।',
+      'titleKey': 'duaForSuhoor',
+      'arabic':
+          'نَوَيْتُ أَنْ أَصُومَ غَدًا مِنْ شَهْرِ رَمَضَانَ هٰذِهِ السَّنَةِ إِيمَانًا وَاحْتِسَابًا لِلَّهِ رَبِّ الْعَالَمِينَ',
+      'transliteration':
+          "Nawaitu an asooma ghadan min shahri Ramadan hadhihi sanati imanan wahtisaban lillahi rabbil-'aalameen",
+      'hindi':
+          'मैंने इस साल रमज़ान के महीने का कल रोज़ा रखने की नियत की ईमान और सवाब की उम्मीद में अल्लाह रब्बुल आलमीन के लिए।',
       'english':
-          'I intend to keep the fast for tomorrow in the month of Ramadan.',
-      'urdu': 'میں کل رمضان کے مہینے کا روزہ رکھنے کی نیت کرتا/کرتی ہوں۔',
+          'I intend to observe the fast tomorrow for this year of Ramadan with faith and seeking reward from Allah, Lord of the Worlds.',
+      'urdu':
+          'میں نے اس سال رمضان کے مہینے کا کل روزہ رکھنے کی نیت کی ایمان اور ثواب کی امید میں اللہ رب العالمین کے لیے۔',
       'color': const Color(0xFF3949AB),
     },
     {
-      'titleKey': 'dua_for_iftar',
-      'arabic': 'اللَّهُمَّ لَكَ صُمْتُ وَعَلَى رِزْقِكَ أَفْطَرْتُ',
-      'transliteration': "Allahumma laka sumtu wa 'ala rizqika aftartu",
+      'titleKey': 'duaForIftar',
+      'arabic':
+          'اللَّهُمَّ لَكَ صُمْتُ وَبِكَ آمَنْتُ وَعَلَيْكَ تَوَكَّلْتُ وَعَلَى رِزْقِكَ أَفْطَرْتُ',
+      'transliteration':
+          "Allahumma laka sumtu wa bika aamantu wa 'alaika tawakkaltu wa 'ala rizqika aftartu",
       'hindi':
-          'ऐ अल्लाह! मैंने तेरे लिए रोज़ा रखा और तेरी रिज़्क़ से इफ्तार किया।',
+          'ऐ अल्लाह! मैंने तेरे लिए रोज़ा रखा, और तुझ पर ईमान लाया, और तुझ पर भरोसा किया और तेरे दिए हुए रिज़्क़ से इफ्तार किया।',
       'english':
-          'O Allah! I fasted for You and I break my fast with Your sustenance.',
-      'urdu': 'اے اللہ! میں نے تیرے لیے روزہ رکھا اور تیرے رزق سے افطار کیا۔',
+          'O Allah! I fasted for You, and I believe in You, and I put my trust in You, and I break my fast with Your provision.',
+      'urdu':
+          'اے اللہ! میں نے تیرے لیے روزہ رکھا، اور تجھ پر ایمان لایا، اور تجھ پر بھروسہ کیا اور تیرے دیے ہوئے رزق سے افطار کیا۔',
       'color': const Color(0xFFE65100),
+    },
+    {
+      'titleKey': 'duaWhenBreakingWithDates',
+      'arabic':
+          'ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ',
+      'transliteration':
+          "Dhahaba al-zama'u wa'btallatil-'urooqu wa thabatal-ajru in sha Allah",
+      'hindi':
+          'प्यास चली गई, नसें तर हो गईं, और इन्शाअल्लाह अज्र साबित हो गया।',
+      'english':
+          'The thirst has gone, the veins are moistened, and the reward is confirmed, if Allah wills.',
+      'urdu':
+          'پیاس چلی گئی، رگیں تر ہوگئیں، اور ان شاءاللہ اجر ثابت ہوگیا۔',
+      'color': const Color(0xFF00897B),
+      'reference': 'Abu Dawud',
+    },
+    {
+      'titleKey': 'duaForFastingPerson',
+      'arabic':
+          'أَفْطَرَ عِندَكُمُ الصَّائِمُونَ وَأَكَلَ طَعَامَكُمُ الْأَبْرَارُ وَصَلَّتْ عَلَيْكُمُ الْمَلَائِكَةُ',
+      'transliteration':
+          "Aftara 'indakumus-saa'imoona wa akala ta'aamakumul-abraaru wa sallat 'alaikumul-malaa'ikah",
+      'hindi':
+          'तुम्हारे यहाँ रोज़ेदारों ने इफ्तार किया, और तुम्हारा खाना नेक लोगों ने खाया, और फ़रिश्तों ने तुम पर दुरूद भेजा।',
+      'english':
+          'May the fasting people break their fast with you, may the righteous eat your food, and may the angels send blessings upon you.',
+      'urdu':
+          'تمہارے یہاں روزہ داروں نے افطار کیا، اور تمہارا کھانا نیک لوگوں نے کھایا، اور فرشتوں نے تم پر درود بھیجا۔',
+      'color': const Color(0xFF5E35B1),
+      'reference': 'Abu Dawud, Ibn Majah',
+    },
+    {
+      'titleKey': 'duaAfterCompletingFast',
+      'arabic':
+          'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِرَحْمَتِكَ الَّتِي وَسِعَتْ كُلَّ شَيْءٍ أَنْ تَغْفِرَ لِي',
+      'transliteration':
+          "Allahumma inni as'aluka bi rahmatika al-lati wasi'at kulla shay'in an taghfira li",
+      'hindi':
+          'ऐ अल्लाह! मैं तुझसे तेरी उस रहमत के वसीले से जो हर चीज़ को घेरे हुए है, दुआ करता हूँ कि तू मुझे माफ़ कर दे।',
+      'english':
+          'O Allah! I ask You by Your mercy which encompasses all things, that You forgive me.',
+      'urdu':
+          'اے اللہ! میں تجھ سے تیری اس رحمت کے وسیلے سے جو ہر چیز کو گھیرے ہوئے ہے، دعا کرتا ہوں کہ تو مجھے معاف کردے۔',
+      'color': const Color(0xFFD84315),
+      'reference': 'Ibn Majah',
+    },
+    {
+      'titleKey': 'duaForSeeingMoon',
+      'arabic':
+          'اللَّهُمَّ أَهِلَّهُ عَلَيْنَا بِالْيُمْنِ وَالْإِيمَانِ وَالسَّلَامَةِ وَالْإِسْلَامِ رَبِّي وَرَبُّكَ اللَّهُ',
+      'transliteration':
+          "Allahumma ahillahu 'alaina bil-yumni wal-imaani was-salaamati wal-Islaam, Rabbi wa Rabbuk Allah",
+      'hindi':
+          'ऐ अल्लाह! इस चाँद को हम पर बरकत, ईमान, सलामती और इस्लाम के साथ निकाल। मेरा और तेरा रब अल्लाह है।',
+      'english':
+          'O Allah! Let this moon appear on us with blessings, faith, safety and Islam. My Lord and your Lord is Allah.',
+      'urdu':
+          'اے اللہ! اس چاند کو ہم پر برکت، ایمان، سلامتی اور اسلام کے ساتھ نکال۔ میرا اور تیرا رب اللہ ہے۔',
+      'color': const Color(0xFF1565C0),
+      'reference': 'Tirmidhi',
     },
   ];
 
@@ -654,15 +896,24 @@ $currentTranslation
                     ),
                     responsive.hSpaceMedium,
                     Expanded(
-                      child: Text(
-                        context.tr(dua['titleKey']),
-                        style: TextStyle(
-                          fontSize: responsive.textSmall,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: responsive.screenWidth * 0.6,
+                          ),
+                          child: Text(
+                            context.tr(dua['titleKey']),
+                            style: TextStyle(
+                              fontSize: responsive.textSmall,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.primary,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -744,7 +995,7 @@ $currentTranslation
                     child: Text(
                       dua['arabic'],
                       style: TextStyle(
-                        fontFamily: 'Amiri',
+                        fontFamily: 'Poppins',
                         fontSize: responsive.fontSize(26),
                         height: 2.0,
                         color: isPlayingArabic
@@ -813,12 +1064,16 @@ $currentTranslation
                                 color: AppColors.primary,
                               ),
                               SizedBox(width: responsive.spaceSmall),
-                              Text(
-                                '${context.tr('translation')} ($languageLabel)',
-                                style: TextStyle(
-                                  fontSize: responsive.textSmall,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.primary,
+                              Flexible(
+                                child: Text(
+                                  '${context.tr('translation')} ($languageLabel)',
+                                  style: TextStyle(
+                                    fontSize: responsive.textSmall,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primary,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
@@ -832,10 +1087,7 @@ $currentTranslation
                               color: isPlayingTranslation
                                   ? AppColors.primary
                                   : Colors.black87,
-                              fontFamily:
-                                  _selectedLanguage == DuaLanguage.arabic
-                                  ? 'Amiri'
-                                  : null,
+                              fontFamily: 'Poppins',
                             ),
                             textDirection:
                                 (_selectedLanguage == DuaLanguage.urdu ||
@@ -1212,21 +1464,31 @@ $currentTranslation
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        context.tr('current_month'),
-                        style: TextStyle(
-                          fontSize: responsive.textSmall,
-                          color: isDark
-                              ? AppColors.darkTextSecondary
-                              : AppColors.textSecondary,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          context.tr('current_month'),
+                          style: TextStyle(
+                            fontSize: responsive.textSmall,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.textSecondary,
+                          ),
+                          maxLines: 1,
                         ),
                       ),
-                      Text(
-                        monthName,
-                        style: TextStyle(
-                          fontSize: responsive.textXXLarge,
-                          fontWeight: FontWeight.bold,
-                          color: monthColor,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          monthName,
+                          style: TextStyle(
+                            fontSize: responsive.textXXLarge,
+                            fontWeight: FontWeight.bold,
+                            color: monthColor,
+                          ),
+                          maxLines: 1,
                         ),
                       ),
                     ],
@@ -1246,12 +1508,16 @@ $currentTranslation
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.calendar_today, size: 18, color: monthColor),
-                const SizedBox(width: 8),
+                Icon(
+                  Icons.calendar_today,
+                  size: responsive.iconSize(18),
+                  color: monthColor,
+                ),
+                SizedBox(width: responsive.spacing(8)),
                 Text(
                   '${context.tr('today')}: ',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: responsive.fontSize(14),
                     color: isDark
                         ? AppColors.darkTextSecondary
                         : AppColors.textSecondary,
@@ -1260,7 +1526,7 @@ $currentTranslation
                 Text(
                   '${hijriDate.hDay} ${hijriDate.longMonthName} ${hijriDate.hYear} AH',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: responsive.fontSize(16),
                     fontWeight: FontWeight.bold,
                     color: monthColor,
                   ),
@@ -1336,29 +1602,36 @@ $currentTranslation
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: EdgeInsets.symmetric(vertical: responsive.spacing(6)),
       child: Row(
         children: [
           Container(
             padding: context.responsive.paddingXSmall,
             decoration: BoxDecoration(
               color: typeColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
             ),
-            child: Icon(typeIcon, color: typeColor, size: 16),
+            child: Icon(
+              typeIcon,
+              color: typeColor,
+              size: responsive.iconSize(16),
+            ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: responsive.spacing(10)),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: EdgeInsets.symmetric(
+              horizontal: responsive.spacing(10),
+              vertical: responsive.spacing(4),
+            ),
             decoration: BoxDecoration(
               color: typeColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
               border: Border.all(color: typeColor.withValues(alpha: 0.3)),
             ),
             child: Text(
               days,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: responsive.fontSize(13),
                 fontWeight: FontWeight.bold,
                 color: typeColor,
                 decoration: type == 'prohibited'
@@ -1367,16 +1640,334 @@ $currentTranslation
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: responsive.spacing(10)),
           Expanded(
             child: Text(
               description,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: responsive.fontSize(12),
                 color: isDark
                     ? AppColors.darkTextSecondary
                     : AppColors.textSecondary,
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFastingVirtuesSection(bool isDark, ResponsiveUtils responsive) {
+    final virtues = [
+      {
+        'icon': Icons.door_front_door,
+        'title': context.tr('gate_of_rayyan'),
+        'titleEn': 'Gate of Rayyan',
+        'description': context.tr('gate_of_rayyan_desc'),
+        'descriptionEn': 'There is a gate in Paradise called Ar-Rayyan, through which only those who fast will enter.',
+        'reference': 'Bukhari & Muslim',
+      },
+      {
+        'icon': Icons.shield,
+        'title': context.tr('fasting_is_shield'),
+        'titleEn': 'Fasting is a Shield',
+        'description': context.tr('fasting_is_shield_desc'),
+        'descriptionEn': 'Fasting is a shield from the Hellfire, just like a shield protects one of you in battle.',
+        'reference': 'Ahmad, Nasai',
+      },
+      {
+        'icon': Icons.favorite,
+        'title': context.tr('breath_of_fasting'),
+        'titleEn': 'The Breath of Fasting Person',
+        'description': context.tr('breath_of_fasting_desc'),
+        'descriptionEn': 'The smell from the mouth of a fasting person is better in the sight of Allah than the scent of musk.',
+        'reference': 'Bukhari & Muslim',
+      },
+      {
+        'icon': Icons.celebration,
+        'title': context.tr('two_joys'),
+        'titleEn': 'Two Moments of Joy',
+        'description': context.tr('two_joys_desc'),
+        'descriptionEn': 'The fasting person has two moments of joy: when breaking fast and when meeting their Lord.',
+        'reference': 'Bukhari & Muslim',
+      },
+      {
+        'icon': Icons.handshake,
+        'title': context.tr('dua_accepted'),
+        'titleEn': 'Dua is Accepted',
+        'description': context.tr('dua_accepted_desc'),
+        'descriptionEn': 'Three prayers are not rejected: the prayer of a fasting person until they break their fast.',
+        'reference': 'Tirmidhi, Ibn Majah',
+      },
+    ];
+
+    return Container(
+      padding: responsive.paddingRegular,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
+          width: 1.5,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.08),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.star,
+                color: Colors.amber,
+                size: responsive.iconSize(24),
+              ),
+              SizedBox(width: responsive.spacing(8)),
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    context.tr('fasting_virtues'),
+                    style: TextStyle(
+                      fontSize: responsive.fontSize(18),
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: responsive.spacing(16)),
+          ...virtues.map((virtue) => Padding(
+            padding: EdgeInsets.only(bottom: responsive.spacing(12)),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: responsive.paddingAll(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
+                  ),
+                  child: Icon(
+                    virtue['icon'] as IconData,
+                    color: AppColors.primary,
+                    size: responsive.iconSize(20),
+                  ),
+                ),
+                SizedBox(width: responsive.spacing(12)),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        (virtue['title'] as String).isNotEmpty
+                            ? virtue['title'] as String
+                            : virtue['titleEn'] as String,
+                        style: TextStyle(
+                          fontSize: responsive.fontSize(14),
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: responsive.spacing(4)),
+                      Text(
+                        (virtue['description'] as String).isNotEmpty
+                            ? virtue['description'] as String
+                            : virtue['descriptionEn'] as String,
+                        style: TextStyle(
+                          fontSize: responsive.fontSize(12),
+                          color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                        ),
+                      ),
+                      SizedBox(height: responsive.spacing(2)),
+                      Text(
+                        '- ${virtue['reference']}',
+                        style: TextStyle(
+                          fontSize: responsive.fontSize(10),
+                          fontStyle: FontStyle.italic,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFastingRulesSection(bool isDark, ResponsiveUtils responsive) {
+    final breaksfast = [
+      context.tr('eating_drinking'),
+      context.tr('intentional_vomiting'),
+      context.tr('sexual_relations'),
+      context.tr('menstruation'),
+    ];
+
+    final doesNotBreak = [
+      context.tr('unintentional_eating'),
+      context.tr('swallowing_saliva'),
+      context.tr('tasting_food'),
+      context.tr('using_miswak'),
+      context.tr('injection_not_nutrition'),
+    ];
+
+    return Container(
+      padding: responsive.paddingRegular,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
+          width: 1.5,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.08),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.rule,
+                color: AppColors.primary,
+                size: responsive.iconSize(24),
+              ),
+              SizedBox(width: responsive.spacing(8)),
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    context.tr('fasting_rules'),
+                    style: TextStyle(
+                      fontSize: responsive.fontSize(18),
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: responsive.spacing(16)),
+
+          // What breaks the fast
+          Container(
+            padding: responsive.paddingAll(12),
+            decoration: BoxDecoration(
+              color: Colors.red.shade50,
+              borderRadius: BorderRadius.circular(responsive.borderRadius(12)),
+              border: Border.all(color: Colors.red.shade200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.cancel, color: Colors.red.shade700, size: responsive.iconSize(18)),
+                    SizedBox(width: responsive.spacing(8)),
+                    Text(
+                      context.tr('breaks_fast'),
+                      style: TextStyle(
+                        fontSize: responsive.fontSize(14),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: responsive.spacing(8)),
+                ...breaksfast.map((item) => Padding(
+                  padding: EdgeInsets.symmetric(vertical: responsive.spacing(2)),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('• ', style: TextStyle(color: Colors.red.shade700, fontSize: responsive.fontSize(12))),
+                      Expanded(
+                        child: Text(
+                          item.isNotEmpty ? item : 'Rule',
+                          style: TextStyle(
+                            fontSize: responsive.fontSize(12),
+                            color: Colors.red.shade700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+              ],
+            ),
+          ),
+          SizedBox(height: responsive.spacing(12)),
+
+          // What doesn't break the fast
+          Container(
+            padding: responsive.paddingAll(12),
+            decoration: BoxDecoration(
+              color: Colors.green.shade50,
+              borderRadius: BorderRadius.circular(responsive.borderRadius(12)),
+              border: Border.all(color: Colors.green.shade200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.green.shade700, size: responsive.iconSize(18)),
+                    SizedBox(width: responsive.spacing(8)),
+                    Text(
+                      context.tr('does_not_break_fast'),
+                      style: TextStyle(
+                        fontSize: responsive.fontSize(14),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: responsive.spacing(8)),
+                ...doesNotBreak.map((item) => Padding(
+                  padding: EdgeInsets.symmetric(vertical: responsive.spacing(2)),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('• ', style: TextStyle(color: Colors.green.shade700, fontSize: responsive.fontSize(12))),
+                      Expanded(
+                        child: Text(
+                          item.isNotEmpty ? item : 'Rule',
+                          style: TextStyle(
+                            fontSize: responsive.fontSize(12),
+                            color: Colors.green.shade700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+              ],
             ),
           ),
         ],
@@ -1714,9 +2305,13 @@ $currentTranslation
                       color: month.color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(month.icon, color: month.color, size: 24),
+                    child: Icon(
+                      month.icon,
+                      color: month.color,
+                      size: responsive.iconSize(24),
+                    ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: responsive.spacing(12)),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1724,21 +2319,25 @@ $currentTranslation
                         Text(
                           month.name,
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: responsive.fontSize(16),
                             fontWeight: FontWeight.bold,
                             color: isDark
                                 ? AppColors.darkTextPrimary
                                 : AppColors.textPrimary,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           '${month.fastingDays.length} ${context.tr('fasting_options')}',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: responsive.fontSize(12),
                             color: isDark
                                 ? AppColors.darkTextSecondary
                                 : AppColors.textSecondary,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -1809,18 +2408,22 @@ $currentTranslation
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.symmetric(vertical: responsive.spacing(8)),
       child: Row(
         children: [
           Container(
             padding: context.responsive.paddingXSmall,
             decoration: BoxDecoration(
               color: typeColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
             ),
-            child: Icon(typeIcon, color: typeColor, size: 18),
+            child: Icon(
+              typeIcon,
+              color: typeColor,
+              size: responsive.iconSize(18),
+            ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: responsive.spacing(12)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1828,7 +2431,7 @@ $currentTranslation
                 Text(
                   day.days,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: responsive.fontSize(14),
                     fontWeight: FontWeight.w600,
                     color: isDark
                         ? AppColors.darkTextPrimary
@@ -1841,7 +2444,7 @@ $currentTranslation
                 Text(
                   day.description,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: responsive.fontSize(12),
                     color: isDark
                         ? AppColors.darkTextSecondary
                         : AppColors.textSecondary,
@@ -1851,15 +2454,18 @@ $currentTranslation
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: EdgeInsets.symmetric(
+              horizontal: responsive.spacing(8),
+              vertical: responsive.spacing(4),
+            ),
             decoration: BoxDecoration(
               color: typeColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(responsive.borderRadius(12)),
             ),
             child: Text(
               typeLabel,
               style: TextStyle(
-                fontSize: 10,
+                fontSize: responsive.fontSize(10),
                 fontWeight: FontWeight.bold,
                 color: typeColor,
               ),
@@ -1889,29 +2495,42 @@ $currentTranslation
         children: [
           Row(
             children: [
-              Icon(Icons.cancel, color: Colors.red.shade700, size: 24),
-              const SizedBox(width: 8),
+              Icon(
+                Icons.cancel,
+                color: Colors.red.shade700,
+                size: responsive.iconSize(24),
+              ),
+              SizedBox(width: responsive.spacing(8)),
               Text(
                 context.tr('fasting_prohibited'),
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: responsive.fontSize(16),
                   fontWeight: FontWeight.bold,
                   color: Colors.red.shade700,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: responsive.spacing(12)),
           ...prohibitedDays.map(
             (day) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
+              padding: EdgeInsets.symmetric(vertical: responsive.spacing(4)),
               child: Row(
                 children: [
-                  Icon(Icons.block, color: Colors.red.shade400, size: 16),
-                  const SizedBox(width: 8),
-                  Text(
-                    day,
-                    style: TextStyle(fontSize: 14, color: Colors.red.shade700),
+                  Icon(
+                    Icons.block,
+                    color: Colors.red.shade400,
+                    size: responsive.iconSize(16),
+                  ),
+                  SizedBox(width: responsive.spacing(8)),
+                  Expanded(
+                    child: Text(
+                      day,
+                      style: TextStyle(
+                        fontSize: responsive.fontSize(14),
+                        color: Colors.red.shade700,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -1947,12 +2566,16 @@ $currentTranslation
         children: [
           Row(
             children: [
-              Icon(Icons.lightbulb, color: AppColors.secondary, size: 24),
-              const SizedBox(width: 8),
+              Icon(
+                Icons.lightbulb,
+                color: AppColors.secondary,
+                size: responsive.iconSize(24),
+              ),
+              SizedBox(width: responsive.spacing(8)),
               Text(
                 context.tr('quick_rules_remember'),
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: responsive.fontSize(16),
                   fontWeight: FontWeight.bold,
                   color: isDark
                       ? AppColors.darkTextPrimary
@@ -1961,7 +2584,7 @@ $currentTranslation
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: responsive.spacing(16)),
           _buildQuickRuleRow(
             Icons.calendar_month,
             context.tr('every_month'),
@@ -2016,29 +2639,35 @@ $currentTranslation
     ResponsiveUtils responsive,
   ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: EdgeInsets.symmetric(vertical: responsive.spacing(6)),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(width: 12),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(width: 8),
+          Icon(icon, color: color, size: responsive.iconSize(20)),
+          SizedBox(width: responsive.spacing(12)),
           Expanded(
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: 14,
-                color: isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.textSecondary,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: responsive.fontSize(14),
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                  ),
+                ),
+                SizedBox(height: responsive.spacing(2)),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: responsive.fontSize(13),
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

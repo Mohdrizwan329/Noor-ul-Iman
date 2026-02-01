@@ -35,7 +35,17 @@ class AuthProvider with ChangeNotifier {
   bool get isInitialized => _isInitialized;
   String? get userId => _firebaseUser?.uid;
   String? get userEmail => _firebaseUser?.email;
-  String get displayName => _userModel?.name ?? _firebaseUser?.displayName ?? 'User';
+  String get displayName =>
+      _userModel?.name ?? _firebaseUser?.displayName ?? 'User';
+
+  // Get localized display name based on preferred language
+  String getLocalizedDisplayName(String? currentLanguage) {
+    if (_userModel != null) {
+      return _userModel!.getLocalizedName(currentLanguage);
+    }
+    return _firebaseUser?.displayName ?? 'User';
+  }
+
   bool get isEmailVerified => _firebaseUser?.emailVerified ?? false;
 
   // Initialize provider
@@ -128,10 +138,10 @@ class AuthProvider with ChangeNotifier {
     if (_userModel == null) return;
 
     try {
-      await _firestore.collection('users').doc(_userModel!.id).set(
-            _userModel!.toFirestore(),
-            SetOptions(merge: true),
-          );
+      await _firestore
+          .collection('users')
+          .doc(_userModel!.id)
+          .set(_userModel!.toFirestore(), SetOptions(merge: true));
     } catch (e) {
       debugPrint('Sync user to Firestore error: $e');
     }
@@ -181,6 +191,8 @@ class AuthProvider with ChangeNotifier {
       await prefs.remove(_emailKey);
       await prefs.remove(_nameKey);
       await prefs.remove(_authTokenKey);
+      await prefs.remove('permissions_granted');
+      debugPrint('🔓 Auth session and permissions flag cleared');
     } catch (e) {
       debugPrint('Clear auth session error: $e');
     }
@@ -217,7 +229,11 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return false;
     } catch (e) {
-      _error = _authService.getErrorMessage(e, context);
+      if (context.mounted) {
+        _error = _authService.getErrorMessage(e, context);
+      } else {
+        _error = 'Sign in failed: $e';
+      }
       _isLoading = false;
       notifyListeners();
       return false;
@@ -231,6 +247,10 @@ class AuthProvider with ChangeNotifier {
     required String name,
     required BuildContext context,
     String? language,
+    String? nameEnglish,
+    String? nameUrdu,
+    String? nameHindi,
+    String? nameArabic,
   }) async {
     _isLoading = true;
     _error = null;
@@ -251,6 +271,10 @@ class AuthProvider with ChangeNotifier {
           _firebaseUser!,
           displayName: name,
           language: language,
+          nameEnglish: nameEnglish,
+          nameUrdu: nameUrdu,
+          nameHindi: nameHindi,
+          nameArabic: nameArabic,
         );
 
         // Save to Firestore
@@ -267,7 +291,11 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return false;
     } catch (e) {
-      _error = _authService.getErrorMessage(e, context);
+      if (context.mounted) {
+        _error = _authService.getErrorMessage(e, context);
+      } else {
+        _error = 'Sign up failed: $e';
+      }
       _isLoading = false;
       notifyListeners();
       return false;
@@ -305,7 +333,11 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return false;
     } catch (e) {
-      _error = _authService.getErrorMessage(e, context);
+      if (context.mounted) {
+        _error = _authService.getErrorMessage(e, context);
+      } else {
+        _error = 'Google sign in failed: $e';
+      }
       _isLoading = false;
       notifyListeners();
       return false;
@@ -342,7 +374,11 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return false;
     } catch (e) {
-      _error = _authService.getErrorMessage(e, context);
+      if (context.mounted) {
+        _error = _authService.getErrorMessage(e, context);
+      } else {
+        _error = 'Apple sign in failed: $e';
+      }
       _isLoading = false;
       notifyListeners();
       return false;
@@ -368,7 +404,11 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return verificationId;
     } catch (e) {
-      _error = _authService.getErrorMessage(e, context);
+      if (context.mounted) {
+        _error = _authService.getErrorMessage(e, context);
+      } else {
+        _error = 'Phone sign in failed: $e';
+      }
       _isLoading = false;
       notifyListeners();
       return null;
@@ -413,7 +453,11 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return false;
     } catch (e) {
-      _error = _authService.getErrorMessage(e, context);
+      if (context.mounted) {
+        _error = _authService.getErrorMessage(e, context);
+      } else {
+        _error = 'Phone verification failed: $e';
+      }
       _isLoading = false;
       notifyListeners();
       return false;
@@ -436,7 +480,11 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _error = _authService.getErrorMessage(e, context);
+      if (context.mounted) {
+        _error = _authService.getErrorMessage(e, context);
+      } else {
+        _error = 'Password reset failed: $e';
+      }
       _isLoading = false;
       notifyListeners();
       return false;
@@ -533,7 +581,11 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _error = _authService.getErrorMessage(e, context);
+      if (context.mounted) {
+        _error = _authService.getErrorMessage(e, context);
+      } else {
+        _error = 'Account deletion failed: $e';
+      }
       _isLoading = false;
       notifyListeners();
       return false;

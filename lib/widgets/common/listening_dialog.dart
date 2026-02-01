@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_dimens.dart';
 import '../../core/constants/app_strings.dart';
-import '../../core/utils/spacing.dart';
+import '../../core/utils/app_utils.dart';
 
 /// Reusable listening dialog for speech recognition.
 /// Shows animated microphone icon and listening status.

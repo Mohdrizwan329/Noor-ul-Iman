@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_dimens.dart';
-import '../../core/utils/spacing.dart';
+import '../../core/utils/app_utils.dart';
 
 /// Reusable section title widget with accent line.
 /// Commonly used in home screen and list screens to separate sections.
@@ -27,7 +26,7 @@ class SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final responsive = context.responsive;
 
     return Row(
       children: [
@@ -36,23 +35,24 @@ class SectionTitle extends StatelessWidget {
           height: 20,
           decoration: BoxDecoration(
             color: AppColors.primary,
-            borderRadius: BorderRadius.circular(AppDimens.borderRadiusSmall),
+            borderRadius: BorderRadius.circular(2.0),
           ),
         ),
-        HSpace.medium,
-        Text(
-          title,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color:
-                    isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
+        responsive.hSpaceSmall,
+        Expanded(
+          child: Text(
+            title,
+            style: AppTextStyles.heading3(context),
+          ),
         ),
-        const Spacer(),
         if (onSeeAll != null)
           TextButton(
             onPressed: onSeeAll,
-            child: Text(seeAllText!),
+            style: AppButtonStyles.text(context),
+            child: Text(
+              seeAllText!,
+              style: AppTextStyles.link(context, underline: false),
+            ),
           ),
       ],
     );

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/responsive_utils.dart';
-import '../../core/utils/localization_helper.dart';
+import '../../core/utils/app_utils.dart';
 import '../../providers/quran_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/settings_provider.dart';
@@ -486,10 +485,10 @@ class _SurahListScreenState extends State<SurahListScreen> {
                         fontSize: responsive.textLarge,
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : darkGreen,
-                        fontFamily: languageCode == 'ar'
-                            ? 'Amiri'
-                            : (languageCode == 'ur' ? 'NotoNastaliq' : null),
+                        fontFamily: 'Poppins',
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       textDirection: (languageCode == 'ar' || languageCode == 'ur')
                           ? TextDirection.rtl
                           : TextDirection.ltr,
