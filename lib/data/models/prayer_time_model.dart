@@ -78,13 +78,15 @@ class PrayerTimeModel {
   }
 
   List<PrayerItem> toPrayerList() {
+    // On Friday, show Jummah instead of Dhuhr
+    final isFriday = DateTime.now().weekday == 5;
     return [
-      PrayerItem(name: 'Fajr', time: fajr, icon: '🌙'),
-      PrayerItem(name: 'Sunrise', time: sunrise, icon: '🌅'),
-      PrayerItem(name: 'Dhuhr', time: dhuhr, icon: '☀️'),
-      PrayerItem(name: 'Asr', time: asr, icon: '🌤️'),
-      PrayerItem(name: 'Maghrib', time: maghrib, icon: '🌇'),
-      PrayerItem(name: 'Isha', time: isha, icon: '🌃'),
+      PrayerItem(name: 'Fajr', time: fajr),
+      PrayerItem(name: 'Sunrise', time: sunrise),
+      PrayerItem(name: isFriday ? 'Jummah' : 'Dhuhr', time: dhuhr),
+      PrayerItem(name: 'Asr', time: asr),
+      PrayerItem(name: 'Maghrib', time: maghrib),
+      PrayerItem(name: 'Isha', time: isha),
     ];
   }
 }
@@ -92,11 +94,9 @@ class PrayerTimeModel {
 class PrayerItem {
   final String name;
   final String time;
-  final String icon;
 
   PrayerItem({
     required this.name,
     required this.time,
-    required this.icon,
   });
 }

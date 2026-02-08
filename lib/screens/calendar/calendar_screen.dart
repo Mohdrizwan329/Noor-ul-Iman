@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:intl/intl.dart' hide TextDirection;
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_strings.dart';
 import '../../core/utils/app_utils.dart';
+import '../../core/services/content_service.dart';
+import '../../data/models/firestore_models.dart';
 import '../../providers/language_provider.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -19,85 +20,110 @@ class _CalendarScreenState extends State<CalendarScreen> {
   late DateTime _selectedGregorianDate;
   int _currentHijriMonth = HijriCalendar.now().hMonth;
   int _currentHijriYear = HijriCalendar.now().hYear;
+  final ContentService _contentService = ContentService();
+  bool _isContentLoading = true;
+  CalendarScreenContentFirestore? _calendarContent;
 
   @override
   void initState() {
     super.initState();
     _selectedHijriDate = HijriCalendar.now();
     _selectedGregorianDate = DateTime.now();
+    _loadCalendarContent();
   }
 
-  String _getMonthName(int monthIndex, String langCode) {
-    switch (langCode) {
-      case 'ur':
-        return AppStrings.islamicMonthsUrdu[monthIndex];
-      case 'ar':
-        return AppStrings.islamicMonthsArabic[monthIndex];
-      case 'hi':
-        return AppStrings.islamicMonthsHindi[monthIndex];
-      default:
-        return AppStrings.islamicMonths[monthIndex];
+  /// Load all calendar screen content from Firebase - no static fallback
+  Future<void> _loadCalendarContent() async {
+    try {
+      final content = await _contentService.getCalendarScreenContent();
+      if (mounted) {
+        setState(() {
+          _calendarContent = content;
+          _isContentLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading calendar content from Firebase: $e');
+      if (mounted) {
+        setState(() {
+          _isContentLoading = false;
+        });
+      }
     }
   }
 
+  /// Get translated string from Firebase only - no static fallback
+  String _t(String key) {
+    if (_calendarContent == null) return '';
+    final langCode =
+        Provider.of<LanguageProvider>(context, listen: false).languageCode;
+    return _calendarContent!.getString(key, langCode);
+  }
+
+  String _getMonthName(int monthIndex, String langCode) {
+    if (_calendarContent == null) return '';
+    return _calendarContent!.getIslamicMonths(langCode)[monthIndex];
+  }
+
   String _getUrduArabicNumerals(dynamic number, String langCode) {
-    if (langCode == 'ur' || langCode == 'ar') {
-      return AppStrings.toUrduNumerals(number);
+    if ((langCode == 'ur' || langCode == 'ar') && _calendarContent != null) {
+      return _calendarContent!.toUrduNumerals(number);
     }
     return number.toString();
   }
 
   String _getGregorianDateString(DateTime date, String langCode) {
+    if (_calendarContent == null) return '';
     final weekdayIndex = date.weekday % 7;
     switch (langCode) {
       case 'ur':
-        return '${AppStrings.daysOfWeekUrdu[weekdayIndex]}، ${AppStrings.toUrduNumerals(date.day)} ${AppStrings.gregorianMonthsUrdu[date.month - 1]} ${AppStrings.toUrduNumerals(date.year)}';
+        return '${_calendarContent!.getDaysOfWeek('ur')[weekdayIndex]}، ${_calendarContent!.toUrduNumerals(date.day)} ${_calendarContent!.getGregorianMonths('ur')[date.month - 1]} ${_calendarContent!.toUrduNumerals(date.year)}';
       case 'ar':
-        return '${AppStrings.daysOfWeekArabic[weekdayIndex]}، ${AppStrings.toUrduNumerals(date.day)} ${AppStrings.gregorianMonthsArabic[date.month - 1]} ${AppStrings.toUrduNumerals(date.year)}';
+        return '${_calendarContent!.getDaysOfWeek('ar')[weekdayIndex]}، ${_calendarContent!.toUrduNumerals(date.day)} ${_calendarContent!.getGregorianMonths('ar')[date.month - 1]} ${_calendarContent!.toUrduNumerals(date.year)}';
       case 'hi':
-        return '${AppStrings.daysOfWeekHindi[weekdayIndex]}, ${date.day} ${AppStrings.gregorianMonthsHindi[date.month - 1]} ${date.year}';
+        return '${_calendarContent!.getDaysOfWeek('hi')[weekdayIndex]}, ${date.day} ${_calendarContent!.getGregorianMonths('hi')[date.month - 1]} ${date.year}';
       default:
-        return DateFormat('EEEE, MMMM d, yyyy').format(date);
+        return '${_calendarContent!.getDaysOfWeek('en')[weekdayIndex]}, ${_calendarContent!.getGregorianMonths('en')[date.month - 1]} ${date.day}, ${date.year}';
     }
   }
 
   List<String> _getWeekdayHeaders(String langCode) {
-    switch (langCode) {
-      case 'ur':
-        return AppStrings.islamicDaysOfWeekUrdu;
-      case 'ar':
-        return AppStrings.islamicDaysOfWeekArabic;
-      case 'hi':
-        return AppStrings.islamicDaysOfWeekHindi;
-      default:
-        return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    }
+    if (_calendarContent == null) return List.filled(7, '');
+    return _calendarContent!.getIslamicDaysOfWeek(langCode);
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isContentLoading) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(backgroundColor: AppColors.primary),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: Text(context.tr('islamic_calendar')),
+        title: Text(_t('islamic_calendar')),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Today's Date Card
-            _buildTodayCard(),
-
-            // Month Navigation
-            _buildMonthNavigation(),
-
-            // Calendar Grid
-            _buildCalendarGrid(),
-
-            // Important Dates
-            _buildImportantDates(),
-          ],
-        ),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildTodayCard(),
+                  _buildMonthNavigation(),
+                  _buildCalendarGrid(),
+                  _buildImportantDates(),
+                ],
+              ),
+            ),
+          ),
+          const BannerAdWidget(),
+        ],
       ),
     );
   }
@@ -118,16 +144,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
       child: Column(
         children: [
           Text(
-            context.tr('today'),
+            _t('today'),
             style: TextStyle(color: Colors.white70, fontSize: responsive.fontSize(16)),
           ),
           SizedBox(height: responsive.spacing(8)),
           Text(
             (langCode == 'ar' || langCode == 'ur')
-                ? '${_getUrduArabicNumerals(today.hDay, langCode)} ${_getMonthName(today.hMonth - 1, langCode)} ${_getUrduArabicNumerals(today.hYear, langCode)} ${context.tr('ah')}'
+                ? '${_getUrduArabicNumerals(today.hDay, langCode)} ${_getMonthName(today.hMonth - 1, langCode)} ${_getUrduArabicNumerals(today.hYear, langCode)} ${_t('ah')}'
                 : langCode == 'hi'
-                ? '${today.hDay} ${_getMonthName(today.hMonth - 1, langCode)} ${today.hYear} ${context.tr('ah')}'
-                : '${today.hDay} ${today.longMonthName} ${today.hYear} ${context.tr('ah')}',
+                ? '${today.hDay} ${_getMonthName(today.hMonth - 1, langCode)} ${today.hYear} ${_t('ah')}'
+                : '${today.hDay} ${_getMonthName(today.hMonth - 1, langCode)} ${today.hYear} ${_t('ah')}',
             style: TextStyle(
               color: Colors.white,
               fontSize: responsive.fontSize((langCode == 'ar' || langCode == 'ur') ? 26 : 28),
@@ -188,8 +214,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   SizedBox(width: responsive.spacing(10)),
                   Text(
                     (langCode == 'ar' || langCode == 'ur')
-                        ? '${_getUrduArabicNumerals(_currentHijriYear, langCode)} ${context.tr('ah')}'
-                        : '$_currentHijriYear ${context.tr('ah')}',
+                        ? '${_getUrduArabicNumerals(_currentHijriYear, langCode)} ${_t('ah')}'
+                        : '$_currentHijriYear ${_t('ah')}',
                     style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(16)),
                     textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
                   ),
@@ -345,55 +371,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final langCode = context.watch<LanguageProvider>().languageCode;
     final isUrdu = langCode == 'ur';
 
-    // Important dates with month number (1-12) for filtering
-    final allImportantDates = [
-      _ImportantDateWithMonth(
-        1, 1, 'islamic_new_year', Icons.celebration,
-        descriptionKey: 'islamic_new_year_desc',
-      ),
-      _ImportantDateWithMonth(
-        1, 10, 'ashura_event', Icons.star,
-        descriptionKey: 'ashura_desc',
-      ),
-      _ImportantDateWithMonth(
-        3, 12, 'mawlid_an_nabi', Icons.mosque,
-        descriptionKey: 'mawlid_desc',
-      ),
-      _ImportantDateWithMonth(
-        7, 27, 'isra_miraj', Icons.nights_stay,
-        descriptionKey: 'isra_miraj_desc',
-      ),
-      _ImportantDateWithMonth(
-        8, 15, 'shab_e_barat', Icons.auto_awesome,
-        descriptionKey: 'shab_e_barat_desc',
-      ),
-      _ImportantDateWithMonth(
-        9, 1, 'start_of_ramadan', Icons.brightness_2,
-        descriptionKey: 'ramadan_start_desc',
-      ),
-      _ImportantDateWithMonth(
-        9, 27, 'laylat_al_qadr', Icons.star,
-        descriptionKey: 'laylat_al_qadr_desc',
-      ),
-      _ImportantDateWithMonth(
-        10, 1, 'eid_ul_fitr_event', Icons.celebration,
-        descriptionKey: 'eid_ul_fitr_desc',
-      ),
-      _ImportantDateWithMonth(
-        12, 8, 'day_of_hajj', Icons.flight_takeoff,
-        descriptionKey: 'hajj_desc',
-      ),
-      _ImportantDateWithMonth(
-        12, 9, 'day_of_arafah', Icons.terrain,
-        descriptionKey: 'arafah_desc',
-      ),
-      _ImportantDateWithMonth(
-        12, 10, 'eid_ul_adha_event', Icons.celebration,
-        descriptionKey: 'eid_ul_adha_desc',
-      ),
-    ];
-
-    // Filter dates for current month
+    // Important dates from Firebase - filter for current month
+    final allImportantDates = _calendarContent?.importantDates ?? [];
     final currentMonthDates = allImportantDates
         .where((date) => date.month == _currentHijriMonth)
         .toList();
@@ -409,15 +388,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
           children: [
             Text(
               isUrdu
-                  ? '${_getMonthName(_currentHijriMonth - 1, langCode)} ${context.tr('important_dates_in')}'
-                  : '${context.tr('important_dates_in')} ${_getMonthName(_currentHijriMonth - 1, langCode)}',
+                  ? '${_getMonthName(_currentHijriMonth - 1, langCode)} ${_t('important_dates_in')}'
+                  : '${_t('important_dates_in')} ${_getMonthName(_currentHijriMonth - 1, langCode)}',
               style: Theme.of(context).textTheme.headlineSmall,
               textDirection: isUrdu ? TextDirection.rtl : TextDirection.ltr,
             ),
             SizedBox(height: responsive.spacing(16)),
             Center(
               child: Text(
-                context.tr('no_important_dates_this_month'),
+                _t('no_important_dates_this_month'),
                 style: TextStyle(color: AppColors.textSecondary, fontSize: responsive.fontSize(16)),
                 textDirection: (langCode == 'ar' || langCode == 'ur') ? TextDirection.rtl : TextDirection.ltr,
               ),
@@ -436,8 +415,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
         children: [
           Text(
             isUrdu
-                ? '${_getMonthName(_currentHijriMonth - 1, langCode)} ${context.tr('important_dates_in')}'
-                : '${context.tr('important_dates_in')} ${_getMonthName(_currentHijriMonth - 1, langCode)}',
+                ? '${_getMonthName(_currentHijriMonth - 1, langCode)} ${_t('important_dates_in')}'
+                : '${_t('important_dates_in')} ${_getMonthName(_currentHijriMonth - 1, langCode)}',
             style: Theme.of(context).textTheme.headlineSmall,
             textDirection: isUrdu ? TextDirection.rtl : TextDirection.ltr,
           ),
@@ -451,8 +430,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
             final dateText = (langCode == 'ar' || langCode == 'ur')
                 ? '${_getUrduArabicNumerals(date.day, langCode)} ${_getMonthName(_currentHijriMonth - 1, langCode)}'
                 : '${date.day} ${_getMonthName(_currentHijriMonth - 1, langCode)}';
-            final nameText = context.tr(date.translationKey);
-            final descText = date.descriptionKey != null ? context.tr(date.descriptionKey!) : '';
+            final nameText = _t(date.titleKey);
+            final descText = date.descKey.isNotEmpty ? _t(date.descKey) : '';
 
             return Container(
               margin: EdgeInsets.only(bottom: responsive.spacing(10)),
@@ -487,7 +466,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             ),
                           ],
                         ),
-                        child: Icon(date.icon, color: Colors.white, size: responsive.iconSize(22)),
+                        child: Icon(_getIconData(date.icon), color: Colors.white, size: responsive.iconSize(22)),
                       ),
                       SizedBox(width: responsive.spacing(14)),
                     ],
@@ -566,7 +545,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             ),
                           ],
                         ),
-                        child: Icon(date.icon, color: Colors.white, size: responsive.iconSize(22)),
+                        child: Icon(_getIconData(date.icon), color: Colors.white, size: responsive.iconSize(22)),
                       ),
                     ],
                   ],
@@ -577,6 +556,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
         ],
       ),
     );
+  }
+
+  IconData _getIconData(String iconName) {
+    switch (iconName) {
+      case 'celebration': return Icons.celebration;
+      case 'star': return Icons.star;
+      case 'mosque': return Icons.mosque;
+      case 'nights_stay': return Icons.nights_stay;
+      case 'auto_awesome': return Icons.auto_awesome;
+      case 'brightness_2': return Icons.brightness_2;
+      case 'flight_takeoff': return Icons.flight_takeoff;
+      case 'terrain': return Icons.terrain;
+      default: return Icons.star;
+    }
   }
 
   void _previousMonth() {
@@ -630,10 +623,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
           children: [
             Text(
               (langCode == 'ar' || langCode == 'ur')
-                  ? '${_getUrduArabicNumerals(day, langCode)} ${_getMonthName(_currentHijriMonth - 1, langCode)} ${_getUrduArabicNumerals(_currentHijriYear, langCode)} ${context.tr('ah')}'
+                  ? '${_getUrduArabicNumerals(day, langCode)} ${_getMonthName(_currentHijriMonth - 1, langCode)} ${_getUrduArabicNumerals(_currentHijriYear, langCode)} ${_t('ah')}'
                   : langCode == 'hi'
-                  ? '$day ${_getMonthName(_currentHijriMonth - 1, langCode)} $_currentHijriYear ${context.tr('ah')}'
-                  : '$day ${AppStrings.islamicMonths[_currentHijriMonth - 1]} $_currentHijriYear ${context.tr('ah')}',
+                  ? '$day ${_getMonthName(_currentHijriMonth - 1, langCode)} $_currentHijriYear ${_t('ah')}'
+                  : '$day ${_getMonthName(_currentHijriMonth - 1, langCode)} $_currentHijriYear ${_t('ah')}',
               style: Theme.of(context).textTheme.headlineSmall,
               textDirection: (langCode == 'ar' || langCode == 'ur') ? TextDirection.rtl : TextDirection.ltr,
             ),
@@ -648,20 +641,4 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
     );
   }
-}
-
-class _ImportantDateWithMonth {
-  final int month;
-  final int day;
-  final String translationKey;
-  final IconData icon;
-  final String? descriptionKey;
-
-  _ImportantDateWithMonth(
-    this.month,
-    this.day,
-    this.translationKey,
-    this.icon, {
-    this.descriptionKey,
-  });
 }

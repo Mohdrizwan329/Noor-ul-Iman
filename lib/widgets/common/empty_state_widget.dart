@@ -27,7 +27,6 @@ class EmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final responsive = context.responsive;
 
     return Center(
@@ -37,7 +36,7 @@ class EmptyStateWidget extends StatelessWidget {
           Icon(
             icon,
             size: responsive.iconXXLarge,
-            color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
+            color: Colors.grey.shade400,
           ),
           VSpace.large,
           Text(

@@ -2,10 +2,15 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/qibla_calculator.dart';
 import '../../core/utils/app_utils.dart';
 import '../../core/services/location_service.dart';
+import '../../core/services/content_service.dart';
+import '../../data/models/firestore_models.dart';
+import '../../providers/language_provider.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class QiblaScreen extends StatefulWidget {
   const QiblaScreen({super.key});
@@ -16,19 +21,23 @@ class QiblaScreen extends StatefulWidget {
 
 class _QiblaScreenState extends State<QiblaScreen> {
   final LocationService _locationService = LocationService();
+  final ContentService _contentService = ContentService();
   double? _qiblaDirection;
   double? _compassHeading;
   Position? _currentPosition;
   bool _isLoading = true;
+  bool _isContentLoading = true;
   String? _error;
   double? _distanceToKaaba;
   bool _hasCompass = true;
   bool _isSaved = false;
+  QiblaContentFirestore? _qiblaContent;
 
   @override
   void initState() {
     super.initState();
     _checkCompassAvailability();
+    _loadQiblaContent();
   }
 
   @override
@@ -39,9 +48,44 @@ class _QiblaScreenState extends State<QiblaScreen> {
     }
   }
 
+  /// Load all qibla screen content from Firebase - no static fallback
+  Future<void> _loadQiblaContent() async {
+    try {
+      final content = await _contentService.getQiblaContent();
+      if (mounted) {
+        setState(() {
+          _qiblaContent = content;
+          _isContentLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading qibla content from Firebase: $e');
+      if (mounted) {
+        setState(() {
+          _isContentLoading = false;
+        });
+      }
+    }
+  }
+
+  /// Get translated string from Firebase only - no static fallback
+  String _t(String key) {
+    if (_qiblaContent == null) return '';
+    final langCode =
+        Provider.of<LanguageProvider>(context, listen: false).languageCode;
+    return _qiblaContent!.getString(key, langCode);
+  }
+
+  /// Get the dua arabic text from Firebase only
+  String get _duaArabicText {
+    if (_qiblaContent != null && _qiblaContent!.duaArabicText.isNotEmpty) {
+      return _qiblaContent!.duaArabicText;
+    }
+    return '';
+  }
+
   Future<void> _checkCompassAvailability() async {
     try {
-      // Check if compass is supported on this device
       final events = FlutterCompass.events;
       if (events == null) {
         setState(() {
@@ -56,13 +100,6 @@ class _QiblaScreenState extends State<QiblaScreen> {
   }
 
   Future<void> _initializeQibla() async {
-    // Get translations before async operations
-    final locationDisabled = context.tr('location_services_disabled');
-    final permissionDenied = context.tr('location_permission_denied');
-    final permissionDeniedForever = context.tr('location_permission_denied_forever');
-    final unableToGetLocation = context.tr('unable_to_get_location');
-    final locationError = context.tr('location_error');
-
     setState(() {
       _isLoading = true;
       _error = null;
@@ -74,7 +111,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
       if (!serviceEnabled) {
         if (mounted) {
           setState(() {
-            _error = locationDisabled;
+            _error = _t('location_services_disabled');
             _isLoading = false;
           });
         }
@@ -88,7 +125,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
         if (permission == LocationPermission.denied) {
           if (mounted) {
             setState(() {
-              _error = permissionDenied;
+              _error = _t('location_permission_denied');
               _isLoading = false;
             });
           }
@@ -99,7 +136,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
       if (permission == LocationPermission.deniedForever) {
         if (mounted) {
           setState(() {
-            _error = permissionDeniedForever;
+            _error = _t('location_permission_denied_forever');
             _isLoading = false;
           });
         }
@@ -111,13 +148,12 @@ class _QiblaScreenState extends State<QiblaScreen> {
 
       if (_currentPosition != null) {
         _updateQiblaData();
-        // Start listening to real-time location updates
         _startLocationStream();
       } else {
-        _error = unableToGetLocation;
+        _error = _t('unable_to_get_location');
       }
     } catch (e) {
-      _error = '$locationError: ${e.toString()}';
+      _error = '${_t('location_error')}: ${e.toString()}';
     }
 
     if (mounted) {
@@ -174,15 +210,22 @@ class _QiblaScreenState extends State<QiblaScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: Text(context.tr('qibla')),
+        title: Text(_t('qibla')),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? _buildErrorWidget()
-              : !_hasCompass
-                  ? _buildNoCompassWidget()
-                  : _buildCompassWidget(),
+      body: Column(
+        children: [
+          Expanded(
+            child: (_isLoading || _isContentLoading)
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
+                    ? _buildErrorWidget()
+                    : !_hasCompass
+                        ? _buildNoCompassWidget()
+                        : _buildCompassWidget(),
+          ),
+          const BannerAdWidget(),
+        ],
+      ),
     );
   }
 
@@ -210,7 +253,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                 ),
                 responsive.vSpaceMedium,
                 Text(
-                  context.tr('qibla'),
+                  _t('qibla'),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: responsive.textXXLarge,
@@ -220,7 +263,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                 if (_distanceToKaaba != null) ...[
                   responsive.vSpaceSmall,
                   Text(
-                    '${context.tr('distance_to_kaaba')}: ${QiblaCalculator.formatDistance(_distanceToKaaba!)}',
+                    '${_t('distance_to_kaaba')}: ${QiblaCalculator.formatDistance(_distanceToKaaba!)}',
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -267,7 +310,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                 ),
                 responsive.vSpaceSmall,
                 Text(
-                  context.tr('from_north'),
+                  _t('from_north'),
                   style: TextStyle(
                     fontSize: responsive.textRegular,
                     color: Colors.grey,
@@ -291,7 +334,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                 SizedBox(width: responsive.spaceMedium),
                 Expanded(
                   child: Text(
-                    context.tr('compass_not_available'),
+                    _t('compass_not_available'),
                     style: TextStyle(fontSize: responsive.textSmall),
                   ),
                 ),
@@ -336,7 +379,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                   await Geolocator.openAppSettings();
                 },
                 icon: const Icon(Icons.settings),
-                label: Text(context.tr('open_app_settings')),
+                label: Text(_t('open_app_settings')),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
@@ -347,13 +390,13 @@ class _QiblaScreenState extends State<QiblaScreen> {
               TextButton.icon(
                 onPressed: _initializeQibla,
                 icon: const Icon(Icons.refresh),
-                label: Text(context.tr('try_again')),
+                label: Text(_t('try_again')),
               ),
             ] else ...[
               ElevatedButton.icon(
                 onPressed: _initializeQibla,
                 icon: const Icon(Icons.refresh),
-                label: Text(context.tr('retry')),
+                label: Text(_t('retry')),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
@@ -366,7 +409,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                   await Geolocator.openLocationSettings();
                 },
                 icon: const Icon(Icons.settings),
-                label: Text(context.tr('open_location_settings')),
+                label: Text(_t('open_location_settings')),
               ),
             ],
 
@@ -388,7 +431,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                   SizedBox(width: responsive.spaceMedium),
                   Expanded(
                     child: Text(
-                      context.tr('qibla_requires_location'),
+                      _t('qibla_requires_location'),
                       style: TextStyle(
                         fontSize: responsive.textSmall,
                         color: Colors.blue.shade700,
@@ -422,7 +465,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
               children: [
                 const CircularProgressIndicator(),
                 responsive.vSpaceRegular,
-                Text(context.tr('initializing_compass')),
+                Text(_t('initializing_compass')),
               ],
             ),
           );
@@ -435,10 +478,10 @@ class _QiblaScreenState extends State<QiblaScreen> {
               children: [
                 const CircularProgressIndicator(),
                 responsive.vSpaceRegular,
-                Text(context.tr('calibrating_compass')),
+                Text(_t('calibrating_compass')),
                 responsive.vSpaceSmall,
                 Text(
-                  context.tr('calibrate_instruction'),
+                  _t('calibrate_instruction'),
                   style: const TextStyle(color: Colors.grey),
                 ),
                 responsive.vSpaceXLarge,
@@ -448,7 +491,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                       _hasCompass = false;
                     });
                   },
-                  child: Text(context.tr('show_direction_without_compass')),
+                  child: Text(_t('show_direction_without_compass')),
                 ),
               ],
             ),
@@ -478,23 +521,23 @@ class _QiblaScreenState extends State<QiblaScreen> {
         // Determine direction to turn
         String directionText = '';
         if (isFacingQibla) {
-          directionText = context.tr('perfect_alignment');
+          directionText = _t('perfect_alignment');
         } else if (rawDifference > 0) {
-          directionText = '${context.tr('turn_right')} ${difference.toStringAsFixed(1)}°';
+          directionText = '${_t('turn_right')} ${difference.toStringAsFixed(1)}°';
         } else {
-          directionText = '${context.tr('turn_left')} ${difference.toStringAsFixed(1)}°';
+          directionText = '${_t('turn_left')} ${difference.toStringAsFixed(1)}°';
         }
 
         // Responsive compass size
         final compassSize = responsive.widthPercent(80).clamp(250.0, 350.0);
         final compassInnerSize = compassSize - responsive.spacing(20);
 
-        // Get direction translations
+        // Get direction translations from Firebase
         final directions = [
-          context.tr('north'),
-          context.tr('east'),
-          context.tr('south'),
-          context.tr('west'),
+          _t('north'),
+          _t('east'),
+          _t('south'),
+          _t('west'),
         ];
 
         return SingleChildScrollView(
@@ -619,7 +662,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                             ),
                           ),
                           Text(
-                            isFacingQibla ? context.tr('perfect_label') : context.tr('aligned_label'),
+                            isFacingQibla ? _t('perfect_label') : _t('aligned_label'),
                             style: TextStyle(
                               fontSize: responsive.textSmall,
                               color: Colors.white,
@@ -672,7 +715,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                 borderRadius: BorderRadius.circular(responsive.radiusMedium),
               ),
               child: Text(
-                context.tr('perfectly_aligned_100'),
+                _t('perfectly_aligned_100'),
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -687,7 +730,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
           SizedBox(height: responsive.spacing(2)),
 
           Text(
-            isFacingQibla ? context.tr('facing_qibla') : context.tr('turn_to_face_qibla'),
+            isFacingQibla ? _t('facing_qibla') : _t('turn_to_face_qibla'),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -722,7 +765,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
           if (_distanceToKaaba != null) ...[
             responsive.vSpaceSmall,
             Text(
-              '${context.tr('distance_to_kaaba')}: ${QiblaCalculator.formatDistance(_distanceToKaaba!)}',
+              '${_t('distance_to_kaaba')}: ${QiblaCalculator.formatDistance(_distanceToKaaba!)}',
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -742,12 +785,12 @@ class _QiblaScreenState extends State<QiblaScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _buildInfoItem(
-          context.tr('qibla'),
+          _t('qibla'),
           '${qiblaDirection.toStringAsFixed(1)}°',
           Icons.mosque,
         ),
         _buildInfoItem(
-          context.tr('compass'),
+          _t('compass'),
           '${(_compassHeading ?? 0).toStringAsFixed(1)}°',
           Icons.explore,
         ),
@@ -802,7 +845,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
         children: [
           // Title
           Text(
-            context.tr('qibla_dua'),
+            _t('qibla_dua'),
             style: TextStyle(
               fontSize: responsive.textXLarge,
               fontWeight: FontWeight.bold,
@@ -822,7 +865,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  context.tr('qibla_dua_text'),
+                  _duaArabicText,
                   textAlign: TextAlign.right,
                   overflow: TextOverflow.clip,
                   style: TextStyle(
@@ -834,7 +877,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                 ),
                 responsive.vSpaceRegular,
                 Text(
-                  '${context.tr('translation_label')} ${context.tr('qibla_dua_translation')}',
+                  '${_t('translation_label')} ${_t('qibla_dua_translation')}',
                   textAlign: TextAlign.left,
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
@@ -865,7 +908,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  context.tr('qibla_dua_meaning_title'),
+                  _t('qibla_dua_meaning_title'),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -876,7 +919,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                 ),
                 responsive.vSpaceSmall,
                 Text(
-                  context.tr('qibla_dua_meaning'),
+                  _t('qibla_dua_meaning'),
                   textAlign: TextAlign.justify,
                   maxLines: 6,
                   overflow: TextOverflow.ellipsis,
@@ -906,15 +949,15 @@ class _QiblaScreenState extends State<QiblaScreen> {
                       SnackBar(
                         content: Text(
                           _isSaved
-                              ? context.tr('saved_successfully')
-                              : context.tr('removed_successfully'),
+                              ? _t('saved_successfully')
+                              : _t('removed_successfully'),
                         ),
                         duration: const Duration(seconds: 2),
                       ),
                     );
                   },
                   icon: Icon(_isSaved ? Icons.bookmark : Icons.bookmark_border),
-                  label: Text(_isSaved ? context.tr('saved') : context.tr('save')),
+                  label: Text(_isSaved ? _t('saved') : _t('save')),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _isSaved ? AppColors.success : AppColors.primary,
                     foregroundColor: Colors.white,
@@ -931,7 +974,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                     _showDeleteConfirmation();
                   },
                   icon: const Icon(Icons.delete_outline),
-                  label: Text(context.tr('delete')),
+                  label: Text(_t('delete')),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red.shade400,
                     foregroundColor: Colors.white,
@@ -950,12 +993,12 @@ class _QiblaScreenState extends State<QiblaScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: Text(context.tr('confirm_delete')),
-        content: Text(context.tr('delete_dua_confirmation')),
+        title: Text(_t('confirm_delete')),
+        content: Text(_t('delete_dua_confirmation')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(context.tr('cancel')),
+            child: Text(_t('cancel')),
           ),
           ElevatedButton(
             onPressed: () {
@@ -965,7 +1008,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
               });
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(context.tr('deleted_successfully')),
+                  content: Text(_t('deleted_successfully')),
                   duration: const Duration(seconds: 2),
                   backgroundColor: Colors.red.shade400,
                 ),
@@ -975,7 +1018,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
               backgroundColor: Colors.red.shade400,
               foregroundColor: Colors.white,
             ),
-            child: Text(context.tr('delete')),
+            child: Text(_t('delete')),
           ),
         ],
       ),

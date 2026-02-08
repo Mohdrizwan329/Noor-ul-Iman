@@ -74,7 +74,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final responsive = ResponsiveUtils(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -117,9 +116,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       child: Icon(
                         Icons.lock_reset,
                         size: responsive.iconSize(48),
-                        color: isDark
-                            ? const Color(0xFF5C6BC0)
-                            : const Color(0xFF4CAF50),
+                        color: const Color(0xFF4CAF50),
                       ),
                     ),
                   ),
@@ -161,9 +158,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       style: AppButtonStyles.white(context),
                       child: _isLoading
                           ? CircularProgressIndicator(
-                              color: isDark
-                                  ? const Color(0xFF5C6BC0)
-                                  : const Color(0xFF4CAF50),
+                              color: const Color(0xFF4CAF50),
                             )
                           : Text(
                               context.tr('send_reset_link'),

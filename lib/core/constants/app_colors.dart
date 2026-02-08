@@ -5,6 +5,13 @@ class AppColors {
 
   // Primary - Dark Islamic Green
   static const Color primary = Color(0xFF0A5C36);
+
+  // App Bar & Navigation Gradient
+  static const LinearGradient appBarGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF1B5E20), Color(0xFF2E7D32), Color(0xFF388E3C)],
+  );
   static const Color primaryLight = Color(0xFF1E8F5A); // Emerald Green
   static const Color primaryDark = Color(0xFF073D24);
 
@@ -18,14 +25,9 @@ class AppColors {
   static const Color appBarColorLight = Color(0xFF1E8F5A);
 
   // Background - Soft Off-White (Eye-friendly)
-  static const Color background = Color(0xFFF6F8F6);
+  static const Color background = Color.fromARGB(255, 227, 234, 223);
   static const Color surface = Color(0xFFF2F7F4); // Very Light Green
   static const Color cardBackground = Colors.white;
-
-  // Dark Theme Colors
-  static const Color darkBackground = Color(0xFF121212);
-  static const Color darkSurface = Color(0xFF1E1E1E);
-  static const Color darkCard = Color(0xFF2D2D2D);
 
   // Text Colors - Islamic Theme
   static const Color textPrimary = Color(0xFF0A5C36); // Dark Green for headings
@@ -34,10 +36,6 @@ class AppColors {
   static const Color textOnPrimary = Colors.white;
   static const Color textOnSecondary = Color(0xFF2F3E36); // Normal text
   static const Color arabicTextColor = Color(0xFF1F3D2B); // Arabic text
-
-  // Dark Text Colors
-  static const Color darkTextPrimary = Color(0xFFF5F5F5);
-  static const Color darkTextSecondary = Color(0xFFB0B0B0);
 
   // Prayer Time Colors - Soft Islamic Palette
   static const Color fajrColor = Color(0xFF4A6FA5);

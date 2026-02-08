@@ -11,6 +11,10 @@ import '../../providers/language_provider.dart';
 import '../../data/models/hadith_model.dart';
 import '../../widgets/common/search_bar_widget.dart';
 import '../../widgets/common/chip_badge.dart';
+import '../../widgets/common/native_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
+import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/services/content_service.dart';
 
 class HadithBookDetailScreen extends StatefulWidget {
   final HadithCollection collection;
@@ -41,6 +45,7 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
   final Set<int> _cardsWithTranslation = {};
   final AudioPlayer _audioPlayer = AudioPlayer();
   final FlutterTts _flutterTts = FlutterTts();
+  final ContentService _contentService = ContentService();
   int? _playingCardIndex;
   bool _isPlaying = false;
 
@@ -49,12 +54,24 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
     super.initState();
     _initTts();
     _initAudioPlayer();
+    _loadHadithTranslations();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HadithProvider>().fetchChapterHadiths(
         widget.collection,
         widget.bookNumber,
       );
     });
+  }
+
+  Future<void> _loadHadithTranslations() async {
+    try {
+      final data = await _contentService.getHadithTranslations();
+      if (data.isNotEmpty) {
+        HadithTranslator.loadFromFirestore(data);
+      }
+    } catch (e) {
+      debugPrint('HadithBookDetail: Error loading translations: $e');
+    }
   }
 
   void _initAudioPlayer() {
@@ -326,6 +343,7 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
               ),
               SizedBox(height: responsive.spaceRegular),
               Expanded(child: buildHadithList(provider, settings)),
+              const BannerAdWidget(),
             ],
           );
         },
@@ -396,14 +414,18 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
     return ListView.builder(
       controller: _scrollController,
       padding: responsive.paddingSymmetric(horizontal: 12),
-      itemCount: hadiths.length,
+      itemCount: AdListHelper.totalCount(hadiths.length),
       itemBuilder: (context, index) {
+        if (AdListHelper.isAdPosition(index)) {
+          return const NativeAdWidget();
+        }
+        final dataIdx = AdListHelper.dataIndex(index);
         return _buildHadithCard(
-          hadiths[index],
+          hadiths[dataIdx],
           provider,
           settings.arabicFontSize,
           settings.translationFontSize,
-          index,
+          dataIdx,
           context.watch<LanguageProvider>().languageCode,
         );
       },

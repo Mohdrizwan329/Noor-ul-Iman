@@ -153,7 +153,7 @@ class _OtpPasswordVerificationScreenState
       } else {
         setState(() {
           _isLoading = false;
-          _errorMessage = result['error'] ?? 'Invalid OTP. Please try again.';
+          _errorMessage = result['error'] ?? context.tr('invalid_otp_try_again');
         });
       }
     } catch (e) {
@@ -161,7 +161,7 @@ class _OtpPasswordVerificationScreenState
 
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Error: ${e.toString()}';
+        _errorMessage = '${context.tr('error')}: ${e.toString()}';
       });
     }
   }
@@ -204,7 +204,6 @@ class _OtpPasswordVerificationScreenState
   @override
   Widget build(BuildContext context) {
     final responsive = ResponsiveUtils(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -244,9 +243,7 @@ class _OtpPasswordVerificationScreenState
                     child: Icon(
                       Icons.mail_lock,
                       size: responsive.iconXXLarge,
-                      color: isDark
-                          ? const Color(0xFF5C6BC0)
-                          : const Color(0xFF4CAF50),
+                      color: const Color(0xFF4CAF50),
                     ),
                   ),
                 ),
@@ -413,9 +410,7 @@ class _OtpPasswordVerificationScreenState
                               responsive.borderRadius(12),
                             ),
                             borderSide: BorderSide(
-                              color: isDark
-                                  ? const Color(0xFF5C6BC0)
-                                  : const Color(0xFF4CAF50),
+                              color: const Color(0xFF4CAF50),
                               width: responsive.spacing(2),
                             ),
                           ),
@@ -449,9 +444,7 @@ class _OtpPasswordVerificationScreenState
                     onPressed: _isLoading ? null : _verifyOtp,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      foregroundColor: isDark
-                          ? const Color(0xFF5C6BC0)
-                          : const Color(0xFF4CAF50),
+                      foregroundColor: const Color(0xFF4CAF50),
                       elevation: 8,
                       shadowColor: Colors.black.withAlpha(80),
                       shape: RoundedRectangleBorder(
@@ -462,9 +455,7 @@ class _OtpPasswordVerificationScreenState
                     ),
                     child: _isLoading
                         ? CircularProgressIndicator(
-                            color: isDark
-                                ? const Color(0xFF5C6BC0)
-                                : const Color(0xFF4CAF50),
+                            color: const Color(0xFF4CAF50),
                           )
                         : Text(
                             context.tr('verify_otp'),

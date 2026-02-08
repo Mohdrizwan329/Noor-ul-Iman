@@ -209,31 +209,43 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     try {
+      debugPrint('🔐 Attempting sign in for: ${email.trim().toLowerCase()}');
+
       final credential = await _authService.signInWithEmail(
         email: email,
         password: password,
       );
 
       if (credential?.user != null) {
+        debugPrint('✅ Sign in successful, loading user data...');
         _firebaseUser = credential!.user;
         await _loadUserFromFirestore(_firebaseUser!.uid);
         await _saveAuthSession();
 
+        debugPrint('✅ User data loaded, sign in complete');
         _isLoading = false;
         notifyListeners();
         return true;
       }
 
-      _error = 'Sign in failed';
+      debugPrint('❌ Sign in failed: credential is null');
+      _error = 'Sign in failed. Please try again.';
       _isLoading = false;
       notifyListeners();
       return false;
     } catch (e) {
-      if (context.mounted) {
-        _error = _authService.getErrorMessage(e, context);
-      } else {
-        _error = 'Sign in failed: $e';
+      debugPrint('❌ Sign in error: $e');
+      // Always try to get error message, use context if mounted
+      try {
+        if (context.mounted) {
+          _error = _authService.getErrorMessage(e, context);
+        } else {
+          _error = 'Sign in failed. Please check your credentials and try again.';
+        }
+      } catch (_) {
+        _error = 'Sign in failed: ${e.toString()}';
       }
+      debugPrint('❌ Error message: $_error');
       _isLoading = false;
       notifyListeners();
       return false;

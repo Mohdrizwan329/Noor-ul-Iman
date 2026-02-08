@@ -3,10 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/services/content_service.dart';
 import '../../core/utils/app_utils.dart';
 import '../../core/utils/hadith_reference_translator.dart';
 import '../../data/models/hadith_model.dart';
 import '../../providers/language_provider.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class HadithScreen extends StatefulWidget {
   const HadithScreen({super.key});
@@ -16,7 +18,58 @@ class HadithScreen extends StatefulWidget {
 }
 
 class _HadithScreenState extends State<HadithScreen> {
+  final ContentService _contentService = ContentService();
+  final Map<String, List<HadithModel>> _loadedHadiths = {};
   String _selectedBook = 'sahih_bukhari';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFromFirestore();
+  }
+
+  Future<void> _loadFromFirestore() async {
+    final collections = {
+      'bukhari': 'sahih_bukhari',
+      'muslim': 'sahih_muslim',
+      'abudawud': 'sunan_abu_dawud',
+      'tirmidhi': 'jami_tirmidhi',
+    };
+
+    for (final entry in collections.entries) {
+      final firestoreKey = entry.key;
+      final bookKey = entry.value;
+
+      try {
+        final sampleHadiths =
+            await _contentService.getSampleHadiths(firestoreKey);
+
+        final hadithModels = sampleHadiths
+            .map((sample) => HadithModel(
+                  id: sample.id,
+                  hadithNumber: sample.hadithNumber,
+                  arabic: sample.arabic,
+                  english: sample.english,
+                  urdu: sample.urdu,
+                  hindi: sample.hindi,
+                  narrator: sample.narrator,
+                  grade: sample.grade,
+                  reference: sample.reference,
+                ))
+            .toList();
+
+        if (mounted) {
+          setState(() {
+            _loadedHadiths[bookKey] = hadithModels;
+          });
+        }
+      } catch (e) {
+        // Silently fail and use hardcoded fallback
+        debugPrint('Failed to load hadiths for $firestoreKey: $e');
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +86,7 @@ class _HadithScreenState extends State<HadithScreen> {
           Expanded(
             child: _buildHadithList(),
           ),
+          const BannerAdWidget(),
         ],
       ),
     );
@@ -99,17 +153,7 @@ class _HadithScreenState extends State<HadithScreen> {
   }
 
   List<HadithModel> _getHadithsForBook(String book) {
-    // Sample Hadiths - In production, this would come from local JSON or API
-    switch (book) {
-      case 'sahih_bukhari':
-        return _bukhariHadiths;
-      case 'sahih_muslim':
-        return _muslimHadiths;
-      case 'sunan_abu_dawud':
-        return _abuDawudHadiths;
-      default:
-        return _tirmidhiHadiths;
-    }
+    return _loadedHadiths[book] ?? [];
   }
 }
 
@@ -330,95 +374,3 @@ class _HadithCard extends StatelessWidget {
   }
 }
 
-// Sample Hadith Data
-final List<HadithModel> _bukhariHadiths = [
-  HadithModel(
-    id: 1,
-    hadithNumber: '1',
-    arabic: 'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى',
-    english: 'Actions are judged by intentions, so each man will have what he intended.',
-    urdu: '',
-    narrator: 'Narrated by Umar ibn Al-Khattab (RA)',
-    grade: 'Sahih',
-    reference: 'Sahih Bukhari, Book 1, Hadith 1',
-  ),
-  HadithModel(
-    id: 2,
-    hadithNumber: '6',
-    arabic: 'الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ',
-    english: 'A Muslim is the one from whose tongue and hands the Muslims are safe.',
-    urdu: '',
-    narrator: 'Narrated by Abdullah ibn Amr (RA)',
-    grade: 'Sahih',
-    reference: 'Sahih Bukhari, Book 2, Hadith 9',
-  ),
-  HadithModel(
-    id: 3,
-    hadithNumber: '13',
-    arabic: 'لاَ يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ',
-    english: 'None of you truly believes until he loves for his brother what he loves for himself.',
-    urdu: '',
-    narrator: 'Narrated by Anas ibn Malik (RA)',
-    grade: 'Sahih',
-    reference: 'Sahih Bukhari, Book 2, Hadith 12',
-  ),
-  HadithModel(
-    id: 4,
-    hadithNumber: '52',
-    arabic: 'الْحَلاَلُ بَيِّنٌ وَالْحَرَامُ بَيِّنٌ',
-    english: 'Both legal and illegal things are evident but in between them there are doubtful things.',
-    urdu: '',
-    narrator: "Narrated by An-Nu'man bin Bashir (RA)",
-    grade: 'Sahih',
-    reference: 'Sahih Bukhari, Book 2, Hadith 45',
-  ),
-];
-
-final List<HadithModel> _muslimHadiths = [
-  HadithModel(
-    id: 5,
-    hadithNumber: '1',
-    arabic: 'الإِيمَانُ أَنْ تُؤْمِنَ بِاللَّهِ وَمَلاَئِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ وَالْيَوْمِ الآخِرِ',
-    english: 'Faith is to believe in Allah, His angels, His books, His messengers, and the Last Day.',
-    urdu: '',
-    narrator: 'Narrated by Umar ibn Al-Khattab (RA)',
-    grade: 'Sahih',
-    reference: 'Sahih Muslim, Book 1, Hadith 1',
-  ),
-  HadithModel(
-    id: 6,
-    hadithNumber: '45',
-    arabic: 'مَنْ رَأَى مِنْكُمْ مُنْكَرًا فَلْيُغَيِّرْهُ بِيَدِهِ',
-    english: 'Whoever among you sees an evil, let him change it with his hand.',
-    urdu: '',
-    narrator: 'Narrated by Abu Said Al-Khudri (RA)',
-    grade: 'Sahih',
-    reference: 'Sahih Muslim, Book 1, Hadith 78',
-  ),
-];
-
-final List<HadithModel> _abuDawudHadiths = [
-  HadithModel(
-    id: 7,
-    hadithNumber: '495',
-    arabic: 'مُرُوا أَوْلاَدَكُمْ بِالصَّلاَةِ وَهُمْ أَبْنَاءُ سَبْعِ سِنِينَ',
-    english: 'Command your children to pray when they become seven years old.',
-    urdu: '',
-    narrator: 'Narrated by Abdullah ibn Amr (RA)',
-    grade: 'Hasan',
-    reference: 'Sunan Abu Dawud, Book 2, Hadith 495',
-  ),
-];
-
-final List<HadithModel> _tirmidhiHadiths = [
-  HadithModel(
-    id: 8,
-    hadithNumber: '2317',
-    arabic: 'إِنَّ اللَّهَ لاَ يَنْظُرُ إِلَى صُوَرِكُمْ وَأَمْوَالِكُمْ وَلَكِنْ يَنْظُرُ إِلَى قُلُوبِكُمْ وَأَعْمَالِكُمْ',
-    english: 'Verily Allah does not look at your appearances or wealth, but rather He looks at your hearts and actions.',
-    urdu: '',
-    narrator: 'Narrated by Abu Hurairah (RA)',
-    grade: 'Sahih',
-    reference: 'Jami at-Tirmidhi, Book 27, Hadith 2317',
-  ),
-];

@@ -9,8 +9,11 @@ import '../../providers/quran_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../data/models/surah_model.dart';
+import '../../data/models/firestore_models.dart';
 import '../../widgets/common/search_bar_widget.dart';
 import '../../widgets/common/header_action_button.dart';
+import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/services/content_service.dart';
 
 class SurahDetailScreen extends StatefulWidget {
   final int surahNumber;
@@ -22,6 +25,8 @@ class SurahDetailScreen extends StatefulWidget {
 
 class _SurahDetailScreenState extends State<SurahDetailScreen> {
   final AudioPlayer _audioPlayer = AudioPlayer();
+  final ContentService _contentService = ContentService();
+  QuranScreenContentFirestore? _quranContent;
   int? _playingAyah;
   late QuranProvider _quranProvider;
   final ScrollController _scrollController = ScrollController();
@@ -35,135 +40,65 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
   int? _playingCardIndex;
   List<AyahModel> _ayahsQueue = [];
 
+  String _cleanArabicName(String arabicName) {
+    return arabicName
+        .replaceAll('سُورَةُ ', '')
+        .replaceAll('سورة ', '')
+        .replaceAll(RegExp(r'[ًٌٍَُِّْٰۡـٓ]'), '')
+        .replaceAll('أ', 'ا')
+        .replaceAll('إ', 'ا')
+        .replaceAll('آ', 'ا')
+        .replaceAll('ؤ', 'و')
+        .replaceAll('ئ', 'ي')
+        .replaceAll('ٱ', 'ا')
+        .replaceAll('ى', 'ي')
+        .trim();
+  }
+
   // Get Surah name based on app language
   String _getSurahName(String arabicName, String englishName, String languageCode) {
+    if (_quranContent != null) {
+      final name = _quranContent!.getSurahName(widget.surahNumber, languageCode);
+      if (name != 'Surah ${widget.surahNumber}') return name;
+    }
     switch (languageCode) {
       case 'ar':
-        return arabicName; // Arabic
+        return arabicName;
       case 'ur':
-        return _getUrduName(arabicName); // Urdu transliteration
+        return _getUrduName(arabicName);
       case 'hi':
-        return _getHindiName(arabicName); // Hindi transliteration
+        return _getHindiName(arabicName);
       case 'en':
       default:
-        return englishName; // English
+        return englishName;
     }
   }
 
-  // Get transliterated Surah name for Urdu
+  // Get transliterated Surah name for Urdu from Firebase
   String _getUrduName(String arabicName) {
-    String cleanName = arabicName
-        .replaceAll('سُورَةُ ', '')
-        .replaceAll('سورة ', '')
-        .replaceAll(RegExp(r'[ًٌٍَُِّْٰۡـٓ]'), '')
-        .replaceAll('أ', 'ا')
-        .replaceAll('إ', 'ا')
-        .replaceAll('آ', 'ا')
-        .replaceAll('ؤ', 'و')
-        .replaceAll('ئ', 'ي')
-        .replaceAll('ٱ', 'ا')
-        .replaceAll('ى', 'ي')
-        .trim();
-
-    final Map<String, String> urduMap = {
-      'الفاتحة': 'الفاتحہ', 'البقرة': 'البقرہ', 'ال عمران': 'آل عمران',
-      'النساء': 'النساء', 'المايدة': 'المائدہ', 'الانعام': 'الانعام',
-      'الاعراف': 'الاعراف', 'الانفال': 'الانفال', 'التوبة': 'التوبہ',
-      'يونس': 'یونس', 'هود': 'ہود', 'يوسف': 'یوسف',
-      'الرعد': 'الرعد', 'ابراهيم': 'ابراہیم', 'الحجر': 'الحجر',
-      'النحل': 'النحل', 'الاسراء': 'الاسراء', 'الكهف': 'الکہف',
-      'مريم': 'مریم', 'طه': 'طٰہٰ', 'الانبياء': 'الانبیاء',
-      'الحج': 'الحج', 'المومنون': 'المؤمنون', 'النور': 'النور',
-      'الفرقان': 'الفرقان', 'الشعراء': 'الشعراء', 'النمل': 'النمل',
-      'القصص': 'القصص', 'العنكبوت': 'العنکبوت', 'الروم': 'الروم',
-      'لقمان': 'لقمان', 'السجدة': 'السجدہ', 'الاحزاب': 'الاحزاب',
-      'سبا': 'سبا', 'فاطر': 'فاطر', 'يس': 'یٰسین',
-      'الصافات': 'الصافات', 'ص': 'ص', 'الزمر': 'الزمر',
-      'غافر': 'غافر', 'فصلت': 'فصلت', 'الشوري': 'الشوریٰ',
-      'الزخرف': 'الزخرف', 'الدخان': 'الدخان', 'الجاثية': 'الجاثیہ',
-      'الاحقاف': 'الاحقاف', 'محمد': 'محمد', 'الفتح': 'الفتح',
-      'الحجرات': 'الحجرات', 'ق': 'ق', 'الذاريات': 'الذاریات',
-      'الطور': 'الطور', 'النجم': 'النجم', 'القمر': 'القمر',
-      'الرحمن': 'الرحمٰن', 'الواقعة': 'الواقعہ', 'الحديد': 'الحدید',
-      'المجادلة': 'المجادلہ', 'الحشر': 'الحشر', 'الممتحنة': 'الممتحنہ',
-      'الصف': 'الصف', 'الجمعة': 'الجمعہ', 'المنافقون': 'المنافقون',
-      'التغابن': 'التغابن', 'الطلاق': 'الطلاق', 'التحريم': 'التحریم',
-      'الملك': 'الملک', 'القلم': 'القلم', 'الحاقة': 'الحاقہ',
-      'المعارج': 'المعارج', 'نوح': 'نوح', 'الجن': 'الجن',
-      'المزمل': 'المزمل', 'المدثر': 'المدثر', 'القيامة': 'القیامہ',
-      'الانسان': 'الانسان', 'المرسلات': 'المرسلات', 'النبا': 'النبا',
-      'النازعات': 'النازعات', 'عبس': 'عبس', 'التكوير': 'التکویر',
-      'الانفطار': 'الانفطار', 'المطففين': 'المطففین', 'الانشقاق': 'الانشقاق',
-      'البروج': 'البروج', 'الطارق': 'الطارق', 'الاعلي': 'الاعلیٰ',
-      'الغاشية': 'الغاشیہ', 'الفجر': 'الفجر', 'البلد': 'البلد',
-      'الشمس': 'الشمس', 'الليل': 'اللیل', 'الضحي': 'الضحیٰ',
-      'الشرح': 'الشرح', 'التين': 'التین', 'العلق': 'العلق',
-      'القدر': 'القدر', 'البينة': 'البینہ', 'الزلزلة': 'الزلزلہ',
-      'العاديات': 'العادیات', 'القارعة': 'القارعہ', 'التكاثر': 'التکاثر',
-      'العصر': 'العصر', 'الهمزة': 'الہمزہ', 'الفيل': 'الفیل',
-      'قريش': 'قریش', 'الماعون': 'الماعون', 'الكوثر': 'الکوثر',
-      'الكافرون': 'الکافرون', 'النصر': 'النصر', 'المسد': 'المسد',
-      'الاخلاص': 'الاخلاص', 'الفلق': 'الفلق', 'الناس': 'الناس',
-    };
-    return urduMap[cleanName] ?? arabicName;
+    final cleanName = _cleanArabicName(arabicName);
+    if (_quranContent != null) {
+      return _quranContent!.getUrduTransliteration(cleanName, arabicName);
+    }
+    return arabicName;
   }
 
-  // Get transliterated Surah name for Hindi
+  // Get transliterated Surah name for Hindi from Firebase
   String _getHindiName(String arabicName) {
-    String cleanName = arabicName
-        .replaceAll('سُورَةُ ', '')
-        .replaceAll('سورة ', '')
-        .replaceAll(RegExp(r'[ًٌٍَُِّْٰۡـٓ]'), '')
-        .replaceAll('أ', 'ا')
-        .replaceAll('إ', 'ا')
-        .replaceAll('آ', 'ا')
-        .replaceAll('ؤ', 'و')
-        .replaceAll('ئ', 'ي')
-        .replaceAll('ٱ', 'ا')
-        .replaceAll('ى', 'ي')
-        .trim();
+    final cleanName = _cleanArabicName(arabicName);
+    if (_quranContent != null) {
+      return _quranContent!.getHindiTransliteration(cleanName, arabicName);
+    }
+    return arabicName;
+  }
 
-    final Map<String, String> hindiMap = {
-      'الفاتحة': 'अल-फ़ातिहा', 'البقرة': 'अल-बक़रा', 'ال عمران': 'आले-इमरान',
-      'النساء': 'अन-निसा', 'المايدة': 'अल-माइदा', 'الانعام': 'अल-अनआम',
-      'الاعراف': 'अल-आराफ़', 'الانفال': 'अल-अनफ़ाल', 'التوبة': 'अत-तौबा',
-      'يونس': 'यूनुस', 'هود': 'हूद', 'يوسف': 'यूसुफ़',
-      'الرعد': 'अर-रअद', 'ابراهيم': 'इब्राहीम', 'الحجر': 'अल-हिज्र',
-      'النحل': 'अन-नह्ल', 'الاسراء': 'अल-इसरा', 'الكهف': 'अल-कह्फ़',
-      'مريم': 'मरयम', 'طه': 'ताहा', 'الانبياء': 'अल-अंबिया',
-      'الحج': 'अल-हज्ज', 'المومنون': 'अल-मोमिनून', 'النور': 'अन-नूर',
-      'الفرقان': 'अल-फ़ुरक़ान', 'الشعراء': 'अश-शुअरा', 'النمل': 'अन-नम्ल',
-      'القصص': 'अल-क़सस', 'العنكبوت': 'अल-अनकबूत', 'الروم': 'अर-रूम',
-      'لقمان': 'लुक़मान', 'السجدة': 'अस-सजदा', 'الاحزاب': 'अल-अहज़ाब',
-      'سبا': 'सबा', 'فاطر': 'फ़ातिर', 'يس': 'यासीन',
-      'الصافات': 'अस-साफ़्फ़ात', 'ص': 'साद', 'الزمر': 'अज़-ज़ुमर',
-      'غافر': 'ग़ाफ़िर', 'فصلت': 'फ़ुस्सिलत', 'الشوري': 'अश-शूरा',
-      'الزخرف': 'अज़-ज़ुख़रुफ़', 'الدخان': 'अद-दुख़ान', 'الجاثية': 'अल-जासिया',
-      'الاحقاف': 'अल-अहक़ाफ़', 'محمد': 'मुहम्मद', 'الفتح': 'अल-फ़तह',
-      'الحجرات': 'अल-हुजुरात', 'ق': 'क़ाफ़', 'الذاريات': 'अज़-ज़ारियात',
-      'الطور': 'अत-तूर', 'النجم': 'अन-नज्म', 'القمر': 'अल-क़मर',
-      'الرحمن': 'अर-रहमान', 'الواقعة': 'अल-वाक़िआ', 'الحديد': 'अल-हदीद',
-      'المجادلة': 'अल-मुजादिला', 'الحشر': 'अल-हश्र', 'الممتحنة': 'अल-मुम्तहना',
-      'الصف': 'अस-सफ़', 'الجمعة': 'अल-जुमुआ', 'المنافقون': 'अल-मुनाफ़िक़ून',
-      'التغابن': 'अत-तग़ाबुन', 'الطلاق': 'अत-तलाक़', 'التحريم': 'अत-तहरीम',
-      'الملك': 'अल-मुल्क', 'القلم': 'अल-क़लम', 'الحاقة': 'अल-हाक़्क़ा',
-      'المعارج': 'अल-मआरिज', 'نوح': 'नूह', 'الجن': 'अल-जिन्न',
-      'المزمل': 'अल-मुज़्ज़म्मिल', 'المدثر': 'अल-मुद्दस्सिर', 'القيامة': 'अल-क़ियामा',
-      'الانسان': 'अल-इनसान', 'المرسلات': 'अल-मुरसलात', 'النبا': 'अन-नबा',
-      'النازعات': 'अन-नाज़िआत', 'عبس': 'अबसा', 'التكوير': 'अत-तकवीर',
-      'الانفطار': 'अल-इन्फ़ितार', 'المطففين': 'अल-मुतफ़्फ़िफ़ीन', 'الانشقاق': 'अल-इनशिक़ाक़',
-      'البروج': 'अल-बुरूज', 'الطارق': 'अत-तारिक़', 'الاعلي': 'अल-आला',
-      'الغاشية': 'अल-ग़ाशिया', 'الفجر': 'अल-फ़ज्र', 'البلد': 'अल-बलद',
-      'الشمس': 'अश-शम्स', 'الليل': 'अल-लैल', 'الضحي': 'अज़-ज़ुहा',
-      'الشرح': 'अश-शर्ह', 'التين': 'अत-तीन', 'العلق': 'अल-अलक़',
-      'القدر': 'अल-क़द्र', 'البينة': 'अल-बय्यिना', 'الزلزلة': 'अज़-ज़लज़ला',
-      'العاديات': 'अल-आदियात', 'القارعة': 'अल-क़ारिआ', 'التكاثر': 'अत-तकासुर',
-      'العصر': 'अल-अस्र', 'الهمزة': 'अल-हुमज़ा', 'الفيل': 'अल-फ़ील',
-      'قريش': 'क़ुरैश', 'الماعون': 'अल-माऊन', 'الكوथر': 'अल-कौसर',
-      'الكافرون': 'अल-काफ़िरून', 'النصر': 'अन-नस्र', 'المسد': 'अल-मसद',
-      'الاخلاص': 'अल-इख़लास', 'الفلق': 'अल-फ़लक़', 'الناس': 'अन-नास',
-    };
-    return hindiMap[cleanName] ?? arabicName;
+  Future<void> _loadContent() async {
+    final content = await _contentService.getQuranScreenContent();
+    if (mounted) {
+      setState(() {
+        _quranContent = content;
+      });
+    }
   }
 
   @override
@@ -175,6 +110,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
   @override
   void initState() {
     super.initState();
+    _loadContent();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Sync QuranProvider language with app's global language
       final langProvider = context.read<LanguageProvider>();
@@ -470,6 +406,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                         },
                       ),
               ),
+              const BannerAdWidget(),
             ],
           );
         },
@@ -724,5 +661,4 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
       ),
     );
   }
-
 }

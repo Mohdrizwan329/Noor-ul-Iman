@@ -59,5 +59,18 @@
 	<string>We need microphone access for voice search to help you find Quran verses, Duas, and Hadith.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>We need speech recognition to convert your voice to text for searching Islamic content.</string>
+
+	<!-- AdMob App ID -->
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-8174132057030501~5833134657</string>
+
+	<!-- Background Modes for Notifications and Audio -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+		<string>fetch</string>
+		<string>processing</string>
+	</array>
+
 </dict>
 </plist>

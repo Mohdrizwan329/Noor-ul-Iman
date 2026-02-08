@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/services/content_service.dart';
 import '../../core/utils/app_utils.dart';
+import '../../data/models/firestore_models.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class ZakatCalculatorScreen extends StatefulWidget {
   const ZakatCalculatorScreen({super.key});
@@ -26,31 +29,44 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
   final _receivablesController = TextEditingController();
   final _debtsController = TextEditingController();
 
-  // Nisab constants (grams)
-  static const double nisabGoldGrams = 87.48; // grams
-  static const double nisabSilverGrams = 612.36; // grams
-
   double _totalAssets = 0;
   double _totalLiabilities = 0;
   double _netWorth = 0;
   double _zakatAmount = 0;
   bool _isEligible = false;
 
-  // Country-specific data - default to India
-  late CountryZakatData _countryData;
-  String? _lastLanguageCode;
+  // Firebase content
+  final ContentService _contentService = ContentService();
+  ZakatCalculatorContentFirestore? _calcContent;
+  bool _isContentLoading = true;
+
+  // Current country
+  CountryZakatDataEntry? _countryData;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final languageCode = context.read<LanguageProvider>().languageCode;
-    final countryCode = context.read<SettingsProvider>().countryCode;
+  void initState() {
+    super.initState();
+    _loadContent();
+  }
 
-    // Reload country data if language changed
-    if (_lastLanguageCode != languageCode) {
-      _countryData = CountryZakatData.getByCountryCode(countryCode, context);
-      _lastLanguageCode = languageCode;
+  Future<void> _loadContent() async {
+    final content = await _contentService.getZakatCalculatorContent();
+    if (mounted) {
+      setState(() {
+        _calcContent = content;
+        _isContentLoading = false;
+        if (content != null && content.countries.isNotEmpty) {
+          final countryCode = context.read<SettingsProvider>().countryCode;
+          _countryData = content.getByCountryCode(countryCode);
+        }
+      });
     }
+  }
+
+  String _t(String key) {
+    if (_calcContent == null) return key;
+    final langCode = context.read<LanguageProvider>().languageCode;
+    return _calcContent!.getString(key, langCode);
   }
 
   @override
@@ -66,8 +82,14 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
     super.dispose();
   }
 
+  String _getCurrencySymbol() {
+    if (_countryData == null) return '';
+    final langCode = context.read<LanguageProvider>().languageCode;
+    return _countryData!.currencySymbol.get(langCode);
+  }
+
   NumberFormat get _currencyFormat => NumberFormat.currency(
-    symbol: _countryData.currencySymbol,
+    symbol: _getCurrencySymbol(),
     decimalDigits: 2,
   );
 
@@ -83,9 +105,8 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
     final receivables = double.tryParse(_receivablesController.text) ?? 0;
     final debts = double.tryParse(_debtsController.text) ?? 0;
 
-    // Calculate gold and silver values in local currency
-    final goldValue = gold * _countryData.goldPricePerGram;
-    final silverValue = silver * _countryData.silverPricePerGram;
+    final goldValue = gold * (_countryData?.goldPricePerGram ?? 0);
+    final silverValue = silver * (_countryData?.silverPricePerGram ?? 0);
 
     setState(() {
       _totalAssets =
@@ -99,11 +120,11 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
       _totalLiabilities = debts;
       _netWorth = _totalAssets - _totalLiabilities;
 
-      // Calculate Nisab (using silver as it's lower threshold)
-      final nisabValue = nisabSilverGrams * _countryData.silverPricePerGram;
+      final nisabSilverGrams = _calcContent?.nisabSilverGrams ?? 612.36;
+      final nisabValue = nisabSilverGrams * (_countryData?.silverPricePerGram ?? 0);
 
       _isEligible = _netWorth >= nisabValue;
-      _zakatAmount = _isEligible ? _netWorth * 0.025 : 0; // 2.5%
+      _zakatAmount = _isEligible ? _netWorth * 0.025 : 0;
     });
 
     _showResultDialog();
@@ -122,7 +143,6 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Handle
             Container(
               width: responsive.spacing(40),
               height: responsive.spacing(4),
@@ -132,8 +152,6 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                 borderRadius: BorderRadius.circular(responsive.radiusSmall),
               ),
             ),
-
-            // Result Icon
             Container(
               width: responsive.iconXXLarge * 2,
               height: responsive.iconXXLarge * 2,
@@ -150,10 +168,8 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
               ),
             ),
             SizedBox(height: responsive.spaceXLarge),
-
-            // Title
             Text(
-              _isEligible ? context.tr('zakat_is_due') : context.tr('zakat_not_required'),
+              _isEligible ? _t('zakat_is_due') : _t('zakat_not_required'),
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(
@@ -162,10 +178,9 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
               ),
             ),
             SizedBox(height: responsive.spaceSmall),
-
             if (!_isEligible) ...[
               Text(
-                context.tr('net_worth_below_nisab'),
+                _t('net_worth_below_nisab'),
                 style: TextStyle(
                   fontSize: responsive.textMedium,
                   color: AppColors.textSecondary,
@@ -174,14 +189,11 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
               ),
             ],
             SizedBox(height: responsive.spaceLarge),
-
-            // Summary
-            _buildSummaryRow(context.tr('total_assets'), _totalAssets, responsive: responsive),
-            _buildSummaryRow(context.tr('total_liabilities'), _totalLiabilities, responsive: responsive),
+            _buildSummaryRow(_t('total_assets'), _totalAssets, responsive: responsive),
+            _buildSummaryRow(_t('total_liabilities'), _totalLiabilities, responsive: responsive),
             Divider(height: responsive.spaceLarge),
-            _buildSummaryRow(context.tr('net_zakatable_wealth'), _netWorth, responsive: responsive, isBold: true),
+            _buildSummaryRow(_t('net_zakatable_wealth'), _netWorth, responsive: responsive, isBold: true),
             Divider(height: responsive.spaceLarge),
-
             if (_isEligible) ...[
               Container(
                 width: double.infinity,
@@ -193,7 +205,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                 child: Column(
                   children: [
                     Text(
-                      context.tr('your_zakat_amount'),
+                      _t('your_zakat_amount'),
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: responsive.textMedium,
@@ -210,7 +222,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                     ),
                     SizedBox(height: responsive.spaceXSmall),
                     Text(
-                      context.tr('percentage_of_net_worth'),
+                      _t('percentage_of_net_worth'),
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: responsive.textSmall,
@@ -221,13 +233,11 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
               ),
             ],
             SizedBox(height: responsive.spaceLarge),
-
-            // Close Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text(context.tr('done')),
+                child: Text(_t('done')),
               ),
             ),
           ],
@@ -276,165 +286,164 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.watch<SettingsProvider>().isDarkMode;
     final responsive = context.responsive;
 
-    // Update country data when country code or language changes
+    // Watch for language and country changes
     final countryCode = context.watch<SettingsProvider>().countryCode;
-    context.watch<LanguageProvider>(); // Watch for language changes
-    // Always reload country data to ensure translations are updated
-    _countryData = CountryZakatData.getByCountryCode(countryCode, context);
+    context.watch<LanguageProvider>();
+
+    // Update country data from Firebase content
+    if (_calcContent != null && _calcContent!.countries.isNotEmpty) {
+      _countryData = _calcContent!.getByCountryCode(countryCode);
+    }
+
+    if (_isContentLoading) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(backgroundColor: AppColors.primary),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         title: Text(
-          context.tr('zakat_calculator'),
+          _t('zakat_calculator'),
           style: TextStyle(fontSize: responsive.textLarge),
         ),
       ),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          padding: responsive.paddingRegular,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Country Info Card
-              _buildCountryCard(isDark, responsive),
-              SizedBox(height: responsive.spaceRegular),
-
-              // Nisab Info Card
-              _buildNisabCard(isDark, responsive),
-              SizedBox(height: responsive.spaceLarge),
-
-              // Assets Section
-              Text(
-                context.tr('assets'),
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontSize: responsive.textXLarge,
-                  color: isDark
-                      ? AppColors.darkTextPrimary
-                      : AppColors.textPrimary,
-                ),
-              ),
-              SizedBox(height: responsive.spaceMedium),
-
-              _buildInputField(
-                controller: _cashController,
-                label: context.tr('cash_on_hand'),
-                icon: Icons.payments,
-                hint: context.tr('enter_cash_amount'),
-                isDark: isDark,
-                responsive: responsive,
-              ),
-              _buildInputField(
-                controller: _bankBalanceController,
-                label: context.tr('bank_balance'),
-                icon: Icons.account_balance,
-                hint: context.tr('enter_bank_balance'),
-                isDark: isDark,
-                responsive: responsive,
-              ),
-              _buildInputField(
-                controller: _goldController,
-                label: context.tr('gold_in_grams'),
-                icon: Icons.diamond,
-                hint: context.tr('enter_gold_weight'),
-                suffix: 'g',
-                isDark: isDark,
-                responsive: responsive,
-              ),
-              _buildInputField(
-                controller: _silverController,
-                label: context.tr('silver_in_grams'),
-                icon: Icons.circle,
-                hint: context.tr('enter_silver_weight'),
-                suffix: 'g',
-                isDark: isDark,
-                responsive: responsive,
-              ),
-              _buildInputField(
-                controller: _investmentsController,
-                label: context.tr('investments_stocks'),
-                icon: Icons.trending_up,
-                hint: context.tr('enter_investment_value'),
-                isDark: isDark,
-                responsive: responsive,
-              ),
-              _buildInputField(
-                controller: _propertyController,
-                label: context.tr('business_trade_assets'),
-                icon: Icons.business,
-                hint: context.tr('enter_business_assets'),
-                isDark: isDark,
-                responsive: responsive,
-              ),
-              _buildInputField(
-                controller: _receivablesController,
-                label: context.tr('money_owed_to_you'),
-                icon: Icons.money,
-                hint: context.tr('enter_receivables'),
-                isDark: isDark,
-                responsive: responsive,
-              ),
-
-              SizedBox(height: responsive.spaceLarge),
-
-              // Liabilities Section
-              Text(
-                context.tr('liabilities'),
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontSize: responsive.textXLarge,
-                  color: isDark
-                      ? AppColors.darkTextPrimary
-                      : AppColors.textPrimary,
-                ),
-              ),
-              SizedBox(height: responsive.spaceMedium),
-
-              _buildInputField(
-                controller: _debtsController,
-                label: context.tr('debts_loans'),
-                icon: Icons.credit_card,
-                hint: context.tr('enter_debts'),
-                isDark: isDark,
-                responsive: responsive,
-              ),
-
-              SizedBox(height: responsive.spaceXXLarge),
-
-              // Calculate Button
-              SizedBox(
-                width: double.infinity,
-                height: responsive.spacing(56),
-                child: ElevatedButton(
-                  onPressed: _calculateZakat,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(responsive.radiusLarge),
+      body: Column(
+        children: [
+          Expanded(
+            child: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                padding: responsive.paddingRegular,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildCountryCard(responsive),
+                    SizedBox(height: responsive.spaceRegular),
+                    _buildNisabCard(responsive),
+                    SizedBox(height: responsive.spaceLarge),
+                    Text(
+                      _t('assets'),
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontSize: responsive.textXLarge,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    context.tr('calculate_zakat'),
-                    style: TextStyle(
-                      fontSize: responsive.textLarge,
-                      fontWeight: FontWeight.bold,
+                    SizedBox(height: responsive.spaceMedium),
+                    _buildInputField(
+                      controller: _cashController,
+                      label: _t('cash_on_hand'),
+                      icon: Icons.payments,
+                      hint: _t('enter_cash_amount'),
+                      responsive: responsive,
                     ),
-                  ),
+                    _buildInputField(
+                      controller: _bankBalanceController,
+                      label: _t('bank_balance'),
+                      icon: Icons.account_balance,
+                      hint: _t('enter_bank_balance'),
+                      responsive: responsive,
+                    ),
+                    _buildInputField(
+                      controller: _goldController,
+                      label: _t('gold_in_grams'),
+                      icon: Icons.diamond,
+                      hint: _t('enter_gold_weight'),
+                      suffix: 'g',
+                      responsive: responsive,
+                    ),
+                    _buildInputField(
+                      controller: _silverController,
+                      label: _t('silver_in_grams'),
+                      icon: Icons.circle,
+                      hint: _t('enter_silver_weight'),
+                      suffix: 'g',
+                      responsive: responsive,
+                    ),
+                    _buildInputField(
+                      controller: _investmentsController,
+                      label: _t('investments_stocks'),
+                      icon: Icons.trending_up,
+                      hint: _t('enter_investment_value'),
+                      responsive: responsive,
+                    ),
+                    _buildInputField(
+                      controller: _propertyController,
+                      label: _t('business_trade_assets'),
+                      icon: Icons.business,
+                      hint: _t('enter_business_assets'),
+                      responsive: responsive,
+                    ),
+                    _buildInputField(
+                      controller: _receivablesController,
+                      label: _t('money_owed_to_you'),
+                      icon: Icons.money,
+                      hint: _t('enter_receivables'),
+                      responsive: responsive,
+                    ),
+                    SizedBox(height: responsive.spaceLarge),
+                    Text(
+                      _t('liabilities'),
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontSize: responsive.textXLarge,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: responsive.spaceMedium),
+                    _buildInputField(
+                      controller: _debtsController,
+                      label: _t('debts_loans'),
+                      icon: Icons.credit_card,
+                      hint: _t('enter_debts'),
+                      responsive: responsive,
+                    ),
+                    SizedBox(height: responsive.spaceXXLarge),
+                    SizedBox(
+                      width: double.infinity,
+                      height: responsive.spacing(56),
+                      child: ElevatedButton(
+                        onPressed: _calculateZakat,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(responsive.radiusLarge),
+                          ),
+                        ),
+                        child: Text(
+                          _t('calculate_zakat'),
+                          style: TextStyle(
+                            fontSize: responsive.textLarge,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: responsive.spaceLarge),
+                  ],
                 ),
               ),
-              SizedBox(height: responsive.spaceLarge),
-            ],
+            ),
           ),
-        ),
+          const BannerAdWidget(),
+        ],
       ),
     );
   }
 
-  Widget _buildCountryCard(bool isDark, ResponsiveUtils responsive) {
+  Widget _buildCountryCard(ResponsiveUtils responsive) {
+    final langCode = context.read<LanguageProvider>().languageCode;
+    final countryName = _countryData?.countryName.get(langCode) ?? '';
+    final currencyName = _countryData?.currencyName.get(langCode) ?? '';
+    final currencyCode = _countryData?.currencyCode ?? '';
+    final countryCode = _countryData?.countryCode ?? '';
+    final flag = _countryData?.flag ?? '';
+
     return Container(
       padding: responsive.paddingRegular,
       decoration: BoxDecoration(
@@ -459,7 +468,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
             ),
             child: Center(
               child: Text(
-                _countryData.flag,
+                flag,
                 style: TextStyle(fontSize: responsive.fontSize(28)),
               ),
             ),
@@ -470,7 +479,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${_countryData.countryName} (${_countryData.countryCode})',
+                  '$countryName ($countryCode)',
                   style: TextStyle(
                     fontSize: responsive.textLarge,
                     fontWeight: FontWeight.bold,
@@ -481,7 +490,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                 ),
                 SizedBox(height: responsive.spaceXSmall),
                 Text(
-                  '${_countryData.currencyName} (${_countryData.currencyCode})',
+                  '$currencyName ($currencyCode)',
                   style: TextStyle(
                     fontSize: responsive.textSmall,
                     color: Colors.white.withValues(alpha: 0.9),
@@ -495,31 +504,29 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
           IconButton(
             onPressed: _showCountrySelector,
             icon: const Icon(Icons.edit, color: Colors.white),
-            tooltip: context.tr('change_country'),
+            tooltip: _t('change_country'),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNisabCard(bool isDark, ResponsiveUtils responsive) {
-    final goldNisab = nisabGoldGrams * _countryData.goldPricePerGram;
-    final silverNisab = nisabSilverGrams * _countryData.silverPricePerGram;
+  Widget _buildNisabCard(ResponsiveUtils responsive) {
+    final nisabGoldGrams = _calcContent?.nisabGoldGrams ?? 87.48;
+    final nisabSilverGrams = _calcContent?.nisabSilverGrams ?? 612.36;
+    final goldNisab = nisabGoldGrams * (_countryData?.goldPricePerGram ?? 0);
+    final silverNisab = nisabSilverGrams * (_countryData?.silverPricePerGram ?? 0);
 
     return Container(
       padding: responsive.paddingRegular,
       decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.darkCard
-            : const Color(0xFFE8F3ED),
+        color: const Color(0xFFE8F3ED),
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
         border: Border.all(
-          color: isDark ? Colors.grey.shade700 : const Color(0xFF8AAF9A),
+          color: const Color(0xFF8AAF9A),
           width: 1.5,
         ),
-        boxShadow: isDark
-            ? null
-            : [
+        boxShadow: [
                 BoxShadow(
                   color: const Color(0xFF0A5C36).withValues(alpha: 0.08),
                   blurRadius: 10,
@@ -536,13 +543,11 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
               SizedBox(width: responsive.spaceSmall),
               Expanded(
                 child: Text(
-                  context.tr('current_nisab_threshold'),
+                  _t('current_nisab_threshold'),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: responsive.textRegular,
-                    color: isDark
-                        ? AppColors.darkTextPrimary
-                        : AppColors.textPrimary,
+                    color: AppColors.textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -558,12 +563,10 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      context.tr('gold_nisab'),
+                      _t('gold_nisab'),
                       style: TextStyle(
                         fontSize: responsive.textSmall,
-                        color: isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.textSecondary,
+                        color: AppColors.textSecondary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -573,9 +576,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                       style: TextStyle(
                         fontSize: responsive.textMedium,
                         fontWeight: FontWeight.bold,
-                        color: isDark
-                            ? AppColors.darkTextPrimary
-                            : AppColors.textPrimary,
+                        color: AppColors.textPrimary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -584,9 +585,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                       '(${nisabGoldGrams}g)',
                       style: TextStyle(
                         fontSize: responsive.textXSmall,
-                        color: isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.textSecondary,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -597,12 +596,10 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      context.tr('silver_nisab'),
+                      _t('silver_nisab'),
                       style: TextStyle(
                         fontSize: responsive.textSmall,
-                        color: isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.textSecondary,
+                        color: AppColors.textSecondary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -612,9 +609,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                       style: TextStyle(
                         fontSize: responsive.textMedium,
                         fontWeight: FontWeight.bold,
-                        color: isDark
-                            ? AppColors.darkTextPrimary
-                            : AppColors.textPrimary,
+                        color: AppColors.textPrimary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -623,9 +618,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                       '(${nisabSilverGrams}g)',
                       style: TextStyle(
                         fontSize: responsive.textXSmall,
-                        color: isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.textSecondary,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -638,18 +631,16 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
             children: [
               Expanded(
                 child: _buildPriceInfo(
-                  context.tr('gold_per_gram'),
-                  _countryData.goldPricePerGram,
-                  isDark,
+                  _t('gold_per_gram'),
+                  _countryData?.goldPricePerGram ?? 0,
                   responsive,
                 ),
               ),
               SizedBox(width: responsive.spaceMedium),
               Expanded(
                 child: _buildPriceInfo(
-                  context.tr('silver_per_gram'),
-                  _countryData.silverPricePerGram,
-                  isDark,
+                  _t('silver_per_gram'),
+                  _countryData?.silverPricePerGram ?? 0,
                   responsive,
                 ),
               ),
@@ -660,13 +651,11 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
     );
   }
 
-  Widget _buildPriceInfo(String label, double price, bool isDark, ResponsiveUtils responsive) {
+  Widget _buildPriceInfo(String label, double price, ResponsiveUtils responsive) {
     return Container(
       padding: responsive.paddingSymmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.primary.withValues(alpha: 0.2)
-            : AppColors.primary.withValues(alpha: 0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(responsive.radiusSmall),
       ),
       child: Column(
@@ -676,9 +665,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
             label,
             style: TextStyle(
               fontSize: responsive.textXSmall,
-              color: isDark
-                  ? AppColors.darkTextSecondary
-                  : AppColors.textSecondary,
+              color: AppColors.textSecondary,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -704,7 +691,6 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
     required String label,
     required IconData icon,
     required String hint,
-    required bool isDark,
     required ResponsiveUtils responsive,
     String? suffix,
   }) {
@@ -715,42 +701,38 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         style: TextStyle(
           fontSize: responsive.textMedium,
-          color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+          color: AppColors.textPrimary,
         ),
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
           labelStyle: TextStyle(
             fontSize: responsive.textMedium,
-            color: isDark
-                ? AppColors.darkTextSecondary
-                : AppColors.textSecondary,
+            color: AppColors.textSecondary,
           ),
           hintStyle: TextStyle(
             fontSize: responsive.textMedium,
-            color: isDark ? AppColors.darkTextSecondary : AppColors.textHint,
+            color: AppColors.textHint,
           ),
           prefixIcon: Icon(icon, color: AppColors.primary, size: responsive.iconMedium),
-          suffixText: suffix ?? _countryData.currencySymbol,
+          suffixText: suffix ?? _getCurrencySymbol(),
           suffixStyle: TextStyle(
             fontSize: responsive.textSmall,
-            color: isDark
-                ? AppColors.darkTextSecondary
-                : AppColors.textSecondary,
+            color: AppColors.textSecondary,
           ),
           filled: true,
-          fillColor: isDark ? AppColors.darkCard : Colors.white,
+          fillColor: Colors.white,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(responsive.radiusLarge),
             borderSide: BorderSide(
-              color: isDark ? Colors.grey.shade700 : const Color(0xFF8AAF9A),
+              color: const Color(0xFF8AAF9A),
               width: 1.5,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(responsive.radiusLarge),
             borderSide: BorderSide(
-              color: isDark ? Colors.grey.shade700 : const Color(0xFF8AAF9A),
+              color: const Color(0xFF8AAF9A),
               width: 1.5,
             ),
           ),
@@ -762,7 +744,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
         validator: (value) {
           if (value != null && value.isNotEmpty) {
             if (double.tryParse(value) == null) {
-              return context.tr('please_enter_valid_number');
+              return _t('please_enter_valid_number');
             }
           }
           return null;
@@ -772,7 +754,11 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
   }
 
   void _showCountrySelector() {
+    if (_calcContent == null) return;
     final responsive = context.responsive;
+    final langCode = context.read<LanguageProvider>().languageCode;
+    final countries = _calcContent!.countries;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -803,7 +789,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                 Padding(
                   padding: responsive.paddingRegular,
                   child: Text(
-                    context.tr('select_your_country'),
+                    _t('select_your_country'),
                     style: TextStyle(
                       fontSize: responsive.textLarge,
                       fontWeight: FontWeight.bold,
@@ -813,18 +799,18 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                 Expanded(
                   child: ListView.builder(
                     controller: scrollController,
-                    itemCount: CountryZakatData.getAllCountries(context).length,
+                    itemCount: countries.length,
                     itemBuilder: (context, index) {
-                      final country = CountryZakatData.getAllCountries(context)[index];
+                      final country = countries[index];
                       final isSelected =
-                          country.countryCode == _countryData.countryCode;
+                          country.countryCode == _countryData?.countryCode;
                       return ListTile(
                         leading: Text(
                           country.flag,
                           style: const TextStyle(fontSize: 28),
                         ),
-                        title: Text('${country.countryName} (${country.countryCode})'),
-                        subtitle: Text('${country.currencyName} (${country.currencyCode})'),
+                        title: Text('${country.countryName.get(langCode)} (${country.countryCode})'),
+                        subtitle: Text('${country.currencyName.get(langCode)} (${country.currencyCode})'),
                         trailing: isSelected
                             ? Icon(Icons.check_circle, color: AppColors.primary)
                             : null,
@@ -849,307 +835,4 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
       },
     );
   }
-}
-
-// Country-specific Zakat data model
-class CountryZakatData {
-  final String countryCode;
-  final String countryName;
-  final String currencyCode;
-  final String currencyName;
-  final String currencySymbol;
-  final String flag;
-  final double goldPricePerGram;
-  final double silverPricePerGram;
-
-  const CountryZakatData({
-    required this.countryCode,
-    required this.countryName,
-    required this.currencyCode,
-    required this.currencyName,
-    required this.currencySymbol,
-    required this.flag,
-    required this.goldPricePerGram,
-    required this.silverPricePerGram,
-  });
-
-  static CountryZakatData getByCountryCode(String code, BuildContext context) {
-    final countries = getAllCountries(context);
-    return countries.firstWhere(
-      (c) => c.countryCode == code,
-      orElse: () => countries.first, // Default to India
-    );
-  }
-
-  // All supported countries with approximate gold/silver prices (2024)
-  static List<CountryZakatData> getAllCountries(BuildContext context) => [
-    // South Asia (India first as default)
-    CountryZakatData(
-      countryCode: 'IN',
-      countryName: context.tr('country_india'),
-      currencyCode: 'INR',
-      currencyName: context.tr('currency_inr'),
-      currencySymbol: context.tr('currency_symbol_inr'),
-      flag: '🇮🇳',
-      goldPricePerGram: 5400.0,
-      silverPricePerGram: 66.0,
-    ),
-    CountryZakatData(
-      countryCode: 'PK',
-      countryName: context.tr('country_pakistan'),
-      currencyCode: 'PKR',
-      currencyName: context.tr('currency_pkr'),
-      currencySymbol: context.tr('currency_symbol_pkr'),
-      flag: '🇵🇰',
-      goldPricePerGram: 18000.0,
-      silverPricePerGram: 220.0,
-    ),
-    CountryZakatData(
-      countryCode: 'BD',
-      countryName: context.tr('country_bangladesh'),
-      currencyCode: 'BDT',
-      currencyName: context.tr('currency_bdt'),
-      currencySymbol: context.tr('currency_symbol_bdt'),
-      flag: '🇧🇩',
-      goldPricePerGram: 7100.0,
-      silverPricePerGram: 88.0,
-    ),
-    // Middle East
-    CountryZakatData(
-      countryCode: 'SA',
-      countryName: context.tr('country_saudi_arabia'),
-      currencyCode: 'SAR',
-      currencyName: context.tr('currency_sar'),
-      currencySymbol: context.tr('currency_symbol_sar'),
-      flag: '🇸🇦',
-      goldPricePerGram: 244.0,
-      silverPricePerGram: 3.0,
-    ),
-    CountryZakatData(
-      countryCode: 'AE',
-      countryName: context.tr('country_uae'),
-      currencyCode: 'AED',
-      currencyName: context.tr('currency_aed'),
-      currencySymbol: context.tr('currency_symbol_aed'),
-      flag: '🇦🇪',
-      goldPricePerGram: 239.0,
-      silverPricePerGram: 2.95,
-    ),
-    CountryZakatData(
-      countryCode: 'KW',
-      countryName: context.tr('country_kuwait'),
-      currencyCode: 'KWD',
-      currencyName: context.tr('currency_kwd'),
-      currencySymbol: context.tr('currency_symbol_kwd'),
-      flag: '🇰🇼',
-      goldPricePerGram: 20.0,
-      silverPricePerGram: 0.25,
-    ),
-    CountryZakatData(
-      countryCode: 'QA',
-      countryName: context.tr('country_qatar'),
-      currencyCode: 'QAR',
-      currencyName: context.tr('currency_qar'),
-      currencySymbol: context.tr('currency_symbol_qar'),
-      flag: '🇶🇦',
-      goldPricePerGram: 237.0,
-      silverPricePerGram: 2.9,
-    ),
-    CountryZakatData(
-      countryCode: 'BH',
-      countryName: context.tr('country_bahrain'),
-      currencyCode: 'BHD',
-      currencyName: context.tr('currency_bhd'),
-      currencySymbol: context.tr('currency_symbol_bhd'),
-      flag: '🇧🇭',
-      goldPricePerGram: 24.5,
-      silverPricePerGram: 0.30,
-    ),
-    CountryZakatData(
-      countryCode: 'OM',
-      countryName: context.tr('country_oman'),
-      currencyCode: 'OMR',
-      currencyName: context.tr('currency_omr'),
-      currencySymbol: context.tr('currency_symbol_omr'),
-      flag: '🇴🇲',
-      goldPricePerGram: 25.0,
-      silverPricePerGram: 0.31,
-    ),
-    CountryZakatData(
-      countryCode: 'JO',
-      countryName: context.tr('country_jordan'),
-      currencyCode: 'JOD',
-      currencyName: context.tr('currency_jod'),
-      currencySymbol: context.tr('currency_symbol_jod'),
-      flag: '🇯🇴',
-      goldPricePerGram: 46.0,
-      silverPricePerGram: 0.57,
-    ),
-    CountryZakatData(
-      countryCode: 'EG',
-      countryName: context.tr('country_egypt'),
-      currencyCode: 'EGP',
-      currencyName: context.tr('currency_egp'),
-      currencySymbol: context.tr('currency_symbol_egp'),
-      flag: '🇪🇬',
-      goldPricePerGram: 2000.0,
-      silverPricePerGram: 25.0,
-    ),
-    CountryZakatData(
-      countryCode: 'TR',
-      countryName: context.tr('country_turkey'),
-      currencyCode: 'TRY',
-      currencyName: context.tr('currency_try'),
-      currencySymbol: context.tr('currency_symbol_try'),
-      flag: '🇹🇷',
-      goldPricePerGram: 2100.0,
-      silverPricePerGram: 26.0,
-    ),
-    CountryZakatData(
-      countryCode: 'IR',
-      countryName: context.tr('country_iran'),
-      currencyCode: 'IRR',
-      currencyName: context.tr('currency_irr'),
-      currencySymbol: context.tr('currency_symbol_irr'),
-      flag: '🇮🇷',
-      goldPricePerGram: 2730000.0,
-      silverPricePerGram: 33600.0,
-    ),
-    CountryZakatData(
-      countryCode: 'IQ',
-      countryName: context.tr('country_iraq'),
-      currencyCode: 'IQD',
-      currencyName: context.tr('currency_iqd'),
-      currencySymbol: context.tr('currency_symbol_iqd'),
-      flag: '🇮🇶',
-      goldPricePerGram: 85000.0,
-      silverPricePerGram: 1050.0,
-    ),
-    // Europe
-    CountryZakatData(
-      countryCode: 'GB',
-      countryName: context.tr('country_uk'),
-      currencyCode: 'GBP',
-      currencyName: context.tr('currency_gbp'),
-      currencySymbol: context.tr('currency_symbol_gbp'),
-      flag: '🇬🇧',
-      goldPricePerGram: 51.5,
-      silverPricePerGram: 0.63,
-    ),
-    CountryZakatData(
-      countryCode: 'DE',
-      countryName: context.tr('country_germany'),
-      currencyCode: 'EUR',
-      currencyName: context.tr('currency_eur'),
-      currencySymbol: context.tr('currency_symbol_eur'),
-      flag: '🇩🇪',
-      goldPricePerGram: 60.0,
-      silverPricePerGram: 0.74,
-    ),
-    CountryZakatData(
-      countryCode: 'FR',
-      countryName: context.tr('country_france'),
-      currencyCode: 'EUR',
-      currencyName: context.tr('currency_eur'),
-      currencySymbol: context.tr('currency_symbol_eur'),
-      flag: '🇫🇷',
-      goldPricePerGram: 60.0,
-      silverPricePerGram: 0.74,
-    ),
-    // Southeast Asia
-    CountryZakatData(
-      countryCode: 'MY',
-      countryName: context.tr('country_malaysia'),
-      currencyCode: 'MYR',
-      currencyName: context.tr('currency_myr'),
-      currencySymbol: context.tr('currency_symbol_myr'),
-      flag: '🇲🇾',
-      goldPricePerGram: 305.0,
-      silverPricePerGram: 3.75,
-    ),
-    CountryZakatData(
-      countryCode: 'ID',
-      countryName: context.tr('country_indonesia'),
-      currencyCode: 'IDR',
-      currencyName: context.tr('currency_idr'),
-      currencySymbol: context.tr('currency_symbol_idr'),
-      flag: '🇮🇩',
-      goldPricePerGram: 1020000.0,
-      silverPricePerGram: 12600.0,
-    ),
-    CountryZakatData(
-      countryCode: 'SG',
-      countryName: context.tr('country_singapore'),
-      currencyCode: 'SGD',
-      currencyName: context.tr('currency_sgd'),
-      currencySymbol: context.tr('currency_symbol_sgd'),
-      flag: '🇸🇬',
-      goldPricePerGram: 87.0,
-      silverPricePerGram: 1.07,
-    ),
-    // Africa
-    CountryZakatData(
-      countryCode: 'NG',
-      countryName: context.tr('country_nigeria'),
-      currencyCode: 'NGN',
-      currencyName: context.tr('currency_ngn'),
-      currencySymbol: context.tr('currency_symbol_ngn'),
-      flag: '🇳🇬',
-      goldPricePerGram: 52000.0,
-      silverPricePerGram: 640.0,
-    ),
-    CountryZakatData(
-      countryCode: 'ZA',
-      countryName: context.tr('country_south_africa'),
-      currencyCode: 'ZAR',
-      currencyName: context.tr('currency_zar'),
-      currencySymbol: context.tr('currency_symbol_zar'),
-      flag: '🇿🇦',
-      goldPricePerGram: 1200.0,
-      silverPricePerGram: 14.8,
-    ),
-    CountryZakatData(
-      countryCode: 'MA',
-      countryName: context.tr('country_morocco'),
-      currencyCode: 'MAD',
-      currencyName: context.tr('currency_mad'),
-      currencySymbol: context.tr('currency_symbol_mad'),
-      flag: '🇲🇦',
-      goldPricePerGram: 650.0,
-      silverPricePerGram: 8.0,
-    ),
-    // Australia
-    CountryZakatData(
-      countryCode: 'AU',
-      countryName: context.tr('country_australia'),
-      currencyCode: 'AUD',
-      currencyName: context.tr('currency_aud'),
-      currencySymbol: context.tr('currency_symbol_aud'),
-      flag: '🇦🇺',
-      goldPricePerGram: 100.0,
-      silverPricePerGram: 1.23,
-    ),
-    // Canada
-    CountryZakatData(
-      countryCode: 'CA',
-      countryName: context.tr('country_canada'),
-      currencyCode: 'CAD',
-      currencyName: context.tr('currency_cad'),
-      currencySymbol: context.tr('currency_symbol_cad'),
-      flag: '🇨🇦',
-      goldPricePerGram: 88.0,
-      silverPricePerGram: 1.08,
-    ),
-    // North America
-    CountryZakatData(
-      countryCode: 'US',
-      countryName: context.tr('country_usa'),
-      currencyCode: 'USD',
-      currencyName: context.tr('currency_usd'),
-      currencySymbol: context.tr('currency_symbol_usd'),
-      flag: '🇺🇸',
-      goldPricePerGram: 65.0,
-      silverPricePerGram: 0.80,
-    ),
-  ];
 }

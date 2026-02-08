@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import '../core/services/location_service.dart';
 import '../core/services/prayer_time_service.dart';
 import '../data/models/prayer_time_model.dart';
@@ -22,7 +23,13 @@ class PrayerProvider with ChangeNotifier {
   // Getters
   PrayerTimeModel? get todayPrayerTimes => _todayPrayerTimes;
   List<PrayerTimeModel> get monthlyPrayerTimes => _monthlyPrayerTimes;
-  String get nextPrayer => _nextPrayer;
+  String get nextPrayer {
+    // On Friday, show Jummah instead of Dhuhr
+    if (_nextPrayer.toLowerCase() == 'dhuhr' && DateTime.now().weekday == 5) {
+      return 'Jummah';
+    }
+    return _nextPrayer;
+  }
   Duration get timeUntilNextPrayer => _timeUntilNextPrayer;
   bool get isLoading => _isLoading;
   String? get error => _error;
@@ -40,6 +47,8 @@ class PrayerProvider with ChangeNotifier {
       _currentPosition = await _locationService.getCurrentLocation();
 
       if (_currentPosition != null) {
+        // Fetch city and country from coordinates
+        await _updateLocationDetails();
         await fetchTodayPrayerTimes();
         _startCountdownTimer();
       } else {
@@ -51,6 +60,31 @@ class PrayerProvider with ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  Future<void> _updateLocationDetails() async {
+    if (_currentPosition == null) return;
+
+    try {
+      final placemarks = await placemarkFromCoordinates(
+        _currentPosition!.latitude,
+        _currentPosition!.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        final placemark = placemarks.first;
+        final city = placemark.locality ??
+                     placemark.subAdministrativeArea ??
+                     placemark.administrativeArea ??
+                     'Unknown';
+        final country = placemark.country ?? '';
+
+        _locationService.updateCity(city, country);
+        debugPrint('📍 Location updated: $city, $country');
+      }
+    } catch (e) {
+      debugPrint('Geocoding error: $e');
+    }
   }
 
   Future<void> fetchTodayPrayerTimes() async {

@@ -25,7 +25,6 @@ class PhoneNumberField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final responsive = ResponsiveUtils(context);
 
     // Filter out Israel from countries list
@@ -43,26 +42,26 @@ class PhoneNumberField extends StatelessWidget {
         labelText: labelText,
         hintText: hintText,
         hintStyle: TextStyle(
-          color: isDark ? AppColors.darkTextSecondary : Colors.grey.shade500,
+          color: Colors.grey.shade500,
           fontSize: responsive.textMedium,
         ),
         labelStyle: TextStyle(
-          color: isDark ? AppColors.darkTextSecondary : AppColors.primary,
+          color: AppColors.primary,
           fontSize: responsive.textMedium,
         ),
         filled: true,
-        fillColor: isDark ? AppColors.darkCard : Colors.white,
+        fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(responsive.radiusMedium),
           borderSide: BorderSide(
-            color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
+            color: AppColors.lightGreenBorder,
             width: 1.5,
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(responsive.radiusMedium),
           borderSide: BorderSide(
-            color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
+            color: AppColors.lightGreenBorder,
             width: 1.5,
           ),
         ),
@@ -98,17 +97,17 @@ class PhoneNumberField extends StatelessWidget {
       ),
       style: TextStyle(
         fontSize: responsive.textMedium,
-        color: isDark ? AppColors.darkTextPrimary : Colors.black87,
+        color: Colors.black87,
       ),
       dropdownTextStyle: TextStyle(
         fontSize: responsive.textMedium,
-        color: isDark ? AppColors.darkTextPrimary : Colors.black87,
+        color: Colors.black87,
       ),
       initialCountryCode: 'IN',
       dropdownIconPosition: IconPosition.trailing,
       dropdownIcon: Icon(
         Icons.arrow_drop_down,
-        color: isDark ? AppColors.darkTextSecondary : AppColors.primary,
+        color: AppColors.primary,
       ),
       flagsButtonPadding: const EdgeInsets.only(left: 12),
       showCountryFlag: true,

@@ -24,12 +24,11 @@ class HeaderActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final responsive = context.responsive;
     final buttonColor = isActive
         ? (activeColor ?? AppColors.primary)
         : (inactiveColor ??
-            (isDark ? Colors.grey.shade700 : Colors.grey.shade300));
+            Colors.grey.shade300);
 
     return InkWell(
       onTap: onTap,
@@ -39,7 +38,7 @@ class HeaderActionButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: buttonColor,
           borderRadius: BorderRadius.circular(responsive.radiusMedium),
-          boxShadow: isActive && !isDark
+          boxShadow: isActive
               ? [
                   BoxShadow(
                     color: (activeColor ?? AppColors.primary)
@@ -55,7 +54,7 @@ class HeaderActionButton extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: isActive || isDark ? Colors.white : Colors.grey.shade700,
+              color: isActive ? Colors.white : Colors.grey.shade700,
               size: responsive.iconSmall,
             ),
             const SizedBox(height: 4),
@@ -63,7 +62,7 @@ class HeaderActionButton extends StatelessWidget {
               label,
               style: AppTextStyles.caption(context).copyWith(
                 fontWeight: FontWeight.w600,
-                color: isActive || isDark ? Colors.white : Colors.grey.shade700,
+                color: isActive ? Colors.white : Colors.grey.shade700,
               ),
             ),
           ],

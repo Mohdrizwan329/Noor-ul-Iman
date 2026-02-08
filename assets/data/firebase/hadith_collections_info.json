@@ -1,0 +1,94 @@
+{
+  "collections": {
+    "bukhari": {
+      "id": "bukhari",
+      "name": {"en": "Sahih al-Bukhari", "ur": "صحیح بخاری", "hi": "सहीह बुखारी", "ar": "صحيح البخاري"},
+      "arabic_name": "صحيح البخاري",
+      "compiler": {"en": "Imam Muhammad al-Bukhari", "ur": "امام محمد بخاری", "hi": "इमाम मुहम्मद बुखारी", "ar": "الإمام محمد البخاري"},
+      "total_hadith": 7563,
+      "total_books": 97,
+      "description": {
+        "en": "Sahih al-Bukhari is considered the most authentic collection of Hadith. Imam Bukhari spent 16 years compiling it.",
+        "ur": "صحیح بخاری احادیث کا سب سے مستند مجموعہ مانا جاتا ہے۔ امام بخاری نے اسے مرتب کرنے میں 16 سال صرف کیے۔",
+        "hi": "सहीह बुखारी हदीस का सबसे प्रामाणिक संग्रह माना जाता है। इमाम बुखारी ने इसे संकलित करने में 16 साल लगाए।",
+        "ar": "صحيح البخاري يُعتبر أصح مجموعة حديثية. أمضى الإمام البخاري 16 عاماً في تأليفه."
+      }
+    },
+    "muslim": {
+      "id": "muslim",
+      "name": {"en": "Sahih Muslim", "ur": "صحیح مسلم", "hi": "सहीह मुस्लिम", "ar": "صحيح مسلم"},
+      "arabic_name": "صحيح مسلم",
+      "compiler": {"en": "Imam Muslim ibn al-Hajjaj", "ur": "امام مسلم بن الحجاج", "hi": "इमाम मुस्लिम इब्न अल-हज्जाज", "ar": "الإمام مسلم بن الحجاج"},
+      "total_hadith": 7500,
+      "total_books": 56,
+      "description": {
+        "en": "Sahih Muslim is the second most authentic collection of Hadith after Sahih Bukhari.",
+        "ur": "صحیح مسلم صحیح بخاری کے بعد احادیث کا دوسرا سب سے مستند مجموعہ ہے۔",
+        "hi": "सहीह मुस्लिम, सहीह बुखारी के बाद हदीस का दूसरा सबसे प्रामाणिक संग्रह है।",
+        "ar": "صحيح مسلم هو ثاني أصح مجموعة حديثية بعد صحيح البخاري."
+      }
+    },
+    "nasai": {
+      "id": "nasai",
+      "name": {"en": "Sunan an-Nasai", "ur": "سنن نسائی", "hi": "सुनन नसई", "ar": "السنن الصغرى"},
+      "arabic_name": "السنن الصغرى",
+      "compiler": {"en": "Imam Ahmad an-Nasai", "ur": "امام احمد نسائی", "hi": "इमाम अहमद नसई", "ar": "الإمام أحمد النسائي"},
+      "total_hadith": 5761,
+      "total_books": 51,
+      "description": {
+        "en": "Sunan an-Nasai is one of the Kutub al-Sittah (six major hadith collections).",
+        "ur": "سنن نسائی کتب ستہ (چھ بڑے حدیث مجموعوں) میں سے ایک ہے۔",
+        "hi": "सुनन नसई कुतुब अस-सित्ता (छह प्रमुख हदीस संग्रहों) में से एक है।",
+        "ar": "سنن النسائي هو أحد الكتب الستة (المجموعات الحديثية الستة الرئيسية)."
+      }
+    },
+    "abudawud": {
+      "id": "abudawud",
+      "name": {"en": "Sunan Abu Dawud", "ur": "سنن ابو داؤد", "hi": "सुनन अबू दाऊद", "ar": "سنن أبي داود"},
+      "arabic_name": "سنن أبي داود",
+      "compiler": {"en": "Imam Abu Dawud", "ur": "امام ابو داؤد", "hi": "इमाम अबू दाऊद", "ar": "الإمام أبو داود"},
+      "total_hadith": 5274,
+      "total_books": 43,
+      "description": {
+        "en": "Sunan Abu Dawud is one of the six canonical hadith collections. It contains hadiths on a wide range of Islamic topics.",
+        "ur": "سنن ابو داؤد چھ مستند حدیث مجموعوں میں سے ایک ہے۔ اس میں اسلامی موضوعات کی وسیع رینج پر احادیث ہیں۔",
+        "hi": "सुनन अबू दाऊद छह प्रामाणिक हदीस संग्रहों में से एक है। इसमें इस्लामी विषयों की विस्तृत श्रृंखला पर हदीसें हैं।",
+        "ar": "سنن أبي داود هو أحد مجموعات الحديث الستة المعتمدة. يحتوي على أحاديث في مجموعة واسعة من الموضوعات الإسلامية."
+      }
+    },
+    "tirmidhi": {
+      "id": "tirmidhi",
+      "name": {"en": "Jami at-Tirmidhi", "ur": "جامع ترمذی", "hi": "जामी तिर्मिज़ी", "ar": "جامع الترمذي"},
+      "arabic_name": "جامع الترمذي",
+      "compiler": {"en": "Imam at-Tirmidhi", "ur": "امام ترمذی", "hi": "इमाम तिर्मिज़ी", "ar": "الإمام الترمذي"},
+      "total_hadith": 3956,
+      "total_books": 49,
+      "description": {
+        "en": "Jami at-Tirmidhi is one of the six major hadith collections, known for its unique classifications.",
+        "ur": "جامع ترمذی چھ بڑے حدیث مجموعوں میں سے ایک ہے، جو اپنی منفرد درجہ بندی کے لیے مشہور ہے۔",
+        "hi": "जामी तिर्मिज़ी छह प्रमुख हदीस संग्रहों में से एक है, जो अपने अनूठे वर्गीकरण के लिए जाना जाता है।",
+        "ar": "جامع الترمذي هو أحد مجموعات الحديث الستة الرئيسية، المعروف بتصنيفاته الفريدة."
+      }
+    },
+    "ibnmajah": {
+      "id": "ibnmajah",
+      "name": {"en": "Sunan Ibn Majah", "ur": "سنن ابن ماجہ", "hi": "सुनन इब्न माजा", "ar": "سنن ابن ماجه"},
+      "arabic_name": "سنن ابن ماجه",
+      "compiler": {"en": "Imam Ibn Majah", "ur": "امام ابن ماجہ", "hi": "इमाम इब्न माजा", "ar": "الإمام ابن ماجه"},
+      "total_hadith": 4341,
+      "total_books": 37,
+      "description": {
+        "en": "Sunan Ibn Majah is one of the six major hadith collections.",
+        "ur": "سنن ابن ماجہ چھ بڑے حدیث مجموعوں میں سے ایک ہے۔",
+        "hi": "सुनन इब्न माजा छह प्रमुख हदीस संग्रहों में से एक है।",
+        "ar": "سنن ابن ماجه هو أحد مجموعات الحديث الستة الرئيسية."
+      }
+    }
+  },
+  "language_names": {
+    "english": {"en": "English", "ur": "انگریزی", "hi": "अंग्रेज़ी", "ar": "الإنجليزية"},
+    "urdu": {"en": "Urdu", "ur": "اردو", "hi": "उर्दू", "ar": "الأردية"},
+    "hindi": {"en": "Hindi", "ur": "ہندی", "hi": "हिंदी", "ar": "الهندية"},
+    "arabic": {"en": "Arabic", "ur": "عربی", "hi": "अरबी", "ar": "العربية"}
+  }
+}

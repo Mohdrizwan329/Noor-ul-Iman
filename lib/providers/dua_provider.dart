@@ -1,8 +1,9 @@
 import 'package:flutter/foundation.dart';
 import '../data/models/dua_model.dart';
-import '../data/dua_data.dart';
+import '../core/services/content_service.dart';
 
 class DuaProvider with ChangeNotifier {
+  final ContentService _contentService = ContentService();
   List<DuaCategory> _categories = [];
   DuaCategory? _selectedCategory;
   DuaModel? _selectedDua;
@@ -55,13 +56,15 @@ class DuaProvider with ChangeNotifier {
     }).toList();
   }
 
-  // Load all categories
+  // Load all categories from Firebase (with local asset JSON fallback)
   Future<void> loadCategories() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      _categories = DuaData.getAllCategories();
+      // Load from Firebase via ContentService (falls back to local asset JSON)
+      _categories = await _contentService.getDuaCategoriesLegacy();
+      debugPrint('Loaded ${_categories.length} dua categories');
     } catch (e) {
       debugPrint('Error loading dua categories: $e');
     }

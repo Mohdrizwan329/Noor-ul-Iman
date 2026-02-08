@@ -1,14 +1,14 @@
 import 'dart:io';
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/foundation.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/models/prayer_time_model.dart';
 
 /// Background service for playing Azan at prayer times
+/// Uses native Android AlarmManager + Foreground Service for reliable background execution
 class AzanBackgroundService {
   static const String _prefKeyAzanEnabled = 'azan_sound';
-  static bool _isInitialized = false;
+  static const MethodChannel _channel = MethodChannel('com.nooruliman.app/azan');
 
   // Alarm IDs for each prayer
   static const int _fajrAlarmId = 100;
@@ -29,29 +29,16 @@ class AzanBackgroundService {
         'https://cdn.islamic.network/adhaan/128/ar.abdulbasitabdussamad.mp3',
   };
 
-  /// Initialize the alarm manager (Android only)
+  /// Initialize the service (no-op, native service handles everything)
   static Future<void> initialize() async {
-    // Only initialize on Android
-    if (!Platform.isAndroid) {
-      debugPrint('Azan background service is only supported on Android');
-      return;
-    }
-
-    try {
-      final result = await AndroidAlarmManager.initialize();
-      _isInitialized = result;
-      debugPrint('Azan background service initialized: $result');
-    } catch (e) {
-      debugPrint('Failed to initialize Azan background service: $e');
-      _isInitialized = false;
-    }
+    debugPrint('AzanBackgroundService initialized (using native Android service)');
   }
 
-  /// Schedule Azan alarms for all prayer times
+  /// Schedule Azan alarms for all prayer times using native Android AlarmManager
   static Future<void> scheduleAzanAlarms(PrayerTimeModel prayerTimes) async {
-    // Check if service is initialized
-    if (!_isInitialized) {
-      debugPrint('Azan background service not initialized, skipping alarm scheduling');
+    // Only works on Android
+    if (!Platform.isAndroid) {
+      debugPrint('Azan background service is only supported on Android');
       return;
     }
 
@@ -60,25 +47,43 @@ class AzanBackgroundService {
 
     if (!azanEnabled) {
       await cancelAllAlarms();
+      debugPrint('Azan sound disabled, skipping alarm scheduling');
       return;
     }
 
-    // Schedule each prayer's Azan
-    await _scheduleAzanAlarm(_fajrAlarmId, prayerTimes.fajr, 'Fajr');
-    await _scheduleAzanAlarm(_dhuhrAlarmId, prayerTimes.dhuhr, 'Dhuhr');
-    await _scheduleAzanAlarm(_asrAlarmId, prayerTimes.asr, 'Asr');
-    await _scheduleAzanAlarm(_maghribAlarmId, prayerTimes.maghrib, 'Maghrib');
-    await _scheduleAzanAlarm(_ishaAlarmId, prayerTimes.isha, 'Isha');
+    final selectedAzan = prefs.getString('selected_adhan') ?? 'makkah';
+    final azanUrl = adhanUrls[selectedAzan] ?? adhanUrls['makkah']!;
+
+    // Save prayer times for recovery after device reboot
+    await prefs.setString('last_fajr_time', prayerTimes.fajr);
+    await prefs.setString('last_dhuhr_time', prayerTimes.dhuhr);
+    await prefs.setString('last_asr_time', prayerTimes.asr);
+    await prefs.setString('last_maghrib_time', prayerTimes.maghrib);
+    await prefs.setString('last_isha_time', prayerTimes.isha);
+    debugPrint('Prayer times saved for boot recovery');
+
+    // Schedule each prayer's Azan (except Sunrise)
+    await _scheduleAzanAlarm(_fajrAlarmId, prayerTimes.fajr, 'Fajr', azanUrl);
+    await _scheduleAzanAlarm(_dhuhrAlarmId, prayerTimes.dhuhr, 'Dhuhr', azanUrl);
+    await _scheduleAzanAlarm(_asrAlarmId, prayerTimes.asr, 'Asr', azanUrl);
+    await _scheduleAzanAlarm(_maghribAlarmId, prayerTimes.maghrib, 'Maghrib', azanUrl);
+    await _scheduleAzanAlarm(_ishaAlarmId, prayerTimes.isha, 'Isha', azanUrl);
+
+    debugPrint('All Azan alarms scheduled using native Android service');
   }
 
-  /// Schedule a single Azan alarm
+  /// Schedule a single Azan alarm using native Android AlarmManager
   static Future<void> _scheduleAzanAlarm(
     int alarmId,
     String time,
     String prayerName,
+    String azanUrl,
   ) async {
     final parsedTime = _parseTimeString(time);
-    if (parsedTime == null) return;
+    if (parsedTime == null) {
+      debugPrint('Failed to parse time for $prayerName: $time');
+      return;
+    }
 
     final now = DateTime.now();
     var scheduledTime = DateTime(
@@ -95,35 +100,72 @@ class AzanBackgroundService {
     }
 
     try {
-      // Cancel existing alarm first
-      await AndroidAlarmManager.cancel(alarmId);
+      await _channel.invokeMethod('scheduleAzanAlarm', {
+        'alarmId': alarmId,
+        'triggerTimeMillis': scheduledTime.millisecondsSinceEpoch,
+        'url': azanUrl,
+        'prayerName': prayerName,
+      });
 
-      // Schedule new alarm
-      await AndroidAlarmManager.oneShotAt(
-        scheduledTime,
-        alarmId,
-        _playAzanCallback,
-        exact: true,
-        wakeup: true,
-        rescheduleOnReboot: true,
-        allowWhileIdle: true,
-      );
-
-      debugPrint(
-        'Scheduled $prayerName Azan alarm for $scheduledTime (ID: $alarmId)',
-      );
+      debugPrint('Scheduled $prayerName Azan for $scheduledTime (ID: $alarmId)');
     } catch (e) {
-      debugPrint('Error scheduling Azan alarm: $e');
+      debugPrint('Error scheduling $prayerName Azan alarm: $e');
     }
   }
 
   /// Cancel all Azan alarms
   static Future<void> cancelAllAlarms() async {
-    await AndroidAlarmManager.cancel(_fajrAlarmId);
-    await AndroidAlarmManager.cancel(_dhuhrAlarmId);
-    await AndroidAlarmManager.cancel(_asrAlarmId);
-    await AndroidAlarmManager.cancel(_maghribAlarmId);
-    await AndroidAlarmManager.cancel(_ishaAlarmId);
+    if (!Platform.isAndroid) return;
+
+    try {
+      await _channel.invokeMethod('cancelAllAzanAlarms');
+      debugPrint('All Azan alarms cancelled');
+    } catch (e) {
+      debugPrint('Error cancelling Azan alarms: $e');
+    }
+  }
+
+  /// Cancel a specific Azan alarm
+  static Future<void> cancelAlarm(int alarmId) async {
+    if (!Platform.isAndroid) return;
+
+    try {
+      await _channel.invokeMethod('cancelAzanAlarm', {'alarmId': alarmId});
+      debugPrint('Azan alarm $alarmId cancelled');
+    } catch (e) {
+      debugPrint('Error cancelling Azan alarm: $e');
+    }
+  }
+
+  /// Play Azan immediately (for testing or manual trigger)
+  static Future<void> playAzan({String? prayerName}) async {
+    if (!Platform.isAndroid) return;
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final selectedAzan = prefs.getString('selected_adhan') ?? 'makkah';
+      final azanUrl = adhanUrls[selectedAzan] ?? adhanUrls['makkah']!;
+
+      await _channel.invokeMethod('playAzan', {
+        'url': azanUrl,
+        'prayerName': prayerName ?? 'Azan',
+      });
+      debugPrint('Playing Azan...');
+    } catch (e) {
+      debugPrint('Error playing Azan: $e');
+    }
+  }
+
+  /// Stop Azan playback
+  static Future<void> stopAzan() async {
+    if (!Platform.isAndroid) return;
+
+    try {
+      await _channel.invokeMethod('stopAzan');
+      debugPrint('Azan stopped');
+    } catch (e) {
+      debugPrint('Error stopping Azan: $e');
+    }
   }
 
   /// Parse time string in both "5:30 AM" and "17:30" formats
@@ -154,57 +196,5 @@ class AzanBackgroundService {
     } catch (e) {
       return null;
     }
-  }
-}
-
-/// Top-level callback function for playing Azan (must be static/top-level)
-/// This runs in a separate isolate when the app is closed
-@pragma('vm:entry-point')
-Future<void> _playAzanCallback() async {
-  debugPrint('🔊 Azan alarm triggered!');
-
-  AudioPlayer? player;
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    final azanEnabled = prefs.getBool('azan_sound') ?? true;
-
-    if (!azanEnabled) {
-      debugPrint('🔊 Azan sound is disabled in settings');
-      return;
-    }
-
-    final selectedAzan = prefs.getString('selected_adhan') ?? 'makkah';
-    final azanUrl = AzanBackgroundService.adhanUrls[selectedAzan] ??
-        AzanBackgroundService.adhanUrls['makkah']!;
-
-    debugPrint('🔊 Playing Azan from: $azanUrl');
-
-    player = AudioPlayer();
-
-    // Set audio source with error handling
-    await player.setUrl(azanUrl);
-
-    // Set volume to max
-    await player.setVolume(1.0);
-
-    // Play the azan
-    await player.play();
-
-    // Wait for playback to complete with timeout
-    await player.playerStateStream
-        .firstWhere(
-          (state) => state.processingState == ProcessingState.completed,
-        )
-        .timeout(
-          const Duration(minutes: 10),
-          onTimeout: () => player!.playerState,
-        );
-
-    debugPrint('🔊 Azan playback completed successfully');
-  } catch (e) {
-    debugPrint('🔊 Error playing Azan: $e');
-  } finally {
-    // Always dispose the player
-    await player?.dispose();
   }
 }

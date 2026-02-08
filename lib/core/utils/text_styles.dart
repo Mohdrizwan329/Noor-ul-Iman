@@ -11,11 +11,10 @@ class AppTextStyles {
     FontWeight? fontWeight,
   }) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return TextStyle(
       fontSize: responsive.textXXLarge,
       fontWeight: fontWeight ?? FontWeight.bold,
-      color: color ?? (isDark ? AppColors.darkTextPrimary : AppColors.primary),
+      color: color ?? (AppColors.primary),
     );
   }
 
@@ -25,11 +24,10 @@ class AppTextStyles {
     FontWeight? fontWeight,
   }) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return TextStyle(
       fontSize: responsive.textXLarge,
       fontWeight: fontWeight ?? FontWeight.bold,
-      color: color ?? (isDark ? AppColors.darkTextPrimary : AppColors.primary),
+      color: color ?? (AppColors.primary),
     );
   }
 
@@ -39,11 +37,10 @@ class AppTextStyles {
     FontWeight? fontWeight,
   }) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return TextStyle(
       fontSize: responsive.textLarge,
       fontWeight: fontWeight ?? FontWeight.w600,
-      color: color ?? (isDark ? AppColors.darkTextPrimary : AppColors.primary),
+      color: color ?? (AppColors.primary),
     );
   }
 
@@ -54,12 +51,11 @@ class AppTextStyles {
     FontWeight? fontWeight,
   }) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return TextStyle(
       fontSize: responsive.textMedium,
       fontWeight: fontWeight ?? FontWeight.normal,
       color: color ??
-          (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
+          (AppColors.textPrimary),
     );
   }
 
@@ -69,12 +65,11 @@ class AppTextStyles {
     FontWeight? fontWeight,
   }) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return TextStyle(
       fontSize: responsive.textSmall,
       fontWeight: fontWeight ?? FontWeight.normal,
       color: color ??
-          (isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
+          (AppColors.textSecondary),
     );
   }
 
@@ -84,12 +79,11 @@ class AppTextStyles {
     FontWeight? fontWeight,
   }) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return TextStyle(
       fontSize: responsive.textXSmall,
       fontWeight: fontWeight ?? FontWeight.normal,
       color: color ??
-          (isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
+          (AppColors.textSecondary),
     );
   }
 
@@ -126,10 +120,9 @@ class AppTextStyles {
     Color? color,
   }) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return TextStyle(
       fontSize: responsive.textXSmall,
-      color: color ?? (isDark ? AppColors.darkTextSecondary : AppColors.textHint),
+      color: color ?? (AppColors.textHint),
     );
   }
 
@@ -171,12 +164,11 @@ class AppTextStyles {
     Color? color,
   }) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return TextStyle(
       fontFamily: 'Poppins',
       fontSize: fontSize ?? responsive.textMedium,
       color: color ??
-          (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
+          (AppColors.textPrimary),
     );
   }
 

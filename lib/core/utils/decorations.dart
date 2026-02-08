@@ -14,19 +14,18 @@ class AppDecorations {
     bool withShadow = true,
   }) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return BoxDecoration(
-      color: color ?? (isDark ? AppColors.darkCard : Colors.white),
+      color: color ?? (Colors.white),
       borderRadius: BorderRadius.circular(
         borderRadius ?? responsive.radiusLarge,
       ),
       border: Border.all(
         color: borderColor ??
-            (isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder),
+            AppColors.lightGreenBorder,
         width: borderWidth ?? 1.5,
       ),
-      boxShadow: withShadow && !isDark
+      boxShadow: withShadow
           ? [
               BoxShadow(
                 color: AppColors.primary.withValues(alpha: 0.08),
@@ -46,16 +45,13 @@ class AppDecorations {
     bool withShadow = true,
   }) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return BoxDecoration(
       gradient: gradient ??
           LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: isDark
-                ? [const Color(0xFF5C6BC0), const Color(0xFF7986CB)]
-                : [const Color(0xFF81C784), const Color(0xFF66BB6A)],
+            colors: [const Color(0xFF81C784), const Color(0xFF66BB6A)],
           ),
       borderRadius: BorderRadius.circular(
         borderRadius ?? responsive.radiusLarge,
@@ -63,9 +59,7 @@ class AppDecorations {
       boxShadow: withShadow
           ? [
               BoxShadow(
-                color: isDark
-                    ? const Color(0x40000000)
-                    : const Color(0x3081C784),
+                color: const Color(0x3081C784),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -81,12 +75,9 @@ class AppDecorations {
     double? opacity,
   }) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return BoxDecoration(
-      color: isDark
-          ? AppColors.primary.withValues(alpha: opacity ?? 0.2)
-          : AppColors.primary.withValues(alpha: opacity ?? 0.1),
+      color: AppColors.primary.withValues(alpha: opacity ?? 0.1),
       borderRadius: BorderRadius.circular(
         borderRadius ?? responsive.radiusLarge,
       ),
@@ -104,10 +95,9 @@ class AppDecorations {
     double? borderRadius,
   }) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return BoxDecoration(
-      color: color ?? (isDark ? Colors.grey.shade800 : AppColors.lightGreenChip),
+      color: color ?? AppColors.lightGreenChip,
       borderRadius: BorderRadius.circular(
         borderRadius ?? responsive.radiusMedium,
       ),
@@ -140,18 +130,15 @@ class AppDecorations {
     BuildContext context, {
     double? borderRadius,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return BoxDecoration(
-      color: isDark ? AppColors.darkCard : Colors.white,
+      color: Colors.white,
       borderRadius: BorderRadius.circular(borderRadius ?? 18.0),
       border: Border.all(
-        color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
+        color: AppColors.lightGreenBorder,
         width: 1.5,
       ),
-      boxShadow: isDark
-          ? null
-          : [
+      boxShadow: [
               BoxShadow(
                 color: AppColors.primary.withValues(alpha: 0.08),
                 blurRadius: 10.0,
@@ -184,17 +171,16 @@ class AppDecorations {
     Color? fillColor,
   }) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return InputDecoration(
       hintText: hintText,
       labelText: labelText,
       hintStyle: TextStyle(
-        color: isDark ? AppColors.darkTextSecondary : AppColors.textHint,
+        color: AppColors.textHint,
         fontSize: responsive.textMedium,
       ),
       labelStyle: TextStyle(
-        color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+        color: AppColors.textPrimary,
         fontSize: responsive.textMedium,
       ),
       prefixIcon: prefixIcon != null
@@ -206,17 +192,17 @@ class AppDecorations {
           : null,
       suffixIcon: suffixIcon,
       filled: true,
-      fillColor: fillColor ?? (isDark ? AppColors.darkCard : Colors.white),
+      fillColor: fillColor ?? (Colors.white),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(responsive.radiusMedium),
         borderSide: BorderSide(
-          color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
+          color: AppColors.lightGreenBorder,
         ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(responsive.radiusMedium),
         borderSide: BorderSide(
-          color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
+          color: AppColors.lightGreenBorder,
         ),
       ),
       focusedBorder: OutlineInputBorder(
@@ -247,14 +233,13 @@ class AppDecorations {
     Color? dividerColor,
   }) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Row(
       children: [
         Expanded(
           child: Divider(
             color: dividerColor ??
-                (isDark ? Colors.grey.shade700 : const Color(0x80FFFFFF)),
+                const Color(0x80FFFFFF),
             thickness: 1.5,
           ),
         ),
@@ -264,9 +249,7 @@ class AppDecorations {
             text,
             style: TextStyle(
               color: textColor ??
-                  (isDark
-                      ? AppColors.darkTextSecondary
-                      : const Color(0xE6FFFFFF)),
+                  (const Color(0xE6FFFFFF)),
               fontSize: responsive.textSmall,
             ),
           ),
@@ -274,7 +257,7 @@ class AppDecorations {
         Expanded(
           child: Divider(
             color: dividerColor ??
-                (isDark ? Colors.grey.shade700 : const Color(0x80FFFFFF)),
+                const Color(0x80FFFFFF),
             thickness: 1.5,
           ),
         ),
@@ -290,7 +273,6 @@ class AppDecorations {
     String? seeAllText,
   }) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Row(
       children: [
@@ -309,7 +291,7 @@ class AppDecorations {
             style: TextStyle(
               fontSize: responsive.textLarge,
               fontWeight: FontWeight.w600,
-              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+              color: AppColors.textPrimary,
             ),
           ),
         ),
@@ -363,12 +345,11 @@ class AppButtonStyles {
     double? borderRadius,
     BorderSide? border,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return ElevatedButton.styleFrom(
       backgroundColor: Colors.white,
       foregroundColor: foregroundColor ??
-          (isDark ? const Color(0xFF5C6BC0) : const Color(0xFF4CAF50)),
+          const Color(0xFF4CAF50),
       elevation: 8,
       shadowColor: Colors.black.withAlpha(80),
       shape: RoundedRectangleBorder(

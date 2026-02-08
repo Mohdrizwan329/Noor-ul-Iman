@@ -38,7 +38,6 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       margin: margin,
@@ -54,7 +53,7 @@ class AppCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: gradient == null
                   ? (backgroundColor ??
-                      (isDark ? AppColors.darkCard : Colors.white))
+                      Colors.white)
                   : null,
               gradient: gradient,
               borderRadius: BorderRadius.circular(
@@ -62,21 +61,17 @@ class AppCard extends StatelessWidget {
               ),
               border: border ??
                   Border.all(
-                    color: isDark
-                        ? Colors.grey.shade700
-                        : AppColors.lightGreenBorder,
+                    color: AppColors.lightGreenBorder,
                     width: 1.5,
                   ),
               boxShadow: boxShadow ??
-                  (isDark
-                      ? null
-                      : [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.08),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]),
+                  [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.08),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
             ),
             child: child,
           ),

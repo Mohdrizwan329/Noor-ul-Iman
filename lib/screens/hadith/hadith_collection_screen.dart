@@ -8,6 +8,8 @@ import '../../providers/hadith_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../data/models/hadith_model.dart';
+import '../../data/models/firestore_models.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class HadithCollectionScreen extends StatefulWidget {
   final HadithCollection collection;
@@ -98,7 +100,9 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final info = HadithProvider.collectionInfo[widget.collection]!;
+    final hadithProvider = context.watch<HadithProvider>();
+    final info = hadithProvider.getCollectionInfo(widget.collection);
+    final langCode = context.watch<LanguageProvider>().languageCode;
     final settings = context.watch<SettingsProvider>();
     final responsive = context.responsive;
 
@@ -109,17 +113,21 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(info.name, style: const TextStyle(fontSize: 18)),
             Text(
-              info.arabicName,
+              info?.name.get(langCode) ?? widget.collection.name,
+              style: const TextStyle(fontSize: 18),
+            ),
+            Text(
+              info?.arabicName ?? '',
               style: const TextStyle(fontSize: 12, fontFamily: 'Poppins'),
             ),
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: () => _showBookInfo(context, info),
+          if (info != null)
+            IconButton(
+              icon: const Icon(Icons.info_outline),
+              onPressed: () => _showBookInfo(context, info, langCode),
           ),
         ],
       ),
@@ -248,6 +256,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
 
               // Hadith List
               Expanded(child: _buildHadithList(provider, settings)),
+              const BannerAdWidget(),
             ],
           );
         },
@@ -685,7 +694,8 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
         .replaceAll('Hadith ', '${context.tr('hadith')} ');
   }
 
-  void _showBookInfo(BuildContext context, HadithCollectionInfo info) {
+  void _showBookInfo(
+      BuildContext context, HadithCollectionInfoFirestore info, String langCode) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -717,7 +727,7 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        info.name,
+                        info.name.get(langCode),
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -737,11 +747,11 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              '${context.tr('compiled_by')}: ${info.compiler}',
+              '${context.tr('compiled_by')}: ${info.compiler.get(langCode)}',
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
-            Text(info.description, style: const TextStyle(height: 1.5)),
+            Text(info.description.get(langCode), style: const TextStyle(height: 1.5)),
             const SizedBox(height: 16),
             Row(
               children: [

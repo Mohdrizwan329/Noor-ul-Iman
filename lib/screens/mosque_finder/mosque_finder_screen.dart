@@ -8,6 +8,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/services/location_service.dart';
 import '../../core/utils/app_utils.dart';
 import '../../providers/language_provider.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class MosqueFinderScreen extends StatefulWidget {
   const MosqueFinderScreen({super.key});
@@ -862,7 +863,12 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
         backgroundColor: AppColors.primary,
         title: Text(context.tr('mosque_finder')),
       ),
-      body: _buildBody(),
+      body: Column(
+        children: [
+          Expanded(child: _buildBody()),
+          const BannerAdWidget(),
+        ],
+      ),
     );
   }
 

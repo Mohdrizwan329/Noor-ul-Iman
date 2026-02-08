@@ -7,6 +7,7 @@ import '../../providers/language_provider.dart';
 import '../../data/models/dua_model.dart';
 import '../../widgets/common/search_bar_widget.dart';
 import '../../widgets/common/header_action_button.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class DuaDetailScreen extends StatefulWidget {
   final DuaModel dua;
@@ -327,6 +328,7 @@ class _DuaDetailScreenState extends State<DuaDetailScreen> {
                     },
                   ),
           ),
+          const BannerAdWidget(),
         ],
       ),
     );
@@ -338,7 +340,6 @@ class _DuaDetailScreenState extends State<DuaDetailScreen> {
     final showTranslation = _cardsWithTranslation.contains(cardIndex);
     final isPlaying = _playingCardIndex == cardIndex && _isSpeaking;
     final cardNumber = cardIndex + 1;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Get language code from DuaLanguage enum
     String langCode;
@@ -365,17 +366,15 @@ class _DuaDetailScreenState extends State<DuaDetailScreen> {
       key: _cardKeys[cardIndex],
       margin: responsive.paddingOnly(bottom: 16),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : Colors.white,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
         border: Border.all(
           color: isPlaying
               ? AppColors.primaryLight
-              : (isDark ? Colors.grey.shade700 : lightGreenBorder),
+              : (lightGreenBorder),
           width: isPlaying ? 2 : 1.5,
         ),
-        boxShadow: isDark
-            ? null
-            : [
+        boxShadow: [
                 BoxShadow(
                   color: darkGreen.withValues(alpha: 0.1),
                   blurRadius: 10,
@@ -390,7 +389,7 @@ class _DuaDetailScreenState extends State<DuaDetailScreen> {
           Container(
             padding: responsive.paddingSymmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: isDark ? Colors.grey.shade800 : lightGreenChip,
+              color: lightGreenChip,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(responsive.radiusLarge),
                 topRight: Radius.circular(responsive.radiusLarge),
@@ -435,7 +434,7 @@ class _DuaDetailScreenState extends State<DuaDetailScreen> {
                         style: TextStyle(
                           fontSize: responsive.textMedium,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : darkGreen,
+                          color: darkGreen,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -502,7 +501,7 @@ class _DuaDetailScreenState extends State<DuaDetailScreen> {
                 fontSize: responsive.textXLarge,
                 fontFamily: 'Scheherazade',
                 height: 2.0,
-                color: isDark ? Colors.white : darkGreen,
+                color: darkGreen,
               ),
             ),
           ),
@@ -524,9 +523,7 @@ class _DuaDetailScreenState extends State<DuaDetailScreen> {
                     : TextDirection.ltr,
                 style: TextStyle(
                   fontSize: responsive.textMedium,
-                  color: isDark
-                      ? AppColors.darkTextSecondary
-                      : AppColors.textSecondary,
+                  color: AppColors.textSecondary,
                   height: 1.8,
                 ),
               ),
@@ -536,9 +533,7 @@ class _DuaDetailScreenState extends State<DuaDetailScreen> {
           Container(
             padding: responsive.paddingSymmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.grey.shade800.withValues(alpha: 0.3)
-                  : lightGreenChip.withValues(alpha: 0.3),
+              color: lightGreenChip.withValues(alpha: 0.3),
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(responsive.radiusLarge),
                 bottomRight: Radius.circular(responsive.radiusLarge),
@@ -547,7 +542,7 @@ class _DuaDetailScreenState extends State<DuaDetailScreen> {
             child: Text(
               dua.getReference(selectedLanguage),
               style: AppTextStyles.caption(context).copyWith(
-                color: isDark ? Colors.grey.shade400 : AppColors.textHint,
+                color: AppColors.textHint,
                 fontStyle: FontStyle.italic,
               ),
               textAlign: TextAlign.center,

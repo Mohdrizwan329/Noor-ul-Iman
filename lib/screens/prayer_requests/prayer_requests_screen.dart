@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/app_utils.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class PrayerRequestsScreen extends StatefulWidget {
   const PrayerRequestsScreen({super.key});
@@ -127,11 +128,18 @@ class _PrayerRequestsScreenState extends State<PrayerRequestsScreen>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          _buildRequestsList(context, false),
-          _buildRequestsList(context, true),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildRequestsList(context, false),
+                _buildRequestsList(context, true),
+              ],
+            ),
+          ),
+          const BannerAdWidget(),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -259,7 +267,7 @@ class _PrayerRequestsScreenState extends State<PrayerRequestsScreen>
                       borderRadius: BorderRadius.circular(responsive.radiusMedium),
                     ),
                     child: Text(
-                      request.category,
+                      context.tr(request.category.toLowerCase()),
                       style: TextStyle(
                         color: _getCategoryColor(request.category),
                         fontSize: responsive.textSmall,
@@ -280,7 +288,7 @@ class _PrayerRequestsScreenState extends State<PrayerRequestsScreen>
                           Icon(Icons.check_circle, color: Colors.green, size: responsive.iconXSmall),
                           SizedBox(width: responsive.spaceXSmall),
                           Text(
-                            'Answered',
+                            context.tr('answered'),
                             style: TextStyle(
                               color: Colors.green,
                               fontSize: responsive.textSmall,
@@ -306,7 +314,7 @@ class _PrayerRequestsScreenState extends State<PrayerRequestsScreen>
                   Icon(Icons.access_time, size: responsive.iconXSmall, color: Colors.grey[500]),
                   SizedBox(width: responsive.spaceXSmall),
                   Text(
-                    _formatDate(request.createdAt),
+                    _formatDate(context, request.createdAt),
                     style: TextStyle(
                       color: Colors.grey[500],
                       fontSize: responsive.textSmall,
@@ -317,7 +325,7 @@ class _PrayerRequestsScreenState extends State<PrayerRequestsScreen>
                     Icon(Icons.check, size: responsive.iconXSmall, color: Colors.green[400]),
                     SizedBox(width: responsive.spaceXSmall),
                     Text(
-                      'Answered ${_formatDate(request.answeredAt!)}',
+                      '${context.tr('answered')} ${_formatDate(context, request.answeredAt!)}',
                       style: TextStyle(
                         color: Colors.green[400],
                         fontSize: responsive.textSmall,
@@ -330,7 +338,7 @@ class _PrayerRequestsScreenState extends State<PrayerRequestsScreen>
                       onPressed: () => _markAsAnswered(request),
                       icon: Icon(Icons.check_circle_outline, size: responsive.iconSmall),
                       label: Text(
-                        'Mark Answered',
+                        context.tr('mark_answered'),
                         style: TextStyle(fontSize: responsive.textSmall),
                       ),
                       style: TextButton.styleFrom(
@@ -369,16 +377,16 @@ class _PrayerRequestsScreenState extends State<PrayerRequestsScreen>
     }
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(BuildContext context, DateTime date) {
     final now = DateTime.now();
     final diff = now.difference(date);
 
     if (diff.inDays == 0) {
-      return 'Today';
+      return context.tr('today');
     } else if (diff.inDays == 1) {
-      return 'Yesterday';
+      return context.tr('yesterday');
     } else if (diff.inDays < 7) {
-      return '${diff.inDays} days ago';
+      return '${diff.inDays} ${context.tr('days_ago')}';
     } else {
       return '${date.day}/${date.month}/${date.year}';
     }
@@ -419,7 +427,7 @@ class _PrayerRequestsScreenState extends State<PrayerRequestsScreen>
                 ),
                 SizedBox(height: responsive.spaceLarge),
                 Text(
-                  'New Prayer Request',
+                  context.tr('new_prayer_request'),
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontSize: responsive.textXLarge,
                         fontWeight: FontWeight.bold,
@@ -427,7 +435,7 @@ class _PrayerRequestsScreenState extends State<PrayerRequestsScreen>
                 ),
                 SizedBox(height: responsive.spaceSmall),
                 Text(
-                  'Share your prayer with Allah. He is the All-Hearing, the All-Knowing.',
+                  context.tr('prayer_request_description'),
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: responsive.textMedium,
@@ -437,7 +445,7 @@ class _PrayerRequestsScreenState extends State<PrayerRequestsScreen>
 
                 // Category Selection
                 Text(
-                  'Category',
+                  context.tr('category'),
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontSize: responsive.textRegular,
                       ),
@@ -450,7 +458,7 @@ class _PrayerRequestsScreenState extends State<PrayerRequestsScreen>
                     final isSelected = _selectedCategory == category;
                     return ChoiceChip(
                       label: Text(
-                        category,
+                        context.tr(category.toLowerCase()),
                         style: TextStyle(fontSize: responsive.textSmall),
                       ),
                       selected: isSelected,
@@ -498,7 +506,7 @@ class _PrayerRequestsScreenState extends State<PrayerRequestsScreen>
                       ),
                     ),
                     child: Text(
-                      'Add Prayer Request',
+                      context.tr('add_prayer_request'),
                       style: TextStyle(fontSize: responsive.textRegular),
                     ),
                   ),

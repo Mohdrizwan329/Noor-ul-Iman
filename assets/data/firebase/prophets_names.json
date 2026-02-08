@@ -1,0 +1,609 @@
+{
+  "names": [
+    {
+      "name": "آدم",
+      "transliteration": "Adam",
+      "name_urdu": "آدم",
+      "name_hindi": "आदम",
+      "title": {
+        "en": "Father of Mankind",
+        "ur": "ابو البشر",
+        "hi": "मानवजाति के पिता",
+        "ar": "أبو البشر"
+      },
+      "description": {
+        "en": "Prophet Adam (AS) was the first human being created by Allah from clay. He was also the first Prophet sent to guide humanity. Allah taught him the names of all things and honored him by commanding the angels to prostrate before him. He lived in Jannah with his wife Hawwa (Eve) before descending to Earth.",
+        "ur": "حضرت آدم علیہ السلام اللہ تعالیٰ کے پیدا کردہ پہلے انسان تھے جنہیں مٹی سے بنایا گیا۔ وہ انسانیت کی رہنمائی کے لیے بھیجے گئے پہلے نبی بھی تھے۔ اللہ تعالیٰ نے انہیں تمام چیزوں کے نام سکھائے اور فرشتوں کو ان کے سامنے سجدہ کرنے کا حکم دے کر انہیں عزت بخشی۔ وہ زمین پر اترنے سے پہلے اپنی بیوی حضرت حوا کے ساتھ جنت میں رہے۔",
+        "hi": "हज़रत आदम (अ.स.) अल्लाह द्वारा मिट्टी से बनाए गए पहले इंसान थे। वे मानवता का मार्गदर्शन करने के लिए भेजे गए पहले नबी भी थे। अल्लाह ने उन्हें सभी चीज़ों के नाम सिखाए और फ़रिश्तों को उनके सामने सजदा करने का हुक्म देकर उन्हें सम्मानित किया। वे ज़मीन पर आने से पहले अपनी पत्नी हव्वा के साथ जन्नत में रहे।",
+        "ar": "النبي آدم عليه السلام هو أول إنسان خلقه الله تعالى من طين. وهو أيضاً أول نبي أُرسل لهداية البشرية. علّمه الله أسماء كل شيء وكرّمه بأن أمر الملائكة بالسجود له. عاش في الجنة مع زوجته حواء قبل أن ينزل إلى الأرض."
+      },
+      "birth_place": "Created in Paradise (Jannah)",
+      "death_place": "Earth (location varies in traditions)",
+      "spouse": "Hawwa (Eve)",
+      "children": "Qabil (Cain), Habil (Abel), Shith (Seth), and many others",
+      "era": "Beginning of Humanity",
+      "known_for": "First human, First Prophet, Father of Mankind"
+    },
+    {
+      "name": "إدريس",
+      "transliteration": "Idris",
+      "name_urdu": "ادریس",
+      "name_hindi": "इदरीस",
+      "title": {
+        "en": "The one who studies",
+        "ur": "پڑھنے والا",
+        "hi": "अध्ययन करने वाला",
+        "ar": "الدارس"
+      },
+      "description": {
+        "en": "Prophet Idris (AS) was known for his wisdom and knowledge. He was the first to write with a pen and was given 30 scriptures. He was raised to a high station by Allah and is mentioned in the Quran as a truthful prophet. He taught people the basics of civilization and sciences.",
+        "ur": "حضرت ادریس علیہ السلام اپنی حکمت اور علم کے لیے مشہور تھے۔ وہ پہلے شخص تھے جنہوں نے قلم سے لکھا اور انہیں 30 صحیفے دیے گئے۔ اللہ تعالیٰ نے انہیں بلند مقام پر اٹھایا اور قرآن میں انہیں سچے نبی کے طور پر ذکر کیا گیا ہے۔ انہوں نے لوگوں کو تہذیب اور علوم کی بنیادی باتیں سکھائیں۔",
+        "hi": "हज़रत इदरीस (अ.स.) अपनी हिकमत और ज्ञान के लिए प्रसिद्ध थे। वे पहले व्यक्ति थे जिन्होंने कलम से लिखा और उन्हें 30 सहीफे दिए गए। अल्लाह ने उन्हें ऊंचे मक़ाम पर उठाया और क़ुरान में उन्हें सच्चे नबी के रूप में ज़िक्र किया गया है। उन्होंने लोगों को सभ्यता और विज्ञान की बुनियादी बातें सिखाईं।",
+        "ar": "النبي إدريس عليه السلام اشتُهر بحكمته وعلمه. كان أول من خطّ بالقلم وأُعطي ثلاثين صحيفة. رفعه الله مكاناً علياً وذُكر في القرآن الكريم أنه كان صدّيقاً نبياً. علّم الناس أسس الحضارة والعلوم."
+      },
+      "father_name": "Yarid (Jared)",
+      "birth_place": "Babylon, Mesopotamia",
+      "death_place": "Raised to the heavens",
+      "era": "After Adam, before Nuh",
+      "known_for": "First to write with pen, Received 30 scriptures, Raised to high station"
+    },
+    {
+      "name": "نوح",
+      "transliteration": "Nuh (Noah)",
+      "name_urdu": "نوح",
+      "name_hindi": "नूह",
+      "title": {
+        "en": "Comfort, Rest",
+        "ur": "آرام، سکون",
+        "hi": "आराम, शांति",
+        "ar": "الراحة والسكون"
+      },
+      "description": {
+        "en": "Prophet Nuh (AS) is known as one of the five greatest prophets (Ulul Azm). He preached to his people for 950 years. When they rejected his message, Allah commanded him to build an ark. He survived the great flood with believers and pairs of every animal species. He is called the second father of humanity.",
+        "ur": "حضرت نوح علیہ السلام پانچ عظیم ترین انبیاء (اولوالعزم) میں سے ایک ہیں۔ انہوں نے 950 سال تک اپنی قوم کو تبلیغ کی۔ جب انہوں نے ان کے پیغام کو رد کیا تو اللہ تعالیٰ نے انہیں کشتی بنانے کا حکم دیا۔ وہ مومنین اور ہر جانور کے جوڑے کے ساتھ عظیم طوفان سے بچ گئے۔ انہیں انسانیت کا دوسرا باپ کہا جاتا ہے۔",
+        "hi": "हज़रत नूह (अ.स.) पांच महान नबियों (उलुल अज़्म) में से एक हैं। उन्होंने 950 साल तक अपनी क़ौम को तब्लीग़ की। जब उन्होंने उनके पैग़ाम को रद्द किया तो अल्लाह ने उन्हें कश्ती बनाने का हुक्म दिया। वे मोमिनों और हर जानवर की जोड़ी के साथ महान तूफ़ान से बच गए। उन्हें इंसानियत का दूसरा बाप कहा जाता है।",
+        "ar": "النبي نوح عليه السلام من أولي العزم من الرسل الخمسة. دعا قومه تسعمائة وخمسين عاماً. لما كذّبوه أمره الله ببناء السفينة. نجا مع المؤمنين ومن كل زوجين اثنين من الحيوانات من الطوفان العظيم. يُلقّب بالأب الثاني للبشرية."
+      },
+      "father_name": "Lamech",
+      "birth_place": "Mesopotamia",
+      "spouse": "Naamah (traditions vary)",
+      "children": "Shem, Ham, Japheth, Yam (drowned)",
+      "era": "Preached for 950 years",
+      "known_for": "Ulul Azm Prophet, Built the Ark, Second Father of Humanity"
+    },
+    {
+      "name": "هود",
+      "transliteration": "Hud",
+      "name_urdu": "ہود",
+      "name_hindi": "हूद",
+      "title": {
+        "en": "The Guide",
+        "ur": "ہدایت دینے والا",
+        "hi": "मार्गदर्शक",
+        "ar": "الهادي"
+      },
+      "description": {
+        "en": "Prophet Hud (AS) was sent to the people of Ad who lived in the Ahqaf region of Arabia. They were powerful and built great structures but were arrogant. When they rejected his message, Allah destroyed them with a violent windstorm that lasted seven nights and eight days.",
+        "ur": "حضرت ہود علیہ السلام قوم عاد کی طرف بھیجے گئے جو عرب کے علاقے احقاف میں رہتے تھے۔ وہ طاقتور تھے اور عظیم عمارتیں بناتے تھے لیکن متکبر تھے۔ جب انہوں نے ان کے پیغام کو رد کیا تو اللہ تعالیٰ نے انہیں سات راتوں اور آٹھ دنوں تک چلنے والے شدید طوفان سے تباہ کر دیا۔",
+        "hi": "हज़रत हूद (अ.स.) क़ौम-ए-आद की तरफ़ भेजे गए जो अरब के इलाक़े अहक़ाफ़ में रहते थे। वे ताक़तवर थे और बड़ी इमारतें बनाते थे लेकिन घमंडी थे। जब उन्होंने उनके पैग़ाम को रद्द किया तो अल्लाह ने उन्हें सात रातों और आठ दिनों तक चलने वाले शदीद तूफ़ान से तबाह कर दिया।",
+        "ar": "النبي هود عليه السلام أُرسل إلى قوم عاد الذين كانوا يسكنون منطقة الأحقاف في جزيرة العرب. كانوا أقوياء يبنون المباني العظيمة لكنهم كانوا مستكبرين. لما كذّبوه أهلكهم الله بريح صرصر عاتية سبع ليالٍ وثمانية أيام."
+      },
+      "birth_place": "Ahqaf region, Southern Arabia",
+      "death_place": "Hadramawt, Yemen (traditional)",
+      "tribe": "Descendant of Prophet Nuh through Shem",
+      "era": "After Nuh, sent to People of Ad",
+      "known_for": "Sent to People of Ad, Warned against arrogance"
+    },
+    {
+      "name": "صالح",
+      "transliteration": "Salih",
+      "name_urdu": "صالح",
+      "name_hindi": "सालिह",
+      "title": {
+        "en": "Righteous",
+        "ur": "نیک",
+        "hi": "नेक",
+        "ar": "الصالح"
+      },
+      "description": {
+        "en": "Prophet Salih (AS) was sent to the people of Thamud who carved homes out of mountains. Allah gave him the miracle of a she-camel that emerged from a rock. When his people killed the camel despite warnings, they were destroyed by a mighty blast (earthquake and thunderbolt).",
+        "ur": "حضرت صالح علیہ السلام قوم ثمود کی طرف بھیجے گئے جو پہاڑوں میں گھر تراشتے تھے۔ اللہ تعالیٰ نے انہیں ایک اونٹنی کا معجزہ دیا جو چٹان سے نکلی۔ جب ان کی قوم نے وارننگ کے باوجود اونٹنی کو مار ڈالا تو وہ ایک زبردست دھماکے (زلزلے اور بجلی) سے تباہ ہو گئے۔",
+        "hi": "हज़रत सालेह (अ.स.) क़ौम-ए-समूद की तरफ़ भेजे गए जो पहाड़ों में घर तराशते थे। अल्लाह ने उन्हें एक ऊंटनी का मोजज़ा दिया जो चट्टान से निकली। जब उनकी क़ौम ने चेतावनी के बावजूद ऊंटनी को मार डाला तो वे एक ज़बरदस्त धमाके (भूकंप और बिजली) से तबाह हो गए।",
+        "ar": "النبي صالح عليه السلام أُرسل إلى قوم ثمود الذين كانوا ينحتون بيوتهم في الجبال. أعطاه الله معجزة الناقة التي خرجت من الصخر. لما عقروا الناقة رغم تحذيره أهلكهم الله بالصيحة العظيمة."
+      },
+      "birth_place": "Hijr (Mada'in Salih), Arabia",
+      "death_place": "Palestine or Makkah (traditions vary)",
+      "tribe": "Thamud",
+      "era": "After Hud, sent to People of Thamud",
+      "known_for": "Miracle of the She-Camel, Sent to Thamud"
+    },
+    {
+      "name": "إبراهيم",
+      "transliteration": "Ibrahim (Abraham)",
+      "name_urdu": "ابراہیم",
+      "name_hindi": "इब्राहीम",
+      "title": {
+        "en": "Father of Nations",
+        "ur": "قوموں کے باپ",
+        "hi": "क़ौमों के पिता",
+        "ar": "أبو الأمم"
+      },
+      "description": {
+        "en": "Prophet Ibrahim (AS) is called Khalilullah (Friend of Allah) and is one of the five greatest prophets. He broke the idols of his people, was thrown into fire but Allah made it cool for him. He built the Kaaba with his son Ismail. He is the father of both the Arab and Jewish nations through his sons.",
+        "ur": "حضرت ابراہیم علیہ السلام کو خلیل اللہ (اللہ کا دوست) کہا جاتا ہے اور وہ پانچ عظیم ترین انبیاء میں سے ایک ہیں۔ انہوں نے اپنی قوم کے بتوں کو توڑا، انہیں آگ میں پھینکا گیا لیکن اللہ نے آگ کو ان کے لیے ٹھنڈا کر دیا۔ انہوں نے اپنے بیٹے اسماعیل کے ساتھ کعبہ تعمیر کیا۔ وہ اپنے بیٹوں کے ذریعے عرب اور یہودی دونوں قوموں کے باپ ہیں۔",
+        "hi": "हज़रत इब्राहीम (अ.स.) को ख़लीलुल्लाह (अल्लाह के दोस्त) कहा जाता है और वे पांच महान नबियों में से एक हैं। उन्होंने अपनी क़ौम के बुतों को तोड़ा, उन्हें आग में फेंका गया लेकिन अल्लाह ने आग को उनके लिए ठंडा कर दिया। उन्होंने अपने बेटे इस्माईल के साथ काबा बनाया। वे अपने बेटों के ज़रिए अरब और यहूदी दोनों क़ौमों के पिता हैं।",
+        "ar": "النبي إبراهيم عليه السلام يُلقّب بخليل الله وهو من أولي العزم من الرسل. حطّم أصنام قومه وأُلقي في النار فجعلها الله برداً وسلاماً عليه. بنى الكعبة المشرّفة مع ابنه إسماعيل. وهو أبو الأمة العربية واليهودية من خلال ابنيه."
+      },
+      "father_name": "Azar (Terah)",
+      "birth_place": "Ur, Mesopotamia (modern Iraq)",
+      "death_place": "Hebron, Palestine",
+      "spouse": "Sarah, Hajar (Hagar)",
+      "children": "Ismail (from Hajar), Ishaq (from Sarah)",
+      "era": "Approximately 1800 BCE",
+      "known_for": "Khalilullah, Built the Kaaba, Ulul Azm Prophet"
+    },
+    {
+      "name": "لوط",
+      "transliteration": "Lut (Lot)",
+      "name_urdu": "لوط",
+      "name_hindi": "लूत",
+      "title": {
+        "en": "Veiled, Hidden",
+        "ur": "پوشیدہ",
+        "hi": "छुपा हुआ",
+        "ar": "المستور"
+      },
+      "description": {
+        "en": "Prophet Lut (AS) was the nephew of Prophet Ibrahim. He was sent to the people of Sodom and Gomorrah who practiced immoral acts. Despite his warnings, they refused to repent. Allah destroyed their cities by turning them upside down and raining stones upon them.",
+        "ur": "حضرت لوط علیہ السلام حضرت ابراہیم کے بھتیجے تھے۔ انہیں سدوم اور عمورہ کے لوگوں کی طرف بھیجا گیا جو غیر اخلاقی کام کرتے تھے۔ ان کی تنبیہات کے باوجود انہوں نے توبہ کرنے سے انکار کیا۔ اللہ تعالیٰ نے ان کے شہروں کو الٹ کر اور ان پر پتھر برسا کر تباہ کر دیا۔",
+        "hi": "हज़रत लूत (अ.स.) हज़रत इब्राहीम के भतीजे थे। उन्हें सदोम और अमूराह के लोगों की तरफ़ भेजा गया जो ग़ैर-अख़लाक़ी काम करते थे। उनकी चेतावनियों के बावजूद उन्होंने तौबा करने से इनकार किया। अल्लाह ने उनके शहरों को उलट कर और उन पर पत्थर बरसा कर तबाह कर दिया।",
+        "ar": "النبي لوط عليه السلام كان ابن أخي النبي إبراهيم. أُرسل إلى قوم سدوم وعمورة الذين كانوا يرتكبون الفواحش. رغم تحذيراته أبوا التوبة. فأهلكهم الله بقلب مدنهم وإمطار الحجارة عليهم."
+      },
+      "father_name": "Haran (brother of Ibrahim)",
+      "birth_place": "Ur, Mesopotamia",
+      "death_place": "Near the Dead Sea region",
+      "children": "Two daughters (who survived)",
+      "era": "Contemporary of Ibrahim",
+      "known_for": "Sent to Sodom and Gomorrah, Warned against immorality"
+    },
+    {
+      "name": "إسماعيل",
+      "transliteration": "Ismail (Ishmael)",
+      "name_urdu": "اسماعیل",
+      "name_hindi": "इस्माईल",
+      "title": {
+        "en": "God Hears",
+        "ur": "اللہ سنتا ہے",
+        "hi": "अल्लाह सुनता है",
+        "ar": "يسمع الله"
+      },
+      "description": {
+        "en": "Prophet Ismail (AS) was the first son of Ibrahim from Hajar. As a baby, he was left in the desert of Makkah where the well of Zamzam sprang forth. He helped his father build the Kaaba. He willingly submitted when Allah commanded Ibrahim to sacrifice him, but was ransomed with a ram. He is the ancestor of Prophet Muhammad ﷺ.",
+        "ur": "حضرت اسماعیل علیہ السلام حضرت ابراہیم کے حاجرہ سے پہلے بیٹے تھے۔ بچپن میں انہیں مکہ کے صحرا میں چھوڑ دیا گیا جہاں زمزم کا کنواں پھوٹ پڑا۔ انہوں نے اپنے والد کی کعبہ بنانے میں مدد کی۔ جب اللہ نے ابراہیم کو ان کی قربانی کا حکم دیا تو انہوں نے خوشی سے قبول کیا، لیکن انہیں ایک مینڈھے سے بدل دیا گیا۔ وہ نبی محمد ﷺ کے جد امجد ہیں۔",
+        "hi": "हज़रत इस्माईल (अ.स.) हज़रत इब्राहीम के हाजरा से पहले बेटे थे। बचपन में उन्हें मक्का के रेगिस्तान में छोड़ दिया गया जहां ज़मज़म का कुआं फूट पड़ा। उन्होंने अपने वालिद की काबा बनाने में मदद की। जब अल्लाह ने इब्राहीम को उनकी क़ुर्बानी का हुक्म दिया तो उन्होंने ख़ुशी से क़बूल किया, लेकिन उन्हें एक मेंढे से बदल दिया गया। वे नबी मुहम्मद ﷺ के पूर्वज हैं।",
+        "ar": "النبي إسماعيل عليه السلام كان الابن الأول لإبراهيم من هاجر. تُرك رضيعاً في صحراء مكة حيث تفجّر بئر زمزم. ساعد أباه في بناء الكعبة. استسلم طائعاً لأمر الله بذبحه ففداه الله بكبش عظيم. وهو جدّ النبي محمد ﷺ."
+      },
+      "father_name": "Ibrahim",
+      "mother_name": "Hajar (Hagar)",
+      "birth_place": "Canaan (Palestine)",
+      "death_place": "Makkah, Arabia",
+      "spouse": "Ra'la (or others in traditions)",
+      "children": "12 sons including Kedar, Nebaioth",
+      "era": "Son of Ibrahim",
+      "known_for": "Built Kaaba, Ancestor of Prophet Muhammad ﷺ, Willingly submitted to sacrifice"
+    },
+    {
+      "name": "إسحاق",
+      "transliteration": "Ishaq (Isaac)",
+      "name_urdu": "اسحاق",
+      "name_hindi": "इसहाक़",
+      "title": {
+        "en": "He Laughs",
+        "ur": "ہنسنے والا",
+        "hi": "हंसने वाला",
+        "ar": "الضاحك"
+      },
+      "description": {
+        "en": "Prophet Ishaq (AS) was the second son of Ibrahim, born to Sarah in her old age. His birth was announced by angels. He continued his father's mission of calling people to worship Allah alone. He is the father of Prophet Yaqub and the ancestor of many prophets of Bani Israel.",
+        "ur": "حضرت اسحاق علیہ السلام حضرت ابراہیم کے دوسرے بیٹے تھے، جو بڑھاپے میں سارہ سے پیدا ہوئے۔ ان کی پیدائش کا اعلان فرشتوں نے کیا۔ انہوں نے اپنے والد کی دعوت جاری رکھی کہ لوگ صرف اللہ کی عبادت کریں۔ وہ حضرت یعقوب کے والد اور بنی اسرائیل کے بہت سے انبیاء کے جد امجد ہیں۔",
+        "hi": "हज़रत इसहाक़ (अ.स.) हज़रत इब्राहीम के दूसरे बेटे थे, जो बुढ़ापे में सारा से पैदा हुए। उनकी पैदाइश का एलान फ़रिश्तों ने किया। उन्होंने अपने वालिद की दावत जारी रखी कि लोग सिर्फ़ अल्लाह की इबादत करें। वे हज़रत याक़ूब के वालिद और बनी इसराईल के बहुत से नबियों के पूर्वज हैं।",
+        "ar": "النبي إسحاق عليه السلام كان الابن الثاني لإبراهيم، وُلد لسارة في شيخوختها. بشّرت الملائكة بولادته. واصل دعوة أبيه إلى عبادة الله وحده. وهو أبو النبي يعقوب وجدّ كثير من أنبياء بني إسرائيل."
+      },
+      "father_name": "Ibrahim",
+      "mother_name": "Sarah",
+      "birth_place": "Canaan (Palestine)",
+      "death_place": "Hebron, Palestine",
+      "spouse": "Rifqa (Rebecca)",
+      "children": "Yaqub (Jacob), Esau",
+      "era": "Son of Ibrahim",
+      "known_for": "Miracle birth, Ancestor of Bani Israel prophets"
+    },
+    {
+      "name": "يعقوب",
+      "transliteration": "Yaqub (Jacob)",
+      "name_urdu": "یعقوب",
+      "name_hindi": "याक़ूब",
+      "title": {
+        "en": "Supplanter",
+        "ur": "جانشین",
+        "hi": "उत्तराधिकारी",
+        "ar": "الخَلَف"
+      },
+      "description": {
+        "en": "Prophet Yaqub (AS), also known as Israel, was the son of Ishaq. He had twelve sons who became the twelve tribes of Israel. He endured great patience when his beloved son Yusuf was taken from him. He lost his sight from weeping but was healed when Yusuf's shirt was placed on his eyes.",
+        "ur": "حضرت یعقوب علیہ السلام، جنہیں اسرائیل بھی کہا جاتا ہے، حضرت اسحاق کے بیٹے تھے۔ ان کے بارہ بیٹے تھے جو اسرائیل کے بارہ قبیلے بنے۔ جب ان کے پیارے بیٹے یوسف کو ان سے جدا کیا گیا تو انہوں نے بڑا صبر کیا۔ روتے روتے ان کی بینائی جاتی رہی لیکن جب یوسف کی قمیص ان کی آنکھوں پر رکھی گئی تو وہ ٹھیک ہو گئے۔",
+        "hi": "हज़रत याक़ूब (अ.स.), जिन्हें इसराईल भी कहा जाता है, हज़रत इसहाक़ के बेटे थे। उनके बारह बेटे थे जो इसराईल के बारह क़बीले बने। जब उनके प्यारे बेटे यूसुफ़ को उनसे जुदा किया गया तो उन्होंने बड़ा सब्र किया। रोते-रोते उनकी आंखों की रोशनी चली गई लेकिन जब यूसुफ़ की क़मीस उनकी आंखों पर रखी गई तो वे ठीक हो गए।",
+        "ar": "النبي يعقوب عليه السلام المعروف أيضاً بإسرائيل كان ابن إسحاق. له اثنا عشر ابناً أصبحوا أسباط بني إسرائيل الاثني عشر. صبر صبراً عظيماً عندما فُقد ابنه الحبيب يوسف. فقد بصره من كثرة البكاء لكنه شُفي عندما أُلقي عليه قميص يوسف."
+      },
+      "father_name": "Ishaq (Isaac)",
+      "mother_name": "Rifqa (Rebecca)",
+      "birth_place": "Canaan (Palestine)",
+      "death_place": "Egypt",
+      "spouse": "Leah, Rachel, Bilhah, Zilpah",
+      "children": "12 sons including Yusuf, Binyamin; progenitors of 12 tribes of Israel",
+      "era": "Son of Ibrahim",
+      "known_for": "Father of 12 Tribes of Israel, Patience during separation from Yusuf"
+    },
+    {
+      "name": "يوسف",
+      "transliteration": "Yusuf (Joseph)",
+      "name_urdu": "یوسف",
+      "name_hindi": "यूसुफ़",
+      "title": {
+        "en": "God Increases",
+        "ur": "اللہ بڑھاتا ہے",
+        "hi": "अल्लाह बढ़ाता है",
+        "ar": "يزيد الله"
+      },
+      "description": {
+        "en": "Prophet Yusuf (AS) was blessed with exceptional beauty and wisdom. His jealous brothers threw him in a well, and he was sold as a slave in Egypt. He was imprisoned unjustly but rose to become the treasurer of Egypt. His story in the Quran is called \"the best of stories.\" He reunited with his family and forgave his brothers.",
+        "ur": "حضرت یوسف علیہ السلام کو غیر معمولی حسن اور حکمت سے نوازا گیا تھا۔ ان کے حسد کرنے والے بھائیوں نے انہیں کنویں میں پھینک دیا اور وہ مصر میں غلام کے طور پر بیچ دیے گئے۔ انہیں ناحق قید کیا گیا لیکن وہ مصر کے خزانچی بن گئے۔ قرآن میں ان کی کہانی کو \"بہترین کہانی\" کہا گیا ہے۔ انہوں نے اپنے خاندان سے ملاقات کی اور اپنے بھائیوں کو معاف کر دیا۔",
+        "hi": "हज़रत यूसुफ़ (अ.स.) को ग़ैर-मामूली हुस्न और हिकमत से नवाज़ा गया था। उनके हसद करने वाले भाइयों ने उन्हें कुएं में फेंक दिया और वे मिस्र में ग़ुलाम के तौर पर बेच दिए गए। उन्हें नाहक़ क़ैद किया गया लेकिन वे मिस्र के ख़ज़ांची बन गए। क़ुरान में उनकी कहानी को \"बेहतरीन कहानी\" कहा गया है। उन्होंने अपने ख़ानदान से मुलाक़ात की और अपने भाइयों को माफ़ कर दिया।",
+        "ar": "النبي يوسف عليه السلام أُعطي جمالاً وحكمةً استثنائيين. ألقاه إخوته الحاسدون في البئر وبيع عبداً في مصر. سُجن ظلماً لكنه أصبح عزيز مصر. قصته في القرآن سُمّيت \"أحسن القصص\". اجتمع بأهله وعفا عن إخوته."
+      },
+      "father_name": "Yaqub (Jacob/Israel)",
+      "mother_name": "Rahil (Rachel)",
+      "birth_place": "Canaan (Palestine)",
+      "death_place": "Egypt",
+      "spouse": "Zulaikha (Asenath)",
+      "children": "Manasseh, Ephraim",
+      "era": "Son of Yaqub",
+      "known_for": "Best of Stories in Quran, Treasurer of Egypt, Exceptional beauty"
+    },
+    {
+      "name": "أيوب",
+      "transliteration": "Ayyub (Job)",
+      "name_urdu": "ایوب",
+      "name_hindi": "अय्यूब",
+      "title": {
+        "en": "Repentant",
+        "ur": "توبہ کرنے والا",
+        "hi": "तौबा करने वाला",
+        "ar": "التوّاب"
+      },
+      "description": {
+        "en": "Prophet Ayyub (AS) is famous for his extraordinary patience during severe trials. He lost his wealth, children, and health but never complained or lost faith. After years of suffering, he called upon Allah, who restored his health, blessed him with new children, and doubled his wealth. He is a symbol of patience in adversity.",
+        "ur": "حضرت ایوب علیہ السلام شدید آزمائشوں میں اپنے غیر معمولی صبر کے لیے مشہور ہیں۔ انہوں نے اپنا مال، بچے اور صحت کھو دی لیکن کبھی شکایت نہیں کی یا ایمان نہیں کھویا۔ سالوں کی تکلیف کے بعد انہوں نے اللہ کو پکارا، جس نے ان کی صحت بحال کی، نئے بچے عطا کیے اور ان کا مال دوگنا کر دیا۔ وہ مصیبت میں صبر کی علامت ہیں۔",
+        "hi": "हज़रत अय्यूब (अ.स.) शदीद आज़माइशों में अपने ग़ैर-मामूली सब्र के लिए मशहूर हैं। उन्होंने अपना माल, बच्चे और सेहत खो दी लेकिन कभी शिकायत नहीं की या ईमान नहीं खोया। सालों की तकलीफ़ के बाद उन्होंने अल्लाह को पुकारा, जिसने उनकी सेहत बहाल की, नए बच्चे अता किए और उनका माल दोगुना कर दिया। वे मुसीबत में सब्र की निशानी हैं।",
+        "ar": "النبي أيوب عليه السلام اشتُهر بصبره العظيم في البلاء الشديد. فقد ماله وأولاده وصحته لكنه لم يشكُ ولم يفقد إيمانه. بعد سنوات من المعاناة دعا ربه فشفاه الله ورزقه أولاداً جدداً وضاعف له ماله. وهو رمز الصبر عند الابتلاء."
+      },
+      "birth_place": "Hauran, Syria (traditions vary)",
+      "death_place": "Syria or Palestine",
+      "spouse": "Rahmat (or Leya in some traditions)",
+      "children": "Allah blessed him with new children after trial",
+      "era": "After Yusuf",
+      "known_for": "Symbol of patience, Tested with severe trials, Restored by Allah"
+    },
+    {
+      "name": "شعيب",
+      "transliteration": "Shuaib",
+      "name_urdu": "شعیب",
+      "name_hindi": "शुऐब",
+      "title": {
+        "en": "One who shows the right path",
+        "ur": "سیدھا راستہ دکھانے والا",
+        "hi": "सीधा रास्ता दिखाने वाला",
+        "ar": "المرشد إلى الطريق المستقيم"
+      },
+      "description": {
+        "en": "Prophet Shuaib (AS) was sent to the people of Madyan who cheated in business and trade. He is called \"Khatib al-Anbiya\" (the Orator of the Prophets) for his eloquent speech. His daughter married Prophet Musa. His people were destroyed by an earthquake and a burning cloud when they rejected his message.",
+        "ur": "حضرت شعیب علیہ السلام مدین کے لوگوں کی طرف بھیجے گئے جو کاروبار اور تجارت میں دھوکہ دیتے تھے۔ انہیں ان کی فصیح تقریر کی وجہ سے \"خطیب الانبیاء\" کہا جاتا ہے۔ ان کی بیٹی نے حضرت موسیٰ سے شادی کی۔ جب ان کی قوم نے ان کے پیغام کو رد کیا تو وہ زلزلے اور جلتے بادل سے تباہ ہو گئے۔",
+        "hi": "हज़रत शुऐब (अ.स.) मदयन के लोगों की तरफ़ भेजे गए जो कारोबार और तिजारत में धोखा देते थे। उन्हें उनकी फ़सीह तक़रीर की वजह से \"ख़तीबुल-अंबिया\" कहा जाता है। उनकी बेटी ने हज़रत मूसा से शादी की। जब उनकी क़ौम ने उनके पैग़ाम को रद्द किया तो वे भूकंप और जलते बादल से तबाह हो गए।",
+        "ar": "النبي شعيب عليه السلام أُرسل إلى أهل مدين الذين كانوا يُطفّفون في الميزان ويغشّون في التجارة. يُلقّب بخطيب الأنبياء لفصاحته. تزوّجت ابنته النبي موسى. أهلك الله قومه بالرجفة والظُلّة لما كذّبوه."
+      },
+      "birth_place": "Madyan, near Gulf of Aqaba",
+      "death_place": "Madyan",
+      "children": "Daughters including wife of Musa",
+      "era": "Before Musa, sent to Madyan",
+      "known_for": "Eloquent speech, Father-in-law of Musa, Warned against cheating"
+    },
+    {
+      "name": "موسى",
+      "transliteration": "Musa (Moses)",
+      "name_urdu": "موسیٰ",
+      "name_hindi": "मूसा",
+      "title": {
+        "en": "Drawn from Water",
+        "ur": "پانی سے نکالا گیا",
+        "hi": "पानी से निकाला गया",
+        "ar": "المُنتشَل من الماء"
+      },
+      "description": {
+        "en": "Prophet Musa (AS) is the most frequently mentioned prophet in the Quran. He is one of the five greatest prophets. He was raised in Pharaoh's palace, received the Torah, and led the Israelites out of Egypt. Allah spoke to him directly (Kalimullah). He performed many miracles including splitting the sea and his staff turning into a serpent.",
+        "ur": "حضرت موسیٰ علیہ السلام قرآن میں سب سے زیادہ ذکر کیے جانے والے نبی ہیں۔ وہ پانچ عظیم ترین انبیاء میں سے ایک ہیں۔ انہیں فرعون کے محل میں پالا گیا، توریت دی گئی اور بنی اسرائیل کو مصر سے باہر لے گئے۔ اللہ نے ان سے براہ راست بات کی (کلیم اللہ)۔ انہوں نے سمندر چیرنے اور اپنے عصا کو سانپ میں بدلنے سمیت بہت سے معجزے دکھائے۔",
+        "hi": "हज़रत मूसा (अ.स.) क़ुरान में सबसे ज़्यादा ज़िक्र किए जाने वाले नबी हैं। वे पांच महान नबियों में से एक हैं। उन्हें फ़िरऔन के महल में पाला गया, तौरात दी गई और बनी इसराईल को मिस्र से बाहर ले गए। अल्लाह ने उनसे बराह-ए-रास्त बात की (कलीमुल्लाह)। उन्होंने समंदर चीरने और अपने असा को सांप में बदलने समेत बहुत से मोजज़े दिखाए।",
+        "ar": "النبي موسى عليه السلام أكثر الأنبياء ذكراً في القرآن الكريم وهو من أولي العزم. نشأ في قصر فرعون وأُنزلت عليه التوراة وقاد بني إسرائيل خارج مصر. كلّمه الله تكليماً (كليم الله). أجرى الله على يديه معجزات كثيرة منها شقّ البحر وتحوّل عصاه إلى حيّة."
+      },
+      "father_name": "Imran",
+      "mother_name": "Yukhabed (Jochebed)",
+      "birth_place": "Egypt",
+      "death_place": "Mount Nebo, near Jordan",
+      "spouse": "Saffurah (daughter of Shuaib)",
+      "children": "Gershom, Eliezer",
+      "era": "Approximately 1400-1300 BCE",
+      "known_for": "Ulul Azm Prophet, Torah, Parted the Red Sea, Led Exodus"
+    },
+    {
+      "name": "هارون",
+      "transliteration": "Harun (Aaron)",
+      "name_urdu": "ہارون",
+      "name_hindi": "हारून",
+      "title": {
+        "en": "High Mountain",
+        "ur": "اونچا پہاڑ",
+        "hi": "ऊंचा पहाड़",
+        "ar": "الجبل العالي"
+      },
+      "description": {
+        "en": "Prophet Harun (AS) was the elder brother of Musa and was appointed as his helper and spokesman. He was known for his eloquence and gentle nature. He served as a prophet to the Israelites alongside Musa and helped lead them. He was beloved by his people for his kindness and approachability.",
+        "ur": "حضرت ہارون علیہ السلام حضرت موسیٰ کے بڑے بھائی تھے اور انہیں ان کے مددگار اور ترجمان کے طور پر مقرر کیا گیا۔ وہ اپنی فصاحت اور نرم مزاجی کے لیے مشہور تھے۔ انہوں نے موسیٰ کے ساتھ بنی اسرائیل کے نبی کے طور پر خدمت کی اور ان کی رہنمائی میں مدد کی۔ وہ اپنی مہربانی اور قابل رسائی ہونے کی وجہ سے اپنی قوم میں محبوب تھے۔",
+        "hi": "हज़रत हारून (अ.स.) हज़रत मूसा के बड़े भाई थे और उन्हें उनके मददगार और तर्जुमान के तौर पर मुक़र्रर किया गया। वे अपनी फ़साहत और नर्म मिज़ाजी के लिए मशहूर थे। उन्होंने मूसा के साथ बनी इसराईल के नबी के तौर पर ख़िदमत की और उनकी रहनुमाई में मदद की। वे अपनी मेहरबानी और क़ाबिल-ए-रसाई होने की वजह से अपनी क़ौम में महबूब थे।",
+        "ar": "النبي هارون عليه السلام كان الأخ الأكبر لموسى وعُيّن وزيراً وناطقاً باسمه. اشتُهر بفصاحته ولين طبعه. خدم نبياً لبني إسرائيل إلى جانب موسى وساعده في قيادتهم. أحبّه قومه لرفقه وتواضعه."
+      },
+      "father_name": "Imran",
+      "mother_name": "Yukhabed (Jochebed)",
+      "birth_place": "Egypt",
+      "death_place": "Mount Hor (near Petra)",
+      "spouse": "Elisheba",
+      "children": "Nadab, Abihu, Eleazar, Ithamar",
+      "era": "Contemporary of Musa",
+      "known_for": "Helper and spokesman of Musa, Eloquent, Beloved by his people"
+    },
+    {
+      "name": "ذو الكفل",
+      "transliteration": "Dhul-Kifl",
+      "name_urdu": "ذوالکفل",
+      "name_hindi": "ज़ुल-किफ़्ल",
+      "title": {
+        "en": "The One with a Portion",
+        "ur": "حصے والا",
+        "hi": "हिस्से वाला",
+        "ar": "صاحب الكفل"
+      },
+      "description": {
+        "en": "Prophet Dhul-Kifl (AS) is mentioned twice in the Quran as being among the patient and righteous. His name means \"the one with a portion\" or \"the one who guaranteed.\" Some scholars identify him with the Biblical Ezekiel. He fulfilled his responsibilities perfectly and was rewarded with prophethood.",
+        "ur": "حضرت ذوالکفل علیہ السلام کا قرآن میں دو بار ذکر کیا گیا ہے کہ وہ صابرین اور نیکوکاروں میں سے تھے۔ ان کے نام کا مطلب ہے \"حصے والا\" یا \"ضمانت دینے والا۔\" کچھ علماء انہیں بائبل کے حزقیل سے شناخت کرتے ہیں۔ انہوں نے اپنی ذمہ داریاں بخوبی نبھائیں اور انہیں نبوت سے نوازا گیا۔",
+        "hi": "हज़रत ज़ुल-किफ़्ल (अ.स.) का क़ुरान में दो बार ज़िक्र किया गया है कि वे साबिरीन और नेकोकारों में से थे। उनके नाम का मतलब है \"हिस्से वाला\" या \"ज़मानत देने वाला।\" कुछ उलेमा उन्हें बाइबल के हिज़्क़ीएल से पहचानते हैं। उन्होंने अपनी ज़िम्मेदारियां बख़ूबी निभाईं और उन्हें नुबूव्वत से नवाज़ा गया।",
+        "ar": "النبي ذو الكفل عليه السلام ذُكر مرتين في القرآن الكريم من الصابرين والصالحين. اسمه يعني \"صاحب الحظ\" أو \"الكفيل\". يُعرّفه بعض العلماء بحزقيال في التوراة. أدّى مسؤولياته على أكمل وجه فأُوتي النبوة."
+      },
+      "birth_place": "Among Bani Israel",
+      "era": "After Musa",
+      "known_for": "Patience and righteousness, Fulfilled his responsibilities"
+    },
+    {
+      "name": "داود",
+      "transliteration": "Dawud (David)",
+      "name_urdu": "داؤد",
+      "name_hindi": "दाऊद",
+      "title": {
+        "en": "Beloved",
+        "ur": "محبوب",
+        "hi": "महबूब",
+        "ar": "الحبيب"
+      },
+      "description": {
+        "en": "Prophet Dawud (AS) was given the Zabur (Psalms) and blessed with a beautiful voice. He killed the giant Jalut (Goliath) as a young man and later became king of Israel. Allah made iron soft for him to make armor. He is known for his devotion, fasting alternate days, and his psalms of praise to Allah.",
+        "ur": "حضرت داؤد علیہ السلام کو زبور دی گئی اور خوبصورت آواز سے نوازا گیا۔ انہوں نے نوجوانی میں دیو جالوت کو قتل کیا اور بعد میں اسرائیل کے بادشاہ بنے۔ اللہ نے ان کے لیے لوہے کو نرم کیا تاکہ وہ زرہ بنا سکیں۔ وہ اپنی عبادت، ایک دن روزہ ایک دن افطار اور اللہ کی حمد کے زبور کے لیے مشہور ہیں۔",
+        "hi": "हज़रत दाऊद (अ.स.) को ज़बूर दी गई और ख़ूबसूरत आवाज़ से नवाज़ा गया। उन्होंने नौजवानी में दैत्य जालूत को क़त्ल किया और बाद में इसराईल के बादशाह बने। अल्लाह ने उनके लिए लोहे को नर्म किया ताकि वे ज़िरह बना सकें। वे अपनी इबादत, एक दिन रोज़ा एक दिन इफ़्तार और अल्लाह की हम्द के ज़बूर के लिए मशहूर हैं।",
+        "ar": "النبي داود عليه السلام أُنزل عليه الزبور وأُعطي صوتاً جميلاً. قتل الجبار جالوت وهو شاب ثم أصبح ملكاً على بني إسرائيل. ألان الله له الحديد ليصنع الدروع. اشتُهر بعبادته وصيام يوم وإفطار يوم وتسبيحه لله."
+      },
+      "father_name": "Yishai (Jesse)",
+      "birth_place": "Bethlehem, Palestine",
+      "death_place": "Jerusalem",
+      "spouse": "Multiple wives",
+      "children": "Sulaiman (Solomon) and others",
+      "era": "Approximately 1000 BCE, King of Israel",
+      "known_for": "Zabur (Psalms), Killed Goliath, Beautiful voice, Iron softened for him"
+    },
+    {
+      "name": "سليمان",
+      "transliteration": "Sulaiman (Solomon)",
+      "name_urdu": "سلیمان",
+      "name_hindi": "सुलैमान",
+      "title": {
+        "en": "Man of Peace",
+        "ur": "امن والا",
+        "hi": "अमन वाला",
+        "ar": "رجل السلام"
+      },
+      "description": {
+        "en": "Prophet Sulaiman (AS) was the son of Dawud and was granted a kingdom like no other. He could command the wind, understand the speech of animals and birds, and control the jinn. He built a magnificent palace and the famous Temple in Jerusalem. Despite his power, he remained humble and grateful to Allah.",
+        "ur": "حضرت سلیمان علیہ السلام حضرت داؤد کے بیٹے تھے اور انہیں بے مثال سلطنت عطا کی گئی۔ وہ ہوا کو حکم دے سکتے تھے، جانوروں اور پرندوں کی زبان سمجھتے تھے اور جنوں پر کنٹرول رکھتے تھے۔ انہوں نے ایک شاندار محل اور یروشلم میں مشہور ہیکل تعمیر کی۔ اپنی طاقت کے باوجود وہ عاجز اور اللہ کے شکرگزار رہے۔",
+        "hi": "हज़रत सुलेमान (अ.स.) हज़रत दाऊद के बेटे थे और उन्हें बेमिसाल सल्तनत अता की गई। वे हवा को हुक्म दे सकते थे, जानवरों और परिंदों की ज़बान समझते थे और जिन्नों पर कंट्रोल रखते थे। उन्होंने एक शानदार महल और येरुशलम में मशहूर हैकल तामीर की। अपनी ताक़त के बावजूद वे आजिज़ और अल्लाह के शुक्रगुज़ार रहे।",
+        "ar": "النبي سليمان عليه السلام ابن داود أُوتي ملكاً لا ينبغي لأحد من بعده. سخّر الله له الريح والجن وعلّمه منطق الطير والحيوان. بنى قصراً عظيماً والهيكل الشهير في القدس. ورغم قوته بقي متواضعاً شاكراً لله."
+      },
+      "father_name": "Dawud (David)",
+      "birth_place": "Jerusalem",
+      "death_place": "Jerusalem",
+      "spouse": "Queen of Sheba (Bilqis), and others",
+      "children": "Rehoboam and others",
+      "era": "Approximately 970-930 BCE, King of Israel",
+      "known_for": "Greatest kingdom, Controlled wind/jinn/animals, Built Solomon's Temple"
+    },
+    {
+      "name": "إلياس",
+      "transliteration": "Ilyas (Elijah)",
+      "name_urdu": "الیاس",
+      "name_hindi": "इल्यास",
+      "title": {
+        "en": "My God is Yahweh",
+        "ur": "میرا رب اللہ ہے",
+        "hi": "मेरा रब अल्लाह है",
+        "ar": "ربي هو الله"
+      },
+      "description": {
+        "en": "Prophet Ilyas (AS) was sent to the people of Baalbek in Lebanon who worshipped an idol called Baal. He called them to worship Allah alone but they rejected him. He is mentioned in the Quran as one of the righteous and was given peace. Some traditions say he was raised to heaven alive.",
+        "ur": "حضرت الیاس علیہ السلام لبنان کے بعلبک کے لوگوں کی طرف بھیجے گئے جو بعل نامی بت کی پوجا کرتے تھے۔ انہوں نے انہیں صرف اللہ کی عبادت کرنے کی دعوت دی لیکن انہوں نے رد کر دیا۔ قرآن میں انہیں نیکوکاروں میں سے بتایا گیا ہے اور انہیں سلام دیا گیا۔ کچھ روایات کے مطابق انہیں زندہ آسمان پر اٹھا لیا گیا۔",
+        "hi": "हज़रत इलयास (अ.स.) लेबनान के बालबक के लोगों की तरफ़ भेजे गए जो बाल नामी बुत की पूजा करते थे। उन्होंने उन्हें सिर्फ़ अल्लाह की इबादत करने की दावत दी लेकिन उन्होंने रद्द कर दिया। क़ुरान में उन्हें नेकोकारों में से बताया गया है और उन्हें सलाम दिया गया। कुछ रिवायतों के मुताबिक़ उन्हें ज़िंदा आसमान पर उठा लिया गया।",
+        "ar": "النبي إلياس عليه السلام أُرسل إلى أهل بعلبك في لبنان الذين كانوا يعبدون صنماً يُدعى بعلاً. دعاهم إلى عبادة الله وحده فكذّبوه. ذُكر في القرآن من الصالحين وسُلّم عليه. تقول بعض الروايات أنه رُفع إلى السماء حياً."
+      },
+      "birth_place": "Baalbek, Lebanon (traditions vary)",
+      "death_place": "Raised to heavens (traditions)",
+      "era": "After Sulaiman, Kingdom of Israel",
+      "known_for": "Fought against Baal worship, Raised to heaven alive"
+    },
+    {
+      "name": "اليسع",
+      "transliteration": "Al-Yasa (Elisha)",
+      "name_urdu": "الیسع",
+      "name_hindi": "अल-यसा",
+      "title": {
+        "en": "God is Salvation",
+        "ur": "اللہ نجات ہے",
+        "hi": "अल्लाह निजात है",
+        "ar": "الله هو الخلاص"
+      },
+      "description": {
+        "en": "Prophet Al-Yasa (AS) was the successor of Prophet Ilyas. He continued calling the people of Israel to worship Allah alone. He is mentioned in the Quran among those preferred above all people. He performed many miracles and guided his people with wisdom and patience.",
+        "ur": "حضرت الیسع علیہ السلام حضرت الیاس کے جانشین تھے۔ انہوں نے بنی اسرائیل کو صرف اللہ کی عبادت کی دعوت جاری رکھی۔ قرآن میں انہیں تمام لوگوں پر فضیلت دیے گئے لوگوں میں شمار کیا گیا ہے۔ انہوں نے بہت سے معجزے دکھائے اور اپنی قوم کی حکمت اور صبر سے رہنمائی کی۔",
+        "hi": "हज़रत अल-यसअ (अ.स.) हज़रत इलयास के जानशीन थे। उन्होंने बनी इसराईल को सिर्फ़ अल्लाह की इबादत की दावत जारी रखी। क़ुरान में उन्हें तमाम लोगों पर फ़ज़ीलत दिए गए लोगों में शुमार किया गया है। उन्होंने बहुत से मोजज़े दिखाए और अपनी क़ौम की हिकमत और सब्र से रहनुमाई की।",
+        "ar": "النبي اليسع عليه السلام كان خليفة النبي إلياس. واصل دعوة بني إسرائيل إلى عبادة الله وحده. ذُكر في القرآن من المفضّلين على العالمين. أجرى معجزات كثيرة وهدى قومه بالحكمة والصبر."
+      },
+      "birth_place": "Among Bani Israel",
+      "era": "Successor of Ilyas",
+      "known_for": "Successor of Ilyas, Performed miracles, Guided with wisdom"
+    },
+    {
+      "name": "يونس",
+      "transliteration": "Yunus (Jonah)",
+      "name_urdu": "یونس",
+      "name_hindi": "यूनुस",
+      "title": {
+        "en": "Dove",
+        "ur": "کبوتر",
+        "hi": "कबूतर",
+        "ar": "الحمامة"
+      },
+      "description": {
+        "en": "Prophet Yunus (AS) was sent to the people of Nineveh in Iraq. When they rejected his message, he left in anger without Allah's permission. He was swallowed by a great fish but repented in its belly with the famous dua. Allah saved him and his people became the only nation to be saved after seeing the signs of punishment.",
+        "ur": "حضرت یونس علیہ السلام عراق کے نینوا کے لوگوں کی طرف بھیجے گئے۔ جب انہوں نے ان کے پیغام کو رد کیا تو وہ اللہ کی اجازت کے بغیر ناراض ہو کر چلے گئے۔ انہیں ایک بڑی مچھلی نے نگل لیا لیکن انہوں نے اس کے پیٹ میں مشہور دعا کے ساتھ توبہ کی۔ اللہ نے انہیں بچایا اور ان کی قوم واحد قوم بنی جو عذاب کی علامات دیکھنے کے بعد بچ گئی۔",
+        "hi": "हज़रत यूनुस (अ.स.) इराक़ के नीनवा के लोगों की तरफ़ भेजे गए। जब उन्होंने उनके पैग़ाम को रद्द किया तो वे अल्लाह की इजाज़त के बग़ैर नाराज़ होकर चले गए। उन्हें एक बड़ी मछली ने निगल लिया लेकिन उन्होंने उसके पेट में मशहूर दुआ के साथ तौबा की। अल्लाह ने उन्हें बचाया और उनकी क़ौम वाहिद क़ौम बनी जो अज़ाब की अलामतें देखने के बाद बच गई।",
+        "ar": "النبي يونس عليه السلام أُرسل إلى أهل نينوى في العراق. لما كذّبوه خرج غاضباً بلا إذن من الله. التقمه الحوت فسبّح في بطنه بالدعاء المشهور. أنجاه الله وآمن قومه فكانوا القوم الوحيدين الذين نجوا بعد رؤية علامات العذاب."
+      },
+      "father_name": "Matta (Amittai)",
+      "birth_place": "Gath-hepher, near Nazareth",
+      "era": "Sent to Nineveh (modern Mosul, Iraq)",
+      "known_for": "Swallowed by whale, Famous dua of repentance, Only nation saved after seeing punishment"
+    },
+    {
+      "name": "زكريا",
+      "transliteration": "Zakariya (Zechariah)",
+      "name_urdu": "زکریا",
+      "name_hindi": "ज़करिया",
+      "title": {
+        "en": "God Remembers",
+        "ur": "اللہ یاد رکھتا ہے",
+        "hi": "अल्लाह याद रखता है",
+        "ar": "يذكر الله"
+      },
+      "description": {
+        "en": "Prophet Zakariya (AS) was a priest who cared for Maryam (mother of Isa) in the temple. In his old age, he prayed for a son and Allah blessed him with Yahya. He was told he would not speak for three days as a sign. He was known for his devotion and spent much time in prayer and worship.",
+        "ur": "حضرت زکریا علیہ السلام ایک پادری تھے جو ہیکل میں مریم (عیسیٰ کی والدہ) کی دیکھ بھال کرتے تھے۔ بڑھاپے میں انہوں نے بیٹے کے لیے دعا کی اور اللہ نے انہیں یحییٰ سے نوازا۔ انہیں بتایا گیا کہ وہ نشانی کے طور پر تین دن نہیں بولیں گے۔ وہ اپنی عبادت کے لیے مشہور تھے اور نماز اور عبادت میں کافی وقت گزارتے تھے۔",
+        "hi": "हज़रत ज़करिया (अ.स.) एक पादरी थे जो हैकल में मरयम (ईसा की वालिदा) की देखभाल करते थे। बुढ़ापे में उन्होंने बेटे के लिए दुआ की और अल्लाह ने उन्हें यहया से नवाज़ा। उन्हें बताया गया कि वे निशानी के तौर पर तीन दिन नहीं बोलेंगे। वे अपनी इबादत के लिए मशहूर थे और नमाज़ और इबादत में काफ़ी वक़्त गुज़ारते थे।",
+        "ar": "النبي زكريا عليه السلام كان كافلاً لمريم أم عيسى في المحراب. دعا ربه في شيخوخته فرزقه الله يحيى. أُخبر أنه لن يكلّم الناس ثلاثة أيام آيةً. اشتُهر بتعبّده وكثرة صلاته وعبادته."
+      },
+      "birth_place": "Jerusalem",
+      "death_place": "Jerusalem (martyred)",
+      "spouse": "Elizabeth (Ishba)",
+      "children": "Yahya (John)",
+      "era": "Shortly before Isa",
+      "known_for": "Guardian of Maryam, Father of Yahya, Devoted worshipper"
+    },
+    {
+      "name": "يحيى",
+      "transliteration": "Yahya (John)",
+      "name_urdu": "یحییٰ",
+      "name_hindi": "यहया",
+      "title": {
+        "en": "God is Gracious",
+        "ur": "اللہ مہربان ہے",
+        "hi": "अल्लाह मेहरबान है",
+        "ar": "الله كريم"
+      },
+      "description": {
+        "en": "Prophet Yahya (AS) was born miraculously to elderly parents Zakariya and Elizabeth. He was given wisdom as a child and was pure, kind to his parents, and devout. He was the first to be named Yahya. He confirmed the coming of Isa and was martyred for speaking against injustice. He is described as noble and chaste.",
+        "ur": "حضرت یحییٰ علیہ السلام معجزانہ طور پر بوڑھے والدین زکریا اور الزبتھ کے ہاں پیدا ہوئے۔ انہیں بچپن میں حکمت دی گئی اور وہ پاکباز، والدین کے ساتھ مہربان اور عبادت گزار تھے۔ وہ پہلے شخص تھے جن کا نام یحییٰ رکھا گیا۔ انہوں نے عیسیٰ کی آمد کی تصدیق کی اور ناانصافی کے خلاف بولنے پر شہید ہوئے۔ انہیں شریف اور پاکدامن کہا گیا ہے۔",
+        "hi": "हज़रत यहया (अ.स.) मोजज़ाना तौर पर बूढ़े वालिदैन ज़करिया और एलिज़ाबेथ के यहां पैदा हुए। उन्हें बचपन में हिकमत दी गई और वे पाकबाज़, वालिदैन के साथ मेहरबान और इबादतगुज़ार थे। वे पहले शख़्स थे जिनका नाम यहया रखा गया। उन्होंने ईसा की आमद की तस्दीक़ की और नाइंसाफ़ी के ख़िलाफ़ बोलने पर शहीद हुए। उन्हें शरीफ़ और पाकदामन कहा गया है।",
+        "ar": "النبي يحيى عليه السلام وُلد معجزةً لأبوين مسنّين زكريا وأليصابات. أُوتي الحكم صبياً وكان تقياً باراً بوالديه. كان أول من سُمّي يحيى. صدّق بمجيء عيسى واستُشهد لأنه نهى عن المنكر. وُصف بأنه سيد وحصور."
+      },
+      "father_name": "Zakariya",
+      "mother_name": "Elizabeth (Ishba)",
+      "birth_place": "Ein Kerem, near Jerusalem",
+      "death_place": "Palestine (martyred)",
+      "era": "Contemporary of Isa",
+      "known_for": "Miracle birth, Wisdom as child, First named Yahya, Martyr"
+    },
+    {
+      "name": "عيسى",
+      "transliteration": "Isa (Jesus)",
+      "name_urdu": "عیسیٰ",
+      "name_hindi": "ईसा",
+      "title": {
+        "en": "God is Salvation",
+        "ur": "اللہ نجات ہے",
+        "hi": "अल्लाह निजात है",
+        "ar": "الله هو الخلاص"
+      },
+      "description": {
+        "en": "Prophet Isa (AS) was born miraculously to Maryam without a father. He is called Ruhullah (Spirit of Allah) and Masih (Messiah). He performed many miracles including healing the sick and raising the dead by Allah's permission. He was given the Injeel (Gospel). Allah raised him to heaven alive, and he will return before the Day of Judgment.",
+        "ur": "حضرت عیسیٰ علیہ السلام معجزانہ طور پر بغیر باپ کے مریم سے پیدا ہوئے۔ انہیں روح اللہ اور مسیح کہا جاتا ہے۔ انہوں نے اللہ کے حکم سے بیماروں کو شفا دینے اور مردوں کو زندہ کرنے سمیت بہت سے معجزے دکھائے۔ انہیں انجیل دی گئی۔ اللہ نے انہیں زندہ آسمان پر اٹھا لیا اور وہ قیامت سے پہلے واپس آئیں گے۔",
+        "hi": "हज़रत ईसा (अ.स.) मोजज़ाना तौर पर बग़ैर बाप के मरयम से पैदा हुए। उन्हें रूहुल्लाह और मसीह कहा जाता है। उन्होंने अल्लाह के हुक्म से बीमारों को शिफ़ा देने और मुर्दों को ज़िंदा करने समेत बहुत से मोजज़े दिखाए। उन्हें इंजील दी गई। अल्लाह ने उन्हें ज़िंदा आसमान पर उठा लिया और वे क़यामत से पहले वापस आएंगे।",
+        "ar": "النبي عيسى عليه السلام وُلد معجزةً من مريم بغير أب. يُلقّب بروح الله والمسيح. أجرى الله على يديه معجزات كثيرة منها إبراء المرضى وإحياء الموتى بإذن الله. أُنزل عليه الإنجيل. رفعه الله إلى السماء حياً وسينزل قبل يوم القيامة."
+      },
+      "mother_name": "Maryam (Mary)",
+      "birth_place": "Bethlehem, Palestine",
+      "death_place": "Raised alive to heavens",
+      "era": "Approximately 1-33 CE",
+      "known_for": "Ulul Azm Prophet, Injeel (Gospel), Miracles, Will return before Day of Judgment"
+    },
+    {
+      "name": "محمد",
+      "transliteration": "Muhammad ﷺ",
+      "name_urdu": "محمد ﷺ",
+      "name_hindi": "मुहम्मद ﷺ",
+      "title": {
+        "en": "The Praised One",
+        "ur": "تعریف کیا گیا",
+        "hi": "तारीफ़ क���या गया",
+        "ar": "المحمود"
+      },
+      "description": {
+        "en": "Prophet Muhammad ﷺ is the final messenger of Allah, sent as a mercy to all worlds. He received the Holy Quran over 23 years. He is the leader of all prophets and the best of creation. His life, teachings, and example (Sunnah) are a complete guide for humanity. He established the Muslim Ummah and spread the message of Islam across Arabia and beyond.",
+        "ur": "نبی محمد ﷺ اللہ کے آخری رسول ہیں، تمام جہانوں کے لیے رحمت بن کر بھیجے گئے۔ انہیں 23 سالوں میں قرآن پاک ملا۔ وہ تمام انبیاء کے سردار اور بہترین مخلوق ہیں۔ ان کی زندگی، تعلیمات اور سنت انسانیت کے لیے مکمل رہنمائی ہیں۔ انہوں نے مسلم امت قائم کی اور عرب اور اس سے باہر اسلام کا پیغام پھیلایا۔",
+        "hi": "नबी मुहम्मद ﷺ अल्लाह के आख़िरी रसूल हैं, तमाम जहानों के लिए रहमत बनकर भेजे गए। उन्हें 23 सालों में क़ुरान पाक मिला। वे तमाम अंबिया के सरदार और बेहतरीन मख़लूक़ हैं। उनकी ज़िंदगी, तालीमात और सुन्नत इंसानियत के लिए मुकम्मल रहनुमाई हैं। उन्होंने मुस्लिम उम्मत क़ायम की और अरब और उससे बाहर इस्लाम का पैग़ाम फैलाया।",
+        "ar": "النبي محمد ﷺ خاتم الأنبياء والمرسلين أُرسل رحمةً للعالمين. نزل عليه القرآن الكريم على مدى ثلاث وعشرين سنة. وهو سيد الأنبياء وخير الخلق. حياته وتعاليمه وسنّته هداية كاملة للبشرية. أسّس الأمة الإسلامية ونشر رسالة الإسلام في الجزيرة العربية وما وراءها."
+      },
+      "father_name": "Abdullah ibn Abd al-Muttalib",
+      "mother_name": "Aminah bint Wahb",
+      "birth_date": "12 Rabi al-Awwal, 53 BH (570 CE)",
+      "birth_place": "Makkah, Arabia",
+      "death_date": "12 Rabi al-Awwal, 11 AH (632 CE)",
+      "death_place": "Madinah, Arabia",
+      "spouse": "Khadijah, Sawda, Aisha, Hafsa, Zaynab, Umm Salamah, and others",
+      "children": "Qasim, Abdullah, Ibrahim, Zaynab, Ruqayyah, Umm Kulthum, Fatimah",
+      "tribe": "Banu Hashim, Quraysh",
+      "era": "570-632 CE",
+      "known_for": "Final Prophet, Quran, Ulul Azm Prophet, Leader of all Prophets"
+    }
+  ]
+}

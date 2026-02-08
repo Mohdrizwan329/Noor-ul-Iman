@@ -133,7 +133,6 @@ class _LoginScreenState extends State<LoginScreen> {
       barrierDismissible: false,
       builder: (dialogContext) {
         final responsive = ResponsiveUtils(dialogContext);
-        final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
 
         return StatefulBuilder(
           builder: (context, setState) {
@@ -173,9 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: Icon(
                               Icons.lock_reset,
                               size: responsive.iconSize(48),
-                              color: isDark
-                                  ? const Color(0xFF5C6BC0)
-                                  : const Color(0xFF4CAF50),
+                              color: const Color(0xFF4CAF50),
                             ),
                           ),
                         ),
@@ -273,9 +270,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               backgroundColor: Colors.white,
                               foregroundColor: isLoading
                                   ? const Color(0xFFFFD700)
-                                  : (isDark
-                                        ? const Color(0xFF5C6BC0)
-                                        : const Color(0xFF4CAF50)),
+                                  : (const Color(0xFF4CAF50)),
                               elevation: 8,
                               shadowColor: Colors.black.withAlpha(80),
                               shape: RoundedRectangleBorder(
@@ -376,7 +371,6 @@ class _LoginScreenState extends State<LoginScreen> {
       barrierDismissible: false,
       builder: (dialogContext) {
         final responsive = ResponsiveUtils(dialogContext);
-        final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
 
         return StatefulBuilder(
           builder: (context, setState) {
@@ -417,9 +411,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Icon(
                           Icons.mail_lock,
                           size: responsive.iconSize(48),
-                          color: isDark
-                              ? const Color(0xFF5C6BC0)
-                              : const Color(0xFF4CAF50),
+                          color: const Color(0xFF4CAF50),
                         ),
                       ),
                       SizedBox(height: responsive.spacing(20)),
@@ -590,9 +582,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     responsive.borderRadius(12),
                                   ),
                                   borderSide: BorderSide(
-                                    color: isDark
-                                        ? const Color(0xFF5C6BC0)
-                                        : const Color(0xFF4CAF50),
+                                    color: const Color(0xFF4CAF50),
                                     width: responsive.spacing(2),
                                   ),
                                 ),
@@ -670,7 +660,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         SnackBar(
                                           content: Text(
                                             result['error'] ??
-                                                'Invalid OTP. Please try again.',
+                                                context.tr('invalid_otp_try_again'),
                                           ),
                                           backgroundColor: Colors.red,
                                           behavior: SnackBarBehavior.floating,
@@ -685,7 +675,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Error: ${e.toString()}'),
+                                        content: Text('${context.tr('error')}: ${e.toString()}'),
                                         backgroundColor: Colors.red,
                                         behavior: SnackBarBehavior.floating,
                                       ),
@@ -766,7 +756,6 @@ class _LoginScreenState extends State<LoginScreen> {
       barrierDismissible: false,
       builder: (dialogContext) {
         final responsive = ResponsiveUtils(dialogContext);
-        final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
 
         return StatefulBuilder(
           builder: (context, setState) {
@@ -807,9 +796,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Icon(
                             Icons.lock_open,
                             size: responsive.iconSize(48),
-                            color: isDark
-                                ? const Color(0xFF5C6BC0)
-                                : const Color(0xFF4CAF50),
+                            color: const Color(0xFF4CAF50),
                           ),
                         ),
                         SizedBox(height: responsive.spacing(20)),
@@ -897,9 +884,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               backgroundColor: Colors.white,
                               foregroundColor: isLoading
                                   ? const Color(0xFFFFD700)
-                                  : (isDark
-                                        ? const Color(0xFF5C6BC0)
-                                        : const Color(0xFF4CAF50)),
+                                  : (const Color(0xFF4CAF50)),
                               elevation: 8,
                               shadowColor: Colors.black.withAlpha(80),
                               shape: RoundedRectangleBorder(

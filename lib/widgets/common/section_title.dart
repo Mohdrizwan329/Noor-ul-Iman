@@ -31,18 +31,32 @@ class SectionTitle extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 4,
-          height: 20,
+          width: 5,
+          height: 24,
           decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(2.0),
+            gradient: const LinearGradient(
+              colors: [Color(0xFF0A5C36), Color(0xFF2DA86B)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            borderRadius: BorderRadius.circular(3.0),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.3),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
         ),
         responsive.hSpaceSmall,
         Expanded(
           child: Text(
             title,
-            style: AppTextStyles.heading3(context),
+            style: AppTextStyles.heading3(context).copyWith(
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.3,
+            ),
           ),
         ),
         if (onSeeAll != null)

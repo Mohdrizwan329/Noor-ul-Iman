@@ -36,7 +36,6 @@ class FeatureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppCard(
       padding: responsive.paddingAll(12),
@@ -47,15 +46,13 @@ class FeatureCard extends StatelessWidget {
           Container(
             padding: responsive.paddingAll(16),
             decoration: BoxDecoration(
-              color: isDark
-                  ? color.withValues(alpha: 0.2)
-                  : color.withValues(alpha: 0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
               icon,
               size: size ?? responsive.iconLarge,
-              color: isDark ? color.withValues(alpha: 0.8) : color,
+              color: color,
             ),
           ),
           SizedBox(height: responsive.spaceMedium),
@@ -66,9 +63,7 @@ class FeatureCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? AppColors.darkTextPrimary
-                      : AppColors.textPrimary,
+                  color: AppColors.textPrimary,
                 ),
           ),
           if (subtitle != null) ...[
@@ -79,9 +74,7 @@ class FeatureCard extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: isDark
-                        ? AppColors.darkTextSecondary
-                        : AppColors.textSecondary,
+                    color: AppColors.textSecondary,
                   ),
             ),
           ],

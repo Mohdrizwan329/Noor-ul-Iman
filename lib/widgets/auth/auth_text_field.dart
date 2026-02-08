@@ -41,7 +41,6 @@ class _AuthTextFieldState extends State<AuthTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final responsive = ResponsiveUtils(context);
 
     return TextFormField(
@@ -57,37 +56,43 @@ class _AuthTextFieldState extends State<AuthTextField> {
       enableInteractiveSelection: true,
       autocorrect: false,
       enableSuggestions: false,
+      scrollPadding: const EdgeInsets.all(20),
       style: TextStyle(
         fontSize: responsive.textMedium,
-        color: isDark ? AppColors.darkTextPrimary : Colors.black87,
+        color: Colors.black87,
+        overflow: TextOverflow.visible,
       ),
       decoration: InputDecoration(
         labelText: widget.labelText,
         hintText: widget.hintText,
         hintStyle: TextStyle(
-          color: isDark ? AppColors.darkTextSecondary : Colors.grey.shade500,
+          color: Colors.grey.shade500,
           fontSize: responsive.textMedium,
         ),
         labelStyle: TextStyle(
-          color: isDark ? AppColors.darkTextSecondary : AppColors.primary,
+          color: AppColors.primary,
           fontSize: responsive.textMedium,
         ),
         floatingLabelStyle: TextStyle(
-          color: isDark ? AppColors.darkTextSecondary : AppColors.primary,
+          color: AppColors.primary,
           fontSize: responsive.fontSize(17),
           fontWeight: FontWeight.bold,
         ),
         prefixIcon: Icon(
           widget.prefixIcon,
-          color: isDark ? AppColors.darkTextSecondary : AppColors.primary,
+          color: AppColors.primary,
           size: responsive.iconMedium,
+        ),
+        prefixIconConstraints: BoxConstraints(
+          minWidth: responsive.spacing(40),
+          minHeight: responsive.spacing(40),
         ),
         suffixIcon: widget.isPassword
             ? IconButton(
                 icon: Icon(
                   _obscureText ? Icons.visibility_off : Icons.visibility,
                   color:
-                      isDark ? AppColors.darkTextSecondary : Colors.grey.shade600,
+                      Colors.grey.shade600,
                   size: responsive.iconMedium,
                 ),
                 onPressed: () {
@@ -98,25 +103,25 @@ class _AuthTextFieldState extends State<AuthTextField> {
               )
             : null,
         filled: true,
-        fillColor: isDark ? AppColors.darkCard : Colors.white,
+        fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(responsive.radiusMedium),
           borderSide: BorderSide(
-            color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
+            color: AppColors.lightGreenBorder,
             width: 1.5,
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(responsive.radiusMedium),
           borderSide: BorderSide(
-            color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
+            color: AppColors.lightGreenBorder,
             width: 1.5,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(responsive.radiusMedium),
           borderSide: BorderSide(
-            color: isDark ? AppColors.darkTextSecondary : AppColors.primary,
+            color: AppColors.primary,
             width: 2,
           ),
         ),
@@ -135,7 +140,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
           ),
         ),
         contentPadding: responsive.paddingSymmetric(
-          horizontal: 16,
+          horizontal: 12,
           vertical: 16,
         ),
         errorStyle: TextStyle(

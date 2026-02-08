@@ -11,6 +11,22 @@ import 'dart:convert';
 import 'dart:io';
 import '../data/models/prayer_time_model.dart';
 import '../core/services/azan_background_service.dart';
+import '../core/services/azan_permission_service.dart';
+
+/// Export hardcoded prayer notification strings for DataMigrationService
+Map<String, dynamic> getHardcodedPrayerNotificationStrings() => {
+  'prayer_names': PrayerNotificationStrings.prayerNames,
+  'prayer_time_title': PrayerNotificationStrings.prayerTimeTitle,
+  'its_time_for': PrayerNotificationStrings.itsTimeFor,
+  'prayer': PrayerNotificationStrings.prayer,
+  'in_location': PrayerNotificationStrings.inLocation,
+};
+
+/// Export hardcoded Islamic reminder strings for DataMigrationService
+Map<String, dynamic> getHardcodedIslamicReminderStrings() => {
+  'titles': IslamicReminderStrings.titles,
+  'bodies': IslamicReminderStrings.bodies,
+};
 
 /// Prayer notification translations for 4 languages
 class PrayerNotificationStrings {
@@ -77,10 +93,40 @@ class PrayerNotificationStrings {
     'hi': 'में',
   };
 
+  // Mutable Firestore-loaded fields
+  static Map<String, Map<String, String>>? _firestorePrayerNames;
+  static Map<String, String>? _firestorePrayerTimeTitle;
+  static Map<String, String>? _firestoreItsTimeFor;
+  static Map<String, String>? _firestorePrayer;
+  static Map<String, String>? _firestoreInLocation;
+
+  /// Load notification strings from Firestore data
+  static void loadFromFirestore(Map<String, dynamic> data) {
+    if (data.containsKey('prayer_names')) {
+      _firestorePrayerNames = (data['prayer_names'] as Map<String, dynamic>).map(
+        (k, v) => MapEntry(k, (v as Map<String, dynamic>).map((k2, v2) => MapEntry(k2, v2.toString()))),
+      );
+    }
+    if (data.containsKey('prayer_time_title')) {
+      _firestorePrayerTimeTitle = (data['prayer_time_title'] as Map<String, dynamic>).map((k, v) => MapEntry(k, v.toString()));
+    }
+    if (data.containsKey('its_time_for')) {
+      _firestoreItsTimeFor = (data['its_time_for'] as Map<String, dynamic>).map((k, v) => MapEntry(k, v.toString()));
+    }
+    if (data.containsKey('prayer')) {
+      _firestorePrayer = (data['prayer'] as Map<String, dynamic>).map((k, v) => MapEntry(k, v.toString()));
+    }
+    if (data.containsKey('in_location')) {
+      _firestoreInLocation = (data['in_location'] as Map<String, dynamic>).map((k, v) => MapEntry(k, v.toString()));
+    }
+  }
+
   static String getNotificationTitle(String prayerName, String langCode) {
     final lang = _getSupportedLang(langCode);
-    final translatedPrayer = prayerNames[lang]?[prayerName] ?? prayerName;
-    final timeText = prayerTimeTitle[lang] ?? 'Prayer Time';
+    final names = _firestorePrayerNames ?? prayerNames;
+    final titles = _firestorePrayerTimeTitle ?? prayerTimeTitle;
+    final translatedPrayer = names[lang]?[prayerName] ?? prayerName;
+    final timeText = titles[lang] ?? 'Prayer Time';
 
     if (lang == 'ur' || lang == 'ar') {
       return '$translatedPrayer - $timeText';
@@ -90,10 +136,14 @@ class PrayerNotificationStrings {
 
   static String getNotificationBody(String prayerName, String langCode, {String? city}) {
     final lang = _getSupportedLang(langCode);
-    final translatedPrayer = prayerNames[lang]?[prayerName] ?? prayerName;
-    final itsTime = itsTimeFor[lang] ?? "It's time for";
-    final prayerWord = prayer[lang] ?? 'prayer';
-    final inLoc = inLocation[lang] ?? 'in';
+    final names = _firestorePrayerNames ?? prayerNames;
+    final translatedPrayer = names[lang]?[prayerName] ?? prayerName;
+    final itsTimeMap = _firestoreItsTimeFor ?? itsTimeFor;
+    final itsTime = itsTimeMap[lang] ?? "It's time for";
+    final prayerMap = _firestorePrayer ?? prayer;
+    final prayerWord = prayerMap[lang] ?? 'prayer';
+    final inLocMap = _firestoreInLocation ?? inLocation;
+    final inLoc = inLocMap[lang] ?? 'in';
 
     String baseMessage;
     if (lang == 'ur') {
@@ -269,14 +319,34 @@ class IslamicReminderStrings {
     },
   };
 
+  // Mutable Firestore-loaded fields
+  static Map<String, Map<String, String>>? _firestoreTitles;
+  static Map<String, Map<String, String>>? _firestoreBodies;
+
+  /// Load Islamic reminder strings from Firestore data
+  static void loadFromFirestore(Map<String, dynamic> data) {
+    if (data.containsKey('titles')) {
+      _firestoreTitles = (data['titles'] as Map<String, dynamic>).map(
+        (k, v) => MapEntry(k, (v as Map<String, dynamic>).map((k2, v2) => MapEntry(k2, v2.toString()))),
+      );
+    }
+    if (data.containsKey('bodies')) {
+      _firestoreBodies = (data['bodies'] as Map<String, dynamic>).map(
+        (k, v) => MapEntry(k, (v as Map<String, dynamic>).map((k2, v2) => MapEntry(k2, v2.toString()))),
+      );
+    }
+  }
+
   static String getTitle(String key, String langCode) {
     final lang = _getSupportedLang(langCode);
-    return titles[lang]?[key] ?? titles['en']?[key] ?? key;
+    final t = _firestoreTitles ?? titles;
+    return t[lang]?[key] ?? t['en']?[key] ?? key;
   }
 
   static String getBody(String key, String langCode) {
     final lang = _getSupportedLang(langCode);
-    return bodies[lang]?[key] ?? bodies['en']?[key] ?? key;
+    final b = _firestoreBodies ?? bodies;
+    return b[lang]?[key] ?? b['en']?[key] ?? key;
   }
 
   static String _getSupportedLang(String langCode) {
@@ -504,8 +574,10 @@ class AdhanProvider with ChangeNotifier {
       String type = 'reminder';
       if (response.id != null && response.id! < 10) {
         type = 'prayer';
-      } else if (response.id != null && response.id! >= 200) {
+      } else if (response.id != null && response.id! >= 400) {
         type = 'festival';
+      } else if (response.id != null && response.id! >= 300) {
+        type = 'reminder';
       }
 
       notifications.insert(0, {
@@ -532,7 +604,7 @@ class AdhanProvider with ChangeNotifier {
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     _notificationsEnabled = prefs.getBool('adhan_notifications') ?? true;
-    _adhanSoundEnabled = prefs.getBool('adhan_sound') ?? true;
+    _adhanSoundEnabled = prefs.getBool('azan_sound') ?? true;
     _selectedAdhan = prefs.getString('selected_adhan') ?? 'makkah';
     _languageCode = prefs.getString('selected_language') ?? 'en';
 
@@ -564,7 +636,7 @@ class AdhanProvider with ChangeNotifier {
   Future<void> _savePreferences() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('adhan_notifications', _notificationsEnabled);
-    await prefs.setBool('adhan_sound', _adhanSoundEnabled);
+    await prefs.setBool('azan_sound', _adhanSoundEnabled);
     await prefs.setString('selected_adhan', _selectedAdhan);
 
     for (final entry in _prayerNotifications.entries) {
@@ -701,9 +773,11 @@ class AdhanProvider with ChangeNotifier {
       await initialize();
     }
 
-    // Cancel existing notifications
-    await _notifications.cancelAll();
-    debugPrint('🔔 AdhanProvider: Cancelled existing notifications');
+    // Cancel only prayer notifications (IDs 0-9), not all notifications
+    for (int i = 0; i < 10; i++) {
+      await _notifications.cancel(i);
+    }
+    debugPrint('🔔 AdhanProvider: Cancelled existing prayer notifications');
 
     final prayers = {
       'Fajr': prayerTimes.fajr,
@@ -738,6 +812,15 @@ class AdhanProvider with ChangeNotifier {
     // Also schedule Azan alarms for background playback
     if (_adhanSoundEnabled) {
       try {
+        // Check permissions before scheduling background alarms
+        final permissionStatus = await AzanPermissionService.checkAllPermissions();
+        debugPrint('🔔 AdhanProvider: Permission status: $permissionStatus');
+
+        if (permissionStatus.hasMissingPermissions) {
+          debugPrint('🔔 AdhanProvider: Missing permissions: ${permissionStatus.missingPermissions}');
+          // Still try to schedule - it may work with fallback methods
+        }
+
         await AzanBackgroundService.scheduleAzanAlarms(prayerTimes);
         debugPrint('🔔 AdhanProvider: Background Azan alarms scheduled');
       } catch (e) {
@@ -973,7 +1056,7 @@ class AdhanProvider with ChangeNotifier {
 
     // Morning Quran reminder at 6:00 AM
     await _scheduleIslamicReminder(
-      id: 100,
+      id: 300,
       hour: 6,
       minute: 0,
       titleKey: 'quran_reminder',
@@ -982,7 +1065,7 @@ class AdhanProvider with ChangeNotifier {
 
     // Afternoon Dhikr reminder at 2:00 PM
     await _scheduleIslamicReminder(
-      id: 101,
+      id: 301,
       hour: 14,
       minute: 0,
       titleKey: 'dhikr_reminder',
@@ -991,7 +1074,7 @@ class AdhanProvider with ChangeNotifier {
 
     // Evening Dua reminder at 7:00 PM
     await _scheduleIslamicReminder(
-      id: 102,
+      id: 302,
       hour: 19,
       minute: 0,
       titleKey: 'dua_reminder',
@@ -1000,7 +1083,7 @@ class AdhanProvider with ChangeNotifier {
 
     // Daily Islamic reminder at 9:00 AM
     await _scheduleIslamicReminder(
-      id: 103,
+      id: 303,
       hour: 9,
       minute: 0,
       titleKey: 'daily_reminder',
@@ -1009,7 +1092,7 @@ class AdhanProvider with ChangeNotifier {
 
     // Charity reminder at 12:00 PM
     await _scheduleIslamicReminder(
-      id: 104,
+      id: 304,
       hour: 12,
       minute: 0,
       titleKey: 'charity_reminder',
@@ -1018,7 +1101,7 @@ class AdhanProvider with ChangeNotifier {
 
     // Morning summary notification at 5:30 AM (before Fajr)
     await _scheduleIslamicReminder(
-      id: 106,
+      id: 305,
       hour: 5,
       minute: 30,
       titleKey: 'morning_summary',
@@ -1027,7 +1110,7 @@ class AdhanProvider with ChangeNotifier {
 
     // Daily Sadqa reminder at 8:00 AM
     await _scheduleIslamicReminder(
-      id: 107,
+      id: 306,
       hour: 8,
       minute: 0,
       titleKey: 'sadqa_daily',
@@ -1095,7 +1178,7 @@ class AdhanProvider with ChangeNotifier {
 
     try {
       await _notifications.zonedSchedule(
-        105,
+        307,
         title,
         body,
         scheduledDate,
@@ -1108,7 +1191,7 @@ class AdhanProvider with ChangeNotifier {
 
       // Save to scheduled notifications
       await _saveScheduledNotification(
-        id: 105,
+        id: 307,
         title: title,
         body: body,
         type: 'jumma',
@@ -1133,13 +1216,13 @@ class AdhanProvider with ChangeNotifier {
     // Schedule upcoming festival reminders (hardcoded dates for 2025)
     // These should ideally be calculated based on Hijri calendar
     final festivals = [
-      {'id': 200, 'key': 'ramadan_start', 'month': 3, 'day': 1},
-      {'id': 201, 'key': 'laylatul_qadr', 'month': 3, 'day': 27},
-      {'id': 202, 'key': 'eid_ul_fitr', 'month': 3, 'day': 30},
-      {'id': 203, 'key': 'eid_ul_adha', 'month': 6, 'day': 7},
-      {'id': 204, 'key': 'islamic_new_year', 'month': 7, 'day': 7},
-      {'id': 205, 'key': 'ashura', 'month': 7, 'day': 17},
-      {'id': 206, 'key': 'milad_un_nabi', 'month': 9, 'day': 5},
+      {'id': 400, 'key': 'ramadan_start', 'month': 3, 'day': 1},
+      {'id': 401, 'key': 'laylatul_qadr', 'month': 3, 'day': 27},
+      {'id': 402, 'key': 'eid_ul_fitr', 'month': 3, 'day': 30},
+      {'id': 403, 'key': 'eid_ul_adha', 'month': 6, 'day': 7},
+      {'id': 404, 'key': 'islamic_new_year', 'month': 7, 'day': 7},
+      {'id': 405, 'key': 'ashura', 'month': 7, 'day': 17},
+      {'id': 406, 'key': 'milad_un_nabi', 'month': 9, 'day': 5},
     ];
 
     for (final festival in festivals) {

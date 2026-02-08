@@ -1,0 +1,275 @@
+{
+  "dua_arabic_text": "اللهم وجه وجهي للقبلة وسهل علي توجهي",
+  "strings": {
+    "qibla": {
+      "en": "Qibla",
+      "ur": "قبلہ",
+      "hi": "क़िबला",
+      "ar": "القبلة"
+    },
+    "qibla_requires_location": {
+      "en": "Qibla direction requires your location to calculate the accurate direction to Kaaba in Makkah.",
+      "ur": "قبلہ کی سمت کو مکہ میں کعبہ کی طرف درست سمت کا حساب لگانے کے لیے آپ کی لوکیشن کی ضرورت ہے۔",
+      "hi": "क़िबला दिशा को मक्का में काबा की सटीक दिशा की गणना करने के लिए आपके स्थान की आवश्यकता है।",
+      "ar": "يتطلب اتجاه القبلة موقعك لحساب الاتجاه الدقيق للكعبة في مكة."
+    },
+    "qibla_dua": {
+      "en": "Qibla Dua",
+      "ur": "قبلہ کی دعا",
+      "hi": "क़िबला की दुआ",
+      "ar": "دعاء القبلة"
+    },
+    "qibla_dua_translation": {
+      "en": "O Allah, direct my face towards the Qibla and make it easy for me to turn towards it.",
+      "ur": "اے اللہ میرے چہرے کو قبلہ کی طرف رکھ اور مجھے قبلہ کی طرف پلٹنا آسان بنا دے۔",
+      "hi": "हे अल्लाह, मुझे क़िबला की ओर मुंह करने के लिए निर्देशित करें और मेरे लिए क़िबला की ओर रुख करना आसान बना दें।",
+      "ar": "اللهم وجّه وجهي نحو القبلة وسهّل عليّ التوجه نحوها"
+    },
+    "qibla_dua_meaning_title": {
+      "en": "Meaning & Significance",
+      "ur": "معنیٰ اور اہمیت",
+      "hi": "अर्थ और महत्व",
+      "ar": "المعنى والأهمية"
+    },
+    "qibla_dua_meaning": {
+      "en": "This is a beautiful dua to recite when establishing the direction of prayer. It seeks Allah's guidance to properly orient oneself toward the Kaaba and make the journey to face the Qibla easy and trouble-free.",
+      "ur": "یہ نماز کی سمت معین کرتے وقت پڑھنے کے لیے ایک خوبصورت دعا ہے۔ یہ اللہ کی ہدایت مانگتی ہے تاکہ اپنے آپ کو کعبے کی طرف صحیح طریقے سے سمجھا جائے اور قبلہ کی طرف منہ کرنا آسان اور بغیر کسی رکاوٹ کے ہو۔",
+      "hi": "यह नमाज की दिशा निर्धारित करते समय पढ़ने के लिए एक सुंदर दुआ है। यह अल्लाह की मार्गदर्शना माँगती है ताकि काबे की ओर सही तरीके से संरेखित हो सके और क़िबला का सामना करना आसान और बिना किसी बाधा के हो।",
+      "ar": "هذا دعاء جميل يُقرأ عند تحديد اتجاه الصلاة. يسأل الله تعالى الهداية للتوجه الصحيح نحو الكعبة وتسهيل مواجهة القبلة بيسر وسهولة دون عناء."
+    },
+    "translation_label": {
+      "en": "Translation:",
+      "ur": "ترجمہ:",
+      "hi": "अनुवाद:",
+      "ar": "الترجمة:"
+    },
+    "facing_qibla": {
+      "en": "Facing Qibla",
+      "ur": "قبلہ کی طرف",
+      "hi": "क़िबला की ओर",
+      "ar": "في اتجاه القبلة"
+    },
+    "turn_to_face_qibla": {
+      "en": "Turn to face Qibla",
+      "ur": "قبلہ کی طرف منہ کریں",
+      "hi": "क़िबला की ओर मुड़ें",
+      "ar": "استدر لمواجهة القبلة"
+    },
+    "perfectly_aligned_100": {
+      "en": "100% PERFECTLY ALIGNED",
+      "ur": "100% مکمل طور پر محاذی",
+      "hi": "100% पूरी तरह संरेखित",
+      "ar": "100% محاذاة مثالية"
+    },
+    "perfect_alignment": {
+      "en": "✓ Perfect Alignment",
+      "ur": "✓ بہترین محاذی",
+      "hi": "✓ पूर्ण संरेखण",
+      "ar": "✓ محاذاة مثالية"
+    },
+    "turn_right": {
+      "en": "Turn Right",
+      "ur": "دائیں طرف موڑیں",
+      "hi": "दाईं ओर मुड़ें",
+      "ar": "انعطف يميناً"
+    },
+    "turn_left": {
+      "en": "Turn Left",
+      "ur": "بائیں طرف موڑیں",
+      "hi": "बाईं ओर मुड़ें",
+      "ar": "انعطف يساراً"
+    },
+    "perfect_label": {
+      "en": "✓ Perfect",
+      "ur": "✓ بہترین",
+      "hi": "✓ पूर्ण",
+      "ar": "✓ مثالي"
+    },
+    "aligned_label": {
+      "en": "Aligned",
+      "ur": "محاذی",
+      "hi": "संरेखित",
+      "ar": "محاذاة"
+    },
+    "distance_to_kaaba": {
+      "en": "Distance to Kaaba",
+      "ur": "کعبہ سے فاصلہ",
+      "hi": "काबा से दूरी",
+      "ar": "المسافة إلى الكعبة"
+    },
+    "compass": {
+      "en": "Compass",
+      "ur": "کمپاس",
+      "hi": "कम्पास",
+      "ar": "البوصلة"
+    },
+    "from_north": {
+      "en": "From North",
+      "ur": "شمال سے",
+      "hi": "उत्तर से",
+      "ar": "من الشمال"
+    },
+    "compass_not_available": {
+      "en": "Compass not available on this device. Showing Qibla direction in degrees only.",
+      "ur": "اس ڈیوائس پر قطب نما دستیاب نہیں ہے۔ صرف ڈگریوں میں قبلہ کی سمت دکھا رہے ہیں۔",
+      "hi": "इस डिवाइस पर कम्पास उपलब्ध नहीं है। केवल डिग्री में क़िबला दिशा दिखा रहे हैं।",
+      "ar": "البوصلة غير متوفرة على هذا الجهاز. يتم عرض اتجاه القبلة بالدرجات فقط."
+    },
+    "initializing_compass": {
+      "en": "Initializing compass...",
+      "ur": "قطب نما شروع کر رہے ہیں...",
+      "hi": "कम्पास शुरू हो रहा है...",
+      "ar": "جارٍ تهيئة البوصلة..."
+    },
+    "calibrating_compass": {
+      "en": "Calibrating compass...",
+      "ur": "قطب نما کو کیلیبریٹ کر رہے ہیں...",
+      "hi": "कम्पास कैलिब्रेट हो रहा है...",
+      "ar": "جارٍ معايرة البوصلة..."
+    },
+    "calibrate_instruction": {
+      "en": "Move your phone in a figure-8 pattern",
+      "ur": "اپنے فون کو 8 کی شکل میں گھمائیں",
+      "hi": "अपने फ़ोन को 8 के पैटर्न में घुमाएं",
+      "ar": "حرك هاتفك بنمط رقم 8"
+    },
+    "show_direction_without_compass": {
+      "en": "Show direction without compass",
+      "ur": "قطب نما کے بغیر سمت دکھائیں",
+      "hi": "कम्पास के बिना दिशा दिखाएं",
+      "ar": "إظهار الاتجاه بدون بوصلة"
+    },
+    "north": {
+      "en": "N",
+      "ur": "ش",
+      "hi": "उ",
+      "ar": "ش"
+    },
+    "east": {
+      "en": "E",
+      "ur": "م",
+      "hi": "पू",
+      "ar": "ر"
+    },
+    "south": {
+      "en": "S",
+      "ur": "ج",
+      "hi": "द",
+      "ar": "ج"
+    },
+    "west": {
+      "en": "W",
+      "ur": "غ",
+      "hi": "प",
+      "ar": "غ"
+    },
+    "save": {
+      "en": "Save",
+      "ur": "محفوظ کریں",
+      "hi": "सहेजें",
+      "ar": "حفظ"
+    },
+    "saved": {
+      "en": "Saved",
+      "ur": "محفوظ",
+      "hi": "सहेजा गया",
+      "ar": "محفوظ"
+    },
+    "delete": {
+      "en": "Delete",
+      "ur": "حذف کریں",
+      "hi": "हटाएं",
+      "ar": "حذف"
+    },
+    "cancel": {
+      "en": "Cancel",
+      "ur": "منسوخ",
+      "hi": "रद्द करें",
+      "ar": "إلغاء"
+    },
+    "saved_successfully": {
+      "en": "Saved successfully",
+      "ur": "کامیابی سے محفوظ ہو گیا",
+      "hi": "सफलतापूर्वक सहेजा गया",
+      "ar": "تم الحفظ بنجاح"
+    },
+    "removed_successfully": {
+      "en": "Removed successfully",
+      "ur": "کامیابی سے ہٹایا گیا",
+      "hi": "सफलतापूर्वक हटाया गया",
+      "ar": "تم الحذف بنجاح"
+    },
+    "deleted_successfully": {
+      "en": "Deleted successfully",
+      "ur": "کامیابی سے حذف ہو گیا",
+      "hi": "सफलतापूर्वक हटाया गया",
+      "ar": "تم الحذف بنجاح"
+    },
+    "confirm_delete": {
+      "en": "Confirm Delete",
+      "ur": "حذف کی تصدیق",
+      "hi": "हटाने की पुष्टि",
+      "ar": "تأكيد الحذف"
+    },
+    "delete_dua_confirmation": {
+      "en": "Are you sure you want to delete this dua?",
+      "ur": "کیا آپ یقینی ہیں کہ اس دعا کو حذف کرنا چاہتے ہیں؟",
+      "hi": "क्या आप निश्चित हैं कि आप इस दुआ को हटाना चाहते हैं?",
+      "ar": "هل أنت متأكد أنك تريد حذف هذا الدعاء؟"
+    },
+    "location_services_disabled": {
+      "en": "Location services are disabled. Please enable GPS/Location services in your device settings.",
+      "ur": "لوکیشن سروسز غیر فعال ہیں۔ براہ کرم اپنے ڈیوائس کی ترتیبات میں GPS/لوکیشن سروسز فعال کریں۔",
+      "hi": "लोकेशन सेवाएं अक्षम हैं। कृपया अपने डिवाइस सेटिंग्स में GPS/लोकेशन सेवाएं सक्षम करें।",
+      "ar": "خدمات الموقع معطلة. يرجى تفعيل GPS/خدمات الموقع في إعدادات جهازك."
+    },
+    "location_permission_denied": {
+      "en": "Location permission denied. Please enable location access in app settings.",
+      "ur": "لوکیشن کی اجازت مسترد کر دی گئی۔ براہ کرم ایپ کی ترتیبات میں لوکیشن تک رسائی فعال کریں۔",
+      "hi": "लोकेशन अनुमति अस्वीकृत। कृपया ऐप सेटिंग्स में लोकेशन एक्सेस सक्षम करें।",
+      "ar": "تم رفض إذن الموقع. يرجى تفعيل الوصول إلى الموقع في إعدادات التطبيق."
+    },
+    "location_permission_denied_forever": {
+      "en": "Location permission permanently denied. Please enable location permission from app settings.",
+      "ur": "لوکیشن کی اجازت مستقل طور پر مسترد کر دی گئی۔ براہ کرم ایپ کی ترتیبات سے لوکیشن کی اجازت فعال کریں۔",
+      "hi": "स्थान अनुमति स्थायी रूप से अस्वीकृत। कृपया ऐप सेटिंग्स से स्थान अनुमति सक्षम करें।",
+      "ar": "تم رفض إذن الموقع بشكل دائم. يرجى تفعيل إذن الموقع من إعدادات التطبيق."
+    },
+    "unable_to_get_location": {
+      "en": "Unable to get location. Please ensure GPS is enabled and try again.",
+      "ur": "لوکیشن حاصل نہیں ہو سکی۔ براہ کرم یقینی بنائیں کہ GPS فعال ہے اور دوبارہ کوشش کریں۔",
+      "hi": "स्थान प्राप्त करने में असमर्थ। कृपया सुनिश्चित करें कि GPS सक्षम है और पुनः प्रयास करें।",
+      "ar": "تعذر الحصول على الموقع. يرجى التأكد من تفعيل GPS والمحاولة مرة أخرى."
+    },
+    "location_error": {
+      "en": "Location error",
+      "ur": "لوکیشن کی خرابی",
+      "hi": "स्थान त्रुटि",
+      "ar": "خطأ في الموقع"
+    },
+    "open_app_settings": {
+      "en": "Open App Settings",
+      "ur": "ایپ کی ترتیبات کھولیں",
+      "hi": "ऐप सेटिंग्स खोलें",
+      "ar": "فتح إعدادات التطبيق"
+    },
+    "try_again": {
+      "en": "Try Again",
+      "ur": "دوبارہ کوشش کریں",
+      "hi": "पुनः प्रयास करें",
+      "ar": "حاول مرة أخرى"
+    },
+    "retry": {
+      "en": "Retry",
+      "ur": "دوبارہ کوشش کریں",
+      "hi": "पुनः प्रयास करें",
+      "ar": "إعادة المحاولة"
+    },
+    "open_location_settings": {
+      "en": "Open Location Settings",
+      "ur": "لوکیشن کی ترتیبات کھولیں",
+      "hi": "लोकेशन सेटिंग्स खोलें",
+      "ar": "فتح إعدادات الموقع"
+    }
+  }
+}

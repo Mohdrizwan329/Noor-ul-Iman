@@ -316,44 +316,59 @@ class FirebaseAuthService {
 
   // Get user-friendly error message
   String getErrorMessage(dynamic error, BuildContext context) {
+    debugPrint('🔍 Error type: ${error.runtimeType}');
+    debugPrint('🔍 Error: $error');
+
     if (error is FirebaseAuthException) {
-      switch (error.code) {
-        case 'user-not-found':
-          return 'No account found with this email. Please sign up first.';
-        case 'wrong-password':
-          return 'Incorrect password. Please try again.';
-        case 'email-already-in-use':
-          return context.tr('auth_error_email_in_use');
-        case 'weak-password':
-          return context.tr('auth_error_weak_password');
-        case 'invalid-email':
-          return 'Invalid email format. Please enter a valid email.';
-        case 'network-request-failed':
-          return 'Network error. Please check your internet connection.';
-        case 'user-disabled':
-          return 'This account has been disabled. Contact support.';
-        case 'operation-not-allowed':
-          return 'This sign-in method is not enabled';
-        case 'too-many-requests':
-          return 'Too many failed attempts. Please wait and try again later.';
-        case 'invalid-credential':
-          return 'Invalid email or password. Please check your credentials.\n\nNote: Email is case-insensitive, password is case-sensitive.';
-        case 'INVALID_LOGIN_CREDENTIALS':
-          return 'Invalid email or password. Please verify:\n• Email is correct\n• Password is correct (case-sensitive)\n• You have signed up before';
-        case 'account-exists-with-different-credential':
-          return 'An account already exists with this email';
-        case 'requires-recent-login':
-          return 'Please sign in again to perform this action';
-        case 'invalid-phone-number':
-          return context.tr('auth_error_invalid_phone');
-        case 'invalid-verification-code':
-          return context.tr('auth_error_invalid_otp');
-        case 'session-expired':
-          return context.tr('auth_error_otp_expired');
-        default:
-          debugPrint('Unhandled Firebase Auth error: ${error.code}');
-          return 'Authentication error: ${error.code}\nPlease try again or contact support.';
+      debugPrint('🔍 Firebase Auth error code: ${error.code}');
+      final code = error.code.toLowerCase();
+
+      // Handle various error codes (Firebase may use different formats)
+      if (code.contains('user-not-found') || code.contains('user_not_found')) {
+        return 'No account found with this email. Please sign up first.';
       }
+      if (code.contains('wrong-password') || code.contains('wrong_password')) {
+        return 'Incorrect password. Please try again.';
+      }
+      if (code.contains('invalid-credential') || code.contains('invalid_credential') || code.contains('invalid_login_credentials')) {
+        return 'Invalid email or password. Please check your credentials.';
+      }
+      if (code.contains('email-already-in-use') || code.contains('email_already_in_use')) {
+        return context.tr('auth_error_email_in_use');
+      }
+      if (code.contains('weak-password') || code.contains('weak_password')) {
+        return context.tr('auth_error_weak_password');
+      }
+      if (code.contains('invalid-email') || code.contains('invalid_email')) {
+        return 'Invalid email format. Please enter a valid email.';
+      }
+      if (code.contains('network') || code.contains('connection')) {
+        return 'Network error. Please check your internet connection.';
+      }
+      if (code.contains('user-disabled') || code.contains('user_disabled')) {
+        return 'This account has been disabled. Contact support.';
+      }
+      if (code.contains('too-many-requests') || code.contains('too_many_requests')) {
+        return 'Too many failed attempts. Please wait and try again later.';
+      }
+      if (code.contains('operation-not-allowed') || code.contains('operation_not_allowed')) {
+        return 'This sign-in method is not enabled.';
+      }
+      if (code.contains('requires-recent-login') || code.contains('requires_recent_login')) {
+        return 'Please sign in again to perform this action.';
+      }
+      if (code.contains('invalid-phone') || code.contains('invalid_phone')) {
+        return context.tr('auth_error_invalid_phone');
+      }
+      if (code.contains('invalid-verification') || code.contains('invalid_verification')) {
+        return context.tr('auth_error_invalid_otp');
+      }
+      if (code.contains('session-expired') || code.contains('session_expired')) {
+        return context.tr('auth_error_otp_expired');
+      }
+
+      debugPrint('Unhandled Firebase Auth error: ${error.code}');
+      return 'Authentication error (${error.code}). Please try again.';
     } else if (error is SignInWithAppleAuthorizationException) {
       switch (error.code) {
         case AuthorizationErrorCode.canceled:
@@ -371,7 +386,17 @@ class FirebaseAuthService {
       }
     }
 
-    return context.tr('auth_error_unknown');
+    // Handle generic exceptions
+    final errorString = error.toString().toLowerCase();
+    if (errorString.contains('network') || errorString.contains('connection') || errorString.contains('socket')) {
+      return 'Network error. Please check your internet connection.';
+    }
+    if (errorString.contains('timeout')) {
+      return 'Connection timed out. Please try again.';
+    }
+
+    debugPrint('🔍 Unknown error type: ${error.runtimeType}');
+    return 'Sign in failed. Please check your email and password.';
   }
 
   // Check if email is already registered

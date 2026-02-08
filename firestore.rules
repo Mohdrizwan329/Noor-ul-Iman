@@ -60,6 +60,162 @@ service cloud.firestore {
       allow read, write: if isOwner(userId);
     }
 
+    // Content collections - public read, authenticated write (for migration)
+    match /content_metadata/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /duas/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /allah_names/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /kalmas/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /islamic_names/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /hadith_collections/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /hadith_collections_info/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /tasbih_dhikr/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /basic_amal/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /greeting_cards/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /sample_hadiths/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /hajj_guide/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /ramadan_duas/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /zakat_guide/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /quran_metadata/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /fasting_data/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /settings_translations/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /notification_strings/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /calendar_strings/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /name_transliterations/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /hadith_translations/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /language_names/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /qibla_content/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /tasbih_screen_content/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /calendar_screen_content/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /zakat_calculator_content/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /zakat_guide_screen_content/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /quran_screen_content/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /about_screen_content/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /privacy_policy_screen_content/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /ui_translations/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
     // Default deny all other collections
     match /{document=**} {
       allow read, write: if false;

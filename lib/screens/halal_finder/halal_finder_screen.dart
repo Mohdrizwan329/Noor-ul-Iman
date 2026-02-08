@@ -8,6 +8,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/services/location_service.dart';
 import '../../core/utils/app_utils.dart';
 import '../../providers/language_provider.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class HalalFinderScreen extends StatefulWidget {
   const HalalFinderScreen({super.key});
@@ -911,7 +912,12 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
         toolbarHeight: 50,
         title: Text(context.tr('halal_finder')),
       ),
-      body: _buildBody(),
+      body: Column(
+        children: [
+          Expanded(child: _buildBody()),
+          const BannerAdWidget(),
+        ],
+      ),
     );
   }
 

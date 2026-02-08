@@ -10,7 +10,6 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = ResponsiveUtils(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       body: Container(
@@ -20,15 +19,10 @@ class WelcomeScreen extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: isDark
-                ? [
-                    AppColors.darkBackground,
-                    AppColors.darkCard,
-                  ]
-                : [
-                    AppColors.primary,
-                    AppColors.primaryLight,
-                  ],
+            colors: [
+              AppColors.primary,
+              AppColors.primaryLight,
+            ],
           ),
         ),
         child: SafeArea(

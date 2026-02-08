@@ -5,8 +5,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/app_utils.dart';
-import '../../providers/settings_provider.dart';
 import '../../providers/language_provider.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class BasicAmalDetailScreen extends StatefulWidget {
   final String title;
@@ -193,13 +193,12 @@ ${_getCurrentContent(langCode)}
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.watch<SettingsProvider>().isDarkMode;
     final langCode = context.watch<LanguageProvider>().languageCode;
     final isRtl = langCode == 'ur' || langCode == 'ar';
     final responsive = context.responsive;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
           _getCurrentTitle(langCode),
@@ -209,14 +208,17 @@ ${_getCurrentContent(langCode)}
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: responsive.paddingAll(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: responsive.paddingAll(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
             Container(
               decoration: BoxDecoration(
-                color: isDark ? AppColors.darkCard : Colors.white,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(responsive.borderRadius(18)),
                 border: Border.all(
                   color: _isSpeaking ? AppColors.primaryLight : AppColors.lightGreenBorder,
@@ -319,7 +321,7 @@ ${_getCurrentContent(langCode)}
                         height: 1.8,
                         color: _isSpeaking
                             ? AppColors.primary
-                            : (isDark ? AppColors.darkTextSecondary : Colors.black87),
+                            : Colors.black87,
                       ),
                       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
                       textAlign: isRtl ? TextAlign.right : TextAlign.left,
@@ -335,7 +337,6 @@ ${_getCurrentContent(langCode)}
                 title: context.tr('reference'),
                 content: widget.reference!,
                 icon: Icons.book_outlined,
-                isDark: isDark,
                 isRtl: isRtl,
               ),
             ],
@@ -346,7 +347,6 @@ ${_getCurrentContent(langCode)}
                 title: context.tr('importance'),
                 content: widget.importance!,
                 icon: Icons.star_outline,
-                isDark: isDark,
                 isRtl: isRtl,
               ),
             ],
@@ -357,7 +357,6 @@ ${_getCurrentContent(langCode)}
                 title: context.tr('warning'),
                 content: widget.warning!,
                 icon: Icons.warning_amber_outlined,
-                isDark: isDark,
                 isRtl: isRtl,
                 isWarning: true,
               ),
@@ -369,14 +368,17 @@ ${_getCurrentContent(langCode)}
                 title: context.tr('tip'),
                 content: widget.tip!,
                 icon: Icons.lightbulb_outline,
-                isDark: isDark,
                 isRtl: isRtl,
               ),
             ],
             responsive.vSpaceRegular,
-          ],
+              ],
+            ),
+          ),
         ),
-      ),
+        const BannerAdWidget(),
+      ],
+    ),
     );
   }
 
@@ -429,7 +431,6 @@ ${_getCurrentContent(langCode)}
     required String title,
     required String content,
     required IconData icon,
-    required bool isDark,
     required bool isRtl,
     bool isWarning = false,
   }) {
@@ -437,7 +438,7 @@ ${_getCurrentContent(langCode)}
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : Colors.white,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.borderRadius(18)),
         border: Border.all(
           color: isWarning
@@ -510,7 +511,7 @@ ${_getCurrentContent(langCode)}
               style: TextStyle(
                 fontSize: responsive.fontSize(14),
                 height: 1.6,
-                color: isDark ? AppColors.darkTextSecondary : Colors.black87,
+                color: Colors.black87,
               ),
               textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
               textAlign: isRtl ? TextAlign.right : TextAlign.left,

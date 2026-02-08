@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/app_utils.dart';
 import '../../providers/adhan_provider.dart';
+import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/services/azan_background_service.dart';
+import '../../core/services/azan_permission_service.dart';
 
 class AdhanSettingsScreen extends StatefulWidget {
   const AdhanSettingsScreen({super.key});
@@ -14,11 +17,14 @@ class AdhanSettingsScreen extends StatefulWidget {
 
 class _AdhanSettingsScreenState extends State<AdhanSettingsScreen> {
   bool _batteryOptimizationDisabled = true;
+  AzanPermissionStatus? _permissionStatus;
+  bool _isPlayingBackgroundAzan = false;
 
   @override
   void initState() {
     super.initState();
     _checkBatteryOptimization();
+    _checkAllPermissions();
   }
 
   Future<void> _checkBatteryOptimization() async {
@@ -29,6 +35,27 @@ class _AdhanSettingsScreenState extends State<AdhanSettingsScreen> {
         _batteryOptimizationDisabled = isDisabled;
       });
     }
+  }
+
+  Future<void> _checkAllPermissions() async {
+    if (!Platform.isAndroid) return;
+    final status = await AzanPermissionService.checkAllPermissions();
+    if (mounted) {
+      setState(() {
+        _permissionStatus = status;
+        _batteryOptimizationDisabled = status.batteryOptimization;
+      });
+    }
+  }
+
+  Future<void> _testBackgroundAzan() async {
+    setState(() => _isPlayingBackgroundAzan = true);
+    await AzanBackgroundService.playAzan(prayerName: 'Test');
+  }
+
+  Future<void> _stopBackgroundAzan() async {
+    await AzanBackgroundService.stopAzan();
+    setState(() => _isPlayingBackgroundAzan = false);
   }
 
   @override
@@ -42,11 +69,14 @@ class _AdhanSettingsScreenState extends State<AdhanSettingsScreen> {
           style: TextStyle(fontSize: responsive.textLarge),
         ),
       ),
-      body: Consumer<AdhanProvider>(
-        builder: (context, adhanProvider, child) {
-          return ListView(
-            padding: responsive.paddingRegular,
-            children: [
+      body: Column(
+        children: [
+          Expanded(
+            child: Consumer<AdhanProvider>(
+              builder: (context, adhanProvider, child) {
+                return ListView(
+                  padding: responsive.paddingRegular,
+                  children: [
               // Notifications Toggle
               _buildSectionCard(
                 context,
@@ -76,6 +106,13 @@ class _AdhanSettingsScreenState extends State<AdhanSettingsScreen> {
                 ),
               ),
               SizedBox(height: responsive.spaceRegular),
+
+              // Permission Status Card (Android only)
+              if (Platform.isAndroid && _permissionStatus != null)
+                _buildPermissionStatusCard(context),
+
+              if (Platform.isAndroid && _permissionStatus != null)
+                SizedBox(height: responsive.spaceRegular),
 
               // Battery Optimization Warning (Android only)
               if (Platform.isAndroid && !_batteryOptimizationDisabled)
@@ -166,7 +203,7 @@ class _AdhanSettingsScreenState extends State<AdhanSettingsScreen> {
               ),
               SizedBox(height: responsive.spaceRegular),
 
-              // Test Adhan Button
+              // Test Adhan Button (In-app audio)
               if (adhanProvider.adhanSoundEnabled)
                 ElevatedButton.icon(
                   onPressed: () {
@@ -183,9 +220,74 @@ class _AdhanSettingsScreenState extends State<AdhanSettingsScreen> {
                     padding: responsive.paddingRegular,
                   ),
                 ),
+
+              // Test Background Azan Button (Native service - works when app closed)
+              if (Platform.isAndroid && adhanProvider.adhanSoundEnabled) ...[
+                SizedBox(height: responsive.spaceRegular),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _isPlayingBackgroundAzan ? null : () async {
+                          await _testBackgroundAzan();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(context.tr('background_azan_started')),
+                                backgroundColor: Colors.green,
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                        },
+                        icon: Icon(Icons.speaker_phone, size: responsive.iconMedium),
+                        label: Text(
+                          'Test Background Azan',
+                          style: TextStyle(fontSize: responsive.textRegular),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green.shade700,
+                          foregroundColor: Colors.white,
+                          padding: responsive.paddingRegular,
+                        ),
+                      ),
+                    ),
+                    if (_isPlayingBackgroundAzan) ...[
+                      SizedBox(width: responsive.spaceSmall),
+                      ElevatedButton.icon(
+                        onPressed: _stopBackgroundAzan,
+                        icon: Icon(Icons.stop, size: responsive.iconMedium),
+                        label: Text(
+                          'Stop',
+                          style: TextStyle(fontSize: responsive.textRegular),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          padding: responsive.paddingRegular,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                SizedBox(height: responsive.spaceSmall),
+                Text(
+                  'Background Azan uses native Android service - will play at prayer times even when app is closed',
+                  style: TextStyle(
+                    fontSize: responsive.textSmall,
+                    color: Colors.grey.shade600,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ],
           );
         },
+            ),
+          ),
+          const BannerAdWidget(),
+        ],
       ),
     );
   }
@@ -282,6 +384,181 @@ class _AdhanSettingsScreenState extends State<AdhanSettingsScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildPermissionStatusCard(BuildContext context) {
+    final responsive = ResponsiveUtils(context);
+    final status = _permissionStatus!;
+    final allGranted = status.allGranted;
+
+    return Card(
+      color: allGranted ? Colors.green.shade50 : Colors.red.shade50,
+      child: Padding(
+        padding: responsive.paddingRegular,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  allGranted ? Icons.check_circle : Icons.warning,
+                  color: allGranted ? Colors.green.shade700 : Colors.red.shade700,
+                  size: responsive.iconMedium,
+                ),
+                SizedBox(width: responsive.spaceSmall),
+                Expanded(
+                  child: Text(
+                    allGranted
+                        ? 'All Permissions Granted'
+                        : 'Missing Permissions for Background Azan',
+                    style: TextStyle(
+                      fontSize: responsive.textRegular,
+                      fontWeight: FontWeight.bold,
+                      color: allGranted ? Colors.green.shade700 : Colors.red.shade700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: responsive.spaceSmall),
+
+            // Permission status list
+            _buildPermissionRow(
+              context,
+              'Exact Alarm',
+              status.exactAlarm,
+              status.androidVersion >= 31,
+              () => AzanPermissionService.requestExactAlarmPermission(),
+            ),
+            _buildPermissionRow(
+              context,
+              'Notifications',
+              status.notification,
+              status.androidVersion >= 33,
+              () => AzanPermissionService.requestNotificationPermission(),
+            ),
+            _buildPermissionRow(
+              context,
+              'Battery Optimization',
+              status.batteryOptimization,
+              true,
+              () => AzanPermissionService.requestDisableBatteryOptimization(),
+            ),
+
+            if (!allGranted) ...[
+              SizedBox(height: responsive.spaceRegular),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    await AzanPermissionService.requestAllPermissions();
+                    Future.delayed(const Duration(seconds: 1), _checkAllPermissions);
+                  },
+                  icon: const Icon(Icons.security),
+                  label: Text(context.tr('grant_all_permissions')),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red.shade700,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+
+            // Autostart settings for Chinese phones
+            SizedBox(height: responsive.spaceRegular),
+            Container(
+              padding: responsive.paddingSmall,
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blue.shade200),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.phone_android, color: Colors.blue.shade700, size: responsive.iconSmall),
+                      SizedBox(width: responsive.spaceSmall),
+                      Expanded(
+                        child: Text(
+                          'Xiaomi, Oppo, Vivo, Huawei, Realme',
+                          style: TextStyle(
+                            fontSize: responsive.textSmall,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue.shade700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: responsive.spaceSmall / 2),
+                  Text(
+                    context.tr('enable_autostart_message'),
+                    style: TextStyle(fontSize: responsive.textSmall - 1, color: Colors.blue.shade900),
+                  ),
+                  SizedBox(height: responsive.spaceSmall),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => AzanPermissionService.openAutoStartSettings(),
+                      icon: const Icon(Icons.settings),
+                      label: Text(context.tr('open_autostart_settings')),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.blue.shade700,
+                        side: BorderSide(color: Colors.blue.shade400),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPermissionRow(
+    BuildContext context,
+    String name,
+    bool granted,
+    bool required,
+    VoidCallback onRequest,
+  ) {
+    final responsive = ResponsiveUtils(context);
+
+    if (!required) {
+      return const SizedBox.shrink(); // Not required for this Android version
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: responsive.spaceSmall / 2),
+      child: Row(
+        children: [
+          Icon(
+            granted ? Icons.check : Icons.close,
+            color: granted ? Colors.green : Colors.red,
+            size: responsive.iconSmall,
+          ),
+          SizedBox(width: responsive.spaceSmall),
+          Expanded(
+            child: Text(
+              name,
+              style: TextStyle(fontSize: responsive.textSmall),
+            ),
+          ),
+          if (!granted)
+            TextButton(
+              onPressed: () async {
+                onRequest();
+                Future.delayed(const Duration(seconds: 1), _checkAllPermissions);
+              },
+              child: Text(context.tr('grant')),
+            ),
+        ],
       ),
     );
   }

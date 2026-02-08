@@ -1,0 +1,122 @@
+import 'package:flutter/material.dart';
+
+/// Centralized icon/color helpers used by basic_amal screens.
+/// Replaces 17 duplicate _getIconFromString/_getColorFromString methods.
+
+IconData getIconFromString(String iconName) {
+  const iconMap = <String, IconData>{
+    'access_time': Icons.access_time,
+    'air': Icons.air,
+    'auto_awesome': Icons.auto_awesome,
+    'back_hand': Icons.back_hand,
+    'block': Icons.block,
+    'book': Icons.book,
+    'brightness_2': Icons.brightness_2,
+    'brightness_3': Icons.brightness_3,
+    'brightness_5': Icons.brightness_5,
+    'calendar_month': Icons.calendar_month,
+    'calendar_today': Icons.calendar_today,
+    'cancel': Icons.cancel,
+    'card_giftcard': Icons.card_giftcard,
+    'catching_pokemon': Icons.catching_pokemon,
+    'celebration': Icons.celebration,
+    'check_circle': Icons.check_circle,
+    'checklist': Icons.checklist,
+    'child_care': Icons.child_care,
+    'compare_arrows': Icons.compare_arrows,
+    'connect_without_contact': Icons.connect_without_contact,
+    'date_range': Icons.date_range,
+    'do_not_step': Icons.do_not_step,
+    'elderly': Icons.elderly,
+    'emoji_events': Icons.emoji_events,
+    'error': Icons.error,
+    'event': Icons.event,
+    'face': Icons.face,
+    'family_restroom': Icons.family_restroom,
+    'favorite': Icons.favorite,
+    'female': Icons.female,
+    'format_list_numbered': Icons.format_list_numbered,
+    'groups': Icons.groups,
+    'handshake': Icons.handshake,
+    'healing': Icons.healing,
+    'hearing': Icons.hearing,
+    'help_outline': Icons.help_outline,
+    'history_edu': Icons.history_edu,
+    'home': Icons.home,
+    'landscape': Icons.landscape,
+    'layers': Icons.layers,
+    'library_books': Icons.library_books,
+    'local_drink': Icons.local_drink,
+    'local_fire_department': Icons.local_fire_department,
+    'medical_services': Icons.medical_services,
+    'menu_book': Icons.menu_book,
+    'menu_book_outlined': Icons.menu_book_outlined,
+    'mosque': Icons.mosque,
+    'nightlight': Icons.nightlight,
+    'nightlight_round': Icons.nightlight_round,
+    'nights_stay': Icons.nights_stay,
+    'no_food': Icons.no_food,
+    'pan_tool': Icons.pan_tool,
+    'people': Icons.people,
+    'person': Icons.person,
+    'pets': Icons.pets,
+    'phone_android': Icons.phone_android,
+    'place': Icons.place,
+    'play_arrow': Icons.play_arrow,
+    'psychology': Icons.psychology,
+    'record_voice_over': Icons.record_voice_over,
+    'refresh': Icons.refresh,
+    'rule': Icons.rule,
+    'school': Icons.school,
+    'science': Icons.science,
+    'security': Icons.security,
+    'shield': Icons.shield,
+    'smartphone': Icons.smartphone,
+    'south': Icons.south,
+    'spa': Icons.spa,
+    'speaker_notes_off': Icons.speaker_notes_off,
+    'stairs': Icons.stairs,
+    'star': Icons.star,
+    'star_border': Icons.star_border,
+    'today': Icons.today,
+    'visibility': Icons.visibility,
+    'volunteer_activism': Icons.volunteer_activism,
+    'warning': Icons.warning,
+    'warning_amber': Icons.warning_amber,
+    'water_drop': Icons.water_drop,
+    'wb_sunny': Icons.wb_sunny,
+    'wb_twilight': Icons.wb_twilight,
+    'whatshot': Icons.whatshot,
+    'woman': Icons.woman,
+  };
+  return iconMap[iconName] ?? Icons.circle;
+}
+
+Color getColorFromString(String colorStr) {
+  if (colorStr.startsWith('#')) {
+    try {
+      return Color(int.parse(colorStr.substring(1), radix: 16) + 0xFF000000);
+    } catch (_) {
+      return Colors.green;
+    }
+  }
+  const colorMap = <String, Color>{
+    'amber': Colors.amber,
+    'blue': Colors.blue,
+    'blueGrey': Colors.blueGrey,
+    'brown': Colors.brown,
+    'cyan': Colors.cyan,
+    'deepOrange': Colors.deepOrange,
+    'deepPurple': Colors.deepPurple,
+    'green': Colors.green,
+    'grey': Colors.grey,
+    'indigo': Colors.indigo,
+    'lightBlue': Colors.lightBlue,
+    'orange': Colors.orange,
+    'pink': Colors.pink,
+    'purple': Colors.purple,
+    'red': Colors.red,
+    'teal': Colors.teal,
+  };
+  return colorMap[colorStr] ?? Colors.green;
+}

@@ -45,10 +45,9 @@ class ChipBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final effectiveBackgroundColor =
-        backgroundColor ?? (isDark ? AppColors.darkCard : AppColors.primary);
+        backgroundColor ?? (AppColors.primary);
     final effectiveTextColor =
         textColor ??
         (outlined ? (backgroundColor ?? AppColors.primary) : Colors.white);

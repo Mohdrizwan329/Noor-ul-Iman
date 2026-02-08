@@ -4,10 +4,11 @@ import '../../core/constants/app_colors.dart';
 import '../../core/utils/app_utils.dart';
 import '../../providers/dua_provider.dart';
 import '../../providers/language_provider.dart';
-import '../../providers/settings_provider.dart';
 import '../../data/models/dua_model.dart';
 import '../../widgets/common/search_bar_widget.dart';
 import 'dua_detail_screen.dart';
+import '../../core/utils/ad_navigation.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class DuaCategoryScreen extends StatefulWidget {
   const DuaCategoryScreen({super.key});
@@ -141,6 +142,7 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
                         },
                       ),
               ),
+              const BannerAdWidget(),
             ],
           );
         },
@@ -169,7 +171,6 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
     DuaProvider provider,
   ) {
     final responsive = context.responsive;
-    final isDark = context.watch<SettingsProvider>().isDarkMode;
     final langProvider = context.watch<LanguageProvider>();
     final selectedLanguage = _getSelectedLanguage(langProvider.languageCode);
     final languageCode = langProvider.languageCode;
@@ -190,10 +191,10 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
     return Container(
       margin: responsive.paddingOnly(bottom: 10),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : Colors.white,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
         border: Border.all(
-          color: isDark ? Colors.grey.shade700 : lightGreenBorder,
+          color: lightGreenBorder,
           width: 1.5,
         ),
         boxShadow: [
@@ -208,15 +209,10 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
         onTap: () {
           // Open detail screen with first dua of category
           if (category.duas.isNotEmpty) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DuaDetailScreen(
-                  dua: category.duas.first,
-                  category: category,
-                ),
-              ),
-            );
+            AdNavigator.push(context, DuaDetailScreen(
+              dua: category.duas.first,
+              category: category,
+            ));
           }
         },
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
@@ -259,7 +255,7 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
                       style: TextStyle(
                         fontSize: responsive.textLarge,
                         fontWeight: FontWeight.bold,
-                        color: isDark ? AppColors.darkTextPrimary : darkGreen,
+                        color: darkGreen,
                         fontFamily: 'Poppins',
                       ),
                       maxLines: 2,

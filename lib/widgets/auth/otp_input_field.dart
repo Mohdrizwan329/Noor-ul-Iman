@@ -126,18 +126,17 @@ class _OTPInputFieldState extends State<OTPInputField> {
 
   Widget _buildOTPBox(BuildContext context, int index) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       width: responsive.spacing(60),
       height: responsive.spacing(70),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : Colors.white,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusMedium),
         border: Border.all(
           color: _focusNodes[index].hasFocus
               ? AppColors.primary
-              : (isDark ? Colors.grey.shade700 : Colors.grey.shade300),
+              : Colors.grey.shade300,
           width: _focusNodes[index].hasFocus ? 2 : 1,
         ),
         boxShadow: _focusNodes[index].hasFocus
@@ -160,7 +159,7 @@ class _OTPInputFieldState extends State<OTPInputField> {
         style: TextStyle(
           fontSize: responsive.textXLarge,
           fontWeight: FontWeight.bold,
-          color: isDark ? Colors.white : Colors.black,
+          color: Colors.black,
         ),
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         decoration: const InputDecoration(

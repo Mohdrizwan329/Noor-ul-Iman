@@ -1,0 +1,120 @@
+{
+  "strings": {
+    "privacy_policy": {
+      "en": "Privacy Policy",
+      "ur": "پرائیویسی پالیسی",
+      "hi": "गोपनीयता नीति",
+      "ar": "سياسة الخصوصية"
+    },
+    "app_name": {
+      "en": "Noor-ul-Iman",
+      "ur": "نور الایمان",
+      "hi": "नूर-उल-ईमान",
+      "ar": "نور الإيمان"
+    },
+    "privacy_intro_title": {
+      "en": "Introduction",
+      "ur": "تعارف",
+      "hi": "परिचय",
+      "ar": "مقدمة"
+    },
+    "privacy_intro_content": {
+      "en": "Noor-ul-Iman is committed to protecting your privacy. This policy explains how we handle your information.",
+      "ur": "نور الایمان آپ کی رازداری کی حفاظت کے لیے پرعزم ہے۔ یہ پالیسی بتاتی ہے کہ ہم آپ کی معلومات کو کیسے سنبھالتے ہیں۔",
+      "hi": "नूर-उल-ईमान आपकी गोपनीयता की रक्षा के लिए प्रतिबद्ध है। यह नीति बताती है कि हम आपकी जानकारी को कैसे संभालते हैं।",
+      "ar": "نور الإيمان ملتزم بحماية خصوصيتك. توضح هذه السياسة كيفية تعاملنا مع معلوماتك."
+    },
+    "privacy_data_title": {
+      "en": "Data Collection",
+      "ur": "ڈیٹا اکٹھا کرنا",
+      "hi": "डेटा संग्रह",
+      "ar": "جمع البيانات"
+    },
+    "privacy_data_content": {
+      "en": "We collect minimal data necessary for app functionality including your location (for prayer times and Qibla direction), preferences, and app usage data.",
+      "ur": "ہم ایپ کی فعالیت کے لیے ضروری کم سے کم ڈیٹا اکٹھا کرتے ہیں جس میں آپ کا مقام (نماز کے اوقات اور قبلہ کی سمت کے لیے)، ترجیحات، اور ایپ کے استعمال کا ڈیٹا شامل ہے۔",
+      "hi": "हम ऐप की कार्यक्षमता के लिए आवश्यक न्यूनतम डेटा एकत्र करते हैं जिसमें आपका स्थान (नमाज़ के समय और क़िबला दिशा के लिए), प्राथमिकताएं और ऐप उपयोग डेटा शामिल हैं।",
+      "ar": "نحن نجمع الحد الأدنى من البيانات اللازمة لوظائف التطبيق بما في ذلك موقعك (لأوقات الصلاة واتجاه القبلة) والتفضيلات وبيانات استخدام التطبيق."
+    },
+    "privacy_location_title": {
+      "en": "Location Data",
+      "ur": "مقام کا ڈیٹا",
+      "hi": "स्थान डेटा",
+      "ar": "بيانات الموقع"
+    },
+    "privacy_location_content": {
+      "en": "Location data is used only to calculate accurate prayer times and Qibla direction. This data is processed locally on your device and is not shared with third parties.",
+      "ur": "مقام کا ڈیٹا صرف نماز کے درست اوقات اور قبلہ کی سمت معلوم کرنے کے لیے استعمال ہوتا ہے۔ یہ ڈیٹا آپ کے آلے پر مقامی طور پر پروسیس ہوتا ہے اور تیسرے فریق کے ساتھ شیئر نہیں کیا جاتا۔",
+      "hi": "स्थान डेटा का उपयोग केवल सटीक नमाज़ का समय और क़िबला दिशा की गणना के लिए किया जाता है। यह डेटा आपके डिवाइस पर स्थानीय रूप से संसाधित होता है और तीसरे पक्षों के साथ साझा नहीं किया जाता।",
+      "ar": "تُستخدم بيانات الموقع فقط لحساب أوقات الصلاة الدقيقة واتجاه القبلة. تتم معالجة هذه البيانات محليًا على جهازك ولا تتم مشاركتها مع أطراف ثالثة."
+    },
+    "privacy_storage_title": {
+      "en": "Data Storage",
+      "ur": "ڈیٹا سٹوریج",
+      "hi": "डेटा संग्रहण",
+      "ar": "تخزين البيانات"
+    },
+    "privacy_storage_content": {
+      "en": "Your preferences and bookmarks are stored locally on your device. We do not store personal data on external servers.",
+      "ur": "آپ کی ترجیحات اور بک مارکس آپ کے آلے پر مقامی طور پر محفوظ ہیں۔ ہم بیرونی سرورز پر ذاتی ڈیٹا محفوظ نہیں کرتے۔",
+      "hi": "आपकी प्राथमिकताएं और बुकमार्क आपके डिवाइस पर स्थानीय रूप से संग्रहीत हैं। हम बाहरी सर्वरों पर व्यक्तिगत डेटा संग्रहीत नहीं करते।",
+      "ar": "يتم تخزين تفضيلاتك وإشاراتك المرجعية محليًا على جهازك. لا نقوم بتخزين البيانات الشخصية على خوادم خارجية."
+    },
+    "privacy_security_title": {
+      "en": "Security",
+      "ur": "سیکیورٹی",
+      "hi": "सुरक्षा",
+      "ar": "الأمان"
+    },
+    "privacy_security_content": {
+      "en": "We implement appropriate security measures to protect your information from unauthorized access or disclosure.",
+      "ur": "ہم آپ کی معلومات کو غیر مجاز رسائی یا افشاء سے بچانے کے لیے مناسب حفاظتی اقدامات نافذ کرتے ہیں۔",
+      "hi": "हम आपकी जानकारी को अनधिकृत पहुंच या प्रकटीकरण से बचाने के लिए उचित सुरक्षा उपाय लागू करते हैं।",
+      "ar": "نحن ننفذ تدابير أمنية مناسبة لحماية معلوماتك من الوصول غير المصرح به أو الكشف عنها."
+    },
+    "privacy_contact_title": {
+      "en": "Contact Us",
+      "ur": "ہم سے رابطہ کریں",
+      "hi": "संपर्क करें",
+      "ar": "اتصل بنا"
+    },
+    "privacy_contact_content": {
+      "en": "If you have questions about this privacy policy, please contact us at support@nooruliman.com",
+      "ur": "اگر اس رازداری کی پالیسی کے بارے میں آپ کے سوالات ہیں تو براہ کرم ہم سے support@nooruliman.com پر رابطہ کریں",
+      "hi": "यदि इस गोपनीयता नीति के बारे में आपके कोई प्रश्न हैं, तो कृपया हमसे support@nooruliman.com पर संपर्क करें",
+      "ar": "إذا كانت لديك أسئلة حول سياسة الخصوصية هذه، يرجى الاتصال بنا على support@nooruliman.com"
+    }
+  },
+  "sections": [
+    {
+      "title_key": "privacy_intro_title",
+      "content_key": "privacy_intro_content",
+      "icon": "info_outline"
+    },
+    {
+      "title_key": "privacy_data_title",
+      "content_key": "privacy_data_content",
+      "icon": "data_usage"
+    },
+    {
+      "title_key": "privacy_location_title",
+      "content_key": "privacy_location_content",
+      "icon": "location_on_outlined"
+    },
+    {
+      "title_key": "privacy_storage_title",
+      "content_key": "privacy_storage_content",
+      "icon": "storage_outlined"
+    },
+    {
+      "title_key": "privacy_security_title",
+      "content_key": "privacy_security_content",
+      "icon": "security_outlined"
+    },
+    {
+      "title_key": "privacy_contact_title",
+      "content_key": "privacy_contact_content",
+      "icon": "contact_mail_outlined"
+    }
+  ]
+}

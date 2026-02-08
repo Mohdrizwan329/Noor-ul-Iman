@@ -54,7 +54,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final responsive = ResponsiveUtils(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -96,9 +95,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       child: Icon(
                         Icons.lock_open,
                         size: responsive.iconXXLarge,
-                        color: isDark
-                            ? const Color(0xFF5C6BC0)
-                            : const Color(0xFF4CAF50),
+                        color: const Color(0xFF4CAF50),
                       ),
                     ),
                   ),
@@ -154,17 +151,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       style: AppButtonStyles.white(context),
                       child: _isLoading
                           ? CircularProgressIndicator(
-                              color: isDark
-                                  ? const Color(0xFF5C6BC0)
-                                  : const Color(0xFF4CAF50),
+                              color: const Color(0xFF4CAF50),
                             )
                           : Text(
                               context.tr('reset_password'),
                               style: AppTextStyles.button(
                                 context,
-                                color: isDark
-                                    ? const Color(0xFF5C6BC0)
-                                    : const Color(0xFF4CAF50),
+                                color: const Color(0xFF4CAF50),
                               ),
                             ),
                     ),

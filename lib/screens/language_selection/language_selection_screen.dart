@@ -78,7 +78,6 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final languages = [
       {
@@ -128,7 +127,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
     ];
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
@@ -169,30 +168,17 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
                     height: responsive.spacing(80),
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      gradient: isDark
-                          ? LinearGradient(
-                              colors: [
-                                AppColors.darkCard,
-                                AppColors.darkCard.withValues(alpha: 0.8),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            )
-                          : AppColors.primaryGradient,
+                      gradient: AppColors.primaryGradient,
                       borderRadius: BorderRadius.circular(
                         responsive.radiusLarge,
                       ),
                       border: Border.all(
-                        color: isDark
-                            ? Colors.grey.shade700
-                            : AppColors.lightGreenBorder,
+                        color: AppColors.lightGreenBorder,
                         width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: isDark
-                              ? Colors.black.withValues(alpha: 0.2)
-                              : AppColors.primary.withValues(alpha: 0.15),
+                          color: AppColors.primary.withValues(alpha: 0.15),
                           blurRadius: responsive.spacing(10),
                           offset: Offset(0, responsive.spacing(2)),
                         ),
@@ -221,9 +207,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
                       style: TextStyle(
                         fontSize: responsive.fontSize(18),
                         fontWeight: FontWeight.bold,
-                        color: isDark
-                            ? AppColors.darkTextPrimary
-                            : AppColors.primary,
+                        color: AppColors.primary,
                       ),
                     ),
                   ),
@@ -312,7 +296,6 @@ class _LanguageCardState extends State<_LanguageCard>
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
       onTapDown: (_) {
@@ -330,15 +313,13 @@ class _LanguageCardState extends State<_LanguageCard>
         child: Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: isDark ? AppColors.darkCard : Colors.white,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(responsive.radiusLarge),
             border: Border.all(
-              color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
+              color: AppColors.lightGreenBorder,
               width: 1.5,
             ),
-            boxShadow: isDark
-                ? null
-                : [
+            boxShadow: [
                     BoxShadow(
                       color: AppColors.primary.withValues(alpha: 0.08),
                       blurRadius: responsive.spacing(10),
@@ -356,9 +337,7 @@ class _LanguageCardState extends State<_LanguageCard>
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: isDark
-                        ? Colors.grey.shade700
-                        : AppColors.lightGreenBorder,
+                    color: AppColors.lightGreenBorder,
                     width: 1.5,
                   ),
                 ),
@@ -382,9 +361,7 @@ class _LanguageCardState extends State<_LanguageCard>
                       style: TextStyle(
                         fontSize: responsive.fontSize(20),
                         fontWeight: FontWeight.bold,
-                        color: isDark
-                            ? AppColors.darkTextPrimary
-                            : AppColors.textPrimary,
+                        color: AppColors.textPrimary,
                         fontFamily:
                             widget.languageCode == 'ar' ||
                                 widget.languageCode == 'ur'
@@ -398,9 +375,7 @@ class _LanguageCardState extends State<_LanguageCard>
                       widget.nativeName,
                       style: TextStyle(
                         fontSize: responsive.fontSize(16),
-                        color: isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.textSecondary,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],

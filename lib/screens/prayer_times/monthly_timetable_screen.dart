@@ -3,8 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/app_utils.dart';
+import '../../core/services/content_service.dart';
+import '../../data/models/firestore_models.dart';
 import '../../providers/prayer_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../data/models/prayer_time_model.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class MonthlyTimetableScreen extends StatefulWidget {
   const MonthlyTimetableScreen({super.key});
@@ -17,6 +21,9 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
   late int _selectedMonth;
   late int _selectedYear;
   bool _isLoading = false;
+  final ContentService _contentService = ContentService();
+  PrayerTimesScreenContentFirestore? _content;
+  bool _isContentLoading = true;
 
   @override
   void initState() {
@@ -24,7 +31,37 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
     final now = DateTime.now();
     _selectedMonth = now.month;
     _selectedYear = now.year;
-    _loadMonthlyData();
+    _loadContent();
+  }
+
+  Future<void> _loadContent() async {
+    try {
+      final content = await _contentService.getPrayerTimesScreenContent();
+      if (mounted) {
+        setState(() {
+          _content = content;
+          _isContentLoading = false;
+        });
+        _loadMonthlyData();
+      }
+    } catch (e) {
+      debugPrint('Error loading prayer times content from Firebase: $e');
+      if (mounted) {
+        setState(() {
+          _isContentLoading = false;
+        });
+        _loadMonthlyData();
+      }
+    }
+  }
+
+  String get _langCode =>
+      Provider.of<LanguageProvider>(context, listen: false).languageCode;
+
+  /// Get translated string from Firebase only
+  String _t(String key) {
+    if (_content == null) return '';
+    return _content!.getString(key, _langCode);
   }
 
   Future<void> _loadMonthlyData() async {
@@ -64,10 +101,17 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
   Widget build(BuildContext context) {
     final responsive = ResponsiveUtils(context);
 
+    if (_isContentLoading) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          context.tr('monthly_timetable'),
+          _t('monthly_timetable'),
           style: TextStyle(fontSize: responsive.textLarge),
         ),
       ),
@@ -127,13 +171,13 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
             padding: responsive.paddingSymmetric(vertical: 12, horizontal: 8),
             child: Row(
               children: [
-                _buildHeaderCell(context, context.tr('date'), flex: 2),
-                _buildHeaderCell(context, context.tr('fajr')),
-                _buildHeaderCell(context, context.tr('sunrise')),
-                _buildHeaderCell(context, context.tr('dhuhr')),
-                _buildHeaderCell(context, context.tr('asr')),
-                _buildHeaderCell(context, context.tr('maghrib')),
-                _buildHeaderCell(context, context.tr('isha')),
+                _buildHeaderCell(context, _t('date'), flex: 2),
+                _buildHeaderCell(context, _t('fajr')),
+                _buildHeaderCell(context, _t('sunrise')),
+                _buildHeaderCell(context, _t('dhuhr')),
+                _buildHeaderCell(context, _t('asr')),
+                _buildHeaderCell(context, _t('maghrib')),
+                _buildHeaderCell(context, _t('isha')),
               ],
             ),
           ),
@@ -158,7 +202,7 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
                               ),
                               SizedBox(height: responsive.spaceRegular),
                               Text(
-                                context.tr('no_prayer_times'),
+                                _t('no_prayer_times'),
                                 style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: responsive.textRegular,
@@ -168,7 +212,7 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
                               ElevatedButton(
                                 onPressed: _loadMonthlyData,
                                 child: Text(
-                                  context.tr('retry'),
+                                  _t('retry'),
                                   style: TextStyle(fontSize: responsive.textMedium),
                                 ),
                               ),
@@ -186,6 +230,7 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
                     },
                   ),
           ),
+          const BannerAdWidget(),
         ],
       ),
     );

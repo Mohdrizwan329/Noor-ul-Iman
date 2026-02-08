@@ -7,7 +7,8 @@ import '../../core/constants/app_colors.dart';
 import '../../core/utils/app_utils.dart';
 import '../../data/models/allah_name_model.dart';
 import '../../providers/language_provider.dart';
-import '../../providers/settings_provider.dart';
+
+import '../../core/services/content_service.dart';
 
 class NameOfAllahDetailScreen extends StatefulWidget {
   final AllahNameModel name;
@@ -20,6 +21,9 @@ class NameOfAllahDetailScreen extends StatefulWidget {
 
 class _NameOfAllahDetailScreenState extends State<NameOfAllahDetailScreen> {
   final FlutterTts _flutterTts = FlutterTts();
+  final ContentService _contentService = ContentService();
+  Map<String, String> _hindiTransliterations = {};
+  Map<String, String> _urduTransliterations = {};
   bool _isSpeaking = false;
   bool _showTranslation = false;
   bool _isPlayingArabic = false;
@@ -39,81 +43,11 @@ class _NameOfAllahDetailScreenState extends State<NameOfAllahDetailScreen> {
   }
 
   String _transliterateToHindi(String text) {
-    final Map<String, String> map = {
-      'Allah': 'अल्लाह', 'Ar-Rahman': 'अर-रहमान', 'Ar-Raheem': 'अर-रहीम',
-      'Al-Malik': 'अल-मलिक', 'Al-Quddus': 'अल-कुद्दूस', 'As-Salam': 'अस-सलाम',
-      'Al-Mumin': 'अल-मुमिन', 'Al-Muhaymin': 'अल-मुहैमिन', 'Al-Aziz': 'अल-अज़ीज़',
-      'Al-Jabbar': 'अल-जब्बार', 'Al-Mutakabbir': 'अल-मुतकब्बिर', 'Al-Khaliq': 'अल-ख़ालिक़',
-      'Al-Bari': 'अल-बारी', 'Al-Musawwir': 'अल-मुसव्विर', 'Al-Ghaffar': 'अल-ग़फ़्फ़ार',
-      'Al-Qahhar': 'अल-क़ह्हार', 'Al-Wahhab': 'अल-वह्हाब', 'Ar-Razzaq': 'अर-रज़्ज़ाक़',
-      'Al-Fattah': 'अल-फ़त्ताह', 'Al-Alim': 'अल-अलीम', 'Al-Qabid': 'अल-क़ाबिद',
-      'Al-Basit': 'अल-बासित', 'Al-Khafid': 'अल-ख़ाफ़िद', 'Ar-Rafi': 'अर-राफ़ि',
-      'Al-Muizz': 'अल-मुइज़्ज़', 'Al-Mudhill': 'अल-मुज़िल्ल', 'As-Sami': 'अस-समी',
-      'Al-Basir': 'अल-बसीर', 'Al-Hakam': 'अल-हकम', 'Al-Adl': 'अल-अद्ल',
-      'Al-Latif': 'अल-लतीफ़', 'Al-Khabir': 'अल-ख़बीर', 'Al-Halim': 'अल-हलीम',
-      'Al-Azim': 'अल-अज़ीम', 'Al-Ghafur': 'अल-ग़फ़ूर', 'Ash-Shakur': 'अश-शकूर',
-      'Al-Ali': 'अल-अली', 'Al-Kabir': 'अल-कबीर', 'Al-Hafiz': 'अल-हाफ़िज़',
-      'Al-Muqit': 'अल-मुक़ीत', 'Al-Hasib': 'अल-हसीब', 'Al-Jalil': 'अल-जलील',
-      'Al-Karim': 'अल-करीम', 'Ar-Raqib': 'अर-रक़ीब', 'Al-Mujib': 'अल-मुजीब',
-      'Al-Wasi': 'अल-वासि', 'Al-Hakim': 'अल-हकीम', 'Al-Wadud': 'अल-वदूद',
-      'Al-Majid': 'अल-मजीद', 'Al-Baith': 'अल-बाइस', 'Ash-Shahid': 'अश-शहीद',
-      'Al-Haqq': 'अल-हक़्क़', 'Al-Wakil': 'अल-वकील', 'Al-Qawiyy': 'अल-क़वीय्य',
-      'Al-Matin': 'अल-मतीन', 'Al-Waliyy': 'अल-वलीय्य', 'Al-Hamid': 'अल-हमीद',
-      'Al-Muhsi': 'अल-मुहसी', 'Al-Mubdi': 'अल-मुब्दि', 'Al-Muid': 'अल-मुईद',
-      'Al-Muhyi': 'अल-मुह्यी', 'Al-Mumit': 'अल-मुमीत', 'Al-Hayy': 'अल-हय्य',
-      'Al-Qayyum': 'अल-क़य्यूम', 'Al-Wajid': 'अल-वाजिद', 'Al-Wahid': 'अल-वाहिद',
-      'Al-Ahad': 'अल-अहद', 'As-Samad': 'अस-समद', 'Al-Qadir': 'अल-क़ादिर',
-      'Al-Muqtadir': 'अल-मुक़्तदिर', 'Al-Muqaddim': 'अल-मुक़द्दिम', 'Al-Muakhkhir': 'अल-मुअख़्ख़िर',
-      'Al-Awwal': 'अल-अव्वल', 'Al-Akhir': 'अल-आख़िर', 'Az-Zahir': 'अज़-ज़ाहिर',
-      'Al-Batin': 'अल-बातिन', 'Al-Wali': 'अल-वाली', 'Al-Mutaali': 'अल-मुताली',
-      'Al-Barr': 'अल-बर्र', 'At-Tawwab': 'अत-तव्वाब', 'Al-Muntaqim': 'अल-मुन्तक़िम',
-      'Al-Afuww': 'अल-अफ़ुव्व', 'Ar-Rauf': 'अर-रऊफ़', 'Malik-ul-Mulk': 'मलिक-उल-मुल्क',
-      'Dhul-Jalal-wal-Ikram': 'ज़ुल-जलाल-वल-इकराम', 'Al-Muqsit': 'अल-मुक़सित',
-      'Al-Jami': 'अल-जामि', 'Al-Ghani': 'अल-ग़नी', 'Al-Mughni': 'अल-मुग़नी',
-      'Al-Mani': 'अल-मानि', 'Ad-Darr': 'अद-दर्र', 'An-Nafi': 'अन-नाफ़ि',
-      'An-Nur': 'अन-नूर', 'Al-Hadi': 'अल-हादी', 'Al-Badi': 'अल-बदी',
-      'Al-Baqi': 'अल-बाक़ी', 'Al-Warith': 'अल-वारिस', 'Ar-Rashid': 'अर-रशीद',
-    };
-    return map[text] ?? text;
+    return _hindiTransliterations[text] ?? text;
   }
 
   String _transliterateToUrdu(String text) {
-    final Map<String, String> map = {
-      'Allah': 'اللہ', 'Ar-Rahman': 'الرحمان', 'Ar-Raheem': 'الرحیم',
-      'Al-Malik': 'الملک', 'Al-Quddus': 'القدوس', 'As-Salam': 'السلام',
-      'Al-Mumin': 'المومن', 'Al-Muhaymin': 'المہیمن', 'Al-Aziz': 'العزیز',
-      'Al-Jabbar': 'الجبار', 'Al-Mutakabbir': 'المتکبر', 'Al-Khaliq': 'الخالق',
-      'Al-Bari': 'الباری', 'Al-Musawwir': 'المصور', 'Al-Ghaffar': 'الغفار',
-      'Al-Qahhar': 'القہار', 'Al-Wahhab': 'الوہاب', 'Ar-Razzaq': 'الرزاق',
-      'Al-Fattah': 'الفتاح', 'Al-Alim': 'العلیم', 'Al-Qabid': 'القابض',
-      'Al-Basit': 'الباسط', 'Al-Khafid': 'الخافض', 'Ar-Rafi': 'الرافع',
-      'Al-Muizz': 'المعز', 'Al-Mudhill': 'المذل', 'As-Sami': 'السمیع',
-      'Al-Basir': 'البصیر', 'Al-Hakam': 'الحکم', 'Al-Adl': 'العدل',
-      'Al-Latif': 'اللطیف', 'Al-Khabir': 'الخبیر', 'Al-Halim': 'الحلیم',
-      'Al-Azim': 'العظیم', 'Al-Ghafur': 'الغفور', 'Ash-Shakur': 'الشکور',
-      'Al-Ali': 'العلی', 'Al-Kabir': 'الکبیر', 'Al-Hafiz': 'الحفیظ',
-      'Al-Muqit': 'المقیت', 'Al-Hasib': 'الحسیب', 'Al-Jalil': 'الجلیل',
-      'Al-Karim': 'الکریم', 'Ar-Raqib': 'الرقیب', 'Al-Mujib': 'المجیب',
-      'Al-Wasi': 'الواسع', 'Al-Hakim': 'الحکیم', 'Al-Wadud': 'الودود',
-      'Al-Majid': 'المجید', 'Al-Baith': 'الباعث', 'Ash-Shahid': 'الشہید',
-      'Al-Haqq': 'الحق', 'Al-Wakil': 'الوکیل', 'Al-Qawiyy': 'القوی',
-      'Al-Matin': 'المتین', 'Al-Waliyy': 'الولی', 'Al-Hamid': 'الحمید',
-      'Al-Muhsi': 'المحصی', 'Al-Mubdi': 'المبدی', 'Al-Muid': 'المعید',
-      'Al-Muhyi': 'المحیی', 'Al-Mumit': 'الممیت', 'Al-Hayy': 'الحی',
-      'Al-Qayyum': 'القیوم', 'Al-Wajid': 'الواجد', 'Al-Wahid': 'الواحد',
-      'Al-Ahad': 'الاحد', 'As-Samad': 'الصمد', 'Al-Qadir': 'القادر',
-      'Al-Muqtadir': 'المقتدر', 'Al-Muqaddim': 'المقدم', 'Al-Muakhkhir': 'المؤخر',
-      'Al-Awwal': 'الاول', 'Al-Akhir': 'الآخر', 'Az-Zahir': 'الظاہر',
-      'Al-Batin': 'الباطن', 'Al-Wali': 'الوالی', 'Al-Mutaali': 'المتعالی',
-      'Al-Barr': 'البر', 'At-Tawwab': 'التواب', 'Al-Muntaqim': 'المنتقم',
-      'Al-Afuww': 'العفو', 'Ar-Rauf': 'الرؤوف', 'Malik-ul-Mulk': 'مالک الملک',
-      'Dhul-Jalal-wal-Ikram': 'ذوالجلال والاکرام', 'Al-Muqsit': 'المقسط',
-      'Al-Jami': 'الجامع', 'Al-Ghani': 'الغنی', 'Al-Mughni': 'المغنی',
-      'Al-Mani': 'المانع', 'Ad-Darr': 'الضار', 'An-Nafi': 'النافع',
-      'An-Nur': 'النور', 'Al-Hadi': 'الہادی', 'Al-Badi': 'البدیع',
-      'Al-Baqi': 'الباقی', 'Al-Warith': 'الوارث', 'Ar-Rashid': 'الرشید',
-    };
-    return map[text] ?? text;
+    return _urduTransliterations[text] ?? text;
   }
 
   String _getDisplayName(String languageCode) {
@@ -133,6 +67,21 @@ class _NameOfAllahDetailScreenState extends State<NameOfAllahDetailScreen> {
   void initState() {
     super.initState();
     _initTts();
+    _loadTransliterations();
+  }
+
+  Future<void> _loadTransliterations() async {
+    try {
+      final data = await _contentService.getNameTransliterations('allah_names');
+      if (data.isNotEmpty && mounted) {
+        setState(() {
+          _hindiTransliterations = data['hindi'] ?? {};
+          _urduTransliterations = data['urdu'] ?? {};
+        });
+      }
+    } catch (e) {
+      debugPrint('AllahNameDetail: Error loading transliterations: $e');
+    }
   }
 
   Future<void> _initTts() async {
@@ -278,12 +227,11 @@ $description
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
-    final isDark = context.watch<SettingsProvider>().isDarkMode;
     final langProvider = context.watch<LanguageProvider>();
     final selectedLanguage = _getLanguageFromCode(langProvider.languageCode);
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         title: Text(
@@ -295,21 +243,22 @@ $description
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: responsive.paddingAll(12),
-        child: Container(
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: responsive.paddingAll(12),
+              child: Container(
           decoration: BoxDecoration(
-            color: isDark ? AppColors.darkCard : Colors.white,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(responsive.radiusXLarge),
             border: Border.all(
               color: _isSpeaking
                   ? const Color(0xFF1E8F5A)
-                  : (isDark ? Colors.grey.shade700 : const Color(0xFF8AAF9A)),
+                  : (const Color(0xFF8AAF9A)),
               width: _isSpeaking ? 2 : 1.5,
             ),
-            boxShadow: isDark
-                ? null
-                : [
+            boxShadow: [
                     BoxShadow(
                       color: const Color(0xFF0A5C36).withValues(alpha: 0.08),
                       blurRadius: 10,
@@ -327,7 +276,7 @@ $description
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: isDark ? Colors.grey.shade800 : const Color(0xFFE8F3ED),
+                  color: const Color(0xFFE8F3ED),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(responsive.radiusXLarge),
                     topRight: Radius.circular(responsive.radiusXLarge),
@@ -486,7 +435,7 @@ $description
                     decoration: BoxDecoration(
                       color: (_isSpeaking && !_isPlayingArabic)
                           ? AppColors.primary.withValues(alpha: 0.1)
-                          : (isDark ? Colors.grey.shade800 : Colors.grey.shade50),
+                          : (Colors.grey.shade50),
                       borderRadius: BorderRadius.circular(responsive.radiusMedium),
                     ),
                     child: Row(
@@ -534,7 +483,7 @@ $description
                                   height: 1.6,
                                   color: (_isSpeaking && !_isPlayingArabic)
                                       ? AppColors.primary
-                                      : (isDark ? AppColors.darkTextPrimary : Colors.black87),
+                                      : (Colors.black87),
                                   fontFamily: 'Poppins',
                                 ),
                                 textDirection:
@@ -549,9 +498,12 @@ $description
                     ),
                   ),
               SizedBox(height: responsive.spaceMedium),
-            ],
+              ],
+            ),
           ),
         ),
+      ),
+        ],
       ),
     );
   }

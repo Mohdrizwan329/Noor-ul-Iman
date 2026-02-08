@@ -129,86 +129,15 @@ class JuzInfo {
     required this.endAyah,
   });
 
-  // Arabic names for each Juz
-  static const List<String> juzArabicNames = [
-    'الم',           // Juz 1
-    'سَيَقُولُ',      // Juz 2
-    'تِلْكَ الرُّسُلُ', // Juz 3
-    'لَنْ تَنَالُوا',  // Juz 4
-    'وَالْمُحْصَنَاتُ', // Juz 5
-    'لَا يُحِبُّ اللَّهُ', // Juz 6
-    'وَإِذَا سَمِعُوا', // Juz 7
-    'وَلَوْ أَنَّنَا',  // Juz 8
-    'قَالَ الْمَلَأُ', // Juz 9
-    'وَاعْلَمُوا',    // Juz 10
-    'يَعْتَذِرُونَ',  // Juz 11
-    'وَمَا مِنْ دَابَّةٍ', // Juz 12
-    'وَمَا أُبَرِّئُ', // Juz 13
-    'رُبَمَا',        // Juz 14
-    'سُبْحَانَ الَّذِي', // Juz 15
-    'قَالَ أَلَمْ',   // Juz 16
-    'اقْتَرَبَ',      // Juz 17
-    'قَدْ أَفْلَحَ',  // Juz 18
-    'وَقَالَ الَّذِينَ', // Juz 19
-    'أَمَّنْ خَلَقَ', // Juz 20
-    'اتْلُ مَا أُوحِيَ', // Juz 21
-    'وَمَنْ يَقْنُتْ', // Juz 22
-    'وَمَا لِيَ',    // Juz 23
-    'فَمَنْ أَظْلَمُ', // Juz 24
-    'إِلَيْهِ يُرَدُّ', // Juz 25
-    'حم',            // Juz 26
-    'قَالَ فَمَا خَطْبُكُمْ', // Juz 27
-    'قَدْ سَمِعَ اللَّهُ', // Juz 28
-    'تَبَارَكَ الَّذِي', // Juz 29
-    'عَمَّ',          // Juz 30
-  ];
-
-  // Static data for Juz boundaries (Surah:Ayah)
-  static List<JuzInfo> getAllJuz() {
-    const boundaries = [
-      [1, 1, 2, 141],    // Juz 1
-      [2, 142, 2, 252],  // Juz 2
-      [2, 253, 3, 92],   // Juz 3
-      [3, 93, 4, 23],    // Juz 4
-      [4, 24, 4, 147],   // Juz 5
-      [4, 148, 5, 81],   // Juz 6
-      [5, 82, 6, 110],   // Juz 7
-      [6, 111, 7, 87],   // Juz 8
-      [7, 88, 8, 40],    // Juz 9
-      [8, 41, 9, 92],    // Juz 10
-      [9, 93, 11, 5],    // Juz 11
-      [11, 6, 12, 52],   // Juz 12
-      [12, 53, 14, 52],  // Juz 13
-      [15, 1, 16, 128],  // Juz 14
-      [17, 1, 18, 74],   // Juz 15
-      [18, 75, 20, 135], // Juz 16
-      [21, 1, 22, 78],   // Juz 17
-      [23, 1, 25, 20],   // Juz 18
-      [25, 21, 27, 55],  // Juz 19
-      [27, 56, 29, 45],  // Juz 20
-      [29, 46, 33, 30],  // Juz 21
-      [33, 31, 36, 27],  // Juz 22
-      [36, 28, 39, 31],  // Juz 23
-      [39, 32, 41, 46],  // Juz 24
-      [41, 47, 45, 37],  // Juz 25
-      [46, 1, 51, 30],   // Juz 26
-      [51, 31, 57, 29],  // Juz 27
-      [58, 1, 66, 12],   // Juz 28
-      [67, 1, 77, 50],   // Juz 29
-      [78, 1, 114, 6],   // Juz 30
-    ];
-
-    return List.generate(30, (index) {
-      final b = boundaries[index];
-      return JuzInfo(
-        number: index + 1,
-        arabicName: juzArabicNames[index],
-        startSurah: b[0],
-        startAyah: b[1],
-        endSurah: b[2],
-        endAyah: b[3],
-      );
-    });
+  factory JuzInfo.fromJson(Map<String, dynamic> json) {
+    return JuzInfo(
+      number: json['number'] as int? ?? 0,
+      arabicName: json['arabic_name'] as String? ?? '',
+      startSurah: json['start_surah'] as int? ?? 0,
+      startAyah: json['start_ayah'] as int? ?? 0,
+      endSurah: json['end_surah'] as int? ?? 0,
+      endAyah: json['end_ayah'] as int? ?? 0,
+    );
   }
 }
 

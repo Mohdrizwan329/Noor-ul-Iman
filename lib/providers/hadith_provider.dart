@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/models/hadith_model.dart';
+import '../data/models/firestore_models.dart';
+import '../core/services/content_service.dart';
 
 // Hadith Language enum
 enum HadithLanguage { english, urdu, hindi, arabic }
@@ -31,6 +33,9 @@ class HadithProvider with ChangeNotifier {
   HadithCollection? _currentCollection;
   int? _currentChapter;
 
+  // Firebase-loaded collection info
+  Map<String, HadithCollectionInfoFirestore> _collectionsInfo = {};
+
   // Getters
   bool get isLoading => _isLoading;
   String? get error => _error;
@@ -40,88 +45,45 @@ class HadithProvider with ChangeNotifier {
   List<HadithModel> get currentHadiths => _currentHadiths;
   HadithCollection? get currentCollection => _currentCollection;
   int? get currentChapter => _currentChapter;
+  Map<String, HadithCollectionInfoFirestore> get collectionsInfo =>
+      _collectionsInfo;
 
-  // Collection info
-  static const Map<HadithCollection, HadithCollectionInfo> collectionInfo = {
-    HadithCollection.bukhari: HadithCollectionInfo(
-      id: 'bukhari',
-      name: 'Sahih al-Bukhari',
-      arabicName: 'صحيح البخاري',
-      compiler: 'Imam Muhammad al-Bukhari',
-      compilerArabic: 'الإمام محمد البخاري',
-      totalHadith: 7563,
-      totalBooks: 96,
-      description:
-          'Sahih al-Bukhari is considered the most authentic collection of Hadith. Imam Bukhari spent 16 years compiling it.',
-    ),
-    HadithCollection.muslim: HadithCollectionInfo(
-      id: 'muslim',
-      name: 'Sahih Muslim',
-      arabicName: 'صحيح مسلم',
-      compiler: 'Imam Muslim ibn al-Hajjaj',
-      compilerArabic: 'الإمام مسلم بن الحجاج',
-      totalHadith: 7500,
-      totalBooks: 56,
-      description:
-          'Sahih Muslim is the second most authentic collection of Hadith after Sahih Bukhari.',
-    ),
-    HadithCollection.nasai: HadithCollectionInfo(
-      id: 'nasai',
-      name: 'Sunan an-Nasai',
-      arabicName: 'السنن الصغرى',
-      compiler: 'Imam Ahmad an-Nasai',
-      compilerArabic: 'الإمام أحمد النسائي',
-      totalHadith: 5761,
-      totalBooks: 38,
-      description:
-          'Sunan an-Nasai is one of the Kutub al-Sittah (six major hadith collections).',
-    ),
-    HadithCollection.abudawud: HadithCollectionInfo(
-      id: 'abudawud',
-      name: 'Sunan Abu Dawud',
-      arabicName: 'سنن أبي داود',
-      compiler: 'Imam Abu Dawud',
-      compilerArabic: 'الإمام أبو داود',
-      totalHadith: 5274,
-      totalBooks: 28,
-      description:
-          'Sunan Abu Dawud is one of the six canonical hadith collections. It contains hadiths on a wide range of Islamic topics.',
-    ),
-    HadithCollection.tirmidhi: HadithCollectionInfo(
-      id: 'tirmidhi',
-      name: 'Jami at-Tirmidhi',
-      arabicName: 'جامع الترمذي',
-      compiler: 'Imam at-Tirmidhi',
-      compilerArabic: 'الإمام الترمذي',
-      totalHadith: 3956,
-      totalBooks: 33,
-      description:
-          'Jami at-Tirmidhi is one of the six major hadith collections, known for its unique classifications.',
-    ),
-    HadithCollection.ibnmajah: HadithCollectionInfo(
-      id: 'ibnmajah',
-      name: 'Sunan Ibn Majah',
-      arabicName: 'سنن ابن ماجه',
-      compiler: 'Imam Ibn Majah',
-      compilerArabic: 'الإمام ابن ماجه',
-      totalHadith: 4341,
-      totalBooks: 37,
-      description:
-          'Sunan Ibn Majah is one of the six major hadith collections.',
-    ),
-  };
+  // Get collection info for a specific collection
+  HadithCollectionInfoFirestore? getCollectionInfo(
+      HadithCollection collection) {
+    return _collectionsInfo[collection.name];
+  }
 
-  // Language names
-  static const Map<HadithLanguage, String> languageNames = {
-    HadithLanguage.english: 'English',
-    HadithLanguage.urdu: 'اردو',
-    HadithLanguage.hindi: 'हिंदी',
-    HadithLanguage.arabic: 'العربية',
-  };
+  // Get collection name in the current language
+  String getCollectionName(HadithCollection collection, String langCode) {
+    final info = _collectionsInfo[collection.name];
+    return info?.name.get(langCode) ?? collection.name;
+  }
+
+  // Get language display name from Firebase
+  String getLanguageName(HadithLanguage language, String langCode) {
+    final info = _collectionsInfo.values.firstOrNull;
+    if (info == null) return language.name;
+    // Language names are stored alongside collections info
+    return language.name;
+  }
 
   // Initialize
   Future<void> initialize() async {
+    await _loadCollectionsInfo();
     await _loadPreferences();
+  }
+
+  Future<void> _loadCollectionsInfo() async {
+    try {
+      final info = await ContentService().getHadithCollectionsInfo();
+      if (info.isNotEmpty) {
+        _collectionsInfo = info;
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error loading hadith collections info: $e');
+    }
   }
 
   Future<void> _loadPreferences() async {
@@ -191,7 +153,7 @@ class HadithProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final collectionId = collectionInfo[collection]!.id;
+      final collectionId = collection.name;
       final response = await http.get(
         Uri.parse('$_hadithApiUrl/editions/eng-$collectionId.json'),
       );
@@ -233,7 +195,7 @@ class HadithProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final collectionId = collectionInfo[collection]!.id;
+      final collectionId = collection.name;
       // For Hindi, we fetch English and translate to Hindi
       // For Urdu, we fetch Urdu directly
       final langCode = _selectedLanguage == HadithLanguage.urdu ? 'urd' : 'eng';
@@ -308,7 +270,7 @@ class HadithProvider with ChangeNotifier {
                     narrator: _extractNarrator(text),
                     grade: grade,
                     reference:
-                        '${collectionInfo[collection]!.name}, Book $chapter, Hadith $hadithNum',
+                        '${getCollectionName(collection, 'en')}, Book $chapter, Hadith $hadithNum',
                     isFavorite: _favorites.contains('$collectionId:$hadithNum'),
                   ),
                 );
@@ -353,7 +315,7 @@ class HadithProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final collectionId = collectionInfo[collection]!.id;
+      final collectionId = collection.name;
       // For Hindi, we fetch English and translate to Hindi
       final langCode = _selectedLanguage == HadithLanguage.urdu ? 'urd' : 'eng';
 
@@ -419,7 +381,7 @@ class HadithProvider with ChangeNotifier {
               narrator: _extractNarrator(text),
               grade: grade,
               reference:
-                  '${collectionInfo[collection]!.name}, Hadith $hadithNum',
+                  '${getCollectionName(collection, 'en')}, Hadith $hadithNum',
               isFavorite: _favorites.contains('$collectionId:$hadithNum'),
             );
           }).toList();
@@ -484,7 +446,7 @@ class HadithProvider with ChangeNotifier {
     HadithCollection collection,
     String hadithNumber,
   ) async {
-    final collectionId = collectionInfo[collection]!.id;
+    final collectionId = collection.name;
     final key = '$collectionId:$hadithNumber';
 
     if (_favorites.contains(key)) {
@@ -510,7 +472,7 @@ class HadithProvider with ChangeNotifier {
 
   // Check if hadith is favorite
   bool isFavorite(HadithCollection collection, String hadithNumber) {
-    final collectionId = collectionInfo[collection]!.id;
+    final collectionId = collection.name;
     return _favorites.contains('$collectionId:$hadithNumber');
   }
 
@@ -552,25 +514,3 @@ class HadithChapterInfo {
   });
 }
 
-// Collection info class
-class HadithCollectionInfo {
-  final String id;
-  final String name;
-  final String arabicName;
-  final String compiler;
-  final String compilerArabic;
-  final int totalHadith;
-  final int totalBooks;
-  final String description;
-
-  const HadithCollectionInfo({
-    required this.id,
-    required this.name,
-    required this.arabicName,
-    required this.compiler,
-    required this.compilerArabic,
-    required this.totalHadith,
-    required this.totalBooks,
-    required this.description,
-  });
-}

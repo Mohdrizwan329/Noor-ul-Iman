@@ -6,11 +6,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/app_utils.dart';
+import '../../core/services/data_migration_service.dart';
 import '../../data/models/dua_model.dart';
+import '../../data/models/firestore_models.dart';
 import '../../providers/prayer_provider.dart';
 import '../../providers/language_provider.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class RamadanTrackerScreen extends StatefulWidget {
   const RamadanTrackerScreen({super.key});
@@ -36,6 +40,85 @@ class _RamadanTrackerScreenState extends State<RamadanTrackerScreen>
   bool _isSpeaking = false;
   final Set<int> _expandedDuas = {};
 
+  // Firestore
+  List<Map<String, dynamic>>? _firestoreDuas;
+  bool _isDuasLoading = true;
+
+  Future<void> _loadFromFirestore() async {
+    if (mounted) {
+      setState(() => _isDuasLoading = true);
+    }
+    try {
+      // Fetch directly from Firebase (bypass ContentService cache)
+      var doc = await FirebaseFirestore.instance
+          .collection('ramadan_duas')
+          .doc('all_duas')
+          .get();
+
+      // If Firebase is empty, auto-push hardcoded data first
+      if (!doc.exists || (doc.data()?['duas'] as List?)?.isEmpty != false) {
+        debugPrint('Firebase ramadan_duas empty - auto-pushing data...');
+        await DataMigrationService().migrateRamadanDuas();
+        // Re-fetch after push
+        doc = await FirebaseFirestore.instance
+            .collection('ramadan_duas')
+            .doc('all_duas')
+            .get();
+      }
+
+      if (doc.exists && mounted) {
+        final data = doc.data()!;
+        final firestoreDuas = (data['duas'] as List<dynamic>? ?? [])
+            .map((d) => RamadanDuaFirestore.fromJson(d as Map<String, dynamic>))
+            .toList();
+
+        debugPrint('Loaded ${firestoreDuas.length} ramadan duas from Firebase');
+
+        if (firestoreDuas.isNotEmpty) {
+          final converted = firestoreDuas.map((dua) {
+            final colorHex = dua.color;
+            Color color = const Color(0xFF1565C0);
+            if (colorHex.isNotEmpty) {
+              try {
+                color = Color(int.parse(colorHex.replaceFirst('#', '0xFF')));
+              } catch (_) {}
+            }
+            return <String, dynamic>{
+              'titleKey': dua.titleKey,
+              'title': {
+                'en': dua.title.en.isNotEmpty ? dua.title.en : dua.titleKey,
+                'ur': dua.title.ur,
+                'hi': dua.title.hi,
+                'ar': dua.title.ar,
+              },
+              'arabic': dua.arabic,
+              'transliteration': dua.transliteration,
+              'hindi': dua.translation.get('hi'),
+              'english': dua.translation.get('en'),
+              'urdu': dua.translation.get('ur'),
+              'ar': dua.translation.get('ar'),
+              'color': color,
+            };
+          }).toList();
+          setState(() {
+            _firestoreDuas = converted;
+            _isDuasLoading = false;
+          });
+          return;
+        }
+      }
+
+      if (mounted) {
+        setState(() => _isDuasLoading = false);
+      }
+    } catch (e) {
+      debugPrint('Error loading ramadan duas from Firestore: $e');
+      if (mounted) {
+        setState(() => _isDuasLoading = false);
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +127,7 @@ class _RamadanTrackerScreenState extends State<RamadanTrackerScreen>
     _checkRamadan();
     _loadFastingData();
     _initTts();
+    _loadFromFirestore();
 
     // Initialize prayer provider to get location-based times
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -216,419 +300,6 @@ class _RamadanTrackerScreenState extends State<RamadanTrackerScreen>
     _saveFastingData();
   }
 
-  // Ramadan Duas Data
-  List<Map<String, dynamic>> get _ramadanDuas => [
-    {
-      'titleKey': 'duaSeeingNewMoon',
-      'arabic':
-          'اللَّهُ أَكْبَرُ، اللَّهُمَّ أَهِلَّهُ عَلَيْنَا بِالْأَمْنِ وَالْإِيمَانِ، وَالسَّلَامَةِ وَالْإِسْلَامِ، وَالتَّوْفِيقِ لِمَا تُحِبُّ وَتَرْضَى، رَبُّنَا وَرَبُّكَ اللَّهُ',
-      'transliteration':
-          "Allahu Akbar, Allahumma ahillahu 'alayna bil-amni wal-iman, was-salamati wal-islam, wat-tawfiqi lima tuhibbu wa tarda, rabbuna wa rabbuk-Allah",
-      'hindi':
-          'अल्लाह सबसे बड़ा है। ऐ अल्लाह! इस चाँद को हम पर अमन, ईमान, सलामती, इस्लाम और उस चीज़ की तौफ़ीक़ के साथ निकाल जिसे तू पसंद करता है और जिससे तू राज़ी होता है। हमारा और तेरा रब अल्लाह है।',
-      'english':
-          'Allah is the Greatest. O Allah, bring this moon upon us with peace, faith, safety, Islam, and success in what You love and are pleased with. Our Lord and your Lord is Allah.',
-      'urdu':
-          'اللہ سب سے بڑا ہے۔ اے اللہ! اس چاند کو ہم پر امن، ایمان، سلامتی، اسلام اور اس چیز کی توفیق کے ساتھ نکال جسے تو پسند کرتا ہے اور جس سے تو راضی ہوتا ہے۔ ہمارا اور تیرا رب اللہ ہے۔',
-      'color': const Color(0xFF1565C0),
-    },
-    {
-      'titleKey': 'duaForSuhoor',
-      'arabic':
-          'نَوَيْتُ أَنْ أَصُومَ غَدًا مِنْ شَهْرِ رَمَضَانَ هٰذِهِ السَّنَةِ إِيمَانًا وَاحْتِسَابًا لِلَّهِ رَبِّ الْعَالَمِينَ',
-      'transliteration':
-          "Nawaitu an asooma ghadan min shahri Ramadan hadhihi sanati imanan wahtisaban lillahi rabbil-'aalameen",
-      'hindi':
-          'मैंने इस साल रमज़ान के महीने का कल रोज़ा रखने की नियत की ईमान और सवाब की उम्मीद में अल्लाह रब्बुल आलमीन के लिए।',
-      'english':
-          'I intend to observe the fast tomorrow for this year of Ramadan with faith and seeking reward from Allah, Lord of the Worlds.',
-      'urdu':
-          'میں نے اس سال رمضان کے مہینے کا کل روزہ رکھنے کی نیت کی ایمان اور ثواب کی امید میں اللہ رب العالمین کے لیے۔',
-      'color': const Color(0xFF3949AB),
-    },
-    {
-      'titleKey': 'duaWhileFasting',
-      'arabic': 'إِنِّي صَائِمٌ، إِنِّي صَائِمٌ',
-      'transliteration': "Inni sa'im, Inni sa'im",
-      'hindi':
-          'मैं रोज़ेदार हूँ, मैं रोज़ेदार हूँ। (जब कोई गुस्सा दिलाए या झगड़ा करे तो यह दो बार कहें)',
-      'english':
-          'I am fasting, I am fasting. (Say this twice when someone provokes you or argues during fasting)',
-      'urdu':
-          'میں روزہ دار ہوں، میں روزہ دار ہوں۔ (جب کوئی غصہ دلائے یا جھگڑا کرے تو یہ دو بار کہیں)',
-      'color': const Color(0xFF00897B),
-    },
-
-    {
-      'titleKey': 'duaForIftar',
-      'arabic':
-          'اللَّهُمَّ لَكَ صُمْتُ وَبِكَ آمَنْتُ وَعَلَيْكَ تَوَكَّلْتُ وَعَلَى رِزْقِكَ أَفْطَرْتُ',
-      'transliteration':
-          "Allahumma laka sumtu wa bika aamantu wa 'alaika tawakkaltu wa 'ala rizqika aftartu",
-      'hindi':
-          'ऐ अल्लाह! मैंने तेरे लिए रोज़ा रखा, और तुझ पर ईमान लाया, और तुझ पर भरोसा किया और तेरे दिए हुए रिज़्क़ से इफ्तार किया।',
-      'english':
-          'O Allah! I fasted for You, and I believe in You, and I put my trust in You, and I break my fast with Your provision.',
-      'urdu':
-          'اے اللہ! میں نے تیرے لیے روزہ رکھا، اور تجھ پر ایمان لایا، اور تجھ پر بھروسہ کیا اور تیرے دیے ہوئے رزق سے افطار کیا۔',
-      'color': const Color(0xFFE65100),
-    },
-
-    {
-      'titleKey': 'duaForTaraweeh',
-      'arabic':
-          '	سُبْحَانَ ذِي الْمُلْكِ وَالْمَلَكُوتِ، سُبْحَانَ ذِي الْعِزَّةِ وَالْعَظَمَةِ وَالْهَيْبَةِ وَالْقُدْرَةِ وَالْكِبْرِيَاءِ وَالْجَبَرُوتِ، سُبْحَانَ الْمَلِكِ الْحَيِّ الَّذِي لَا يَنَامُ وَلَا يَمُوتُ سُبُّوحٌ قُدُّوسٌ رَبُّنَا وَرَبُّ الْمَلَائِكَةِ وَالرُّوحِ، اَللّٰهُمَّ اَجِرْنَا مِنَ النَّارِ يَا مُجِيرُ يَا مُجِيرُ يَا مُجِيرُ',
-      'transliteration':
-          "Subhana dhil-mulki wal-malakoot, subhana dhil-'izzati wal-'azamati wal-haybati wal-qudrati wal-kibriya'i wal-jabaroot, subhanal-malikil-hayyil-ladhi la yanamu wa la yamootu, subboohun quddusun rabbuna wa rabbul-mala'ikati war-rooh. Allahumma ajirna minan-nar, ya mujiru, ya mujiru, ya mujir",
-      'hindi':
-          '	पाक है वो जो बादशाहत और सल्तनत का मालिक है, पाक है वो जो इज़्ज़त, अज़मत, हैबत, क़ुदरत, बड़ाई और जबरूत वाला है, पाक है बादशाह ज़िंदा जो न सोता है और न मरता है, बहुत पाक बहुत पवित्र है हमारा रब और फ़रिश्तों और रूह का रब। ऐ अल्लाह! हमें जहन्नम की आग से पनाह दे। ऐ पनाह देने वाले, ऐ पनाह देने वाले, ऐ पनाह देने वाले',
-      'english':
-          'Glory be to the Owner of the Kingdom and Dominion, Glory be to the Owner of Might, Grandeur, Awe, Power, Pride and Majesty. Glory be to the Ever-Living King who neither sleeps nor dies. Most Holy, Most Pure, Our Lord and the Lord of the Angels and the Spirit.',
-      'urdu':
-          '	پاک ہے وہ جو بادشاہت اور سلطنت کا مالک ہے، پاک ہے وہ جو عزت، عظمت، ہیبت، قدرت، بڑائی اور جبروت والا ہے، پاک ہے بادشاہ زندہ جو نہ سوتا ہے اور نہ مرتا ہے، بہت پاک بہت پاکیزہ ہے ہمارا رب اور فرشتوں اور روح کا رب۔ الٰہی ہم کو دوزخ سے پناہ دے۔ اے پناہ دینے والے! اے پناہ دینے والے! اے پناہ دینے والے!',
-      'color': const Color(0xFF00695C),
-    },
-    {
-      'titleKey': 'duaWhenBreakingFast',
-      'arabic':
-          'ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ',
-      'transliteration':
-          "Dhahaba al-zama’ wabtallatil-‘urooq wa thabatal-ajru in sha Allah",
-      'hindi': 'प्यास बुझ गई, नसें तर हो गईं और इंशा अल्लाह सवाब पक्का हो गया।',
-      'english':
-          'The thirst has gone, the veins are moistened and the reward is assured, if Allah wills.',
-      'urdu': 'پیاس بجھ گئی، رگیں تر ہو گئیں اور ان شاء اللہ ثواب ثابت ہو گیا۔',
-      'color': const Color(0xFF2E7D32),
-    },
-    {
-      'titleKey': 'duaSeekingForgiveness',
-      'arabic':
-          'رَبِّ اغْفِرْ لِي وَتُبْ عَلَيَّ إِنَّكَ أَنْتَ التَّوَّابُ الرَّحِيمُ',
-      'transliteration':
-          "Rabbighfir li wa tub ‘alayya innaka antat-Tawwabur-Raheem",
-      'hindi':
-          'ऐ मेरे रब! मुझे माफ़ कर और मेरी तौबा क़बूल फ़रमा, बेशक तू बहुत तौबा क़बूल करने वाला है।',
-      'english':
-          'My Lord! Forgive me and accept my repentance. Indeed, You are the Accepter of repentance, the Merciful.',
-      'urdu':
-          'اے میرے رب! مجھے معاف کر اور میری توبہ قبول فرما، بیشک تو بہت توبہ قبول کرنے والا ہے۔',
-      'color': const Color(0xFFAD1457),
-    },
-    {
-      'titleKey': 'duaForLaylatulQadr',
-      'arabic':
-          'اللَّهُمَّ إِنَّكَ عَفُوٌّ كَرِيمٌ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي',
-      'transliteration':
-          "Allahumma innaka 'afuwwun kareemun tuhibbul-'afwa fa'fu 'anni",
-      'hindi':
-          'ऐ अल्लाह! बेशक तू बहुत माफ़ करने वाला और करीम (सबसे उदार) है, माफ़ी को पसंद करता है, तो मुझे माफ़ कर दे।',
-      'english':
-          'O Allah, indeed You are Most Forgiving, Most Generous, You love to forgive, so forgive me.',
-      'urdu':
-          'اے اللہ! بیشک تو بہت معاف کرنے والا اور کریم (سب سے سخی) ہے، معافی کو پسند کرتا ہے، تو مجھے معاف کر دے۔',
-      'color': const Color(0xFF6A1B9A),
-    },
-    {
-      'titleKey': 'duaEndOfRamadan',
-      'arabic':
-          'اللَّهُمَّ تَقَبَّلْ مِنَّا صِيَامَنَا وَقِيَامَنَا وَرُكُوعَنَا وَسُجُودَنَا وَتَسْبِيحَنَا وَتَكْبِيرَنَا وَتَهْلِيلَنَا وَتَقَبَّلْ تَوْبَتَنَا وَثَبِّتْ حُجَّتَنَا وَاغْفِرْ لَنَا ذُنُوبَنَا وَاجْعَلْنَا مِنَ الْفَائِزِينَ',
-      'transliteration':
-          "Allahumma taqabbal minna siyamana wa qiyamana wa rukoo'ana wa sujoodana wa tasbeehana wa takbeerana wa tahleelana wa taqabbal tawbatana wa thabbit hujjatana waghfir lana dhunoobana waj'alna minal-fa'izeen",
-      'hindi':
-          'ऐ अल्लाह! हमारे रोज़े, क़ियाम, रुकूअ, सजदे, तस्बीह, तकबीर और तहलील क़बूल फ़रमा और हमारी तौबा क़बूल कर, हमारी दलील को मज़बूत कर, हमारे गुनाह माफ़ कर दे और हमें कामयाब लोगों में से बना दे।',
-      'english':
-          'O Allah! Accept from us our fasting, our standing in prayer, our bowing, prostration, glorification, magnification and declaration of Your Oneness. Accept our repentance, strengthen our proof, forgive our sins and make us among the successful ones.',
-      'urdu':
-          'اے اللہ! ہمارے روزے، قیام، رکوع، سجدے، تسبیح، تکبیر اور تہلیل قبول فرما اور ہماری توبہ قبول کر، ہماری دلیل کو مضبوط کر، ہمارے گناہ معاف کر دے اور ہمیں کامیاب لوگوں میں سے بنا دے۔',
-      'color': const Color(0xFF5E35B1),
-    },
-    {
-      'titleKey': 'duaForEid',
-      'arabic':
-          'اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ لَا إِلَٰهَ إِلَّا اللَّهُ وَاللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ وَلِلَّهِ الْحَمْدُ',
-      'transliteration':
-          "Allahu Akbar, Allahu Akbar, Allahu Akbar, La ilaha illallah, Wallahu Akbar, Allahu Akbar, Wa lillahil hamd",
-      'hindi':
-          'अल्लाह सबसे बड़ा है, अल्लाह सबसे बड़ा है, अल्लाह सबसे बड़ा है, अल्लाह के सिवा कोई माबूद नहीं, अल्लाह सबसे बड़ा है, अल्लाह सबसे बड़ा है और तमाम तारीफ़ अल्लाह के लिए है।',
-      'english':
-          'Allah is the Greatest, Allah is the Greatest, Allah is the Greatest. There is no deity except Allah. Allah is the Greatest, Allah is the Greatest, and all praise is for Allah.',
-      'urdu':
-          'اللہ سب سے بڑا ہے، اللہ سب سے بڑا ہے، اللہ سب سے بڑا ہے، اللہ کے سوا کوئی معبود نہیں، اللہ سب سے بڑا ہے، اللہ سب سے بڑا ہے اور تمام تعریف اللہ کے لیے ہے۔',
-      'color': const Color(0xFFC62828),
-    },
-    {
-      'titleKey': 'Ramadan Day 1',
-      'arabic': 'اللَّهُمَّ اجْعَلْ صِيَامِي فِيهِ صِيَامَ الصَّائِمِينَ',
-      'transliteration': 'Allahumma-j‘al siyami fihi siyamas-sa’imeen',
-      'hindi': 'ऐ अल्लाह! मेरे रोज़े को सच्चे रोज़ेदारों जैसा बना दे।',
-      'english': 'O Allah! Make my fasting like the fasting of true believers.',
-      'urdu': 'اے اللہ! میرے روزے کو سچے روزہ داروں جیسا بنا دے۔',
-      'color': const Color(0xFF1E88E5),
-    },
-    {
-      'titleKey': 'Ramadan Day 2',
-      'arabic': 'اللَّهُمَّ قَرِّبْنِي فِيهِ إِلَى مَرْضَاتِكَ',
-      'transliteration': 'Allahumma qarribni fihi ila mardatika',
-      'hindi': 'ऐ अल्लाह! मुझे अपनी रज़ा के क़रीब कर दे।',
-      'english': 'O Allah! Bring me closer to Your pleasure.',
-      'urdu': 'اے اللہ! مجھے اپنی رضا کے قریب کر دے۔',
-      'color': const Color(0xFF43A047),
-    },
-    {
-      'titleKey': 'Ramadan Day 3',
-      'arabic': 'اللَّهُمَّ ارْزُقْنِي فِيهِ الذِّهْنَ وَالتَّنْبِيهَ',
-      'transliteration': 'Allahummar-zuqni fihi adh-dhihna wat-tanbeeh',
-      'hindi': 'ऐ अल्लाह! मुझे समझ और होश अता फ़रमा।',
-      'english': 'O Allah! Grant me understanding and awareness.',
-      'urdu': 'اے اللہ! مجھے سمجھ اور ہوشیاری عطا فرما۔',
-      'color': const Color(0xFF00897B),
-    },
-    {
-      'titleKey': 'Ramadan Day 4',
-      'arabic': 'اللَّهُمَّ قَوِّنِي فِيهِ عَلَى إِقَامَةِ أَمْرِكَ',
-      'transliteration': 'Allahumma qawwīni fihi ‘ala iqamati amrik',
-      'hindi': 'ऐ अल्लाह! मुझे तेरे हुक्म पर चलने की ताक़त दे।',
-      'english': 'O Allah! Strengthen me to obey Your commands.',
-      'urdu': 'اے اللہ! مجھے تیرے احکامات پر عمل کی طاقت دے۔',
-      'color': const Color(0xFF5E35B1),
-    },
-    {
-      'titleKey': 'Ramadan Day 5',
-      'arabic': 'اللَّهُمَّ اجْعَلْنِي فِيهِ مِنَ الْمُسْتَغْفِرِينَ',
-      'transliteration': 'Allahumma-j‘alni fihi minal-mustaghfireen',
-      'hindi': 'ऐ अल्लाह! मुझे तौबा करने वालों में शामिल कर।',
-      'english': 'O Allah! Make me among those who seek forgiveness.',
-      'urdu': 'اے اللہ! مجھے توبہ کرنے والوں میں شامل فرما۔',
-      'color': const Color(0xFF6D4C41),
-    },
-
-    {
-      'titleKey': 'Ramadan Day 6',
-      'arabic': 'اللَّهُمَّ لَا تَخْذُلْنِي فِيهِ',
-      'transliteration': 'Allahumma la takhdhulni fihi',
-      'hindi': 'ऐ अल्लाह! मुझे इस दिन नाकामी न दे।',
-      'english': 'O Allah! Do not forsake me in this day.',
-      'urdu': 'اے اللہ! مجھے اس دن ناکامی نہ دے۔',
-      'color': const Color(0xFFD32F2F),
-    },
-    {
-      'titleKey': 'Ramadan Day 7',
-      'arabic': 'اللَّهُمَّ أَعِنِّي فِيهِ عَلَى صِيَامِهِ وَقِيَامِهِ',
-      'transliteration': 'Allahumma a\'inni fihi \'ala siyamihi wa qiyamih',
-      'hindi': 'ऐ अल्लाह! रोज़े और क़ियाम में मेरी मदद फ़रमा।',
-      'english': 'O Allah! Help me with fasting and standing in prayer.',
-      'urdu': 'اے اللہ! روزے اور قیام میں میری مدد فرما۔',
-      'color': const Color(0xFF7B1FA2),
-    },
-    {
-      'titleKey': 'Ramadan Day 8',
-      'arabic': 'اللَّهُمَّ ارْزُقْنِي فِيهِ رَحْمَةَ الْأَيْتَامِ',
-      'transliteration': 'Allahummar-zuqni fihi rahmatal-aytam',
-      'hindi': 'ऐ अल्लाह! यतीमों पर रहम करने की तौफ़ीक़ दे।',
-      'english': 'O Allah! Grant me mercy towards orphans.',
-      'urdu': 'اے اللہ! یتیموں پر رحم کرنے کی توفیق دے۔',
-      'color': const Color(0xFF0288D1),
-    },
-    {
-      'titleKey': 'Ramadan Day 9',
-      'arabic': 'اللَّهُمَّ اجْعَلْ لِي فِيهِ نَصِيبًا مِنْ رَحْمَتِكَ',
-      'transliteration': 'Allahumma-j\'al li fihi nasiban min rahmatik',
-      'hindi': 'ऐ अल्लाह! अपनी रहमत में मेरा हिस्सा रख।',
-      'english': 'O Allah! Make for me a share of Your mercy.',
-      'urdu': 'اے اللہ! اپنی رحمت میں میرا حصہ رکھ۔',
-      'color': const Color(0xFF388E3C),
-    },
-    {
-      'titleKey': 'Ramadan Day 10',
-      'arabic': 'اللَّهُمَّ اجْعَلْنِي فِيهِ مِنَ الْمُتَوَكِّلِينَ',
-      'transliteration': 'Allahumma-j\'alni fihi minal-mutawakkileen',
-      'hindi': 'ऐ अल्लाह! मुझे तुझ पर भरोसा करने वाला बना।',
-      'english': 'O Allah! Make me among those who trust You.',
-      'urdu': 'اے اللہ! مجھے تجھ پر بھروسہ کرنے والا بنا۔',
-      'color': const Color(0xFF0277BD),
-    },
-    {
-      'titleKey': 'Ramadan Day 11',
-      'arabic': 'اللَّهُمَّ حَبِّبْ إِلَيَّ فِيهِ الْإِحْسَانَ',
-      'transliteration': 'Allahumma habbib ilayya fihil-ihsan',
-      'hindi': 'ऐ अल्लाह! नेकी को मेरे दिल में प्यारा बना दे।',
-      'english': 'O Allah! Make goodness beloved to me.',
-      'urdu': 'اے اللہ! نیکی کو میرے دل میں پیارا بنا دے۔',
-      'color': const Color(0xFF00796B),
-    },
-    {
-      'titleKey': 'Ramadan Day 12',
-      'arabic': 'اللَّهُمَّ اسْتُرْ فِيهِ عَوْرَاتِي',
-      'transliteration': 'Allahumma-stur fihi \'awrati',
-      'hindi': 'ऐ अल्लाह! मेरी कमियों को छुपा दे।',
-      'english': 'O Allah! Cover my faults and weaknesses.',
-      'urdu': 'اے اللہ! میری کمیوں کو چھپا دے۔',
-      'color': const Color(0xFF5D4037),
-    },
-    {
-      'titleKey': 'Ramadan Day 13',
-      'arabic': 'اللَّهُمَّ طَهِّرْنِي فِيهِ مِنَ الدَّنَسِ',
-      'transliteration': 'Allahumma tahhirni fihi minad-danas',
-      'hindi': 'ऐ अल्लाह! मुझे गुनाहों से पाक कर दे।',
-      'english': 'O Allah! Purify me from sins and impurities.',
-      'urdu': 'اے اللہ! مجھے گناہوں سے پاک کر دے۔',
-      'color': const Color(0xFF1976D2),
-    },
-    {
-      'titleKey': 'Ramadan Day 14',
-      'arabic': 'اللَّهُمَّ لَا تُؤَاخِذْنِي فِيهِ بِالْعَثَرَاتِ',
-      'transliteration': 'Allahumma la tu\'akhidhni fihi bil-\'atharat',
-      'hindi': 'ऐ अल्लाह! मेरी गलतियों पर सज़ा न दे।',
-      'english': 'O Allah! Do not punish me for my mistakes.',
-      'urdu': 'اے اللہ! میری غلطیوں پر سزا نہ دے۔',
-      'color': const Color(0xFF689F38),
-    },
-    {
-      'titleKey': 'Ramadan Day 15',
-      'arabic': 'اللَّهُمَّ ارْزُقْنِي فِيهِ طَاعَةَ الْخَاشِعِينَ',
-      'transliteration': 'Allahummar-zuqni fihi ta\'ata al-khashi\'een',
-      'hindi': 'ऐ अल्लाह! मुझे सच्ची इताअत अता फ़रमा।',
-      'english': 'O Allah! Grant me obedience with humility.',
-      'urdu': 'اے اللہ! مجھے عاجزی کے ساتھ اطاعت عطا فرما۔',
-      'color': const Color(0xFF2E7D32),
-    },
-    {
-      'titleKey': 'Ramadan Day 16',
-      'arabic': 'اللَّهُمَّ وَفِّقْنِي فِيهِ لِمُوَافَقَةِ الْأَبْرَارِ',
-      'transliteration': 'Allahumma waffiqni fihi limuwafaqatil-abrar',
-      'hindi': 'ऐ अल्लाह! नेक लोगों की संगत नसीब कर।',
-      'english': 'O Allah! Grant me company of the righteous.',
-      'urdu': 'اے اللہ! نیک لوگوں کی صحبت نصیب کر۔',
-      'color': const Color(0xFFAFB42B),
-    },
-    {
-      'titleKey': 'Ramadan Day 17',
-      'arabic': 'اللَّهُمَّ اهْدِنِي فِيهِ لِصَالِحِ الْأَعْمَالِ',
-      'transliteration': 'Allahumma-hdini fihi lisalihil-a\'mal',
-      'hindi': 'ऐ अल्लाह! नेक आमाल की हिदायत दे।',
-      'english': 'O Allah! Guide me to righteous deeds.',
-      'urdu': 'اے اللہ! نیک اعمال کی ہدایت دے۔',
-      'color': const Color(0xFFF57C00),
-    },
-    {
-      'titleKey': 'Ramadan Day 18',
-      'arabic': 'اللَّهُمَّ نَبِّهْنِي فِيهِ لِبَرَكَاتِ أَسْحَارِهِ',
-      'transliteration': 'Allahumma nabbihni fihi libarakati asharihi',
-      'hindi': 'ऐ अल्लाह! सेहरी की बरकतों का एहसास करा।',
-      'english': 'O Allah! Awaken me to the blessings of its pre-dawn.',
-      'urdu': 'اے اللہ! سحری کی برکتوں کا احساس کرا۔',
-      'color': const Color(0xFF00838F),
-    },
-    {
-      'titleKey': 'Ramadan Day 19',
-      'arabic': 'اللَّهُمَّ ارْزُقْنِي فِيهِ مِنَ النَّصِيبِ مِنْ بَرَكَاتِهِ',
-      'transliteration': 'Allahummar-zuqni fihi minan-nasib min barakatihi',
-      'hindi': 'ऐ अल्लाह! इस दिन की बरकतों में मेरा हिस्सा दे।',
-      'english': 'O Allah! Grant me a share of its blessings.',
-      'urdu': 'اے اللہ! اس دن کی برکتوں میں میرا حصہ دے۔',
-      'color': const Color(0xFF558B2F),
-    },
-    {
-      'titleKey': 'Ramadan Day 20',
-      'arabic': 'اللَّهُمَّ افْتَحْ لِي فِيهِ أَبْوَابَ الْجِنَانِ',
-      'transliteration': 'Allahumma-ftah li fihi abwabal-jinan',
-      'hindi': 'ऐ अल्लाह! मेरे लिए जन्नत के दरवाज़े खोल दे।',
-      'english': 'O Allah! Open for me the doors of Paradise.',
-      'urdu': 'اے اللہ! میرے لیے جنت کے دروازے کھول دے۔',
-      'color': const Color(0xFF8E24AA),
-    },
-    {
-      'titleKey': 'Ramadan Day 21',
-      'arabic': 'اللَّهُمَّ اهْدِنِي فِيهِ إِلَى سُبُلِ السَّلَامِ',
-      'transliteration': 'Allahumma-hdini fihi ila subulus-salam',
-      'hindi': 'ऐ अल्लाह! सलामती के रास्तों की हिदायत दे।',
-      'english': 'O Allah! Guide me to the paths of peace.',
-      'urdu': 'اے اللہ! سلامتی کے راستوں کی ہدایت دے۔',
-      'color': const Color(0xFF512DA8),
-    },
-    {
-      'titleKey': 'Ramadan Day 22',
-      'arabic': 'اللَّهُمَّ افْتَحْ لِي فِيهِ أَبْوَابَ فَضْلِكَ',
-      'transliteration': 'Allahumma-ftah li fihi abwaba fadlik',
-      'hindi': 'ऐ अल्लाह! अपने फ़ज़्ल के दरवाज़े खोल दे।',
-      'english': 'O Allah! Open for me the gates of Your grace.',
-      'urdu': 'اے اللہ! اپنے فضل کے دروازے کھول دے۔',
-      'color': const Color(0xFF303F9F),
-    },
-    {
-      'titleKey': 'Ramadan Day 23',
-      'arabic': 'اللَّهُمَّ اغْسِلْنِي فِيهِ مِنَ الذُّنُوبِ',
-      'transliteration': 'Allahumma-ghsilni fihi minadh-dhunub',
-      'hindi': 'ऐ अल्लाह! मुझे गुनाहों से धो दे।',
-      'english': 'O Allah! Wash me from sins in this day.',
-      'urdu': 'اے اللہ! مجھے گناہوں سے دھو دے۔',
-      'color': const Color(0xFF0097A7),
-    },
-    {
-      'titleKey': 'Ramadan Day 24',
-      'arabic': 'اللَّهُمَّ إِنِّي أَسْأَلُكَ فِيهِ مَا يُرْضِيكَ',
-      'transliteration': 'Allahumma inni as\'aluka fihi ma yurdika',
-      'hindi': 'ऐ अल्लाह! मैं तुझसे वो मांगता हूं जो तुझे पसंद है।',
-      'english': 'O Allah! I ask You for what pleases You.',
-      'urdu': 'اے اللہ! میں تجھ سے وہ مانگتا ہوں جو تجھے پسند ہے۔',
-      'color': const Color(0xFF00796B),
-    },
-    {
-      'titleKey': 'Ramadan Day 25',
-      'arabic': 'اللَّهُمَّ اجْعَلْنِي فِيهِ مُحِبًّا لِأَوْلِيَائِكَ',
-      'transliteration': 'Allahumma-j\'alni fihi muhibban li-awliya\'ik',
-      'hindi': 'ऐ अल्लाह! मुझे अपने नेक बंदों से मोहब्बत करने वाला बना।',
-      'english': 'O Allah! Make me love Your righteous servants.',
-      'urdu': 'اے اللہ! مجھے اپنے نیک بندوں سے محبت کرنے والا بنا۔',
-      'color': const Color(0xFF3949AB),
-    },
-    {
-      'titleKey': 'Ramadan Day 26',
-      'arabic': 'اللَّهُمَّ اجْعَلْ سَعْيِي فِيهِ مَشْكُورًا',
-      'transliteration': 'Allahumma-j\'al sa\'yi fihi mashkura',
-      'hindi': 'ऐ अल्लाह! मेरी कोशिश को क़बूल फ़रमा।',
-      'english': 'O Allah! Make my efforts appreciated.',
-      'urdu': 'اے اللہ! میری کوشش کو قبول فرما۔',
-      'color': const Color(0xFFC62828),
-    },
-    {
-      'titleKey': 'Ramadan Day 27',
-      'arabic': 'اللَّهُمَّ ارْزُقْنِي فِيهِ فَضْلَ لَيْلَةِ الْقَدْرِ',
-      'transliteration': 'Allahummar-zuqni fihi fadla laylatil-qadr',
-      'hindi': 'ऐ अल्लाह! मुझे शबे क़द्र की फ़ज़ीलत नसीब कर।',
-      'english': 'O Allah! Grant me the merit of Laylatul Qadr.',
-      'urdu': 'اے اللہ! مجھے شب قدر کی فضیلت نصیب کر۔',
-      'color': const Color(0xFF6A1B9A),
-    },
-    {
-      'titleKey': 'Ramadan Day 28',
-      'arabic': 'اللَّهُمَّ وَفِّرْ حَظِّي فِيهِ مِنَ النَّوَافِلِ',
-      'transliteration': 'Allahumma waffir hazzi fihi minan-nawafil',
-      'hindi': 'ऐ अल्लाह! नफ़िल इबादत में मेरा हिस्सा बढ़ा दे।',
-      'english': 'O Allah! Increase my share of voluntary worship.',
-      'urdu': 'اے اللہ! نفل عبادت میں میرا حصہ بڑھا دے۔',
-      'color': const Color(0xFFAD1457),
-    },
-    {
-      'titleKey': 'Ramadan Day 29',
-      'arabic': 'اللَّهُمَّ غَشِّنِي فِيهِ بِالرَّحْمَةِ',
-      'transliteration': 'Allahumma ghashshini fihi bir-rahmah',
-      'hindi': 'ऐ अल्लाह! मुझे अपनी रहमत से ढक दे।',
-      'english': 'O Allah! Cover me with Your mercy.',
-      'urdu': 'اے اللہ! مجھے اپنی رحمت سے ڈھانپ دے۔',
-      'color': const Color(0xFFE64A19),
-    },
-    {
-      'titleKey': 'Ramadan Day 30',
-      'arabic': 'اللَّهُمَّ تَقَبَّلْ مِنِّي وَاغْفِرْ لِي',
-      'transliteration': 'Allahumma taqabbal minni waghfir li',
-      'hindi': 'ऐ अल्लाह! मेरी इबादत क़बूल कर और मुझे माफ़ कर दे।',
-      'english': 'O Allah! Accept from me and forgive me.',
-      'urdu': 'اے اللہ! میری عبادت قبول فرما اور مجھے معاف کر دے۔',
-      'color': const Color(0xFFC62828),
-    },
-  ];
-
   // TTS Methods
   Future<void> _stopPlaying() async {
     await _flutterTts.stop();
@@ -682,22 +353,12 @@ class _RamadanTrackerScreenState extends State<RamadanTrackerScreen>
   }
 
   void _copyDua(BuildContext context, Map<String, dynamic> dua) {
-    String currentTranslation;
-    switch (_selectedLanguage) {
-      case DuaLanguage.hindi:
-        currentTranslation = dua['hindi'];
-      case DuaLanguage.english:
-        currentTranslation = dua['english'];
-      case DuaLanguage.urdu:
-        currentTranslation = dua['urdu'];
-      case DuaLanguage.arabic:
-        currentTranslation =
-            dua['english']; // Arabic users see English translation
-    }
+    final currentTranslation = _getCurrentTranslation(dua);
+    final title = _getDuaTitle(dua);
 
     final textToCopy =
         '''
-${context.tr(dua['titleKey'])}
+$title
 
 ${dua['arabic']}
 
@@ -710,22 +371,12 @@ $currentTranslation
   }
 
   void _shareDua(BuildContext context, Map<String, dynamic> dua) {
-    String currentTranslation;
-    switch (_selectedLanguage) {
-      case DuaLanguage.hindi:
-        currentTranslation = dua['hindi'];
-      case DuaLanguage.english:
-        currentTranslation = dua['english'];
-      case DuaLanguage.urdu:
-        currentTranslation = dua['urdu'];
-      case DuaLanguage.arabic:
-        currentTranslation =
-            dua['english']; // Arabic users see English translation
-    }
+    final currentTranslation = _getCurrentTranslation(dua);
+    final title = _getDuaTitle(dua);
 
     final textToShare =
         '''
-${context.tr(dua['titleKey'])}
+$title
 
 ${dua['arabic']}
 
@@ -761,61 +412,68 @@ ${context.tr('shared_from_app')}
           style: TextStyle(fontSize: responsive.textLarge),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _refreshPrayerTimes,
-        color: AppColors.primary,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: responsive.paddingRegular,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Ramadan Status Card
-              _buildStatusCard(responsive),
-              SizedBox(height: responsive.spaceRegular),
+      body: Column(
+        children: [
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _refreshPrayerTimes,
+              color: AppColors.primary,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: responsive.paddingRegular,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Ramadan Status Card
+                    _buildStatusCard(responsive),
+                    SizedBox(height: responsive.spaceRegular),
 
-              // Suhoor & Iftar Times
-              if (isLoading)
-                _buildLoadingCard(responsive)
-              else if (hasError)
-                _buildErrorCard(responsive, prayerProvider.error!)
-              else if (prayerTimes != null)
-                _buildFastingTimesCard(
-                  prayerTimes.fajr,
-                  prayerTimes.maghrib,
-                  responsive,
-                )
-              else
-                _buildNoDataCard(responsive),
-              SizedBox(height: responsive.spaceRegular),
+                    // Suhoor & Iftar Times
+                    if (isLoading)
+                      _buildLoadingCard(responsive)
+                    else if (hasError)
+                      _buildErrorCard(responsive, prayerProvider.error!)
+                    else if (prayerTimes != null)
+                      _buildFastingTimesCard(
+                        prayerTimes.fajr,
+                        prayerTimes.maghrib,
+                        responsive,
+                      )
+                    else
+                      _buildNoDataCard(responsive),
+                    SizedBox(height: responsive.spaceRegular),
 
-              // Statistics
-              _buildStatisticsCard(responsive),
-              SizedBox(height: responsive.spaceRegular),
+                    // Statistics
+                    _buildStatisticsCard(responsive),
+                    SizedBox(height: responsive.spaceRegular),
 
-              // Fasting Days Grid Card
-              Text(
-                context
-                    .tr('fasting_days_ramadan')
-                    .replaceAll('{year}', _currentRamadanYear.toString()),
-                style: TextStyle(
-                  fontSize: responsive.textRegular,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
+                    // Fasting Days Grid Card
+                    Text(
+                      context
+                          .tr('fasting_days_ramadan')
+                          .replaceAll('{year}', _currentRamadanYear.toString()),
+                      style: TextStyle(
+                        fontSize: responsive.textRegular,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: responsive.spaceMedium),
+                    _buildFastingGridCard(responsive),
+
+                    SizedBox(height: responsive.spaceXXLarge),
+
+                    // Ramadan Duas Section
+                    _buildDuasSection(responsive),
+                  ],
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
-              SizedBox(height: responsive.spaceMedium),
-              _buildFastingGridCard(responsive),
-
-              SizedBox(height: responsive.spaceXXLarge),
-
-              // Ramadan Duas Section
-              _buildDuasSection(responsive),
-            ],
+            ),
           ),
-        ),
+          const BannerAdWidget(),
+        ],
       ),
     );
   }
@@ -1490,7 +1148,44 @@ ${context.tr('shared_from_app')}
     );
   }
 
+  /// Get the dua title - prefer Firebase multilingual title, fallback to context.tr()
+  String _getDuaTitle(Map<String, dynamic> dua) {
+    final title = dua['title'];
+    if (title is Map<String, dynamic>) {
+      final langCode = _selectedLanguage == DuaLanguage.hindi
+          ? 'hi'
+          : _selectedLanguage == DuaLanguage.english
+          ? 'en'
+          : _selectedLanguage == DuaLanguage.urdu
+          ? 'ur'
+          : 'ar';
+      final localizedTitle = title[langCode] as String? ?? '';
+      if (localizedTitle.isNotEmpty) return localizedTitle;
+      // Fallback to English if localized title is empty
+      final enTitle = title['en'] as String? ?? '';
+      if (enTitle.isNotEmpty) return enTitle;
+    }
+    // Final fallback to translation key
+    return context.tr(dua['titleKey'] ?? '');
+  }
+
+  /// Get the current translation text based on selected language
+  String _getCurrentTranslation(Map<String, dynamic> dua) {
+    switch (_selectedLanguage) {
+      case DuaLanguage.hindi:
+        return dua['hindi'] ?? '';
+      case DuaLanguage.english:
+        return dua['english'] ?? '';
+      case DuaLanguage.urdu:
+        return dua['urdu'] ?? '';
+      case DuaLanguage.arabic:
+        return dua['ar'] ?? dua['english'] ?? '';
+    }
+  }
+
   Widget _buildDuasSection(ResponsiveUtils responsive) {
+    final duasList = _firestoreDuas ?? [];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1504,18 +1199,38 @@ ${context.tr('shared_from_app')}
         ),
         SizedBox(height: responsive.spaceMedium),
 
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: _ramadanDuas.length,
-          separatorBuilder: (context, index) =>
-              SizedBox(height: responsive.spaceRegular),
-          itemBuilder: (context, index) {
-            final dua = _ramadanDuas[index];
-            final isExpanded = _expandedDuas.contains(index);
-            return _buildDuaCard(dua, index, isExpanded, responsive);
-          },
-        ),
+        if (_isDuasLoading && _firestoreDuas == null)
+          Center(
+            child: Padding(
+              padding: responsive.paddingLarge,
+              child: Column(
+                children: [
+                  CircularProgressIndicator(color: AppColors.primary),
+                  SizedBox(height: responsive.spaceMedium),
+                  Text(
+                    context.tr('loading'),
+                    style: TextStyle(
+                      fontSize: responsive.textRegular,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: duasList.length,
+            separatorBuilder: (context, index) =>
+                SizedBox(height: responsive.spaceRegular),
+            itemBuilder: (context, index) {
+              final dua = duasList[index];
+              final isExpanded = _expandedDuas.contains(index);
+              return _buildDuaCard(dua, index, isExpanded, responsive);
+            },
+          ),
       ],
     );
   }
@@ -1526,22 +1241,18 @@ ${context.tr('shared_from_app')}
     bool isExpanded,
     ResponsiveUtils responsive,
   ) {
-    String currentTranslation;
+    final currentTranslation = _getCurrentTranslation(dua);
     String languageLabel;
 
     switch (_selectedLanguage) {
       case DuaLanguage.hindi:
-        currentTranslation = dua['hindi'];
         languageLabel = context.tr('hindi');
       case DuaLanguage.english:
-        currentTranslation = dua['english'];
         languageLabel = context.tr('english');
       case DuaLanguage.urdu:
-        currentTranslation = dua['urdu'];
         languageLabel = context.tr('urdu');
       case DuaLanguage.arabic:
-        currentTranslation = dua['english'];
-        languageLabel = context.tr('english');
+        languageLabel = context.tr('arabic');
     }
 
     final isPlayingArabic = _playingDuaIndex == (index * 2) && _isSpeaking;
@@ -1630,7 +1341,7 @@ ${context.tr('shared_from_app')}
                             maxWidth: responsive.screenWidth * 0.6,
                           ),
                           child: Text(
-                            context.tr(dua['titleKey']),
+                            _getDuaTitle(dua),
                             style: TextStyle(
                               fontSize: responsive.textSmall,
                               fontWeight: FontWeight.w600,

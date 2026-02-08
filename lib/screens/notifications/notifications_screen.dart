@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/app_utils.dart';
+import '../../core/services/content_service.dart';
+import '../../data/models/firestore_models.dart';
 import '../../providers/adhan_provider.dart';
 import '../../providers/language_provider.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -13,13 +16,46 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
+  final ContentService _contentService = ContentService();
   List<NotificationItem> _notifications = [];
   bool _isLoading = true;
+  NotificationsScreenContentFirestore? _content;
+  bool _isContentLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadNotifications();
+    _loadContent();
+  }
+
+  Future<void> _loadContent() async {
+    try {
+      final content = await _contentService.getNotificationsScreenContent();
+      if (mounted) {
+        setState(() {
+          _content = content;
+          _isContentLoading = false;
+        });
+        _loadNotifications();
+      }
+    } catch (e) {
+      debugPrint('Error loading notifications content from Firebase: $e');
+      if (mounted) {
+        setState(() {
+          _isContentLoading = false;
+        });
+        _loadNotifications();
+      }
+    }
+  }
+
+  String get _langCode =>
+      Provider.of<LanguageProvider>(context, listen: false).languageCode;
+
+  /// Get translated string from Firebase only
+  String _t(String key) {
+    if (_content == null) return '';
+    return _content!.getString(key, _langCode);
   }
 
   Future<void> _loadNotifications() async {
@@ -49,6 +85,37 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             type: type,
             category: category,
             receivedAt: notification.receivedAt,
+            isUpcoming: false,
+          ),
+        );
+      }
+
+      // Also load upcoming/pending notifications to show scheduled ones
+      final pendingNotifications = await adhanProvider.getPendingNotifications();
+      debugPrint('Pending notifications: ${pendingNotifications.length}');
+
+      for (final pending in pendingNotifications) {
+        final pendingId = pending.id;
+
+        // Skip if already in received list
+        if (items.any((n) => n.id == pendingId)) continue;
+
+        NotificationType type = NotificationType.prayer;
+        if (pendingId >= 300 && pendingId < 400) {
+          type = NotificationType.reminder;
+        } else if (pendingId >= 400) {
+          type = NotificationType.festival;
+        }
+
+        items.add(
+          NotificationItem(
+            id: pendingId,
+            title: pending.title ?? _t('scheduled_notification'),
+            body: pending.body ?? '',
+            type: type,
+            category: _getCategoryFromType(type),
+            receivedAt: DateTime.now(),
+            isUpcoming: true,
           ),
         );
       }
@@ -63,6 +130,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         });
       }
     } catch (e) {
+      debugPrint('Error loading notifications: $e');
       if (mounted) {
         setState(() {
           _notifications = [];
@@ -109,17 +177,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
-  // Format only time (HH:MM AM/PM)
+  // Format only time (HH:MM AM/PM) - all from Firebase
   String _formatTimeOnly(DateTime dateTime) {
     final hour = dateTime.hour;
     final minute = dateTime.minute.toString().padLeft(2, '0');
-    final period = hour >= 12 ? 'PM' : 'AM';
+    final period = hour >= 12 ? _t('pm') : _t('am');
     final hour12 = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
     return '$hour12:$minute $period';
   }
 
-  // Get day header text for grouping
+  // Get day header text for grouping - all data from Firebase
   String _getDayHeader(DateTime dateTime) {
+    if (_content == null) return '';
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final notificationDate = DateTime(
@@ -130,9 +199,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final difference = today.difference(notificationDate).inDays;
 
     if (difference == 0) {
-      return context.tr('today');
+      return _t('today');
     } else if (difference == 1) {
-      return context.tr('yesterday');
+      return _t('yesterday');
     } else if (difference < 7) {
       final days = [
         'sunday',
@@ -143,23 +212,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         'friday',
         'saturday',
       ];
-      return context.tr(days[dateTime.weekday % 7]);
+      return _content!.getDayName(days[dateTime.weekday % 7], _langCode);
     } else {
-      final months = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-      ];
-      return '${dateTime.day} ${months[dateTime.month - 1]} ${dateTime.year}';
+      final monthAbbr = _content!.getMonthAbbr(dateTime.month - 1, _langCode);
+      return '${dateTime.day} $monthAbbr ${dateTime.year}';
     }
   }
 
@@ -185,36 +241,50 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final responsive = context.responsive;
     final languageProvider = Provider.of<LanguageProvider>(context);
     final isRtl =
         languageProvider.languageCode == 'ar' ||
         languageProvider.languageCode == 'ur';
 
+    if (_isContentLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: AppColors.primary,
+          title: const Text(''),
+        ),
+        body: const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+      );
+    }
+
     return Directionality(
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
-        backgroundColor: isDark
-            ? AppColors.darkBackground
-            : AppColors.background,
+        backgroundColor: AppColors.background,
         appBar: AppBar(
           backgroundColor: AppColors.primary,
           title: Text(
-            context.tr('notifications'),
+            _t('notifications'),
             style: TextStyle(fontSize: responsive.textLarge),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
         ),
         body: SafeArea(
-          child: _isLoading
-              ? const Center(
-                  child: CircularProgressIndicator(color: AppColors.primary),
-                )
-              : _notifications.isEmpty
-              ? _buildEmptyState(context, isDark, responsive)
-              : _buildNotificationsList(context, isDark, responsive),
+          child: Column(
+            children: [
+              Expanded(
+                child: _isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(color: AppColors.primary),
+                      )
+                    : _notifications.isEmpty
+                    ? _buildEmptyState(context, responsive)
+                    : _buildNotificationsList(context, responsive),
+              ),
+              const BannerAdWidget(),
+            ],
+          ),
         ),
       ),
     );
@@ -222,7 +292,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildNotificationsList(
     BuildContext context,
-    bool isDark,
     ResponsiveUtils responsive,
   ) {
     // Group notifications by day
@@ -259,7 +328,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Day Header
-              _buildDayHeader(context, dayHeader, responsive, isDark),
+              _buildDayHeader(context, dayHeader, responsive),
               SizedBox(height: responsive.spaceSmall),
 
               // Notifications for this day
@@ -267,7 +336,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 (notification) => _buildNotificationCard(
                   context,
                   notification,
-                  isDark,
                   responsive,
                 ),
               ),
@@ -283,7 +351,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     BuildContext context,
     String dayName,
     ResponsiveUtils responsive,
-    bool isDark,
   ) {
     return Container(
       padding: responsive.paddingSymmetric(horizontal: 12, vertical: 8),
@@ -310,7 +377,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               style: TextStyle(
                 fontSize: responsive.textLarge,
                 fontWeight: FontWeight.bold,
-                color: isDark ? AppColors.darkTextPrimary : AppColors.primary,
+                color: AppColors.primary,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -344,21 +411,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           borderRadius: BorderRadius.circular(responsive.radiusMedium),
         ),
         title: Text(
-          context.tr('delete_notification'),
+          _t('delete_notification'),
           style: TextStyle(
             fontSize: responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
         content: Text(
-          context.tr('delete_notification_confirm'),
+          _t('delete_notification_confirm'),
           style: TextStyle(fontSize: responsive.textRegular),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(
-              context.tr('cancel'),
+              _t('cancel'),
               style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: responsive.textRegular,
@@ -375,7 +442,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               foregroundColor: Colors.white,
             ),
             child: Text(
-              context.tr('delete'),
+              _t('delete'),
               style: TextStyle(fontSize: responsive.textRegular),
             ),
           ),
@@ -387,7 +454,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget _buildNotificationCard(
     BuildContext context,
     NotificationItem notification,
-    bool isDark,
     ResponsiveUtils responsive,
   ) {
     return Dismissible(
@@ -415,21 +481,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   borderRadius: BorderRadius.circular(responsive.radiusMedium),
                 ),
                 title: Text(
-                  context.tr('delete_notification'),
+                  _t('delete_notification'),
                   style: TextStyle(
                     fontSize: responsive.textLarge,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 content: Text(
-                  context.tr('delete_notification_confirm'),
+                  _t('delete_notification_confirm'),
                   style: TextStyle(fontSize: responsive.textRegular),
                 ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(ctx, false),
                     child: Text(
-                      context.tr('cancel'),
+                      _t('cancel'),
                       style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: responsive.textRegular,
@@ -443,7 +509,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       foregroundColor: Colors.white,
                     ),
                     child: Text(
-                      context.tr('delete'),
+                      _t('delete'),
                       style: TextStyle(fontSize: responsive.textRegular),
                     ),
                   ),
@@ -456,7 +522,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         _deleteNotification(notification);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(context.tr('notification_deleted')),
+            content: Text(_t('notification_deleted')),
             backgroundColor: AppColors.primary,
             behavior: SnackBarBehavior.floating,
           ),
@@ -465,15 +531,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       child: Container(
         margin: EdgeInsets.only(bottom: responsive.spaceSmall),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkCard : Colors.white,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(responsive.radiusMedium),
           border: Border.all(
-            color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
+            color: AppColors.lightGreenBorder,
             width: 1,
           ),
-          boxShadow: isDark
-              ? null
-              : [
+          boxShadow: [
                   BoxShadow(
                     color: AppColors.primary.withValues(alpha: 0.05),
                     blurRadius: 8,
@@ -504,7 +568,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             style: TextStyle(
               fontSize: responsive.textRegular,
               fontWeight: FontWeight.w600,
-              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+              color: AppColors.textPrimary,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -518,21 +582,46 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   notification.body,
                   style: TextStyle(
                     fontSize: responsive.textSmall,
-                    color: isDark
-                        ? AppColors.darkTextSecondary
-                        : AppColors.textSecondary,
+                    color: AppColors.textSecondary,
                     height: 1.4,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: responsive.spacing(4)),
-                Text(
-                  _formatTimeOnly(notification.receivedAt),
-                  style: TextStyle(
-                    fontSize: responsive.textXSmall,
-                    color: AppColors.textSecondary.withValues(alpha: 0.7),
-                  ),
+                Row(
+                  children: [
+                    if (notification.isUpcoming) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          _t('upcoming'),
+                          style: TextStyle(
+                            fontSize: responsive.textXSmall,
+                            color: Colors.orange.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: responsive.spaceSmall),
+                    ],
+                    Text(
+                      notification.isUpcoming
+                          ? _t('scheduled')
+                          : _formatTimeOnly(notification.receivedAt),
+                      style: TextStyle(
+                        fontSize: responsive.textXSmall,
+                        color: AppColors.textSecondary.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -597,7 +686,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildEmptyState(
     BuildContext context,
-    bool isDark,
     ResponsiveUtils responsive,
   ) {
     return Center(
@@ -606,15 +694,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         child: Container(
           padding: responsive.paddingAll(24),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.darkCard : Colors.white,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(responsive.radiusLarge),
             border: Border.all(
-              color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
+              color: AppColors.lightGreenBorder,
               width: 1.5,
             ),
-            boxShadow: isDark
-                ? null
-                : [
+            boxShadow: [
                     BoxShadow(
                       color: AppColors.primary.withValues(alpha: 0.08),
                       blurRadius: 10,
@@ -647,24 +733,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ),
               SizedBox(height: responsive.spaceLarge),
               Text(
-                context.tr('no_notifications'),
+                _t('no_notifications'),
                 style: TextStyle(
                   fontSize: responsive.textXLarge,
                   fontWeight: FontWeight.bold,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.primary,
+                  color: AppColors.primary,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               SizedBox(height: responsive.spaceMedium),
               Text(
-                context.tr('all_caught_up'),
+                _t('all_caught_up'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: responsive.textMedium,
-                  color: isDark
-                      ? AppColors.darkTextSecondary
-                      : AppColors.textSecondary,
+                  color: AppColors.textSecondary,
                   height: 1.5,
                 ),
                 maxLines: 2,
@@ -700,6 +784,7 @@ class NotificationItem {
   final NotificationType type;
   final NotificationCategory category;
   final DateTime receivedAt;
+  final bool isUpcoming;
 
   NotificationItem({
     required this.id,
@@ -708,5 +793,6 @@ class NotificationItem {
     required this.type,
     required this.category,
     required this.receivedAt,
+    this.isUpcoming = false,
   });
 }

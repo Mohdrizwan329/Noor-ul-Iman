@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsProvider with ChangeNotifier {
-  static const String _themeKey = 'theme_mode';
   static const String _calculationMethodKey = 'calculation_method';
   static const String _languageKey = 'language';
   static const String _notificationsKey = 'notifications_enabled';
@@ -13,7 +12,6 @@ class SettingsProvider with ChangeNotifier {
   static const String _profileLocationKey = 'profile_location';
   static const String _profileImagePathKey = 'profile_image_path';
 
-  ThemeMode _themeMode = ThemeMode.light;
   int _calculationMethod = 1; // Karachi
   String _language = 'en';
   bool _notificationsEnabled = true;
@@ -25,13 +23,11 @@ class SettingsProvider with ChangeNotifier {
   String? _profileImagePath;
 
   // Getters
-  ThemeMode get themeMode => _themeMode;
   int get calculationMethod => _calculationMethod;
   String get language => _language;
   bool get notificationsEnabled => _notificationsEnabled;
   double get arabicFontSize => _arabicFontSize;
   double get translationFontSize => _translationFontSize;
-  bool get isDarkMode => _themeMode == ThemeMode.dark;
   String get countryCode => _countryCode;
   String get profileName => _profileName;
   String get profileLocation => _profileLocation;
@@ -39,9 +35,6 @@ class SettingsProvider with ChangeNotifier {
 
   Future<void> loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-
-    final themeIndex = prefs.getInt(_themeKey) ?? 0;
-    _themeMode = ThemeMode.values[themeIndex];
 
     _calculationMethod = prefs.getInt(_calculationMethodKey) ?? 1;
     _language = prefs.getString(_languageKey) ?? 'en';
@@ -54,19 +47,6 @@ class SettingsProvider with ChangeNotifier {
     _profileImagePath = prefs.getString(_profileImagePathKey);
 
     notifyListeners();
-  }
-
-  Future<void> setThemeMode(ThemeMode mode) async {
-    _themeMode = mode;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_themeKey, mode.index);
-    notifyListeners();
-  }
-
-  Future<void> toggleTheme() async {
-    final newMode =
-        _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
-    await setThemeMode(newMode);
   }
 
   Future<void> setCalculationMethod(int method) async {

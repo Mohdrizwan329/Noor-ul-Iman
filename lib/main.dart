@@ -9,6 +9,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/background_location_service.dart';
 import 'core/services/azan_background_service.dart';
+import 'core/services/ad_service.dart';
+import 'core/services/content_service.dart';
+
 import 'providers/auth_provider.dart';
 import 'providers/prayer_provider.dart';
 import 'providers/settings_provider.dart';
@@ -29,6 +32,12 @@ void main() async {
   // Initialize Hive for local storage
   await Hive.initFlutter();
 
+  // Initialize ContentService for Firestore caching
+  await ContentService().initialize();
+
+  // Preload UI translations before app starts (from Hive cache or local JSON)
+  await ContentService().preloadTranslations();
+
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -45,6 +54,9 @@ void main() async {
 
   // Configure Google Fonts to handle network errors gracefully
   GoogleFonts.config.allowRuntimeFetching = false;
+
+  // Initialize AdMob
+  await AdService.initialize();
 
   // Start background location tracking for automatic prayer time updates
   final backgroundLocationService = BackgroundLocationService();
@@ -69,7 +81,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()..initialize()),
-        ChangeNotifierProvider(create: (_) => LanguageProvider()),
+        ChangeNotifierProvider(create: (_) => LanguageProvider()..loadTranslations()),
         ChangeNotifierProvider(
           create: (_) => SettingsProvider()..loadSettings(),
         ),
@@ -86,8 +98,6 @@ class MyApp extends StatelessWidget {
             title: 'Noor-ul-Iman',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: settings.themeMode,
             locale: language.locale,
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,

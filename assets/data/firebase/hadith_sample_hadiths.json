@@ -1,0 +1,90 @@
+{
+  "bukhari": [
+    {
+      "id": 1, "hadith_number": "1",
+      "arabic": "إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى",
+      "english": "Actions are judged by intentions, so each man will have what he intended.",
+      "urdu": "اعمال کا دارومدار نیتوں پر ہے اور ہر شخص کو وہی ملے گا جس کی اس نے نیت کی۔",
+      "hindi": "कर्मों का दारोमदार नीयतों पर है और हर व्यक्ति को वही मिलेगा जिसकी उसने नीयत की।",
+      "narrator": "Narrated by Umar ibn Al-Khattab (RA)",
+      "grade": "Sahih",
+      "reference": "Sahih Bukhari, Book 1, Hadith 1"
+    },
+    {
+      "id": 2, "hadith_number": "6",
+      "arabic": "الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ",
+      "english": "A Muslim is the one from whose tongue and hands the Muslims are safe.",
+      "urdu": "مسلمان وہ ہے جس کی زبان اور ہاتھ سے دوسرے مسلمان محفوظ رہیں۔",
+      "hindi": "मुसलमान वह है जिसकी ज़बान और हाथ से दूसरे मुसलमान सुरक्षित रहें।",
+      "narrator": "Narrated by Abdullah ibn Amr (RA)",
+      "grade": "Sahih",
+      "reference": "Sahih Bukhari, Book 2, Hadith 9"
+    },
+    {
+      "id": 3, "hadith_number": "13",
+      "arabic": "لاَ يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ",
+      "english": "None of you truly believes until he loves for his brother what he loves for himself.",
+      "urdu": "تم میں سے کوئی اس وقت تک مومن نہیں ہو سکتا جب تک وہ اپنے بھائی کے لیے وہی پسند نہ کرے جو اپنے لیے پسند کرتا ہے۔",
+      "hindi": "तुम में से कोई उस वक़्त तक मोमिन नहीं हो सकता जब तक वह अपने भाई के लिए वही पसंद न करे जो अपने लिए पसंद करता है।",
+      "narrator": "Narrated by Anas ibn Malik (RA)",
+      "grade": "Sahih",
+      "reference": "Sahih Bukhari, Book 2, Hadith 12"
+    },
+    {
+      "id": 4, "hadith_number": "52",
+      "arabic": "الْحَلاَلُ بَيِّنٌ وَالْحَرَامُ بَيِّنٌ",
+      "english": "Both legal and illegal things are evident but in between them there are doubtful things.",
+      "urdu": "حلال واضح ہے اور حرام واضح ہے اور ان دونوں کے درمیان مشتبہ چیزیں ہیں۔",
+      "hindi": "हलाल स्पष्ट है और हराम स्पष्ट है और इन दोनों के बीच संदिग्ध चीज़ें हैं।",
+      "narrator": "Narrated by An-Nu'man bin Bashir (RA)",
+      "grade": "Sahih",
+      "reference": "Sahih Bukhari, Book 2, Hadith 45"
+    }
+  ],
+  "muslim": [
+    {
+      "id": 5, "hadith_number": "1",
+      "arabic": "الإِيمَانُ أَنْ تُؤْمِنَ بِاللَّهِ وَمَلاَئِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ وَالْيَوْمِ الآخِرِ",
+      "english": "Faith is to believe in Allah, His angels, His books, His messengers, and the Last Day.",
+      "urdu": "ایمان یہ ہے کہ تم اللہ، اس کے فرشتوں، اس کی کتابوں، اس کے رسولوں اور آخرت کے دن پر ایمان لاؤ۔",
+      "hindi": "ईमान यह है कि तुम अल्लाह, उसके फ़रिश्तों, उसकी किताबों, उसके रसूलों और आख़िरत के दिन पर ईमान लाओ।",
+      "narrator": "Narrated by Umar ibn Al-Khattab (RA)",
+      "grade": "Sahih",
+      "reference": "Sahih Muslim, Book 1, Hadith 1"
+    },
+    {
+      "id": 6, "hadith_number": "45",
+      "arabic": "مَنْ رَأَى مِنْكُمْ مُنْكَرًا فَلْيُغَيِّرْهُ بِيَدِهِ",
+      "english": "Whoever among you sees an evil, let him change it with his hand.",
+      "urdu": "تم میں سے جو کوئی برائی دیکھے تو اسے اپنے ہاتھ سے بدل دے۔",
+      "hindi": "तुम में से जो कोई बुराई देखे तो उसे अपने हाथ से बदल दे।",
+      "narrator": "Narrated by Abu Said Al-Khudri (RA)",
+      "grade": "Sahih",
+      "reference": "Sahih Muslim, Book 1, Hadith 78"
+    }
+  ],
+  "abudawud": [
+    {
+      "id": 7, "hadith_number": "495",
+      "arabic": "مُرُوا أَوْلاَدَكُمْ بِالصَّلاَةِ وَهُمْ أَبْنَاءُ سَبْعِ سِنِينَ",
+      "english": "Command your children to pray when they become seven years old.",
+      "urdu": "اپنے بچوں کو نماز کا حکم دو جب وہ سات سال کے ہو جائیں۔",
+      "hindi": "अपने बच्चों को नमाज़ का हुक्म दो जब वे सात साल के हो जाएं।",
+      "narrator": "Narrated by Abdullah ibn Amr (RA)",
+      "grade": "Hasan",
+      "reference": "Sunan Abu Dawud, Book 2, Hadith 495"
+    }
+  ],
+  "tirmidhi": [
+    {
+      "id": 8, "hadith_number": "2317",
+      "arabic": "إِنَّ اللَّهَ لاَ يَنْظُرُ إِلَى صُوَرِكُمْ وَأَمْوَالِكُمْ وَلَكِنْ يَنْظُرُ إِلَى قُلُوبِكُمْ وَأَعْمَالِكُمْ",
+      "english": "Verily Allah does not look at your appearances or wealth, but rather He looks at your hearts and actions.",
+      "urdu": "بے شک اللہ تمہاری شکلوں اور مالوں کو نہیں دیکھتا بلکہ وہ تمہارے دلوں اور اعمال کو دیکھتا ہے۔",
+      "hindi": "बेशक अल्लाह तुम्हारी शक्लों और मालों को नहीं देखता बल्कि वह तुम्हारे दिलों और आमाल को देखता है।",
+      "narrator": "Narrated by Abu Hurairah (RA)",
+      "grade": "Sahih",
+      "reference": "Jami at-Tirmidhi, Book 27, Hadith 2317"
+    }
+  ]
+}

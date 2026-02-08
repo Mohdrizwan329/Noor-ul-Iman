@@ -1,0 +1,207 @@
+{
+  "strings": {
+    "islamic_calendar": {
+      "en": "Islamic Calendar",
+      "ur": "اسلامی کیلنڈر",
+      "ar": "التقويم الإسلامي",
+      "hi": "इस्लामी कैलेंडर"
+    },
+    "today": {
+      "en": "Today",
+      "ur": "آج",
+      "ar": "اليوم",
+      "hi": "आज"
+    },
+    "ah": {
+      "en": "AH",
+      "ur": "ہجری",
+      "ar": "هـ",
+      "hi": "हिजरी"
+    },
+    "important_dates_in": {
+      "en": "Important Dates in",
+      "ur": "کی اہم تاریخیں",
+      "ar": "التواريخ المهمة في",
+      "hi": "में महत्वपूर्ण तिथियां"
+    },
+    "no_important_dates_this_month": {
+      "en": "No important dates this month",
+      "ur": "اس مہینے میں کوئی خاص تاریخ نہیں ہے",
+      "ar": "لا توجد تواريخ مهمة هذا الشهر",
+      "hi": "इस महीने कोई महत्वपूर्ण तिथि नहीं है"
+    },
+    "islamic_new_year": {
+      "en": "Islamic New Year",
+      "ur": "اسلامی نیا سال",
+      "ar": "رأس السنة الهجرية",
+      "hi": "इस्लामी नव वर्ष"
+    },
+    "islamic_new_year_desc": {
+      "en": "Beginning of the new Hijri year",
+      "ur": "نئے ہجری سال کا آغاز",
+      "ar": "بداية السنة الهجرية الجديدة",
+      "hi": "नए हिजरी वर्ष की शुरुआत"
+    },
+    "ashura_event": {
+      "en": "Ashura",
+      "ur": "یوم عاشورہ",
+      "ar": "عاشوراء",
+      "hi": "आशूरा"
+    },
+    "ashura_desc": {
+      "en": "Day of fasting commemorating Prophet Musa",
+      "ur": "حضرت موسیٰ علیہ السلام کی یاد میں روزے کا دن",
+      "ar": "يوم صيام تذكاراً للنبي موسى",
+      "hi": "पैगंबर मूसा की याद में उपवास का दिन"
+    },
+    "mawlid_an_nabi": {
+      "en": "Mawlid an-Nabi",
+      "ur": "عید میلاد النبی ﷺ",
+      "ar": "المولد النبوي الشريف",
+      "hi": "मिलाद उन-नबी"
+    },
+    "mawlid_desc": {
+      "en": "Birth anniversary of Prophet Muhammad ﷺ",
+      "ur": "نبی کریم ﷺ کی ولادت کی سالگرہ",
+      "ar": "ذكرى ميلاد النبي محمد ﷺ",
+      "hi": "पैगंबर मुहम्मद ﷺ की जन्म जयंती"
+    },
+    "isra_miraj": {
+      "en": "Isra and Mi'raj",
+      "ur": "شب معراج",
+      "ar": "الإسراء والمعراج",
+      "hi": "इसरा और मेराज"
+    },
+    "isra_miraj_desc": {
+      "en": "Night journey and ascension of Prophet ﷺ",
+      "ur": "نبی کریم ﷺ کا شبانہ سفر اور معراج",
+      "ar": "رحلة النبي ﷺ الليلية والمعراج",
+      "hi": "पैगंबर ﷺ की रात्रि यात्रा और आरोहण"
+    },
+    "shab_e_barat": {
+      "en": "Shab-e-Barat",
+      "ur": "شب برات",
+      "ar": "ليلة البراءة",
+      "hi": "शब-ए-बारात"
+    },
+    "shab_e_barat_desc": {
+      "en": "Night of forgiveness and blessings",
+      "ur": "معافی اور برکتوں کی رات",
+      "ar": "ليلة المغفرة والبركات",
+      "hi": "क्षमा और आशीर्वाद की रात"
+    },
+    "start_of_ramadan": {
+      "en": "Start of Ramadan",
+      "ur": "رمضان کی شروعات",
+      "ar": "بداية رمضان",
+      "hi": "रमज़ान की शुरुआत"
+    },
+    "ramadan_start_desc": {
+      "en": "Beginning of the holy month of fasting",
+      "ur": "روزوں کے مقدس مہینے کا آغاز",
+      "ar": "بداية شهر الصيام المبارك",
+      "hi": "उपवास के पवित्र महीने की शुरुआत"
+    },
+    "laylat_al_qadr": {
+      "en": "Laylat al-Qadr",
+      "ur": "شب قدر",
+      "ar": "ليلة القدر",
+      "hi": "लैलतुल क़द्र"
+    },
+    "laylat_al_qadr_desc": {
+      "en": "Night better than a thousand months",
+      "ur": "ہزار مہینوں سے بہتر رات",
+      "ar": "ليلة خير من ألف شهر",
+      "hi": "एक हजार महीनों से बेहतर रात"
+    },
+    "eid_ul_fitr_event": {
+      "en": "Eid ul-Fitr",
+      "ur": "عید الفطر",
+      "ar": "عيد الفطر",
+      "hi": "ईद उल-फ़ित्र"
+    },
+    "eid_ul_fitr_desc": {
+      "en": "Festival of breaking the fast",
+      "ur": "روزے ختم کرنے کا تہوار",
+      "ar": "عيد الإفطار",
+      "hi": "उपवास तोड़ने का त्योहार"
+    },
+    "day_of_hajj": {
+      "en": "Day of Hajj",
+      "ur": "حج کا دن",
+      "ar": "يوم الحج",
+      "hi": "हज का दिन"
+    },
+    "hajj_desc": {
+      "en": "Pilgrims depart for Mina",
+      "ur": "حجاج منیٰ کی طرف روانہ",
+      "ar": "انطلاق الحجاج إلى منى",
+      "hi": "हाजी मिना की ओर प्रस्थान"
+    },
+    "day_of_arafah": {
+      "en": "Day of Arafah",
+      "ur": "یوم عرفہ",
+      "ar": "يوم عرفة",
+      "hi": "अरफ़ात का दिन"
+    },
+    "arafah_desc": {
+      "en": "Most important day of Hajj pilgrimage",
+      "ur": "حج کا سب سے اہم دن",
+      "ar": "أهم يوم في مناسك الحج",
+      "hi": "हज तीर्थयात्रा का सबसे महत्वपूर्ण दिन"
+    },
+    "eid_ul_adha_event": {
+      "en": "Eid ul-Adha",
+      "ur": "عید الاضحیٰ",
+      "ar": "عيد الأضحى",
+      "hi": "ईद उल-अज़हा"
+    },
+    "eid_ul_adha_desc": {
+      "en": "Festival of sacrifice",
+      "ur": "قربانی کا تہوار",
+      "ar": "عيد الأضحى",
+      "hi": "कुर्बानी का त्योहार"
+    }
+  },
+  "islamic_months": {
+    "en": ["Muharram", "Safar", "Rabi al-Awwal", "Rabi al-Thani", "Jumada al-Awwal", "Jumada al-Thani", "Rajab", "Shaban", "Ramadan", "Shawwal", "Dhul Qadah", "Dhul Hijjah"],
+    "ur": ["محرم", "صفر", "ربیع الاول", "ربیع الثانی", "جمادی الاول", "جمادی الثانی", "رجب", "شعبان", "رمضان", "شوال", "ذوالقعدہ", "ذوالحجہ"],
+    "ar": ["محرم", "صفر", "ربيع الأول", "ربيع الثاني", "جمادى الأولى", "جمادى الآخرة", "رجب", "شعبان", "رمضان", "شوال", "ذو القعدة", "ذو الحجة"],
+    "hi": ["मुहर्रम", "सफर", "रबी अल-अव्वल", "रबी अल-थानी", "जुमादा अल-अव्वल", "जुमादा अल-थानी", "रजब", "शाबान", "रमज़ान", "शव्वाल", "ज़ुल क़ादा", "ज़ु�� हिज्जा"]
+  },
+  "days_of_week": {
+    "en": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    "ur": ["اتوار", "پیر", "منگل", "بدھ", "جمعرات", "جمعہ", "ہفتہ"],
+    "ar": ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
+    "hi": ["रविवार", "सोमवार", "मंगलवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार"]
+  },
+  "islamic_days_of_week": {
+    "en": ["Ahad", "Ithnayn", "Thulatha", "Arba'a", "Khamis", "Jumu'ah", "Sabt"],
+    "ur": ["اتوار", "پیر", "منگل", "بدھ", "جمعرات", "جمعہ", "ہفتہ"],
+    "ar": ["أحد", "إثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة", "سبت"],
+    "hi": ["अहद", "इस्नैन", "सुलासा", "अरबा", "खमीस", "जुमा", "सब्त"]
+  },
+  "gregorian_months": {
+    "en": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    "ur": ["جنوری", "فروری", "مارچ", "اپریل", "مئی", "جون", "جولائی", "اگست", "ستمبر", "اکتوبر", "نومبر", "دسمبر"],
+    "ar": ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
+    "hi": ["जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"]
+  },
+  "urdu_numerals": {
+    "0": "۰", "1": "۱", "2": "۲", "3": "۳", "4": "۴",
+    "5": "۵", "6": "۶", "7": "۷", "8": "۸", "9": "۹"
+  },
+  "important_dates": [
+    {"month": 1, "day": 1, "title_key": "islamic_new_year", "desc_key": "islamic_new_year_desc", "icon": "celebration"},
+    {"month": 1, "day": 10, "title_key": "ashura_event", "desc_key": "ashura_desc", "icon": "star"},
+    {"month": 3, "day": 12, "title_key": "mawlid_an_nabi", "desc_key": "mawlid_desc", "icon": "mosque"},
+    {"month": 7, "day": 27, "title_key": "isra_miraj", "desc_key": "isra_miraj_desc", "icon": "nights_stay"},
+    {"month": 8, "day": 15, "title_key": "shab_e_barat", "desc_key": "shab_e_barat_desc", "icon": "auto_awesome"},
+    {"month": 9, "day": 1, "title_key": "start_of_ramadan", "desc_key": "ramadan_start_desc", "icon": "brightness_2"},
+    {"month": 9, "day": 27, "title_key": "laylat_al_qadr", "desc_key": "laylat_al_qadr_desc", "icon": "star"},
+    {"month": 10, "day": 1, "title_key": "eid_ul_fitr_event", "desc_key": "eid_ul_fitr_desc", "icon": "celebration"},
+    {"month": 12, "day": 8, "title_key": "day_of_hajj", "desc_key": "hajj_desc", "icon": "flight_takeoff"},
+    {"month": 12, "day": 9, "title_key": "day_of_arafah", "desc_key": "arafah_desc", "icon": "terrain"},
+    {"month": 12, "day": 10, "title_key": "eid_ul_adha_event", "desc_key": "eid_ul_adha_desc", "icon": "celebration"}
+  ]
+}

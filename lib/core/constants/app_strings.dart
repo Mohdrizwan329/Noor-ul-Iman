@@ -474,4 +474,132 @@ class AppStrings {
   static const String fri = 'Fri';
   static const String sat = 'Sat';
   static const String sun = 'Sun';
+
+  // Mutable Firestore-loaded fields
+  static Map<String, List<String>>? _firestoreIslamicMonths;
+  static Map<String, List<String>>? _firestoreDaysOfWeek;
+  static Map<String, List<String>>? _firestoreDaysOfWeekShort;
+  static Map<String, List<String>>? _firestoreIslamicDays;
+  static Map<String, List<String>>? _firestoreGregorianMonths;
+
+  /// Get Islamic months for a given language code
+  static List<String> getIslamicMonths(String langCode) {
+    if (_firestoreIslamicMonths != null && _firestoreIslamicMonths!.containsKey(langCode)) {
+      return _firestoreIslamicMonths![langCode]!;
+    }
+    switch (langCode) {
+      case 'ur': return islamicMonthsUrdu;
+      case 'ar': return islamicMonthsArabic;
+      case 'hi': return islamicMonthsHindi;
+      default: return islamicMonths;
+    }
+  }
+
+  /// Get days of week for a given language code
+  static List<String> getDaysOfWeek(String langCode) {
+    if (_firestoreDaysOfWeek != null && _firestoreDaysOfWeek!.containsKey(langCode)) {
+      return _firestoreDaysOfWeek![langCode]!;
+    }
+    switch (langCode) {
+      case 'ur': return daysOfWeekUrdu;
+      case 'ar': return daysOfWeekArabic;
+      case 'hi': return daysOfWeekHindi;
+      default: return daysOfWeek;
+    }
+  }
+
+  /// Get short days of week for a given language code
+  static List<String> getDaysOfWeekShort(String langCode) {
+    if (_firestoreDaysOfWeekShort != null && _firestoreDaysOfWeekShort!.containsKey(langCode)) {
+      return _firestoreDaysOfWeekShort![langCode]!;
+    }
+    switch (langCode) {
+      case 'ur': return daysOfWeekShortUrdu;
+      case 'ar': return daysOfWeekShortArabic;
+      case 'hi': return daysOfWeekShortHindi;
+      default: return islamicDaysOfWeekShort;
+    }
+  }
+
+  /// Get Islamic days of week for a given language code
+  static List<String> getIslamicDaysOfWeek(String langCode) {
+    if (_firestoreIslamicDays != null && _firestoreIslamicDays!.containsKey(langCode)) {
+      return _firestoreIslamicDays![langCode]!;
+    }
+    switch (langCode) {
+      case 'ur': return islamicDaysOfWeekUrdu;
+      case 'ar': return islamicDaysOfWeekArabic;
+      case 'hi': return islamicDaysOfWeekHindi;
+      default: return islamicDaysOfWeek;
+    }
+  }
+
+  /// Get Gregorian months for a given language code
+  static List<String> getGregorianMonths(String langCode) {
+    if (_firestoreGregorianMonths != null && _firestoreGregorianMonths!.containsKey(langCode)) {
+      return _firestoreGregorianMonths![langCode]!;
+    }
+    switch (langCode) {
+      case 'ur': return gregorianMonthsUrdu;
+      case 'ar': return gregorianMonthsArabic;
+      case 'hi': return gregorianMonthsHindi;
+      default: return [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December',
+      ];
+    }
+  }
+
+  /// Export all hardcoded calendar strings for DataMigrationService
+  static Map<String, dynamic> getHardcodedCalendarStrings() => {
+    'islamic_months': {
+      'en': islamicMonths,
+      'ur': islamicMonthsUrdu,
+      'ar': islamicMonthsArabic,
+      'hi': islamicMonthsHindi,
+    },
+    'days_of_week': {
+      'en': daysOfWeek,
+      'ur': daysOfWeekUrdu,
+      'ar': daysOfWeekArabic,
+      'hi': daysOfWeekHindi,
+    },
+    'days_of_week_short': {
+      'en': islamicDaysOfWeekShort,
+      'ur': daysOfWeekShortUrdu,
+      'ar': daysOfWeekShortArabic,
+      'hi': daysOfWeekShortHindi,
+    },
+    'islamic_days': {
+      'en': islamicDaysOfWeek,
+      'ur': islamicDaysOfWeekUrdu,
+      'ar': islamicDaysOfWeekArabic,
+      'hi': islamicDaysOfWeekHindi,
+    },
+    'gregorian_months': {
+      'en': ['January', 'February', 'March', 'April', 'May', 'June',
+             'July', 'August', 'September', 'October', 'November', 'December'],
+      'ur': gregorianMonthsUrdu,
+      'ar': gregorianMonthsArabic,
+      'hi': gregorianMonthsHindi,
+    },
+  };
+
+  /// Load calendar strings from Firestore data
+  static void loadFromFirestore(Map<String, dynamic> data) {
+    _firestoreIslamicMonths = _parseStringListMap(data['islamic_months']);
+    _firestoreDaysOfWeek = _parseStringListMap(data['days_of_week']);
+    _firestoreDaysOfWeekShort = _parseStringListMap(data['days_of_week_short']);
+    _firestoreIslamicDays = _parseStringListMap(data['islamic_days']);
+    _firestoreGregorianMonths = _parseStringListMap(data['gregorian_months']);
+  }
+
+  static Map<String, List<String>>? _parseStringListMap(dynamic data) {
+    if (data == null) return null;
+    final map = data as Map<String, dynamic>;
+    return map.map((key, value) {
+      final list = (value as List<dynamic>).map((e) => e.toString()).toList();
+      return MapEntry(key, list);
+    });
+  }
 }

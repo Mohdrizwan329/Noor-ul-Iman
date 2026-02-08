@@ -5,9 +5,11 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/app_utils.dart';
-import '../../providers/settings_provider.dart';
+import '../../core/services/content_service.dart';
+import '../../data/models/firestore_models.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/common/header_action_button.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class SevenKalmaScreen extends StatefulWidget {
   const SevenKalmaScreen({super.key});
@@ -18,13 +20,66 @@ class SevenKalmaScreen extends StatefulWidget {
 
 class _SevenKalmaScreenState extends State<SevenKalmaScreen> {
   final FlutterTts _flutterTts = FlutterTts();
+  final ContentService _contentService = ContentService();
   int? _playingKalma;
   final Set<int> _cardsWithTranslation = {};
+  List<Map<String, dynamic>> _kalmas = [];
+  bool _isLoading = true;
+
+  // Color mapping for kalmas
+  static const List<Color> _kalmaColors = [
+    Colors.green,   // Kalma 1
+    Colors.blue,    // Kalma 2
+    Colors.purple,  // Kalma 3
+    Colors.orange,  // Kalma 4
+    Colors.teal,    // Kalma 5
+    Colors.indigo,  // Kalma 6
+    Colors.red,     // Kalma 7
+  ];
 
   @override
   void initState() {
     super.initState();
     _initTts();
+    _loadKalmas();
+  }
+
+  Future<void> _loadKalmas() async {
+    try {
+      // Load from Firebase via ContentService (falls back to local asset JSON)
+      final firestoreKalmas = await _contentService.getKalmas();
+      if (mounted) {
+        setState(() {
+          _kalmas = firestoreKalmas.map((k) => _convertFirestoreKalma(k)).toList();
+          _isLoading = false;
+        });
+        debugPrint('Loaded ${_kalmas.length} kalmas');
+      }
+    } catch (e) {
+      debugPrint('Error loading kalmas: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Map<String, dynamic> _convertFirestoreKalma(KalmaFirestore k) {
+    return {
+      'number': k.number,
+      'name': k.name.en,
+      'nameUrdu': k.name.ur,
+      'nameHindi': k.name.hi,
+      'nameArabic': k.name.ar,
+      'arabic': k.arabic,
+      'transliteration': k.transliteration,
+      'translationEnglish': k.translation.en,
+      'translationUrdu': k.translation.ur,
+      'translationHindi': k.translation.hi,
+      'translationArabic': k.translation.ar,
+      'color': _kalmaColors[(k.number - 1) % _kalmaColors.length],
+    };
   }
 
   Future<void> _initTts() async {
@@ -133,151 +188,12 @@ $translation
         : kalma['translationHindi'];
   }
 
-  final List<Map<String, dynamic>> _kalmas = [
-    {
-      'number': 1,
-      'name': 'Kalma Tayyab (First Kalma)',
-      'nameUrdu': 'کلمہ طیب (پہلا کلمہ)',
-      'nameHindi': 'कलमा तय्यब (पहला कलमा)',
-      'nameArabic': 'كلمة الطيبة (الكلمة الأولى)',
-      'arabic': 'لَا إِلٰهَ إِلَّا اللهُ مُحَمَّدٌ رَسُولُ اللهِ',
-      'transliteration': 'La ilaha illallahu Muhammadur Rasulullah',
-      'translationUrdu':
-          'اللہ کے سوا کوئی معبود نہیں، محمد (ﷺ) اللہ کے رسول ہیں۔',
-      'translationHindi':
-          'अल्लाह के सिवा कोई माबूद नहीं, मुहम्मद (ﷺ) अल्लाह के रसूल हैं।',
-      'translationArabic': 'لا إله إلا الله، محمد (ﷺ) رسول الله.',
-      'translationEnglish':
-          'There is no god but Allah, Muhammad (ﷺ) is the Messenger of Allah.',
-      'color': Colors.green,
-    },
-    {
-      'number': 2,
-      'name': 'Kalma Shahadat (Second Kalma)',
-      'nameUrdu': 'کلمہ شہادت (دوسرا کلمہ)',
-      'nameHindi': 'कलमा शहादत (दूसरा कलमा)',
-      'nameArabic': 'كلمة الشهادة (الكلمة الثانية)',
-      'arabic':
-          'أَشْهَدُ أَنْ لَا إِلٰهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ',
-      'transliteration':
-          'Ash-hadu an la ilaha illallahu wahdahu la sharika lahu, wa ash-hadu anna Muhammadan \'abduhu wa rasuluhu',
-      'translationUrdu':
-          'میں گواہی دیتا ہوں کہ اللہ کے سوا کوئی معبود نہیں، وہ اکیلا ہے، اس کا کوئی شریک نہیں، اور میں گواہی دیتا ہوں کہ محمد (ﷺ) اللہ کے بندے اور رسول ہیں۔',
-      'translationHindi':
-          'मैं गवाही देता हूं कि अल्लाह के सिवा कोई माबूद नहीं, वो अकेला है, उसका कोई शरीक नहीं, और मैं गवाही देता हूं कि मुहम्मद (ﷺ) अल्लाह के बंदे और रसूल हैं।',
-      'translationArabic':
-          'أشهد أن لا إله إلا الله وحده لا شريك له، وأشهد أن محمداً (ﷺ) عبده ورسوله.',
-      'translationEnglish':
-          'I bear witness that there is no god but Allah, alone without partner, and I bear witness that Muhammad (ﷺ) is His servant and Messenger.',
-      'color': Colors.blue,
-    },
-    {
-      'number': 3,
-      'name': 'Kalma Tamjeed (Third Kalma)',
-      'nameUrdu': 'کلمہ تمجید (تیسرا کلمہ)',
-      'nameHindi': 'कलमा तमजीद (तीसरा कलमा)',
-      'nameArabic': 'كلمة التمجيد (الكلمة الثالثة)',
-      'arabic':
-          'سُبْحَانَ اللهِ وَالْحَمْدُ لِلّٰهِ وَلَا إِلٰهَ إِلَّا اللهُ وَاللهُ أَكْبَرُ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ الْعَلِيِّ الْعَظِيمِ',
-      'transliteration':
-          'Subhanallahi walhamdu lillahi wa la ilaha illallahu wallahu akbar, wa la hawla wa la quwwata illa billahil-\'aliyyil-\'azeem',
-      'translationUrdu':
-          'اللہ پاک ہے، تمام تعریف اللہ کے لیے ہے، اللہ کے سوا کوئی معبود نہیں، اللہ سب سے بڑا ہے، اور اللہ کے سوا کوئی طاقت اور قوت نہیں جو بلند اور عظیم ہے۔',
-      'translationHindi':
-          'अल्लाह पाक है, तमाम तारीफ़ अल्लाह के लिए है, अल्लाह के सिवा कोई माबूद नहीं, अल्लाह सबसे बड़ा है, और अल्लाह के सिवा कोई ताक़त और क़ुव्वत नहीं जो बुलंद और अज़ीम है।',
-      'translationArabic':
-          'سبحان الله، والحمد لله، ولا إله إلا الله، والله أكبر، ولا حول ولا قوة إلا بالله العلي العظيم.',
-      'translationEnglish':
-          'Glory be to Allah, all praise is for Allah, there is no god but Allah, Allah is the Greatest, and there is no power nor might except with Allah, the Most High, the Most Great.',
-      'color': Colors.purple,
-    },
-    {
-      'number': 4,
-      'name': 'Kalma Tauheed (Fourth Kalma)',
-      'nameUrdu': 'کلمہ توحید (چوتھا کلمہ)',
-      'nameHindi': 'कलमा तौहीद (चौथा कलमा)',
-      'nameArabic': 'كلمة التوحيد (الكلمة الرابعة)',
-      'arabic':
-          'لَا إِلٰهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، يُحْيِي وَيُمِيتُ، وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ',
-      'transliteration':
-          'La ilaha illallahu wahdahu la sharika lahu, lahul-mulku wa lahul-hamdu, yuhyi wa yumitu, wa huwa \'ala kulli shay\'in qadeer',
-      'translationUrdu':
-          'اللہ کے سوا کوئی معبود نہیں، وہ اکیلا ہے، اس کا کوئی شریک نہیں، اسی کی بادشاہی ہے، اسی کے لیے تمام تعریف ہے، وہ زندہ کرتا ہے اور مارتا ہے، اور وہ ہر چیز پر قادر ہے۔',
-      'translationHindi':
-          'अल्लाह के सिवा कोई माबूद नहीं, वो अकेला है, उसका कोई शरीक नहीं, उसी की बादशाही है, उसी के लिए तमाम तारीफ़ है, वो ज़िंदा करता है और मारता है, और वो हर चीज़ पर क़ादिर है।',
-      'translationArabic':
-          'لا إله إلا الله وحده لا شريك له، له الملك وله الحمد، يحيي ويميت، وهو على كل شيء قدير.',
-      'translationEnglish':
-          'There is no god but Allah, alone without partner. His is the dominion and His is the praise. He gives life and causes death, and He has power over all things.',
-      'color': Colors.orange,
-    },
-    {
-      'number': 5,
-      'name': 'Kalma Astaghfar (Fifth Kalma)',
-      'nameUrdu': 'کلمہ استغفار (پانچواں کلمہ)',
-      'nameHindi': 'कलमा इस्तिग़फ़ार (पांचवां कलमा)',
-      'nameArabic': 'كلمة الاستغفار (الكلمة الخامسة)',
-      'arabic':
-          'أَسْتَغْفِرُ اللهَ رَبِّي مِنْ كُلِّ ذَنْبٍ أَذْنَبْتُهُ عَمَدًا أَوْ خَطَأً، سِرًّا أَوْ عَلَانِيَةً، وَأَتُوبُ إِلَيْهِ مِنَ الذَّنْبِ الَّذِي أَعْلَمُ وَمِنَ الذَّنْبِ الَّذِي لَا أَعْلَمُ، إِنَّكَ أَنْتَ عَلَّامُ الْغُيُوبِ وَسَتَّارُ الْعُيُوبِ وَغَفَّارُ الذُّنُوبِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ الْعَلِيِّ الْعَظِيمِ',
-      'transliteration':
-          'Astaghfirullaha Rabbi min kulli dhambin adhnabtuhu \'amdan aw khata\'an, sirran aw \'alaniyatan, wa atubu ilayhi minadh-dhambil-ladhi a\'lamu wa minadh-dhambil-ladhi la a\'lamu, innaka anta \'allamul-ghuyubi wa sattarul-\'uyubi wa ghaffarudh-dhunubi, wa la hawla wa la quwwata illa billahil-\'aliyyil-\'azeem',
-      'translationUrdu':
-          'میں اللہ سے اپنے رب سے معافی مانگتا ہوں ہر اس گناہ سے جو میں نے کیا جان بوجھ کر یا بھول کر، چھپ کر یا کھلے عام، اور میں اس سے توبہ کرتا ہوں اس گناہ سے جو میں جانتا ہوں اور اس گناہ سے جو میں نہیں جانتا، بیشک تو غیب کا جاننے والا، عیبوں کو چھپانے والا، اور گناہوں کو معاف ک��نے والا ہے، اور اللہ کے سوا کوئی طاقت اور قوت نہیں جو بلند اور عظیم ہے۔',
-      'translationHindi':
-          'मैं अल्लाह से अपने रब से माफ़ी मांगता हूं हर उस गुनाह से जो मैंने किया जान बूझकर या भूल कर, छुपकर या खुले आम, और मैं उससे तौबा करता हूं उस गुनाह से जो मैं जानता हूं और उस गुनाह से जो मैं नहीं जानता, बेशक तू ग़ैब का जानने वाला, ऐबों को छुपाने वाला, और गुनाहों को माफ़ करने वाला है, और अल्लाह के सिवा कोई ताक़त और क़ुव्वत नहीं जो बुलंद और अज़ीम है।',
-      'translationArabic':
-          'أستغفر الله ربي من كل ذنب أذنبته عمداً أو خطأً، سراً أو علانيةً، وأتوب إليه من الذنب الذي أعلم ومن الذنب الذي لا أعلم، إنك أنت علام الغيوب وستار العيوب وغفار الذنوب، ولا حول ولا قوة إلا بالله العلي العظيم.',
-      'translationEnglish':
-          'I seek forgiveness from Allah, my Lord, from every sin I committed knowingly or unknowingly, secretly or openly, and I turn to Him in repentance from the sin which I know and from the sin which I do not know. Verily, You are the Knower of the unseen, the Concealer of faults, and the Forgiver of sins, and there is no power nor might except with Allah, the Most High, the Most Great.',
-      'color': Colors.teal,
-    },
-    {
-      'number': 6,
-      'name': 'Kalma Radde Kufr (Sixth Kalma)',
-      'nameUrdu': 'کلمہ ردِ کفر (چھٹا کلمہ)',
-      'nameHindi': 'कलमा रद्दे कुफ़्र (छठा कलमा)',
-      'nameArabic': 'كلمة رد الكفر (الكلمة السادسة)',
-      'arabic':
-          'اَللّٰهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ أَنْ أُشْرِكَ بِكَ شَيْئًا وَأَنَا أَعْلَمُ، وَأَسْتَغْفِرُكَ لِمَا لَا أَعْلَمُ، تُبْتُ عَنْهُ وَتَبَرَّأْتُ مِنَ الْكُفْرِ وَالشِّرْكِ وَالْكِذْبِ وَالْغِيبَةِ وَالْبِدْعَةِ وَالنَّمِيمَةِ وَالْفَوَاحِشِ وَالْبُهْتَانِ وَالْمَعَاصِي كُلِّهَا، وَأَسْلَمْتُ وَأَقُولُ لَا إِلٰهَ إِلَّا اللهُ مُحَمَّدٌ رَسُولُ اللهِ',
-      'transliteration':
-          'Allahumma inni a\'udhu bika min an ushrika bika shay\'an wa ana a\'lamu, wa astaghfiruka lima la a\'lamu, tubtu \'anhu wa tabarra\'tu minal-kufri wash-shirki wal-kidhbi wal-ghibati wal-bid\'ati wan-nameemati wal-fawahishi wal-buhtani wal-ma\'asi kulliha, wa aslamtu wa aqulu la ilaha illallahu Muhammadur Rasulullah',
-      'translationUrdu':
-          'اے اللہ! میں تیری پناہ مانگتا ہوں کہ میں تیرے ساتھ کسی چیز کو شریک ٹھہراؤں جان بوجھ کر، اور میں تجھ سے معافی مانگتا ہوں جو میں نہیں جانتا، میں نے اس سے توبہ کی اور میں بیزار ہوں کفر، شرک، جھوٹ، غیبت، بدعت، چغلی، بے حیائی، بہتان اور تمام گناہوں سے، اور میں نے اسلام قبول کیا اور میں کہتا ہوں کہ اللہ کے سوا کوئی معبود نہیں، محمد (ﷺ) اللہ کے رسول ہیں۔',
-      'translationHindi':
-          'ऐ अल्लाह! मैं तेरी पनाह मांगता हूं कि मैं तेरे साथ किसी चीज़ को शरीक ठहराऊं जान बूझकर, और मैं तुझसे माफ़ी मांगता हूं जो मैं नहीं जानता, मैंने उससे तौबा की और मैं बेज़ार हूं कुफ़्र, शिर्क, झूठ, ग़ीबत, बिदअत, चुग़ली, बेहयाई, बोहतान और तमाम गुनाहों से, और मैंने इस्लाम क़बूल किया और मैं कहता हूं कि अल्लाह के सिवा कोई माबूद नहीं, मुहम्मद (ﷺ) अल्लाह के रसूल हैं।',
-      'translationEnglish':
-          'O Allah! I seek refuge in You from knowingly associating anything with You, and I seek Your forgiveness for what I do not know. I repent from it and I dissociate myself from disbelief, polytheism, lying, backbiting, innovation, slander, indecency, false accusations, and all sins. I have submitted and I say: There is no god but Allah, Muhammad (ﷺ) is the Messenger of Allah.',
-      'color': Colors.red,
-    },
-    {
-      'number': 7,
-      'name': 'Kalma Iman-e-Mufassal (Seventh Kalma)',
-      'nameUrdu': 'کلمہ ایمانِ مفصل (ساتواں کلمہ)',
-      'nameHindi': 'कलमा ईमान-ए-मुफ़स्सल (सातवां कलमा)',
-      'nameArabic': 'كلمة الإيمان المفصل (الكلمة السابعة)',
-      'arabic':
-          'آمَنْتُ بِاللهِ وَمَلَائِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ وَالْيَوْمِ الْآخِرِ وَبِالْقَدَرِ خَيْرِهِ وَشَرِّهِ مِنَ اللهِ تَعَالَىٰ وَالْبَعْثِ بَعْدَ الْمَوْتِ',
-      'transliteration':
-          'Amantu billahi wa malaikatihi wa kutubihi wa rusulihi wal-yawmil-akhiri wa bil-qadari khayrihi wa sharrihi minallahi ta\'ala wal-ba\'thi ba\'dal-mawt',
-      'translationUrdu':
-          'میں ایمان لایا اللہ پر، اس کے فرشتوں پر، اس کی کتابوں پر، اس کے رسولوں پر، آخرت کے دن پر، اور تقدیر پر کہ اس کی بھلائی اور برائی اللہ تعالیٰ کی طرف سے ہے، اور موت کے بعد دوبارہ زندہ ہونے پر۔',
-      'translationHindi':
-          'मैं ईमान लाया अल्लाह पर, उसके फ़रिश्तों पर, उसकी किताबों पर, उसके रसूलों पर, आख़िरत के दिन पर, और तक़दीर पर कि उसकी भलाई और बुराई अल्लाह तआला की तरफ़ से है, और मौत के बाद दोबारा ज़िंदा होने पर।',
-      'translationArabic':
-          'آمنت بالله وملائكته وكتبه ورسله واليوم الآخر وبالقدر خيره وشره من الله تعالى والبعث بعد الموت.',
-      'translationEnglish':
-          'I believe in Allah, His Angels, His Books, His Messengers, the Last Day, and in the Divine Decree - that its good and evil are from Allah the Exalted, and in resurrection after death.',
-      'color': Colors.indigo,
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final isDark = Provider.of<SettingsProvider>(context).isDarkMode;
     final responsive = ResponsiveUtils(context);
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         elevation: 0,
@@ -300,23 +216,32 @@ $translation
           overflow: TextOverflow.ellipsis,
         ),
       ),
-      body: SingleChildScrollView(
-        padding: responsive.paddingRegular,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Kalmas List
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _kalmas.length,
-              itemBuilder: (context, index) {
-                final kalma = _kalmas[index];
-                return _buildKalmaCard(context, kalma, isDark);
-              },
+      body: Column(
+        children: [
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+              padding: responsive.paddingRegular,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Kalmas List
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _kalmas.length,
+                    itemBuilder: (context, index) {
+                      final kalma = _kalmas[index];
+                      return _buildKalmaCard(context, kalma);
+                    },
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+          const BannerAdWidget(),
+        ],
       ),
     );
   }
@@ -324,7 +249,6 @@ $translation
   Widget _buildKalmaCard(
     BuildContext context,
     Map<String, dynamic> kalma,
-    bool isDark,
   ) {
     final responsive = ResponsiveUtils(context);
     final langCode = context.watch<LanguageProvider>().languageCode;
@@ -343,12 +267,12 @@ $translation
     return Container(
       margin: EdgeInsets.only(bottom: responsive.spaceRegular),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : Colors.white,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
         border: Border.all(
           color: isPlaying
               ? AppColors.primary
-              : (isDark ? Colors.grey.shade700 : lightGreenBorder),
+              : (lightGreenBorder),
           width: isPlaying ? 2 : 1.5,
         ),
         boxShadow: [
@@ -368,7 +292,7 @@ $translation
             decoration: BoxDecoration(
               color: isPlaying
                   ? AppColors.primary.withValues(alpha: 0.1)
-                  : (isDark ? Colors.grey.shade800 : lightGreenChip),
+                  : (lightGreenChip),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(responsive.radiusLarge),
                 topRight: Radius.circular(responsive.radiusLarge),
@@ -490,7 +414,7 @@ $translation
                         fontWeight: FontWeight.w600,
                         color: isPlaying
                             ? AppColors.primary
-                            : (isDark ? Colors.white : Colors.black87),
+                            : (Colors.black87),
                         height: 2.0,
                       ),
                     ),
@@ -523,9 +447,7 @@ $translation
                     : TextDirection.ltr,
                 style: TextStyle(
                   fontSize: responsive.textMedium,
-                  color: isDark
-                      ? AppColors.darkTextSecondary
-                      : AppColors.textSecondary,
+                  color: AppColors.textSecondary,
                   height: 1.8,
                 ),
               ),

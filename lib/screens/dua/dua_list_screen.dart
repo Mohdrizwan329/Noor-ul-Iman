@@ -6,7 +6,9 @@ import '../../providers/dua_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../data/models/dua_model.dart';
 import '../../widgets/common/common_widgets.dart';
+import '../../core/utils/ad_list_helper.dart';
 import 'dua_detail_screen.dart';
+import '../../core/utils/ad_navigation.dart';
 
 class DuaListScreen extends StatefulWidget {
   final DuaCategory category;
@@ -144,13 +146,18 @@ class _DuaListScreenState extends State<DuaListScreen> {
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: AppDimens.paddingMedium),
-                    itemCount: filteredDuas.length,
+                    itemCount: AdListHelper.totalCount(filteredDuas.length),
                     itemBuilder: (context, index) {
-                      final dua = filteredDuas[index];
-                      return _buildDuaCard(context, dua, index);
+                      if (AdListHelper.isAdPosition(index)) {
+                        return const NativeAdWidget();
+                      }
+                      final dataIdx = AdListHelper.dataIndex(index);
+                      final dua = filteredDuas[dataIdx];
+                      return _buildDuaCard(context, dua, dataIdx);
                     },
                   ),
           ),
+          const BannerAdWidget(),
         ],
       ),
     );
@@ -165,15 +172,10 @@ class _DuaListScreenState extends State<DuaListScreen> {
       onTap: () {
         final provider = context.read<DuaProvider>();
         provider.selectDua(dua);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DuaDetailScreen(
-              dua: dua,
-              category: widget.category,
-            ),
-          ),
-        );
+        AdNavigator.push(context, DuaDetailScreen(
+          dua: dua,
+          category: widget.category,
+        ));
       },
     );
   }

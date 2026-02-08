@@ -1,0 +1,186 @@
+{
+  "strings": {
+    "about": {
+      "en": "About",
+      "ur": "کے بارے میں",
+      "hi": "के बारे में",
+      "ar": "حول"
+    },
+    "about_app": {
+      "en": "About App",
+      "ur": "ایپ کے بارے میں",
+      "hi": "ऐप के बारे में",
+      "ar": "حول التطبيق"
+    },
+    "about_app_description": {
+      "en": "Noor-ul-Iman is your complete Islamic companion app designed to help Muslims in their daily spiritual journey. With accurate prayer times, Qibla direction, Quran with translations, Hadith collections, and many more features, we aim to make practicing Islam easier and more accessible for everyone.",
+      "ur": "نور الایمان آپکا مکمل اسلامی ساتھی ایپ ہے جو مسلمانوں کی روزانہ روحانی سفر میں مدد کرنے کے لیے بنائی گئی ہے۔ درست نماز کے اوقات، قبلہ کی سمت، ترجمے کے ساتھ قرآن، حدیث کے مجموعے اور بہت سی دیگر خصوصیات کے ساتھ، ہمارا مقصد اسلام پر عمل کرنا ہر کسی کے لیے آسان بنانا ہے۔",
+      "hi": "नूर-उल-ईमान आपका संपूर्ण इस्लामी साथी ऐप है जो मुसलमानों की दैनिक आध्यात्मिक यात्रा में मदद करने के लिए बनाया गया है। सटीक नमाज़ के समय, किबला दिशा, अनुवाद के साथ कुरान, हदीस संग्रह और कई अन्य सुविधाओं के साथ, हमारा उद्देश्य इस्लाम का पालन करना सभी के लिए आसान बनाना है।",
+      "ar": "نور الإيمان هو تطبيقك الإسلامي الشامل المصمم لمساعدة المسلمين في رحلتهم الروحية اليومية. مع أوقات الصلاة الدقيقة، واتجاه القبلة، والقرآن مع الترجمات، ومجموعات الأحاديث، والعديد من الميزات الأخرى، نسعى لجعل ممارسة الإسلام أسهل وأكثر سهولة للجميع."
+    },
+    "app_features": {
+      "en": "App Features",
+      "ur": "ایپ کی خصوصیات",
+      "hi": "ऐप की विशेषताएं",
+      "ar": "ميزات التطبيق"
+    },
+    "feature_prayer_times": {
+      "en": "Accurate Prayer Times",
+      "ur": "درست نماز کے اوقات",
+      "hi": "सटीक नमाज़ का समय",
+      "ar": "أوقات الصلاة الدقيقة"
+    },
+    "feature_qibla_compass": {
+      "en": "Qibla Compass",
+      "ur": "قبلہ کمپاس",
+      "hi": "किब्ला कम्पास",
+      "ar": "بوصلة القبلة"
+    },
+    "feature_quran": {
+      "en": "Full Quran with Translation",
+      "ur": "مکمل قرآن بمعہ ترجمہ",
+      "hi": "अनुवाद के साथ पूर्ण कुरान",
+      "ar": "القرآن الكريم كاملاً مع الترجمة"
+    },
+    "feature_hadith": {
+      "en": "Hadith Collection",
+      "ur": "احادیث کا مجموعہ",
+      "hi": "हदीस संग्रह",
+      "ar": "مجموعة الأحاديث"
+    },
+    "feature_duas": {
+      "en": "Duas & Adhkar",
+      "ur": "دعائیں اور اذکار",
+      "hi": "दुआएं और अज़कार",
+      "ar": "الأدعية والأذكار"
+    },
+    "feature_tasbih": {
+      "en": "Tasbih Counter",
+      "ur": "تسبیح کاؤنٹر",
+      "hi": "तस्बीह काउंटर",
+      "ar": "عداد التسبيح"
+    },
+    "feature_calendar": {
+      "en": "Islamic Calendar",
+      "ur": "اسلامی کیلنڈر",
+      "hi": "इस्लामी कैलेंडर",
+      "ar": "التقويم الإسلامي"
+    },
+    "feature_99_names": {
+      "en": "99 Names of Allah",
+      "ur": "اللہ کے 99 نام",
+      "hi": "अल्लाह के 99 नाम",
+      "ar": "أسماء الله الحسنى"
+    },
+    "feature_zakat": {
+      "en": "Zakat Calculator",
+      "ur": "زکوٰۃ کیلکولیٹر",
+      "hi": "ज़कात कैलकुलेटर",
+      "ar": "حاسبة الزكاة"
+    },
+    "feature_halal_finder": {
+      "en": "Halal Food Finder",
+      "ur": "حلال کھانا تلاش کریں",
+      "hi": "हलाल भोजन खोजक",
+      "ar": "الباحث عن الطعام الحلال"
+    },
+    "feature_mosque_finder": {
+      "en": "Mosque Finder",
+      "ur": "مسجد تلاش کریں",
+      "hi": "मस्जिद खोजक",
+      "ar": "الباحث عن المساجد"
+    },
+    "feature_ramadan_tracker": {
+      "en": "Ramadan Tracker",
+      "ur": "رمضان ٹریکر",
+      "hi": "रमज़ान ट्रैकर",
+      "ar": "متتبع رمضان"
+    },
+    "our_mission": {
+      "en": "Our Mission",
+      "ur": "ہمارا مشن",
+      "hi": "हमारा मिशन",
+      "ar": "مهمتنا"
+    },
+    "mission_description": {
+      "en": "Our mission is to bring Muslims closer to Allah through technology. We strive to provide accurate, authentic Islamic content and tools that make it easier for every Muslim to practice their faith, wherever they are in the world.",
+      "ur": "ہمارا مشن ٹیکنالوجی کے ذریعے مسلمانوں کو اللہ کے قریب لانا ہے۔ ہم درست، مستند اسلامی مواد اور ٹولز فراہم کرنے کی کوشش کرتے ہیں جو ہر مسلمان کے لیے اپنے دین پر عمل کرنا آسان بناتے ہیں، چاہے وہ دنیا میں کہیں بھی ہوں۔",
+      "hi": "हमारा मिशन टेक्नोलॉजी के माध्यम से मुसलमानों को अल्लाह के करीब लाना है। हम सटीक, प्रामाणिक इस्लामी सामग्री और उपकरण प्रदान करने का प्रयास करते हैं जो हर मुसलमान के लिए अपने दीन का पालन करना आसान बनाते हैं, चाहे वे दुनिया में कहीं भी हों।",
+      "ar": "مهمتنا هي تقريب المسلمين من الله من خلال التكنولوجيا. نسعى لتقديم محتوى وأدوات إسلامية دقيقة وموثوقة تجعل ممارسة الإسلام أسهل لكل مسلم، أينما كان في العالم."
+    },
+    "developed_with_love": {
+      "en": "Developed with Love",
+      "ur": "محبت سے بنایا گیا",
+      "hi": "प्यार से बनाया गया",
+      "ar": "طُوِّر بحب"
+    },
+    "made_for_ummah": {
+      "en": "Made with love for the Muslim Ummah",
+      "ur": "مسلم امت کے لیے محبت سے بنایا گیا",
+      "hi": "मुस्लिम उम्मत के लिए प्यार से बनाया गया",
+      "ar": "صُنع بحب للأمة الإسلامية"
+    },
+    "all_rights_reserved": {
+      "en": "All Rights Reserved",
+      "ur": "جملہ حقوق محفوظ ہیں",
+      "hi": "सर्वाधिकार सुरक्षित",
+      "ar": "جميع الحقوق محفوظة"
+    },
+    "copyright_text": {
+      "en": "© 2025 Noor-ul-Iman",
+      "ur": "© 2025 نور الایمان",
+      "hi": "© 2025 नूर-उल-ईमान",
+      "ar": "© 2025 نور الإيمان"
+    }
+  },
+  "features": [
+    {
+      "key": "feature_prayer_times",
+      "icon": "access_time"
+    },
+    {
+      "key": "feature_qibla_compass",
+      "icon": "explore"
+    },
+    {
+      "key": "feature_quran",
+      "icon": "menu_book"
+    },
+    {
+      "key": "feature_hadith",
+      "icon": "auto_stories"
+    },
+    {
+      "key": "feature_duas",
+      "icon": "front_hand"
+    },
+    {
+      "key": "feature_tasbih",
+      "icon": "radio_button_checked"
+    },
+    {
+      "key": "feature_calendar",
+      "icon": "calendar_month"
+    },
+    {
+      "key": "feature_99_names",
+      "icon": "star"
+    },
+    {
+      "key": "feature_zakat",
+      "icon": "calculate"
+    },
+    {
+      "key": "feature_halal_finder",
+      "icon": "restaurant"
+    },
+    {
+      "key": "feature_mosque_finder",
+      "icon": "mosque"
+    },
+    {
+      "key": "feature_ramadan_tracker",
+      "icon": "nightlight_round"
+    }
+  ]
+}

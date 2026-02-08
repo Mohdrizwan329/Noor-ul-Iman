@@ -10,9 +10,13 @@ import '../../providers/language_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/quran_provider.dart';
 import '../../core/services/location_service.dart';
+import '../../core/services/data_migration_service.dart';
+import '../../core/services/content_service.dart';
+import '../../data/models/firestore_models.dart';
 import '../auth/login_screen.dart';
 import 'privacy_policy_screen.dart';
 import 'about_screen.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -25,11 +29,62 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _currentCity = '';
   String _currentCountry = '';
   bool _isLoadingLocation = true;
+  final ContentService _contentService = ContentService();
+  SettingsScreenContentFirestore? _content;
+  bool _isContentLoading = true;
 
   @override
   void initState() {
     super.initState();
     _fetchCurrentLocation();
+    _loadContent();
+  }
+
+  Future<void> _loadContent() async {
+    try {
+      final content = await _contentService.getSettingsScreenContent();
+      if (mounted) {
+        setState(() {
+          _content = content;
+          _isContentLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading settings content from Firebase: $e');
+      if (mounted) {
+        setState(() {
+          _isContentLoading = false;
+        });
+      }
+    }
+  }
+
+  String get _langCode =>
+      Provider.of<LanguageProvider>(context, listen: false).languageCode;
+
+  /// Get translated string from Firebase content
+  String _t(String key) {
+    if (_content == null) return '';
+    return _content!.getString(key, _langCode);
+  }
+
+  /// Translate city name from Firebase content
+  String _translateCityName(String city) {
+    if (_content == null) return city;
+    return _content!.getCityName(city, _langCode);
+  }
+
+  /// Translate country name from Firebase content
+  String _translateCountryName(String country) {
+    if (_content == null) return country;
+    return _content!.getCountryName(country, _langCode);
+  }
+
+  /// Transliterate name from Firebase content
+  String _transliterateName(String name) {
+    if (_langCode == 'en') return name;
+    if (_content == null) return name;
+    return _content!.transliterateName(name, _langCode);
   }
 
   Future<void> _fetchCurrentLocation() async {
@@ -113,10 +168,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final responsive = context.responsive;
 
+    if (_isContentLoading) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          context.tr('profile'),
+          _t('profile'),
           style: TextStyle(fontSize: responsive.fontSize(18)),
         ),
       ),
@@ -135,17 +197,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // Prayer Settings Section
                 _buildSectionHeader(
                   context,
-                  context.tr('prayer_times'),
+                  _t('prayer_times'),
                   responsive: responsive,
                 ),
                 _buildSettingCard(
                   context,
                   responsive: responsive,
                   icon: Icons.notifications,
-                  title: context.tr('prayer_notifications'),
+                  title: _t('prayer_notifications'),
                   subtitle: settings.notificationsEnabled
-                      ? context.tr('enabled')
-                      : context.tr('disabled'),
+                      ? _t('enabled')
+                      : _t('disabled'),
                   trailing: Switch(
                     value: settings.notificationsEnabled,
                     onChanged: (value) => settings.setNotificationsEnabled(value),
@@ -157,15 +219,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // Language Section
                 _buildSectionHeader(
                   context,
-                  context.tr('language'),
+                  _t('language'),
                   responsive: responsive,
                 ),
                 _buildSettingCard(
                   context,
                   responsive: responsive,
                   icon: Icons.language,
-                  title: context.tr('change_language'),
-                  subtitle: context.tr('select_your_language'),
+                  title: _t('change_language'),
+                  subtitle: _t('select_your_language'),
                   onTap: () => _showLanguageDialog(context),
                 ),
                 SizedBox(height: responsive.spacing(24)),
@@ -173,30 +235,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // About Section
                 _buildSectionHeader(
                   context,
-                  context.tr('about'),
+                  _t('about'),
                   responsive: responsive,
                 ),
                 _buildSettingCard(
                   context,
                   responsive: responsive,
                   icon: Icons.privacy_tip,
-                  title: context.tr('privacy_policy'),
-                  subtitle: context.tr('read_privacy_policy'),
+                  title: _t('privacy_policy'),
+                  subtitle: _t('read_privacy_policy'),
                   onTap: () => _openPrivacyPolicy(),
                 ),
                 _buildSettingCard(
                   context,
                   responsive: responsive,
                   icon: Icons.info,
-                  title: context.tr('about'),
-                  subtitle: '${context.tr('version')} 1.0.0',
+                  title: _t('about'),
+                  subtitle: '${_t('version')} ${_t('app_version')}',
                   onTap: () => _showAboutDialog(context),
+                ),
+                _buildSettingCard(
+                  context,
+                  responsive: responsive,
+                  icon: Icons.cloud_upload,
+                  title: _t('migrate_data_to_firebase'),
+                  subtitle: _t('upload_all_data_to_firestore'),
+                  onTap: () => _showMigrationDialog(context),
                 ),
                 SizedBox(height: responsive.spacing(24)),
 
                 // Logout
                 _buildLogoutCard(context, responsive: responsive),
-                SizedBox(height: responsive.spaceXXLarge),
+                SizedBox(height: responsive.spacing(24)),
+
+                // Banner Ad at the end of content
+                const BannerAdWidget(),
+                SizedBox(height: responsive.spaceRegular),
               ],
             ),
           );
@@ -225,179 +299,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // Helper function to translate city names
-  String _translateCityName(String city) {
-    final cityTranslations = {
-      'Bengaluru': {
-        'en': 'Bengaluru',
-        'ur': 'بنگلور',
-        'ar': 'بنغالور',
-        'hi': 'बेंगलुरु',
-      },
-      'Mumbai': {'en': 'Mumbai', 'ur': 'ممبئی', 'ar': 'مومباي', 'hi': 'मुंबई'},
-      'Delhi': {'en': 'Delhi', 'ur': 'دہلی', 'ar': 'دلهي', 'hi': 'दिल्ली'},
-      'New Delhi': {
-        'en': 'New Delhi',
-        'ur': 'نئی دہلی',
-        'ar': 'نيودلهي',
-        'hi': 'नई दिल्ली',
-      },
-      'Kolkata': {
-        'en': 'Kolkata',
-        'ur': 'کولکاتا',
-        'ar': 'كولكاتا',
-        'hi': 'कोलकाता',
-      },
-      'Chennai': {
-        'en': 'Chennai',
-        'ur': 'چنئی',
-        'ar': 'تشيناي',
-        'hi': 'चेन्नई',
-      },
-      'Hyderabad': {
-        'en': 'Hyderabad',
-        'ur': 'حیدرآباد',
-        'ar': 'حيدر أباد',
-        'hi': 'हैदराबाद',
-      },
-      'Pune': {'en': 'Pune', 'ur': 'پونے', 'ar': 'بونا', 'hi': 'पुणे'},
-      'Ahmedabad': {
-        'en': 'Ahmedabad',
-        'ur': 'احمد آباد',
-        'ar': 'أحمد آباد',
-        'hi': 'अहमदाबाद',
-      },
-      'Jaipur': {'en': 'Jaipur', 'ur': 'جے پور', 'ar': 'جايبور', 'hi': 'जयपुर'},
-      'Lucknow': {'en': 'Lucknow', 'ur': 'لکھنؤ', 'ar': 'لكناو', 'hi': 'लखनऊ'},
-      'Karachi': {
-        'en': 'Karachi',
-        'ur': 'کراچی',
-        'ar': 'كراتشي',
-        'hi': 'कराची',
-      },
-      'Lahore': {'en': 'Lahore', 'ur': 'لاہور', 'ar': 'لاهور', 'hi': 'लाहौर'},
-      'Islamabad': {
-        'en': 'Islamabad',
-        'ur': 'اسلام آباد',
-        'ar': 'إسلام آباد',
-        'hi': 'इस्लामाबाद',
-      },
-      'Dhaka': {'en': 'Dhaka', 'ur': 'ڈھاکہ', 'ar': 'دكا', 'hi': 'ढाका'},
-      'Mecca': {'en': 'Mecca', 'ur': 'مکہ', 'ar': 'مكة', 'hi': 'मक्का'},
-      'Medina': {'en': 'Medina', 'ur': 'مدینہ', 'ar': 'المدينة', 'hi': 'मदीना'},
-      'Riyadh': {'en': 'Riyadh', 'ur': 'ریاض', 'ar': 'الرياض', 'hi': 'रियाद'},
-      'Dubai': {'en': 'Dubai', 'ur': 'دبئی', 'ar': 'دبي', 'hi': 'दुबई'},
-      'Abu Dhabi': {
-        'en': 'Abu Dhabi',
-        'ur': 'ابوظبی',
-        'ar': 'أبو ظبي',
-        'hi': 'अबू धाबी',
-      },
-    };
-
-    final languageProvider = Provider.of<LanguageProvider>(
-      context,
-      listen: false,
-    );
-    final currentLanguage = languageProvider.languageCode;
-
-    final cityData = cityTranslations[city];
-    if (cityData != null) {
-      return cityData[currentLanguage] ?? city;
-    }
-
-    return city;
-  }
-
-  // Helper function to translate country names
-  String _translateCountryName(String country) {
-    final countryTranslations = {
-      'India': {'en': 'India', 'ur': 'بھارت', 'ar': 'الهند', 'hi': 'भारत'},
-      'Pakistan': {
-        'en': 'Pakistan',
-        'ur': 'پاکستان',
-        'ar': 'باكستان',
-        'hi': 'पाकिस्तान',
-      },
-      'Bangladesh': {
-        'en': 'Bangladesh',
-        'ur': 'بنگلہ دیش',
-        'ar': 'بنغلاديش',
-        'hi': 'बांग्लादेश',
-      },
-      'Saudi Arabia': {
-        'en': 'Saudi Arabia',
-        'ur': 'سعودی عرب',
-        'ar': 'المملكة العربية السعودية',
-        'hi': 'सऊदी अरब',
-      },
-      'United Arab Emirates': {
-        'en': 'United Arab Emirates',
-        'ur': 'متحدہ عرب امارات',
-        'ar': 'الإمارات العربية المتحدة',
-        'hi': 'संयुक्त अरब अमीरात',
-      },
-    };
-
-    final languageProvider = Provider.of<LanguageProvider>(
-      context,
-      listen: false,
-    );
-    final currentLanguage = languageProvider.languageCode;
-
-    final countryData = countryTranslations[country];
-    if (countryData != null) {
-      return countryData[currentLanguage] ?? country;
-    }
-
-    return country;
-  }
-
-  // Helper function to transliterate names to different scripts
-  String _transliterateName(String name) {
-    final languageProvider = Provider.of<LanguageProvider>(
-      context,
-      listen: false,
-    );
-    final currentLanguage = languageProvider.languageCode;
-
-    if (currentLanguage == 'en') {
-      return name;
-    }
-
-    final transliterations = {
-      'Mohd': {'ur': 'محمد', 'ar': 'محمد', 'hi': 'मोहम्मद'},
-      'Mohammad': {'ur': 'محمد', 'ar': 'محمد', 'hi': 'मोहम्मद'},
-      'Muhammad': {'ur': 'محمد', 'ar': 'محمد', 'hi': 'मुहम्मद'},
-      'Ahmed': {'ur': 'احمد', 'ar': 'أحمد', 'hi': 'अहमद'},
-      'Ali': {'ur': 'علی', 'ar': 'علي', 'hi': 'अली'},
-      'Hassan': {'ur': 'حسن', 'ar': 'حسن', 'hi': 'हसन'},
-      'Hussain': {'ur': 'حسین', 'ar': 'حسين', 'hi': 'हुसैन'},
-      'Fatima': {'ur': 'فاطمہ', 'ar': 'فاطمة', 'hi': 'फातिमा'},
-      'Ayesha': {'ur': 'عائشہ', 'ar': 'عائشة', 'hi': 'आयशा'},
-      'Reyan': {'ur': 'ریان', 'ar': 'ريان', 'hi': 'रेयान'},
-      'Rizwan': {'ur': 'رضوان', 'ar': 'رضوان', 'hi': 'रिज़वान'},
-      'Khan': {'ur': 'خان', 'ar': 'خان', 'hi': 'खान'},
-      'Sheikh': {'ur': 'شیخ', 'ar': 'شيخ', 'hi': 'शेख'},
-    };
-
-    List<String> nameParts = name.split(' ');
-    List<String> transliteratedParts = [];
-
-    for (String part in nameParts) {
-      final transliteration = transliterations[part];
-      if (transliteration != null) {
-        transliteratedParts.add(
-          transliteration[currentLanguage] ?? part,
-        );
-      } else {
-        transliteratedParts.add(part);
-      }
-    }
-
-    return transliteratedParts.join(' ');
-  }
-
   Widget _buildProfileCard(
     BuildContext context, {
     required ResponsiveUtils responsive,
@@ -408,7 +309,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // Build location string
     String profileLocation;
     if (_isLoadingLocation) {
-      profileLocation = context.tr('fetching_location');
+      profileLocation = _t('fetching_location');
     } else if (_currentCity.isNotEmpty) {
       final translatedCity = _translateCityName(_currentCity);
       if (_currentCountry.isNotEmpty) {
@@ -418,17 +319,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         profileLocation = translatedCity;
       }
     } else {
-      profileLocation = context.tr('location_not_set');
+      profileLocation = _t('location_not_set');
     }
 
-    // List of all translated default user names
-    final defaultUserNames = ['User', 'صارف', 'المستخدم', 'उपयोगकर्ता'];
+    // List of all translated default user names from Firebase
+    final defaultUserNames = _content?.defaultUserNames ?? [];
 
     // Get display name
     String displayName = authProvider.displayName;
 
     if (defaultUserNames.contains(displayName)) {
-      displayName = context.tr('user');
+      displayName = _t('user');
     } else {
       displayName = _transliterateName(displayName);
     }
@@ -445,7 +346,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       profileName = _transliterateName(profileName);
     }
 
-    final profileEmail = authProvider.userEmail ?? 'user@example.com';
+    final profileEmail = authProvider.userEmail ?? _t('default_email');
     final profileImagePath = settings.profileImagePath;
 
     return Container(
@@ -700,7 +601,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
         title: Text(
-          context.tr('logout'),
+          _t('logout'),
           style: TextStyle(
             fontSize: responsive.fontSize(16),
             fontWeight: FontWeight.bold,
@@ -710,7 +611,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           overflow: TextOverflow.ellipsis,
         ),
         subtitle: Text(
-          context.tr('sign_out_message'),
+          _t('sign_out_message'),
           style: TextStyle(
             color: const Color(0xFF6B7F73),
             fontSize: responsive.fontSize(14),
@@ -743,29 +644,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
     final currentLanguage = languageProvider.languageCode;
 
-    final languages = [
-      {'code': 'ur', 'name': 'اردو', 'nativeName': 'Urdu', 'icon': '🇵🇰'},
-      {'code': 'ar', 'name': 'العربية', 'nativeName': 'Arabic', 'icon': '🇸🇦'},
-      {'code': 'hi', 'name': 'हिन्दी', 'nativeName': 'Hindi', 'icon': '🇮🇳'},
-      {
-        'code': 'en',
-        'name': 'English',
-        'nativeName': 'English',
-        'icon': '🇬🇧',
-      },
-    ];
+    // Get languages from Firebase content
+    final languages = _content?.languages ?? [];
+    if (languages.isEmpty) return;
+
+    final languageList = languages.map((l) => {
+      'code': l.code,
+      'name': l.name,
+      'nativeName': l.nativeName,
+      'icon': l.icon,
+    }).toList();
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(context.tr('change_language')),
+        title: Text(_t('change_language')),
         content: SizedBox(
           width: double.maxFinite,
           child: ListView.builder(
             shrinkWrap: true,
-            itemCount: languages.length,
+            itemCount: languageList.length,
             itemBuilder: (context, index) {
-              final language = languages[index];
+              final language = languageList[index];
               final isSelected = currentLanguage == language['code'];
 
               return ListTile(
@@ -811,7 +711,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(context.tr('cancel')),
+            child: Text(_t('cancel')),
           ),
         ],
       ),
@@ -860,7 +760,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             responsive.hSpaceMedium,
             Expanded(
               child: Text(
-                context.tr('logout'),
+                _t('logout'),
                 style: TextStyle(
                   fontSize: responsive.fontSize(20),
                   fontWeight: FontWeight.bold,
@@ -873,7 +773,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
         content: Text(
-          context.tr('logout_confirmation'),
+          _t('logout_confirmation'),
           style: TextStyle(
             fontSize: responsive.fontSize(16),
             color: AppColors.textSecondary,
@@ -894,7 +794,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             child: Text(
-              context.tr('cancel'),
+              _t('cancel'),
               style: TextStyle(
                 fontSize: responsive.fontSize(16),
                 fontWeight: FontWeight.w600,
@@ -940,7 +840,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('${context.tr('error')}: $e'),
+                      content: Text('${_t('error')}: $e'),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -960,7 +860,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             child: Text(
-              context.tr('logout'),
+              _t('logout'),
               style: TextStyle(
                 fontSize: responsive.fontSize(16),
                 fontWeight: FontWeight.w600,
@@ -988,6 +888,105 @@ class _SettingsScreenState extends State<SettingsScreen> {
       MaterialPageRoute(
         builder: (context) => const AboutScreen(),
       ),
+    );
+  }
+
+  void _showMigrationDialog(BuildContext context) {
+    bool isMigrating = false;
+    final logs = <String>[];
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text(_t('migrate_data_to_firebase')),
+              content: SizedBox(
+                width: double.maxFinite,
+                height: 300,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (!isMigrating && logs.isEmpty)
+                      Text(
+                        _t('migration_description'),
+                      ),
+                    if (isMigrating)
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 12),
+                        child: LinearProgressIndicator(),
+                      ),
+                    if (logs.isNotEmpty)
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: logs.length,
+                          itemBuilder: (context, index) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 2),
+                            child: Text(
+                              logs[index],
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: logs[index].contains('failed') || logs[index].contains('Error')
+                                    ? Colors.red
+                                    : logs[index].contains('successfully') || logs[index].contains('completed')
+                                        ? Colors.green
+                                        : null,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              actions: [
+                if (!isMigrating)
+                  TextButton(
+                    onPressed: () => Navigator.pop(dialogContext),
+                    child: Text(logs.isEmpty ? _t('cancel') : _t('close')),
+                  ),
+                if (!isMigrating && logs.isEmpty)
+                  ElevatedButton(
+                    onPressed: () async {
+                      setDialogState(() {
+                        isMigrating = true;
+                        logs.clear();
+                      });
+
+                      final migrationService = DataMigrationService();
+
+                      // Check if already migrated
+                      final alreadyMigrated = await migrationService.isDataMigrated();
+                      if (alreadyMigrated) {
+                        setDialogState(() {
+                          logs.add('Data already exists in Firestore.');
+                          logs.add('Re-uploading will overwrite existing data...');
+                        });
+                      }
+
+                      final result = await migrationService.migrateAll(
+                        onProgress: (message) {
+                          setDialogState(() {
+                            logs.add(message);
+                          });
+                        },
+                      );
+
+                      setDialogState(() {
+                        isMigrating = false;
+                        logs.add('');
+                        logs.add(result.toString());
+                      });
+                    },
+                    child: Text(_t('start_migration')),
+                  ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

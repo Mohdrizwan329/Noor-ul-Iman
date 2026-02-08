@@ -1,0 +1,96 @@
+{
+  "prayer_items": [
+    {
+      "key": "fajr",
+      "name": { "en": "Fajr", "ur": "فجر", "hi": "फज्र", "ar": "الفجر" },
+      "icon": "\uD83C\uDF19",
+      "api_key": "Fajr"
+    },
+    {
+      "key": "sunrise",
+      "name": { "en": "Sunrise", "ur": "طلوع آفتاب", "hi": "सूर्योदय", "ar": "الشروق" },
+      "icon": "\uD83C\uDF05",
+      "api_key": "Sunrise"
+    },
+    {
+      "key": "dhuhr",
+      "name": { "en": "Dhuhr", "ur": "ظہر", "hi": "ज़ुहर", "ar": "الظهر" },
+      "icon": "☀️",
+      "api_key": "Dhuhr"
+    },
+    {
+      "key": "jummah",
+      "name": { "en": "Jummah", "ur": "جمعہ", "hi": "जुमा", "ar": "جمعة" },
+      "icon": "\uD83D\uDD4C",
+      "api_key": "Dhuhr"
+    },
+    {
+      "key": "asr",
+      "name": { "en": "Asr", "ur": "عصر", "hi": "अस्र", "ar": "العصر" },
+      "icon": "\uD83C\uDF24️",
+      "api_key": "Asr"
+    },
+    {
+      "key": "maghrib",
+      "name": { "en": "Maghrib", "ur": "مغرب", "hi": "मगरिब", "ar": "المغرب" },
+      "icon": "\uD83C\uDF07",
+      "api_key": "Maghrib"
+    },
+    {
+      "key": "isha",
+      "name": { "en": "Isha", "ur": "عشاء", "hi": "इशा", "ar": "العشاء" },
+      "icon": "\uD83C\uDF03",
+      "api_key": "Isha"
+    }
+  ],
+  "gregorian_months": {
+    "january": { "en": "January", "ur": "جنوری", "hi": "जनवरी", "ar": "يناير" },
+    "february": { "en": "February", "ur": "فروری", "hi": "फरवरी", "ar": "فبراير" },
+    "march": { "en": "March", "ur": "مارچ", "hi": "मार्च", "ar": "مارس" },
+    "april": { "en": "April", "ur": "اپریل", "hi": "अप्रैल", "ar": "أبريل" },
+    "may": { "en": "May", "ur": "مئی", "hi": "मई", "ar": "مايو" },
+    "june": { "en": "June", "ur": "جون", "hi": "जून", "ar": "يونيو" },
+    "july": { "en": "July", "ur": "جولائی", "hi": "जुलाई", "ar": "يوليو" },
+    "august": { "en": "August", "ur": "اگست", "hi": "अगस्त", "ar": "أغسطس" },
+    "september": { "en": "September", "ur": "ستمبر", "hi": "सितम्बर", "ar": "سبتمبر" },
+    "october": { "en": "October", "ur": "اکتوبر", "hi": "अक्टूबर", "ar": "أكتوبر" },
+    "november": { "en": "November", "ur": "نومبر", "hi": "नवम्बर", "ar": "نوفمبر" },
+    "december": { "en": "December", "ur": "دسمبر", "hi": "दिसम्बर", "ar": "ديسمبر" }
+  },
+  "hijri_months": {
+    "month_muharram": { "en": "Muharram", "ur": "محرم", "hi": "मुहर्रम", "ar": "محرم" },
+    "month_safar": { "en": "Safar", "ur": "صفر", "hi": "सफ़र", "ar": "صفر" },
+    "month_rabi_ul_awwal": { "en": "Rabi ul-Awwal", "ur": "ربیع الاول", "hi": "रबी उल-अव्वल", "ar": "ربيع الأول" },
+    "month_rabi_ul_aakhir": { "en": "Rabi ul-Aakhir", "ur": "ربیع الآخر", "hi": "रबी उल-आख़िर", "ar": "ربيع الآخر" },
+    "month_jumada_ul_ula": { "en": "Jumada ul-Ula", "ur": "جمادی الاولیٰ", "hi": "जुमादा उल-ऊला", "ar": "جمادى الأولى" },
+    "month_jumada_ul_aakhira": { "en": "Jumada ul-Aakhira", "ur": "جمادی الآخرہ", "hi": "जुमादा उल-आख़िरा", "ar": "جمادى الآخرة" },
+    "month_rajab": { "en": "Rajab", "ur": "رجب", "hi": "रजब", "ar": "رجب" },
+    "month_shaban": { "en": "Shaban", "ur": "شعبان", "hi": "शाबान", "ar": "شعبان" },
+    "month_ramadan": { "en": "Ramadan", "ur": "رمضان", "hi": "रमज़ान", "ar": "رمضان" },
+    "month_shawwal": { "en": "Shawwal", "ur": "شوال", "hi": "शव्वाल", "ar": "شوال" },
+    "month_dhul_qadah": { "en": "Dhul-Qa'dah", "ur": "ذوالقعدہ", "hi": "ज़िल्क़ादा", "ar": "ذو القعدة" },
+    "month_dhul_hijjah": { "en": "Dhul-Hijjah", "ur": "ذوالحجہ", "hi": "ज़िल्हिज्जा", "ar": "ذو الحجة" }
+  },
+  "strings": {
+    "prayer_times": { "en": "Prayer Times", "ur": "نماز کے اوقات", "hi": "नमाज़ का समय", "ar": "أوقات الصلاة" },
+    "next_prayer": { "en": "Next Prayer", "ur": "اگلی نماز", "hi": "अगली नमाज़", "ar": "الصلاة التالية" },
+    "today_prayer_times": { "en": "Today's Prayer Times", "ur": "آج کے نماز کے اوقات", "hi": "आज के नमाज़ का समय", "ar": "أوقات الصلاة اليوم" },
+    "no_prayer_times_available": { "en": "No prayer times available", "ur": "نماز کے اوقات دستیاب نہیں", "hi": "नमाज़ का समय उपलब्ध नहीं", "ar": "أوقات الصلاة غير متاحة" },
+    "no_prayer_times": { "en": "No prayer times available", "ur": "نماز کے اوقات دستیاب نہیں", "hi": "नमाज़ का समय उपलब्ध नहीं", "ar": "أوقات الصلاة غير متاحة" },
+    "retry": { "en": "Retry", "ur": "دوبارہ کوشش کریں", "hi": "पुनः प्रयास करें", "ar": "إعادة المحاولة" },
+    "monthly_timetable": { "en": "Monthly Timetable", "ur": "ماہانہ ٹائم ٹیبل", "hi": "मासिक समय सारणी", "ar": "الجدول الشهري" },
+    "hours_short": { "en": "h", "ur": "گھ", "hi": "घं", "ar": "س" },
+    "minutes_short": { "en": "m", "ur": "م", "hi": "मि", "ar": "د" },
+    "seconds_short": { "en": "s", "ur": "س", "hi": "से", "ar": "ث" },
+    "ah": { "en": "AH", "ur": "ہجری", "hi": "हिजरी", "ar": "هـ" },
+    "date": { "en": "Date", "ur": "تاریخ", "hi": "तारीख़", "ar": "التاريخ" },
+    "fajr": { "en": "Fajr", "ur": "فجر", "hi": "फज्र", "ar": "الفجر" },
+    "sunrise": { "en": "Sunrise", "ur": "طلوع آفتاب", "hi": "सूर्योदय", "ar": "الشروق" },
+    "dhuhr": { "en": "Dhuhr", "ur": "ظہر", "hi": "ज़ुहर", "ar": "الظهر" },
+    "asr": { "en": "Asr", "ur": "عصر", "hi": "अस्र", "ar": "العصر" },
+    "maghrib": { "en": "Maghrib", "ur": "مغرب", "hi": "मगरिब", "ar": "المغرب" },
+    "isha": { "en": "Isha", "ur": "عشاء", "hi": "इशा", "ar": "العشاء" },
+    "jummah": { "en": "Jummah", "ur": "جمعہ", "hi": "जुमा", "ar": "جمعة" },
+    "unable_load_prayer_times": { "en": "Unable to load prayer times", "ur": "نماز کے اوقات لوڈ نہیں ہو سکے", "hi": "नमाज़ के समय लोड नहीं हो सके", "ar": "غير قادر على تحميل أوقات الصلاة" }
+  }
+}

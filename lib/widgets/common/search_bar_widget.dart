@@ -127,7 +127,6 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppCard(
       padding: EdgeInsets.zero,
@@ -145,7 +144,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
             context,
             color: _isListening
                 ? AppColors.primary
-                : (isDark ? AppColors.darkTextSecondary : AppColors.textHint),
+                : (AppColors.textHint),
           ),
           prefixIcon: _isListening
               ? _buildWaveformAnimation()
@@ -173,9 +172,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
                   ? IconButton(
                       icon: Icon(
                         Icons.clear,
-                        color: isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.textSecondary,
+                        color: AppColors.textSecondary,
                       ),
                       onPressed: () {
                         widget.controller.clear();
@@ -185,7 +182,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
                     )
                   : null),
           filled: true,
-          fillColor: isDark ? AppColors.darkCard : Colors.white,
+          fillColor: Colors.white,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(responsive.radiusLarge),
             borderSide: BorderSide.none,

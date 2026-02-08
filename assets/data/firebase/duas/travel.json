@@ -1,0 +1,105 @@
+{
+  "id": "travel",
+  "name": {
+    "en": "Safar & Bahar Jaane ki Duain",
+    "ur": "سفر اور باہر جانے کی دعائیں",
+    "hi": "सफर और बाहर जाने की दुआएं",
+    "ar": "سفر اور باہر جانے کی دعائیں"
+  },
+  "icon": "✈️",
+  "order": 6,
+  "duas": [
+    {
+      "id": 24,
+      "title": {
+        "en": "Safar shuru karne ki dua",
+        "ur": "سفر شروع کرنے کی دعا",
+        "hi": "सफर शुरू करने की दुआ",
+        "ar": "سفر شروع کرنے کی دعا"
+      },
+      "arabic": "اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَٰذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ، وَإِنَّا إِلَىٰ رَبِّنَا لَمُنْقَلِبُونَ",
+      "transliteration": "Allahu akbar, Allahu akbar, Allahu akbar. Subhanal-ladhi sakh-khara lana hadha wa ma kunna lahu muqrinin, wa inna ila rabbina lamunqalibun",
+      "translation": {
+        "en": "Allah is the Greatest (3 times). Glory be to Him who has subjected this to us, and we could not have subdued it ourselves, and indeed to our Lord we will surely return.",
+        "ur": "اللہ سب سے بڑا ہے (3 بار)۔ پاک ہے وہ جس نے اس (سواری) کو ہمارے تابع کیا اور ہم اس کو قابو میں لانے کی طاقت نہیں رکھتے تھے اور ہم اپنے رب کی طرف ضرور لوٹنے والے ہیں۔",
+        "hi": "अल्लाह सबसे बड़ा है (3 बार)। पाक है वो जिसने इस (सवारी) को हमारे ताबे किया और हम इसको क़ाबू में लाने की ताक़त नहीं रखते थे और हम अपने रब की तरफ़ ज़रूर लौटने वाले हैं।",
+        "ar": "Allah is the Greatest (3 times). Glory be to Him who has subjected this to us, and we could not have subdued it ourselves, and indeed to our Lord we will surely return."
+      },
+      "reference": {
+        "en": "Sahih Muslim: 1342",
+        "ur": "صحیح مسلم: 1342",
+        "hi": "सहीह मुस्लिम: 1342",
+        "ar": "صحيح مسلم: 1342"
+      }
+    },
+    {
+      "id": 25,
+      "title": {
+        "en": "Safar se wapas aane ki dua",
+        "ur": "سفر سے واپس آنے کی دعا",
+        "hi": "सफर से वापस आने की दुआ",
+        "ar": "سفر سے واپس آنے کی دعا"
+      },
+      "arabic": "آيِبُونَ تَائِبُونَ عَابِدُونَ لِرَبِّنَا حَامِدُونَ",
+      "transliteration": "Ayibuna, ta'ibuna, 'abiduna, li-rabbina hamidun",
+      "translation": {
+        "en": "We return, repenting, worshipping, and praising our Lord.",
+        "ur": "لوٹنے والے ہیں، توبہ کرنے والے ہیں، عبادت کرنے والے ہیں، اپنے رب کی تعریف کرنے والے ہیں۔",
+        "hi": "लौटने वाले हैं, तौबा करने वाले हैं, इबादत करने वाले हैं, अपने रब की तारीफ़ करने वाले हैं।",
+        "ar": "We return, repenting, worshipping, and praising our Lord."
+      },
+      "reference": {
+        "en": "Sahih Muslim: 1342",
+        "ur": "صحیح مسلم: 1342",
+        "hi": "सहीह मुस्लिम: 1342",
+        "ar": "صحيح مسلم: 1342"
+      }
+    },
+    {
+      "id": 26,
+      "title": {
+        "en": "Sawari par baithne ki dua",
+        "ur": "سواری پر بیٹھنے کی دعا",
+        "hi": "सवारी पर बैठने की दुआ",
+        "ar": "سواری پر بیٹھنے کی دعا"
+      },
+      "arabic": "بِسْمِ اللَّهِ، وَالْحَمْدُ لِلَّهِ، سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَٰذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ، وَإِنَّا إِلَىٰ رَبِّنَا لَمُنْقَلِبُونَ",
+      "transliteration": "Bismillahi, wal-hamdu lillahi. Subhanal-ladhi sakh-khara lana hadha wa ma kunna lahu muqrinin, wa inna ila rabbina lamunqalibun",
+      "translation": {
+        "en": "In the name of Allah, and all praise is for Allah. Glory be to Him who has subjected this to us, and we could not have subdued it ourselves, and indeed to our Lord we will surely return.",
+        "ur": "اللہ کے نام سے اور تمام تعریف اللہ کے لیے ہے۔ پاک ہے وہ جس نے اس کو ہمارے تابع کیا اور ہم اس کو قابو میں لانے کی طاقت نہیں رکھتے تھے اور ہم اپنے رب کی طرف ضرور لوٹنے والے ہیں۔",
+        "hi": "अल्लाह के नाम से और सब तारीफ़ अल्लाह के लिए है। पाक है वो जिसने इसको हमारे ताबे किया और हम इसको क़ाबू में लाने की ताक़त नहीं रखते थे और हम अपने रब की तरफ़ ज़रूर लौटने वाले हैं।",
+        "ar": "In the name of Allah, and all praise is for Allah. Glory be to Him who has subjected this to us, and we could not have subdued it ourselves, and indeed to our Lord we will surely return."
+      },
+      "reference": {
+        "en": "Sahih Muslim: 1342",
+        "ur": "صحیح مسلم: 1342",
+        "hi": "सहीह मुस्लिम: 1342",
+        "ar": "صحيح مسلم: 1342"
+      }
+    },
+    {
+      "id": 27,
+      "title": {
+        "en": "Safar me mushkil aaye to dua",
+        "ur": "سفر میں مشکل آئے تو دعا",
+        "hi": "सफर में मुश्किल आए तो दुआ",
+        "ar": "سفر میں مشکل آئے تو دعا"
+      },
+      "arabic": "لَا إِلَٰهَ إِلَّا اللَّهُ الْعَظِيمُ الْحَلِيمُ، لَا إِلَٰهَ إِلَّا اللَّهُ رَبُّ الْعَرْشِ الْعَظِيمِ، لَا إِلَٰهَ إِلَّا اللَّهُ رَبُّ السَّمَاوَاتِ وَرَبُّ الْأَرْضِ وَرَبُّ الْعَرْشِ الْكَرِيمِ",
+      "transliteration": "La ilaha illallahul-'Azimul-Halim. La ilaha illallahu Rabbul-'Arshil-'Azim. La ilaha illallahu Rabbus-samawati wa Rabbul-ardi wa Rabbul-'Arshil-Karim",
+      "translation": {
+        "en": "There is no god but Allah, the Great, the Forbearing. There is no god but Allah, Lord of the Mighty Throne. There is no god but Allah, Lord of the heavens, Lord of the earth, and Lord of the Noble Throne.",
+        "ur": "اللہ کے سوا کوئی معبود نہیں جو عظیم اور حلیم ہے۔ اللہ کے سوا کوئی معبود نہیں جو عرش عظیم کا رب ہے۔ اللہ کے سوا کوئی معبود نہیں جو آسمانوں کا رب ہے اور زمین کا رب ہے اور عرش کریم کا رب ہے۔",
+        "hi": "अल्लाह के सिवा कोई माबूद नहीं जो अज़ीम और हलीम है। अल्लाह के सिवा कोई माबूद नहीं जो अर्श-ए-अज़ीम का रब है। अल्लाह के सिवा कोई माबूद नहीं जो आसमानों का रब है और ज़मीन का रब है और अर्श-ए-करीम का रब है।",
+        "ar": "There is no god but Allah, the Great, the Forbearing. There is no god but Allah, Lord of the Mighty Throne. There is no god but Allah, Lord of the heavens, Lord of the earth, and Lord of the Noble Throne."
+      },
+      "reference": {
+        "en": "Sahih Bukhari: 6346",
+        "ur": "صحیح بخاری: 6346",
+        "hi": "सहीह बुखारी: 6346",
+        "ar": "صحيح البخاري: 6346"
+      }
+    }
+  ]
+}

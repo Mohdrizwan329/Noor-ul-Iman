@@ -3,16 +3,22 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/models/surah_model.dart';
+import '../data/models/firestore_models.dart';
+import '../core/services/content_service.dart';
 
 // Language enum for Quran display
 enum QuranLanguage { english, hindi, urdu, arabic }
 
 class QuranProvider with ChangeNotifier {
-  static const String _baseUrl = 'https://api.alquran.cloud/v1';
   static const String _lastReadKey = 'last_read_surah';
   static const String _lastReadAyahKey = 'last_read_ayah';
   static const String _bookmarksKey = 'quran_bookmarks';
   static const String _languageKey = 'quran_language';
+
+  // Fallback API URL (used only when Firebase data is not available)
+  static const String _baseUrl = 'https://api.alquran.cloud/v1';
+
+  final ContentService _contentService = ContentService();
 
   List<SurahInfo> _surahList = [];
   List<JuzInfo> _juzList = [];
@@ -32,6 +38,9 @@ class QuranProvider with ChangeNotifier {
   bool _showTransliteration = true;
   QuranLanguage _selectedLanguage = QuranLanguage.english;
 
+  // Firebase-loaded config
+  QuranScreenContentFirestore? _quranContent;
+
   // Getters
   List<SurahInfo> get surahList => _surahList;
   List<JuzInfo> get juzList => _juzList;
@@ -50,48 +59,98 @@ class QuranProvider with ChangeNotifier {
   String get selectedTranslation => _selectedTranslation;
   bool get showTransliteration => _showTransliteration;
   QuranLanguage get selectedLanguage => _selectedLanguage;
+  QuranScreenContentFirestore? get quranContent => _quranContent;
 
-  // Language-specific translations
-  static const Map<QuranLanguage, String> languageTranslations = {
-    QuranLanguage.english: 'en.sahih',
-    QuranLanguage.hindi: 'hi.hindi',
-    QuranLanguage.urdu: 'ur.jalandhry',
-    QuranLanguage.arabic: 'ar.jalalayn',
-  };
+  // Get language display names from Firebase
+  Map<QuranLanguage, String> getLanguageNames(String langCode) {
+    if (_quranContent == null) return {};
+    return {
+      for (final lang in QuranLanguage.values)
+        lang: _quranContent!.getLanguageDisplayName(lang.name, langCode),
+    };
+  }
 
-  // Language display names
-  static const Map<QuranLanguage, String> languageNames = {
-    QuranLanguage.english: 'English',
-    QuranLanguage.hindi: 'हिंदी',
-    QuranLanguage.urdu: 'اردو',
-    QuranLanguage.arabic: 'العربية',
-  };
+  // Get available translations from Firebase as Map<id, name>
+  Map<String, String> getTranslations(String langCode) {
+    if (_quranContent == null) return {};
+    return {
+      for (final t in _quranContent!.availableTranslations)
+        t.id: t.name.get(langCode),
+    };
+  }
 
-  // Available translations
-  static const Map<String, String> translations = {
-    'en.asad': 'Muhammad Asad',
-    'en.pickthall': 'Pickthall',
-    'en.yusufali': 'Yusuf Ali',
-    'en.sahih': 'Sahih International',
-    'ur.jalandhry': 'Fateh Muhammad Jalandhry',
-    'ur.ahmedali': 'Ahmed Ali',
-    'hi.hindi': 'Hindi',
-    'ar.jalalayn': 'Tafsir al-Jalalayn',
-  };
+  // Get available reciters from Firebase as Map<id, name>
+  Map<String, String> getReciters(String langCode) {
+    if (_quranContent == null) return {};
+    return {
+      for (final r in _quranContent!.availableReciters)
+        r.id: r.name.get(langCode),
+    };
+  }
 
-  // Available reciters
-  static const Map<String, String> reciters = {
-    'ar.alafasy': 'Mishary Alafasy',
-    'ar.abdulbasit': 'Abdul Basit',
-    'ar.abdurrahmaansudais': 'Abdur Rahman As-Sudais',
-    'ar.hudhaify': 'Ali Al-Hudhaify',
-    'ar.minshawi': 'Mohamed Siddiq Al-Minshawi',
-  };
+  // Get translation ID for a language
+  String _getTranslationId(QuranLanguage language) {
+    if (_quranContent != null) {
+      return _quranContent!.getTranslationId(language.name);
+    }
+    return 'en.sahih';
+  }
+
+  /// Get language code from QuranLanguage enum
+  String _langCodeFromLanguage(QuranLanguage language) {
+    switch (language) {
+      case QuranLanguage.hindi:
+        return 'hi';
+      case QuranLanguage.urdu:
+        return 'ur';
+      case QuranLanguage.arabic:
+        return 'ar';
+      default:
+        return 'en';
+    }
+  }
 
   Future<void> initialize() async {
+    await _loadFirebaseContent();
     await _loadPreferences();
-    _juzList = JuzInfo.getAllJuz();
     await fetchSurahList();
+  }
+
+  Future<void> _loadFirebaseContent() async {
+    final content = await _contentService.getQuranScreenContent();
+    if (content != null) {
+      _quranContent = content;
+
+      // Load juz data from Firebase
+      if (content.juzData.isNotEmpty) {
+        _juzList = content.juzData
+            .map((e) => JuzInfo(
+                  number: e.number,
+                  arabicName: e.arabicName,
+                  startSurah: e.startSurah,
+                  startAyah: e.startAyah,
+                  endSurah: e.endSurah,
+                  endAyah: e.endAyah,
+                ))
+            .toList();
+      }
+
+      // Load surah list from Firebase metadata
+      if (content.surahNames.isNotEmpty) {
+        _surahList = content.surahNames
+            .where((e) => e.numberOfAyahs > 0) // Only use entries with full metadata
+            .map((e) => SurahInfo(
+                  number: e.number,
+                  name: e.name.get('ar'),
+                  englishName: e.name.get('en'),
+                  englishNameTranslation: e.englishNameTranslation.get('en'),
+                  numberOfAyahs: e.numberOfAyahs,
+                  revelationType: e.revelationType,
+                ))
+            .toList();
+      }
+    }
+    notifyListeners();
   }
 
   Future<void> _loadPreferences() async {
@@ -102,7 +161,7 @@ class QuranProvider with ChangeNotifier {
     // Load saved language
     final languageIndex = prefs.getInt(_languageKey) ?? 0;
     _selectedLanguage = QuranLanguage.values[languageIndex];
-    _selectedTranslation = languageTranslations[_selectedLanguage]!;
+    _selectedTranslation = _getTranslationId(_selectedLanguage);
 
     final bookmarksJson = prefs.getString(_bookmarksKey);
     if (bookmarksJson != null) {
@@ -112,23 +171,47 @@ class QuranProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Fetch surah list - loads from Firebase first, falls back to API
   Future<void> fetchSurahList() async {
+    // If already loaded from Firebase, skip
+    if (_surahList.isNotEmpty) {
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
+
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final response = await http.get(Uri.parse('$_baseUrl/surah'));
+      // Try loading from Firebase content (already done in _loadFirebaseContent)
+      if (_surahList.isEmpty && _quranContent != null && _quranContent!.surahNames.isNotEmpty) {
+        _surahList = _quranContent!.surahNames
+            .map((e) => SurahInfo(
+                  number: e.number,
+                  name: e.name.get('ar'),
+                  englishName: e.name.get('en'),
+                  englishNameTranslation: e.englishNameTranslation.get('en'),
+                  numberOfAyahs: e.numberOfAyahs,
+                  revelationType: e.revelationType,
+                ))
+            .toList();
+      }
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['code'] == 200 && data['data'] != null) {
-          _surahList = (data['data'] as List)
-              .map((surah) => SurahInfo.fromJson(surah))
-              .toList();
+      // Fallback to API if Firebase data not available
+      if (_surahList.isEmpty) {
+        final response = await http.get(Uri.parse('$_baseUrl/surah'));
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          if (data['code'] == 200 && data['data'] != null) {
+            _surahList = (data['data'] as List)
+                .map((surah) => SurahInfo.fromJson(surah))
+                .toList();
+          }
+        } else {
+          _error = 'Failed to fetch surah list';
         }
-      } else {
-        _error = 'Failed to fetch surah list';
       }
     } catch (e) {
       _error = 'Network error: $e';
@@ -138,61 +221,78 @@ class QuranProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchJuz(int juzNumber) async {
+  /// Fetch surah content - loads from Firebase first, falls back to API
+  Future<void> fetchSurah(int surahNumber) async {
     _isLoading = true;
     _error = null;
-    _currentJuzAyahs = [];
-    _currentJuzTranslation = [];
-    _currentJuzTransliteration = [];
     notifyListeners();
 
     try {
-      // Fetch Arabic text, translation, and transliteration in parallel
-      final responses = await Future.wait([
-        http.get(Uri.parse('$_baseUrl/juz/$juzNumber/ar.alafasy')),
-        http.get(Uri.parse('$_baseUrl/juz/$juzNumber/$_selectedTranslation')),
-        http.get(Uri.parse('$_baseUrl/juz/$juzNumber/en.transliteration')),
-      ]);
+      // Try Firebase first
+      final firebaseSurah = await _contentService.getSurahContent(surahNumber);
 
-      // Parse Arabic text
-      if (responses[0].statusCode == 200) {
-        final data = json.decode(responses[0].body);
-        if (data['code'] == 200 && data['data'] != null) {
-          final ayahsData = data['data']['ayahs'] as List;
-          _currentJuzAyahs = ayahsData.map((ayah) => AyahModel.fromJson(ayah)).toList();
-        }
-      }
+      if (firebaseSurah != null && firebaseSurah.ayahs.isNotEmpty) {
+        // Build SurahModel from Firebase data
+        final langCode = _langCodeFromLanguage(_selectedLanguage);
 
-      // Parse translation
-      if (responses[1].statusCode == 200) {
-        final data = json.decode(responses[1].body);
-        if (data['code'] == 200 && data['data'] != null) {
-          final ayahsData = data['data']['ayahs'] as List;
-          _currentJuzTranslation = ayahsData.map((ayah) => AyahModel.fromJson(ayah)).toList();
-        }
-      }
+        _currentSurah = SurahModel(
+          number: firebaseSurah.number,
+          name: firebaseSurah.name.get('ar'),
+          englishName: firebaseSurah.name.get('en'),
+          englishNameTranslation: firebaseSurah.englishNameTranslation.get('en'),
+          numberOfAyahs: firebaseSurah.numberOfAyahs,
+          revelationType: firebaseSurah.revelationType,
+          ayahs: firebaseSurah.ayahs
+              .map((a) => AyahModel(
+                    number: a.number,
+                    numberInSurah: a.numberInSurah,
+                    text: a.arabicText,
+                    juz: a.juz,
+                    page: a.page,
+                    hizbQuarter: a.hizbQuarter,
+                    sajda: a.sajda,
+                  ))
+              .toList(),
+        );
 
-      // Parse transliteration
-      if (responses[2].statusCode == 200) {
-        final data = json.decode(responses[2].body);
-        if (data['code'] == 200 && data['data'] != null) {
-          final ayahsData = data['data']['ayahs'] as List;
-          _currentJuzTransliteration = ayahsData.map((ayah) => AyahModel.fromJson(ayah)).toList();
-        }
+        // Build translation from Firebase data
+        _currentTranslation = firebaseSurah.ayahs
+            .map((a) => AyahModel(
+                  number: a.number,
+                  numberInSurah: a.numberInSurah,
+                  text: a.translation.get(langCode),
+                  juz: a.juz,
+                  page: a.page,
+                  hizbQuarter: a.hizbQuarter,
+                ))
+            .toList();
+
+        // Build transliteration from Firebase data
+        _currentTransliteration = firebaseSurah.ayahs
+            .map((a) => AyahModel(
+                  number: a.number,
+                  numberInSurah: a.numberInSurah,
+                  text: a.transliteration,
+                  juz: a.juz,
+                  page: a.page,
+                  hizbQuarter: a.hizbQuarter,
+                ))
+            .toList();
+      } else {
+        // Fallback to API
+        await _fetchSurahFromApi(surahNumber);
       }
     } catch (e) {
-      _error = 'Failed to fetch juz: $e';
+      debugPrint('Firebase surah fetch failed, falling back to API: $e');
+      await _fetchSurahFromApi(surahNumber);
     }
 
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<void> fetchSurah(int surahNumber) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
+  /// Fallback: fetch surah from external API
+  Future<void> _fetchSurahFromApi(int surahNumber) async {
     try {
       // Fetch Arabic text
       final arabicResponse = await http.get(
@@ -208,18 +308,15 @@ class QuranProvider with ChangeNotifier {
 
       // Fetch translation and transliteration
       await Future.wait([
-        fetchTranslation(surahNumber),
-        fetchTransliteration(surahNumber),
+        _fetchTranslationFromApi(surahNumber),
+        _fetchTransliterationFromApi(surahNumber),
       ]);
     } catch (e) {
       _error = 'Failed to fetch surah: $e';
     }
-
-    _isLoading = false;
-    notifyListeners();
   }
 
-  Future<void> fetchTranslation(int surahNumber) async {
+  Future<void> _fetchTranslationFromApi(int surahNumber) async {
     try {
       final response = await http.get(
         Uri.parse('$_baseUrl/surah/$surahNumber/$_selectedTranslation'),
@@ -236,13 +333,12 @@ class QuranProvider with ChangeNotifier {
           }
         }
       }
-      notifyListeners();
     } catch (e) {
       // Translation fetch failed, continue without translation
     }
   }
 
-  Future<void> fetchTransliteration(int surahNumber) async {
+  Future<void> _fetchTransliterationFromApi(int surahNumber) async {
     try {
       final response = await http.get(
         Uri.parse('$_baseUrl/surah/$surahNumber/en.transliteration'),
@@ -259,9 +355,193 @@ class QuranProvider with ChangeNotifier {
           }
         }
       }
-      notifyListeners();
     } catch (e) {
       // Transliteration fetch failed, continue without transliteration
+    }
+  }
+
+  /// Fetch juz - loads from Firebase surah data, falls back to API
+  Future<void> fetchJuz(int juzNumber) async {
+    _isLoading = true;
+    _error = null;
+    _currentJuzAyahs = [];
+    _currentJuzTranslation = [];
+    _currentJuzTransliteration = [];
+    notifyListeners();
+
+    try {
+      // Find which surahs are in this juz from Firebase juz data
+      final juzInfo = _juzList.isNotEmpty
+          ? _juzList.firstWhere((j) => j.number == juzNumber, orElse: () => _juzList.first)
+          : null;
+
+      bool loadedFromFirebase = false;
+
+      if (juzInfo != null) {
+        final langCode = _langCodeFromLanguage(_selectedLanguage);
+        final List<AyahModel> arabicAyahs = [];
+        final List<AyahModel> translationAyahs = [];
+        final List<AyahModel> transliterationAyahs = [];
+
+        // Fetch each surah that belongs to this juz
+        for (int surahNum = juzInfo.startSurah; surahNum <= juzInfo.endSurah; surahNum++) {
+          final surahContent = await _contentService.getSurahContent(surahNum);
+          if (surahContent == null || surahContent.ayahs.isEmpty) {
+            // If any surah fails from Firebase, fallback to API
+            loadedFromFirebase = false;
+            break;
+          }
+
+          for (final ayah in surahContent.ayahs) {
+            if (ayah.juz == juzNumber) {
+              arabicAyahs.add(AyahModel(
+                number: ayah.number,
+                numberInSurah: ayah.numberInSurah,
+                text: ayah.arabicText,
+                juz: ayah.juz,
+                page: ayah.page,
+                hizbQuarter: ayah.hizbQuarter,
+                sajda: ayah.sajda,
+                surahNumber: surahContent.number,
+                surahName: surahContent.name.get('ar'),
+                surahEnglishName: surahContent.name.get('en'),
+              ));
+              translationAyahs.add(AyahModel(
+                number: ayah.number,
+                numberInSurah: ayah.numberInSurah,
+                text: ayah.translation.get(langCode),
+                juz: ayah.juz,
+                page: ayah.page,
+                hizbQuarter: ayah.hizbQuarter,
+                surahNumber: surahContent.number,
+              ));
+              transliterationAyahs.add(AyahModel(
+                number: ayah.number,
+                numberInSurah: ayah.numberInSurah,
+                text: ayah.transliteration,
+                juz: ayah.juz,
+                page: ayah.page,
+                hizbQuarter: ayah.hizbQuarter,
+                surahNumber: surahContent.number,
+              ));
+            }
+          }
+          loadedFromFirebase = true;
+        }
+
+        if (loadedFromFirebase && arabicAyahs.isNotEmpty) {
+          _currentJuzAyahs = arabicAyahs;
+          _currentJuzTranslation = translationAyahs;
+          _currentJuzTransliteration = transliterationAyahs;
+        }
+      }
+
+      // Fallback to API if Firebase didn't work
+      if (_currentJuzAyahs.isEmpty) {
+        await _fetchJuzFromApi(juzNumber);
+      }
+    } catch (e) {
+      debugPrint('Firebase juz fetch failed, falling back to API: $e');
+      await _fetchJuzFromApi(juzNumber);
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  /// Fallback: fetch juz from external API
+  Future<void> _fetchJuzFromApi(int juzNumber) async {
+    try {
+      final responses = await Future.wait([
+        http.get(Uri.parse('$_baseUrl/juz/$juzNumber/ar.alafasy')),
+        http.get(Uri.parse('$_baseUrl/juz/$juzNumber/$_selectedTranslation')),
+        http.get(Uri.parse('$_baseUrl/juz/$juzNumber/en.transliteration')),
+      ]);
+
+      if (responses[0].statusCode == 200) {
+        final data = json.decode(responses[0].body);
+        if (data['code'] == 200 && data['data'] != null) {
+          final ayahsData = data['data']['ayahs'] as List;
+          _currentJuzAyahs = ayahsData.map((ayah) => AyahModel.fromJson(ayah)).toList();
+        }
+      }
+
+      if (responses[1].statusCode == 200) {
+        final data = json.decode(responses[1].body);
+        if (data['code'] == 200 && data['data'] != null) {
+          final ayahsData = data['data']['ayahs'] as List;
+          _currentJuzTranslation = ayahsData.map((ayah) => AyahModel.fromJson(ayah)).toList();
+        }
+      }
+
+      if (responses[2].statusCode == 200) {
+        final data = json.decode(responses[2].body);
+        if (data['code'] == 200 && data['data'] != null) {
+          final ayahsData = data['data']['ayahs'] as List;
+          _currentJuzTransliteration = ayahsData.map((ayah) => AyahModel.fromJson(ayah)).toList();
+        }
+      }
+    } catch (e) {
+      _error = 'Failed to fetch juz: $e';
+    }
+  }
+
+  /// Re-fetch translation for current surah when language changes
+  Future<void> fetchTranslation(int surahNumber) async {
+    try {
+      // Try Firebase first
+      final firebaseSurah = await _contentService.getSurahContent(surahNumber);
+      if (firebaseSurah != null && firebaseSurah.ayahs.isNotEmpty) {
+        final langCode = _langCodeFromLanguage(_selectedLanguage);
+        _currentTranslation = firebaseSurah.ayahs
+            .map((a) => AyahModel(
+                  number: a.number,
+                  numberInSurah: a.numberInSurah,
+                  text: a.translation.get(langCode),
+                  juz: a.juz,
+                  page: a.page,
+                  hizbQuarter: a.hizbQuarter,
+                ))
+            .toList();
+        notifyListeners();
+        return;
+      }
+
+      // Fallback to API
+      await _fetchTranslationFromApi(surahNumber);
+      notifyListeners();
+    } catch (e) {
+      await _fetchTranslationFromApi(surahNumber);
+      notifyListeners();
+    }
+  }
+
+  /// Re-fetch transliteration for current surah
+  Future<void> fetchTransliteration(int surahNumber) async {
+    try {
+      // Try Firebase first
+      final firebaseSurah = await _contentService.getSurahContent(surahNumber);
+      if (firebaseSurah != null && firebaseSurah.ayahs.isNotEmpty) {
+        _currentTransliteration = firebaseSurah.ayahs
+            .map((a) => AyahModel(
+                  number: a.number,
+                  numberInSurah: a.numberInSurah,
+                  text: a.transliteration,
+                  juz: a.juz,
+                  page: a.page,
+                  hizbQuarter: a.hizbQuarter,
+                ))
+            .toList();
+        notifyListeners();
+        return;
+      }
+
+      // Fallback to API
+      await _fetchTransliterationFromApi(surahNumber);
+      notifyListeners();
+    } catch (e) {
+      await _fetchTransliterationFromApi(surahNumber);
+      notifyListeners();
     }
   }
 
@@ -315,7 +595,7 @@ class QuranProvider with ChangeNotifier {
 
   Future<void> setLanguage(QuranLanguage language) async {
     _selectedLanguage = language;
-    _selectedTranslation = languageTranslations[language]!;
+    _selectedTranslation = _getTranslationId(language);
 
     // Notify immediately so UI updates
     notifyListeners();

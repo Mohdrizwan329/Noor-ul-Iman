@@ -25,7 +25,6 @@ class ErrorStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final responsive = context.responsive;
 
     return Center(
@@ -35,7 +34,7 @@ class ErrorStateWidget extends StatelessWidget {
           Icon(
             Icons.error_outline,
             size: responsive.iconXXLarge,
-            color: isDark ? Colors.grey.shade600 : Colors.grey,
+            color: Colors.grey,
           ),
           VSpace.large,
           Text(

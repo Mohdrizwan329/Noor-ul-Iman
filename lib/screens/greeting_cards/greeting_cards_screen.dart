@@ -9,6 +9,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:gal/gal.dart';
 import 'dart:io';
 import '../../providers/language_provider.dart';
+import '../../core/utils/ad_navigation.dart';
+import '../../widgets/common/banner_ad_widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../core/services/data_migration_service.dart';
+import '../../data/models/firestore_models.dart';
 
 enum GreetingLanguage { english, urdu, hindi, arabic }
 
@@ -37,11 +42,112 @@ class GreetingCardsScreen extends StatefulWidget {
 
 class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
   late HijriCalendar _currentHijriDate;
+  List<IslamicMonth> _allMonths = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _currentHijriDate = HijriCalendar.now();
+    _loadFromFirestore();
+  }
+
+  Future<void> _loadFromFirestore() async {
+    if (mounted) setState(() => _isLoading = true);
+    try {
+      var snapshot = await FirebaseFirestore.instance
+          .collection('greeting_cards')
+          .orderBy('number')
+          .get();
+
+      // Auto-push if Firebase is empty
+      if (snapshot.docs.isEmpty) {
+        debugPrint('Firebase greeting_cards empty - auto-pushing data...');
+        await DataMigrationService().migrateAllGreetingCards();
+        snapshot = await FirebaseFirestore.instance
+            .collection('greeting_cards')
+            .orderBy('number')
+            .get();
+      }
+
+      if (snapshot.docs.isNotEmpty && mounted) {
+        final firestoreMonths = snapshot.docs
+            .map((doc) => IslamicMonthFirestore.fromFirestore(doc))
+            .toList();
+
+        debugPrint('Loaded ${firestoreMonths.length} Islamic months from Firebase');
+
+        _allMonths = firestoreMonths.map((m) {
+          // Parse gradient colors
+          Color gradStart = const Color(0xFF4CAF50);
+          Color gradEnd = const Color(0xFF2E7D32);
+          try {
+            gradStart = Color(int.parse(m.gradientStart.replaceFirst('#', '0xFF')));
+            gradEnd = Color(int.parse(m.gradientEnd.replaceFirst('#', '0xFF')));
+          } catch (_) {}
+
+          return IslamicMonth(
+            monthNumber: m.number,
+            name: m.name.en,
+            nameUrdu: m.name.ur,
+            nameHindi: m.name.hi,
+            arabicName: m.name.ar,
+            specialOccasion: m.specialOccasion?.en,
+            specialOccasionUrdu: m.specialOccasion?.ur,
+            specialOccasionHindi: m.specialOccasion?.hi,
+            specialOccasionArabic: m.specialOccasion?.ar,
+            gradient: [gradStart, gradEnd],
+            cards: m.cards.map((c) => GreetingCard(
+              title: c.title.en,
+              titleUrdu: c.title.ur,
+              titleHindi: c.title.hi,
+              titleArabic: c.title.ar,
+              message: c.message.en,
+              messageUrdu: c.message.ur,
+              messageHindi: c.message.hi,
+              messageArabic: c.message.ar,
+              icon: _parseIcon(c.icon),
+            )).toList(),
+          );
+        }).toList();
+      }
+    } catch (e) {
+      debugPrint('Error loading greeting cards from Firestore: $e');
+    }
+    if (mounted) setState(() => _isLoading = false);
+  }
+
+  IconData _parseIcon(String iconName) {
+    switch (iconName) {
+      case 'calendar_today': return Icons.calendar_today;
+      case 'calendar_month': return Icons.calendar_month;
+      case 'star': return Icons.star;
+      case 'stars': return Icons.stars;
+      case 'favorite': return Icons.favorite;
+      case 'favorite_border': return Icons.favorite_border;
+      case 'celebration': return Icons.celebration;
+      case 'mosque': return Icons.mosque;
+      case 'nightlight': return Icons.nightlight;
+      case 'nightlight_round': return Icons.nightlight_round;
+      case 'auto_awesome': return Icons.auto_awesome;
+      case 'brightness_5': return Icons.brightness_5;
+      case 'wb_sunny': return Icons.wb_sunny;
+      case 'nights_stay': return Icons.nights_stay;
+      case 'crescent_moon': return Icons.nightlight_round;
+      case 'terrain': return Icons.terrain;
+      case 'child_care': return Icons.child_care;
+      case 'menu_book': return Icons.menu_book;
+      case 'shield': return Icons.shield;
+      case 'military_tech': return Icons.military_tech;
+      case 'public': return Icons.public;
+      case 'spa': return Icons.spa;
+      case 'volunteer_activism': return Icons.volunteer_activism;
+      case 'lightbulb': return Icons.lightbulb;
+      case 'flight': return Icons.flight;
+      case 'restaurant': return Icons.restaurant;
+      case 'card_giftcard': return Icons.card_giftcard;
+      default: return Icons.celebration;
+    }
   }
 
   @override
@@ -70,16 +176,39 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
         backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Color(0xFFFFFFFF)), // White icons
       ),
-      body: Container(
-        color: const Color(0xFFF6F8F6), // Soft Off-White background
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            _buildCurrentMonthBanner(language, responsive),
-            _buildUpcomingEventsSection(language, responsive),
-            _buildMonthsSection(language, responsive),
-          ],
-        ),
+      body: Column(
+        children: [
+          if (_isLoading)
+            const LinearProgressIndicator(
+              backgroundColor: Color(0xFFE8F3ED),
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+            ),
+          Expanded(
+            child: Container(
+              color: const Color(0xFFF6F8F6), // Soft Off-White background
+              child: _isLoading && _allMonths.isEmpty
+                  ? Center(
+                      child: CircularProgressIndicator(color: AppColors.primary),
+                    )
+                  : _allMonths.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No data available',
+                        style: TextStyle(color: AppColors.textSecondary),
+                      ),
+                    )
+                  : ListView(
+                      padding: EdgeInsets.zero,
+                      children: [
+                        _buildCurrentMonthBanner(language, responsive),
+                        _buildUpcomingEventsSection(language, responsive),
+                        _buildMonthsSection(language, responsive),
+                      ],
+                    ),
+            ),
+          ),
+          const BannerAdWidget(),
+        ],
       ),
     );
   }
@@ -89,12 +218,12 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
     const lightGreen = Color(0xFFE8F3ED);
 
     final currentMonthName = language == GreetingLanguage.urdu
-        ? _islamicMonths[_currentHijriDate.hMonth - 1].nameUrdu
+        ? _allMonths[_currentHijriDate.hMonth - 1].nameUrdu
         : language == GreetingLanguage.hindi
-        ? _islamicMonths[_currentHijriDate.hMonth - 1].nameHindi
+        ? _allMonths[_currentHijriDate.hMonth - 1].nameHindi
         : language == GreetingLanguage.arabic
-        ? _islamicMonths[_currentHijriDate.hMonth - 1].arabicName
-        : _islamicMonths[_currentHijriDate.hMonth - 1].name;
+        ? _allMonths[_currentHijriDate.hMonth - 1].arabicName
+        : _allMonths[_currentHijriDate.hMonth - 1].name;
 
     final dateLabel = language == GreetingLanguage.urdu
         ? 'آج کی اسلامی تاریخ'
@@ -274,8 +403,8 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
               ],
             ),
           ),
-          ...List.generate(_islamicMonths.length, (index) {
-            final month = _islamicMonths[index];
+          ...List.generate(_allMonths.length, (index) {
+            final month = _allMonths[index];
             final isCurrentMonth =
                 month.monthNumber == _currentHijriDate.hMonth;
             return _MonthCard(
@@ -326,7 +455,7 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
     const lightGreenBorder = Color(0xFF8AAF9A);
 
     // Get the month for this event (needed for navigation)
-    final eventMonth = _islamicMonths[event.month - 1];
+    final eventMonth = _allMonths[event.month - 1];
 
     return Container(
       margin: responsive.paddingOnly(bottom: 14.0),
@@ -365,37 +494,21 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
             if (matchingCard != null) {
               // Navigate to StatusCardScreen with the matching greeting card
               final cardToShow = matchingCard;
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => StatusCardScreen(
-                    card: cardToShow,
-                    month: eventMonth,
-                    language: language,
-                  ),
-                ),
-              );
+              AdNavigator.push(context, StatusCardScreen(
+                card: cardToShow,
+                month: eventMonth,
+                language: language,
+              ));
             } else if (eventMonth.cards.isNotEmpty) {
               // If no matching card, show first card of the month
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => StatusCardScreen(
-                    card: eventMonth.cards.first,
-                    month: eventMonth,
-                    language: language,
-                  ),
-                ),
-              );
+              AdNavigator.push(context, StatusCardScreen(
+                card: eventMonth.cards.first,
+                month: eventMonth,
+                language: language,
+              ));
             } else {
               // If no cards available, show month cards screen
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      MonthCardsScreen(month: eventMonth, language: language),
-                ),
-              );
+              AdNavigator.push(context, MonthCardsScreen(month: eventMonth, language: language));
             }
           },
           borderRadius: BorderRadius.circular(responsive.borderRadius(18.0)),
@@ -464,7 +577,7 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          '${event.day} ${_islamicMonths[event.month - 1].getName(language)}',
+                          '${event.day} ${_allMonths[event.month - 1].getName(language)}',
                           style: TextStyle(
                             fontSize: responsive.fontSize(11.0),
                             color: emeraldGreen,
@@ -567,13 +680,7 @@ class _MonthCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    MonthCardsScreen(month: month, language: language),
-              ),
-            );
+            AdNavigator.push(context, MonthCardsScreen(month: month, language: language));
           },
           borderRadius: BorderRadius.circular(responsive.borderRadius(18)),
           child: Container(
@@ -3081,13 +3188,7 @@ class _GreetingCardTile extends StatelessWidget {
   }
 
   void _showCardPreview(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            StatusCardScreen(card: card, month: month, language: language),
-      ),
-    );
+    AdNavigator.push(context, StatusCardScreen(card: card, month: month, language: language));
   }
 }
 
@@ -7457,7 +7558,7 @@ final List<IslamicEvent> _islamicEvents = [
 ];
 
 // Islamic Months Data with Cards
-final List<IslamicMonth> _islamicMonths = [
+final List<IslamicMonth> islamicMonths = [
   // 1. Muharram
   IslamicMonth(
     monthNumber: 1,

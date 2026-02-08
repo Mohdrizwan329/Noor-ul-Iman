@@ -23,7 +23,6 @@ class FeatureGridBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final responsive = context.responsive;
 
     // Auto-calculate responsive grid columns if not specified
@@ -35,6 +34,7 @@ class FeatureGridBuilder extends StatelessWidget {
 
     return GridView.builder(
       shrinkWrap: true,
+      padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: columns,
@@ -45,7 +45,7 @@ class FeatureGridBuilder extends StatelessWidget {
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
-        return _FeatureGridCard(item: item, isDark: isDark);
+        return _FeatureGridCard(item: item);
       },
     );
   }
@@ -73,12 +73,8 @@ class FeatureGridItem {
 /// Internal feature grid card widget with responsive design
 class _FeatureGridCard extends StatelessWidget {
   final FeatureGridItem item;
-  final bool isDark;
 
-  const _FeatureGridCard({
-    required this.item,
-    required this.isDark,
-  });
+  const _FeatureGridCard({required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -90,21 +86,16 @@ class _FeatureGridCard extends StatelessWidget {
       child: Container(
         padding: responsive.paddingAll(8),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkCard : Colors.white,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(responsive.radiusLarge),
-          border: Border.all(
-            color: isDark ? Colors.grey.shade700 : AppColors.lightGreenBorder,
-            width: 1.5,
-          ),
-          boxShadow: isDark
-              ? null
-              : [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.08),
-                    blurRadius: 10.0,
-                    offset: Offset(0, 2.0),
-                  ),
-                ],
+          border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.08),
+              blurRadius: 10.0,
+              offset: Offset(0, 2.0),
+            ),
+          ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -112,19 +103,15 @@ class _FeatureGridCard extends StatelessWidget {
             Container(
               padding: responsive.paddingAll(12),
               decoration: BoxDecoration(
-                color: isDark
-                    ? item.color.withValues(alpha: 0.2)
-                    : AppColors.primary,
+                color: AppColors.primary,
                 shape: BoxShape.circle,
-                boxShadow: isDark
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: Offset(0, 2.0),
-                        ),
-                      ],
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: Offset(0, 2.0),
+                  ),
+                ],
               ),
               child: item.emoji != null
                   ? Text(
@@ -133,7 +120,7 @@ class _FeatureGridCard extends StatelessWidget {
                     )
                   : Icon(
                       item.icon,
-                      color: isDark ? item.color : Colors.white,
+                      color: Colors.white,
                       size: responsive.iconMedium,
                     ),
             ),
@@ -143,7 +130,7 @@ class _FeatureGridCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: responsive.fontSize(12),
                 fontWeight: FontWeight.bold,
-                color: isDark ? AppColors.darkTextPrimary : AppColors.primary,
+                color: AppColors.primary,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,

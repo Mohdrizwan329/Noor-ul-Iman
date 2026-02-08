@@ -3,8 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/services/content_service.dart';
 import '../../core/utils/app_utils.dart';
+import '../../data/models/firestore_models.dart';
+import '../../providers/language_provider.dart';
 import '../../providers/tasbih_provider.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class TasbihScreen extends StatefulWidget {
   const TasbihScreen({super.key});
@@ -14,13 +18,17 @@ class TasbihScreen extends StatefulWidget {
 }
 
 class _TasbihScreenState extends State<TasbihScreen> {
+  final ContentService _contentService = ContentService();
   FlutterTts? _flutterTts;
   bool _ttsInitialized = false;
+  bool _isContentLoading = true;
+  TasbihScreenContentFirestore? _tasbihContent;
 
   @override
   void initState() {
     super.initState();
     _initTts();
+    _loadTasbihContent();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final provider = context.read<TasbihProvider>();
@@ -28,6 +36,34 @@ class _TasbihScreenState extends State<TasbihScreen> {
         provider.loadHistory();
       }
     });
+  }
+
+  /// Load all tasbih screen content from Firebase - no static fallback
+  Future<void> _loadTasbihContent() async {
+    try {
+      final content = await _contentService.getTasbihScreenContent();
+      if (mounted) {
+        setState(() {
+          _tasbihContent = content;
+          _isContentLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading tasbih content from Firebase: $e');
+      if (mounted) {
+        setState(() {
+          _isContentLoading = false;
+        });
+      }
+    }
+  }
+
+  /// Get translated string from Firebase only - no static fallback
+  String _t(String key) {
+    if (_tasbihContent == null) return '';
+    final langCode =
+        Provider.of<LanguageProvider>(context, listen: false).languageCode;
+    return _tasbihContent!.getString(key, langCode);
   }
 
   Future<void> _initTts() async {
@@ -94,7 +130,7 @@ class _TasbihScreenState extends State<TasbihScreen> {
 
     if (provider.lapCount > previousLapCount) {
       HapticFeedback.heavyImpact();
-      _speak('1 Tasbih complete');
+      _speak(_t('tasbih_complete'));
     } else {
       _speak('${provider.count}');
     }
@@ -114,12 +150,11 @@ class _TasbihScreenState extends State<TasbihScreen> {
   void _showAddNoteDialog() {
     final noteController = TextEditingController();
     final countController = TextEditingController(text: '0');
-    final lang = context.languageProvider;
-    final addNoteText = lang.translate('add_note');
-    final noteHintText = lang.translate('enter_note');
-    final countText = lang.translate('count');
-    final cancelText = lang.translate('cancel');
-    final saveText = lang.translate('save');
+    final addNoteText = _t('add_note');
+    final noteHintText = _t('enter_note');
+    final countText = _t('count');
+    final cancelText = _t('cancel');
+    final saveText = _t('save');
 
     showDialog(
       context: context,
@@ -178,12 +213,11 @@ class _TasbihScreenState extends State<TasbihScreen> {
   void _showEditCountDialog(int index, TasbihHistoryItem item) {
     final countController = TextEditingController(text: item.count.toString());
     final lapsController = TextEditingController(text: item.laps.toString());
-    final lang = context.languageProvider;
-    final editCountText = lang.translate('edit_count');
-    final countText = lang.translate('count');
-    final lapsText = lang.translate('laps');
-    final cancelText = lang.translate('cancel');
-    final saveText = lang.translate('save');
+    final editCountText = _t('edit_count');
+    final countText = _t('count');
+    final lapsText = _t('laps');
+    final cancelText = _t('cancel');
+    final saveText = _t('save');
 
     showDialog(
       context: context,
@@ -242,12 +276,11 @@ class _TasbihScreenState extends State<TasbihScreen> {
   void _showEditNoteDialog(int index, TasbihHistoryItem item) {
     final noteController = TextEditingController(text: item.notes ?? '');
     final countController = TextEditingController(text: item.count.toString());
-    final lang = context.languageProvider;
-    final editNoteText = lang.translate('edit_note');
-    final noteHintText = lang.translate('enter_note');
-    final countText = lang.translate('count');
-    final cancelText = lang.translate('cancel');
-    final saveText = lang.translate('save');
+    final editNoteText = _t('edit_note');
+    final noteHintText = _t('enter_note');
+    final countText = _t('count');
+    final cancelText = _t('cancel');
+    final saveText = _t('save');
 
     showDialog(
       context: context,
@@ -303,10 +336,9 @@ class _TasbihScreenState extends State<TasbihScreen> {
   }
 
   void _showDeleteConfirmDialog(int index) {
-    final lang = context.languageProvider;
-    final deleteText = lang.translate('delete');
-    final deleteConfirmText = lang.translate('delete_confirm');
-    final cancelText = lang.translate('cancel');
+    final deleteText = _t('delete');
+    final deleteConfirmText = _t('delete_confirm');
+    final cancelText = _t('cancel');
 
     showDialog(
       context: context,
@@ -338,12 +370,20 @@ class _TasbihScreenState extends State<TasbihScreen> {
   Widget build(BuildContext context) {
     final responsive = context.responsive;
 
+    if (_isContentLoading) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(backgroundColor: AppColors.primary),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         title: Text(
-          context.tr('tasbih_counter'),
+          _t('tasbih_counter'),
           style: TextStyle(fontSize: responsive.textLarge),
         ),
         actions: [
@@ -364,78 +404,83 @@ class _TasbihScreenState extends State<TasbihScreen> {
       body: Consumer<TasbihProvider>(
         builder: (context, provider, child) {
           return SafeArea(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  // Counter Section
-                  _buildCounterButton(provider),
-                  SizedBox(height: responsive.spacing(40)),
-                  // Action Buttons Row (Reset & Add Note)
-                  Padding(
-                    padding: responsive.paddingSymmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: Row(
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
                       children: [
-                        // Reset Button
-                        Expanded(
-                          child: _buildActionButton(
-                            icon: Icons.refresh,
-                            label: context.tr('reset'),
-                            borderColor: AppColors.primary,
-                            onTap: () {
-                              final lang = context.languageProvider;
-                              final resetText = lang.translate('reset_counter');
-                              final resetMessageText = lang.translate(
-                                'reset_counter_message',
-                              );
-                              final cancelText = lang.translate('cancel');
-                              final resetBtnText = lang.translate('reset');
+                        // Counter Section
+                        _buildCounterButton(provider),
+                        SizedBox(height: responsive.spacing(40)),
+                        // Action Buttons Row (Reset & Add Note)
+                        Padding(
+                          padding: responsive.paddingSymmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          child: Row(
+                            children: [
+                              // Reset Button
+                              Expanded(
+                                child: _buildActionButton(
+                                  icon: Icons.refresh,
+                                  label: _t('reset'),
+                                  borderColor: AppColors.primary,
+                                  onTap: () {
+                                    final resetText = _t('reset_counter');
+                                    final resetMessageText =
+                                        _t('reset_counter_message');
+                                    final cancelText = _t('cancel');
+                                    final resetBtnText = _t('reset');
 
-                              showDialog(
-                                context: context,
-                                builder: (dialogContext) => AlertDialog(
-                                  title: Text(resetText),
-                                  content: Text(resetMessageText),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(dialogContext),
-                                      child: Text(cancelText),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        provider.reset();
-                                        Navigator.pop(dialogContext);
-                                      },
-                                      child: Text(resetBtnText),
-                                    ),
-                                  ],
+                                    showDialog(
+                                      context: context,
+                                      builder: (dialogContext) => AlertDialog(
+                                        title: Text(resetText),
+                                        content: Text(resetMessageText),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(dialogContext),
+                                            child: Text(cancelText),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              provider.reset();
+                                              Navigator.pop(dialogContext);
+                                            },
+                                            child: Text(resetBtnText),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
+                              ),
+                              responsive.hSpaceMedium,
+                              // Add Note Button
+                              Expanded(
+                                child: _buildActionButton(
+                                  icon: Icons.edit_note,
+                                  label: _t('add_note'),
+                                  borderColor: AppColors.secondary,
+                                  onTap: _showAddNoteDialog,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        responsive.hSpaceMedium,
-                        // Add Note Button
-                        Expanded(
-                          child: _buildActionButton(
-                            icon: Icons.edit_note,
-                            label: context.tr('add_note'),
-                            borderColor: AppColors.secondary,
-                            onTap: _showAddNoteDialog,
-                          ),
-                        ),
+                        SizedBox(height: responsive.spacing(10)),
+
+                        // History Section
+                        _buildHistorySection(provider),
                       ],
                     ),
                   ),
-                  SizedBox(height: responsive.spacing(10)),
-
-                  // History Section
-                  _buildHistorySection(provider),
-                ],
-              ),
+                ),
+                const BannerAdWidget(),
+              ],
             ),
           );
         },
@@ -617,9 +662,8 @@ class _TasbihScreenState extends State<TasbihScreen> {
   Widget _buildHistorySection(TasbihProvider provider) {
     final responsive = context.responsive;
 
-    // Pre-store translations to avoid Provider errors in callbacks
-    final noHistoryText = context.tr('no_history');
-    final historyText = context.tr('history');
+    final noHistoryText = _t('no_history');
+    final historyText = _t('history');
 
     if (provider.history.isEmpty) {
       return Center(
@@ -706,7 +750,7 @@ class _TasbihScreenState extends State<TasbihScreen> {
                           const Text('📝 ', style: TextStyle(fontSize: 16)),
                           Flexible(
                             child: Text(
-                              context.tr('note_label'),
+                              _t('note_label'),
                               style: TextStyle(
                                 fontSize: responsive.textRegular,
                                 fontWeight: FontWeight.bold,
@@ -815,7 +859,7 @@ class _TasbihScreenState extends State<TasbihScreen> {
               children: [
                 Flexible(
                   child: _buildStatBadge(
-                    context.tr('count'),
+                    _t('count'),
                     '${item.count}',
                     AppColors.primary,
                   ),
@@ -823,7 +867,7 @@ class _TasbihScreenState extends State<TasbihScreen> {
                 responsive.hSpaceSmall,
                 Flexible(
                   child: _buildStatBadge(
-                    context.tr('laps'),
+                    _t('laps'),
                     '${item.laps}',
                     AppColors.secondary,
                   ),

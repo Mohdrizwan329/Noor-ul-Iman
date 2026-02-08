@@ -1,0 +1,1687 @@
+{
+  "names": [
+    {
+      "number": 1,
+      "name": "الله",
+      "transliteration": "Allah",
+      "meaning": {
+        "en": "The God",
+        "ur": "اللہ",
+        "hi": "अल्लाह",
+        "ar": "الله"
+      },
+      "description": {
+        "en": "The greatest name of Allah, encompassing all divine attributes.",
+        "ur": "اللہ کا سب سے بڑا نام جو تمام الہی صفات کو شامل ہے۔",
+        "hi": "अल्लाह का सबसे बड़ा नाम जो सभी दिव्य गुणों को समाहित करता है।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 2,
+      "name": "الرَّحْمَنُ",
+      "transliteration": "Ar-Rahman",
+      "meaning": {
+        "en": "The Most Gracious",
+        "ur": "بہت مہربان",
+        "hi": "सबसे दयालु",
+        "ar": "الرَّحْمَنُ"
+      },
+      "description": {
+        "en": "The one who has plenty of mercy for believers and non-believers in this world.",
+        "ur": "جو اس دنیا میں مومنوں اور غیر مومنوں پر بے پناہ رحمت رکھتا ہے۔",
+        "hi": "जो इस दुनिया में विश्वासियों और गैर-विश्वासियों पर अपार दया रखते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 3,
+      "name": "الرَّحِيمُ",
+      "transliteration": "Ar-Raheem",
+      "meaning": {
+        "en": "The Most Merciful",
+        "ur": "نہایت رحم کرنے والا",
+        "hi": "अत्यंत दयावान",
+        "ar": "الرَّحِيمُ"
+      },
+      "description": {
+        "en": "The one who has plenty of mercy for the believers.",
+        "ur": "جو مومنوں پر بے پناہ رحمت رکھتا ہے۔",
+        "hi": "जो विश्वासियों पर अपार दया रखते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 4,
+      "name": "الْمَلِكُ",
+      "transliteration": "Al-Malik",
+      "meaning": {
+        "en": "The King",
+        "ur": "بادشاہ",
+        "hi": "राजा",
+        "ar": "الْمَلِكُ"
+      },
+      "description": {
+        "en": "The one with complete dominion, the one whose dominion is clear from imperfection.",
+        "ur": "جو مکمل حاکمیت رکھتا ہے، جس کی حاکمیت ہر نقص سے پاک ہے۔",
+        "hi": "जिनका संपूर्ण प्रभुत्व है, जिनका राज्य हर दोष से मुक्त है।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 5,
+      "name": "الْقُدُّوسُ",
+      "transliteration": "Al-Quddus",
+      "meaning": {
+        "en": "The Most Holy",
+        "ur": "پاک ذات",
+        "hi": "पवित्र",
+        "ar": "الْقُدُّوسُ"
+      },
+      "description": {
+        "en": "The one who is pure from any imperfection and clear from children and adversaries.",
+        "ur": "جو ہر نقص سے پاک ہے اور اولاد اور دشمنوں سے بری ہے۔",
+        "hi": "जो हर दोष से पवित्र हैं और संतान और शत्रुओं से मुक्त हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 6,
+      "name": "السَّلاَمُ",
+      "transliteration": "As-Salam",
+      "meaning": {
+        "en": "The Source of Peace",
+        "ur": "سلامتی دینے والا",
+        "hi": "शांति का स्रोत",
+        "ar": "السَّلاَمُ"
+      },
+      "description": {
+        "en": "The one who is free from every imperfection.",
+        "ur": "جو ہر نقص سے پاک ہے۔",
+        "hi": "जो हर दोष से मुक्त हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 7,
+      "name": "الْمُؤْمِنُ",
+      "transliteration": "Al-Mumin",
+      "meaning": {
+        "en": "The Guardian of Faith",
+        "ur": "امن دینے والا",
+        "hi": "विश्वास का रक्षक",
+        "ar": "الْمُؤْمِنُ"
+      },
+      "description": {
+        "en": "The one who witnessed for himself that no one is God but Him.",
+        "ur": "جس نے خود گواہی دی کہ اس کے سوا کوئی معبود نہیں۔",
+        "hi": "जिसने स्वयं गवाही दी कि उनके सिवा कोई पूज्य नहीं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 8,
+      "name": "الْمُهَيْمِنُ",
+      "transliteration": "Al-Muhaymin",
+      "meaning": {
+        "en": "The Protector",
+        "ur": "نگہبان",
+        "hi": "रक्षक",
+        "ar": "الْمُهَيْمِنُ"
+      },
+      "description": {
+        "en": "The one who witnesses the saying and deeds of His creatures.",
+        "ur": "جو اپنی مخلوق کے قول و فعل کا گواہ ہے۔",
+        "hi": "जो अपनी सृष्टि के कथनों और कर्मों के साक्षी हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 9,
+      "name": "الْعَزِيزُ",
+      "transliteration": "Al-Aziz",
+      "meaning": {
+        "en": "The Almighty",
+        "ur": "غالب",
+        "hi": "सर्वशक्तिमान",
+        "ar": "الْعَزِيزُ"
+      },
+      "description": {
+        "en": "The defeater who is never defeated.",
+        "ur": "جو ہمیشہ غالب رہتا ہے اور کبھی مغلوب نہیں ہوتا۔",
+        "hi": "जो हमेशा विजयी रहते हैं और कभी पराजित नहीं होते।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 10,
+      "name": "الْجَبَّارُ",
+      "transliteration": "Al-Jabbar",
+      "meaning": {
+        "en": "The Compeller",
+        "ur": "زبردست",
+        "hi": "प्रबल",
+        "ar": "الْجَبَّارُ"
+      },
+      "description": {
+        "en": "The one that nothing happens in His dominion except that which He willed.",
+        "ur": "جس کی سلطنت میں کچھ نہیں ہوتا سوائے اس کے جو وہ چاہے۔",
+        "hi": "जिनके राज्य में कुछ नहीं होता सिवाय उसके जो वे चाहें।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 11,
+      "name": "الْمُتَكَبِّرُ",
+      "transliteration": "Al-Mutakabbir",
+      "meaning": {
+        "en": "The Greatest",
+        "ur": "بڑائی والا",
+        "hi": "महान",
+        "ar": "الْمُتَكَبِّرُ"
+      },
+      "description": {
+        "en": "The one who is clear from the attributes of the creatures.",
+        "ur": "جو مخلوق کی صفات سے پاک ہے۔",
+        "hi": "जो सृष्टि के गुणों से परे हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 12,
+      "name": "الْخَالِقُ",
+      "transliteration": "Al-Khaliq",
+      "meaning": {
+        "en": "The Creator",
+        "ur": "پیدا کرنے والا",
+        "hi": "सृष्टिकर्ता",
+        "ar": "الْخَالِقُ"
+      },
+      "description": {
+        "en": "The one who brings everything from non-existence to existence.",
+        "ur": "جو ہر چیز کو عدم سے وجود میں لاتا ہے۔",
+        "hi": "जो हर चीज़ को अस्तित्व में लाते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 13,
+      "name": "الْبَارِئُ",
+      "transliteration": "Al-Bari",
+      "meaning": {
+        "en": "The Maker",
+        "ur": "بنانے والا",
+        "hi": "निर्माता",
+        "ar": "الْبَارِئُ"
+      },
+      "description": {
+        "en": "The creator who has the power to turn the entities.",
+        "ur": "خالق جو مخلوقات کو بدلنے کی طاقت رکھتا ہے۔",
+        "hi": "सृष्टिकर्ता जो प्राणियों को बदलने की शक्ति रखते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 14,
+      "name": "الْمُصَوِّرُ",
+      "transliteration": "Al-Musawwir",
+      "meaning": {
+        "en": "The Fashioner",
+        "ur": "صورت بنانے والا",
+        "hi": "आकार देने वाला",
+        "ar": "الْمُصَوِّرُ"
+      },
+      "description": {
+        "en": "The one who forms His creatures in different pictures.",
+        "ur": "جو اپنی مخلوق کو مختلف صورتوں میں بناتا ہے۔",
+        "hi": "जो अपनी सृष्टि को विभिन्न रूपों में बनाते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 15,
+      "name": "الْغَفَّارُ",
+      "transliteration": "Al-Ghaffar",
+      "meaning": {
+        "en": "The Forgiver",
+        "ur": "بخشنے والا",
+        "hi": "क्षमा करने वाला",
+        "ar": "الْغَفَّارُ"
+      },
+      "description": {
+        "en": "The one who forgives sins of His slaves time and time again.",
+        "ur": "جو اپنے بندوں کے گناہ بار بار معاف کرتا ہے۔",
+        "hi": "जो अपने बंदों के गुनाहों को बार-बार माफ करते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 16,
+      "name": "الْقَهَّارُ",
+      "transliteration": "Al-Qahhar",
+      "meaning": {
+        "en": "The Subduer",
+        "ur": "سب پر غالب",
+        "hi": "दमन करने वाला",
+        "ar": "الْقَهَّارُ"
+      },
+      "description": {
+        "en": "The one who has the perfect power and is not incapable of anything.",
+        "ur": "جو مکمل طاقت رکھتا ہے اور کسی چیز سے عاجز نہیں۔",
+        "hi": "जिनके पास पूर्ण शक्ति है और जो किसी चीज़ से असमर्थ नहीं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 17,
+      "name": "الْوَهَّابُ",
+      "transliteration": "Al-Wahhab",
+      "meaning": {
+        "en": "The Giver of All",
+        "ur": "بہت عطا کرنے والا",
+        "hi": "सब कुछ देने वाला",
+        "ar": "الْوَهَّابُ"
+      },
+      "description": {
+        "en": "The one who is generous in giving plenty without any return.",
+        "ur": "جو بغیر کسی بدلے کے بہت کچھ دیتا ہے۔",
+        "hi": "जो बिना किसी बदले के बहुत कुछ देते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 18,
+      "name": "الرَّزَّاقُ",
+      "transliteration": "Ar-Razzaq",
+      "meaning": {
+        "en": "The Sustainer",
+        "ur": "رزق دینے والا",
+        "hi": "जीविका देने वाला",
+        "ar": "الرَّزَّاقُ"
+      },
+      "description": {
+        "en": "The one who gives everything that benefits whether sustenance or knowledge.",
+        "ur": "جو ہر فائدہ مند چیز دیتا ہے خواہ رزق ہو یا علم۔",
+        "hi": "जो हर लाभदायक चीज़ देते हैं चाहे जीविका हो या ज्ञान।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 19,
+      "name": "الْفَتَّاحُ",
+      "transliteration": "Al-Fattah",
+      "meaning": {
+        "en": "The Opener",
+        "ur": "کھولنے والا",
+        "hi": "खोलने वाला",
+        "ar": "الْفَتَّاحُ"
+      },
+      "description": {
+        "en": "The one who opens for His slaves the closed worldly and religious matters.",
+        "ur": "جو اپنے بندوں کے لیے دنیاوی اور دینی بند معاملات کھولتا ہے۔",
+        "hi": "जो अपने बंदों के लिए बंद दुनियावी और धार्मिक मामले खोलते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 20,
+      "name": "اَلْعَلِيْمُ",
+      "transliteration": "Al-Alim",
+      "meaning": {
+        "en": "The All-Knowing",
+        "ur": "سب کچھ جاننے والا",
+        "hi": "सर्वज्ञ",
+        "ar": "اَلْعَلِيْمُ"
+      },
+      "description": {
+        "en": "The one nothing is absent from His knowledge.",
+        "ur": "جس کے علم سے کوئی چیز پوشیدہ نہیں۔",
+        "hi": "जिनके ज्ञान से कुछ भी छुपा नहीं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 21,
+      "name": "الْقَابِضُ",
+      "transliteration": "Al-Qabid",
+      "meaning": {
+        "en": "The Constrictor",
+        "ur": "تنگ کرنے والا",
+        "hi": "रोकने वाला",
+        "ar": "الْقَابِضُ"
+      },
+      "description": {
+        "en": "The one who constricts the sustenance by His wisdom.",
+        "ur": "جو اپنی حکمت سے رزق تنگ کرتا ہے۔",
+        "hi": "जो अपनी बुद्धि से जीविका रोकते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 22,
+      "name": "الْبَاسِطُ",
+      "transliteration": "Al-Basit",
+      "meaning": {
+        "en": "The Reliever",
+        "ur": "کشادگی دینے والا",
+        "hi": "विस्तार देने वाला",
+        "ar": "الْبَاسِطُ"
+      },
+      "description": {
+        "en": "The one who constricts and opens sustenance to whomever He wills.",
+        "ur": "جو جسے چاہے رزق تنگ یا کشادہ کرتا ہے۔",
+        "hi": "जो जिसे चाहें जीविका रोकते या देते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 23,
+      "name": "الْخَافِضُ",
+      "transliteration": "Al-Khafid",
+      "meaning": {
+        "en": "The Abaser",
+        "ur": "پست کرنے والا",
+        "hi": "नीचा करने वाला",
+        "ar": "الْخَافِضُ"
+      },
+      "description": {
+        "en": "The one who lowers whoever He willed by His destruction.",
+        "ur": "جو جسے چاہے اپنی تباہی سے نیچا کرتا ہے۔",
+        "hi": "जो जिसे चाहें अपने विनाश से नीचा करते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 24,
+      "name": "الرَّافِعُ",
+      "transliteration": "Ar-Rafi",
+      "meaning": {
+        "en": "The Exalter",
+        "ur": "بلند کرنے والا",
+        "hi": "ऊंचा करने वाला",
+        "ar": "الرَّافِعُ"
+      },
+      "description": {
+        "en": "The one who raises whoever He willed by His endowment.",
+        "ur": "جو جسے چاہے اپنی عطا سے بلند کرتا ہے۔",
+        "hi": "जो जिसे चाहें अपनी कृपा से ऊंचा करते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 25,
+      "name": "الْمُعِزُّ",
+      "transliteration": "Al-Muizz",
+      "meaning": {
+        "en": "The Bestower of Honors",
+        "ur": "عزت دینے والا",
+        "hi": "सम्मान देने वाला",
+        "ar": "الْمُعِزُّ"
+      },
+      "description": {
+        "en": "He gives esteem to whoever He willed.",
+        "ur": "جسے چاہے عزت دیتا ہے۔",
+        "hi": "जिसे चाहें सम्मान देते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 26,
+      "name": "المُذِلُّ",
+      "transliteration": "Al-Mudhill",
+      "meaning": {
+        "en": "The Humiliator",
+        "ur": "ذلیل کرنے والا",
+        "hi": "अपमानित करने वाला",
+        "ar": "المُذِلُّ"
+      },
+      "description": {
+        "en": "He degrades whoever He willed.",
+        "ur": "جسے چاہے ذلیل کرتا ہے۔",
+        "hi": "जिसे चाहें अपमानित करते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 27,
+      "name": "السَّمِيعُ",
+      "transliteration": "As-Sami",
+      "meaning": {
+        "en": "The All-Hearing",
+        "ur": "سب کچھ سننے والا",
+        "hi": "सब कुछ सुनने वाला",
+        "ar": "السَّمِيعُ"
+      },
+      "description": {
+        "en": "The one who hears all things that are heard.",
+        "ur": "جو ہر سنی جانے والی چیز سنتا ہے۔",
+        "hi": "जो हर सुनी जाने वाली चीज़ सुनते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 28,
+      "name": "الْبَصِيرُ",
+      "transliteration": "Al-Basir",
+      "meaning": {
+        "en": "The All-Seeing",
+        "ur": "سب کچھ دیکھنے والا",
+        "hi": "सब कुछ देखने वाला",
+        "ar": "الْبَصِيرُ"
+      },
+      "description": {
+        "en": "The one who sees all things that are seen.",
+        "ur": "جو ہر دکھائی دینے والی چیز دیکھتا ہے۔",
+        "hi": "जो हर दिखाई देने वाली चीज़ देखते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 29,
+      "name": "الْحَكَمُ",
+      "transliteration": "Al-Hakam",
+      "meaning": {
+        "en": "The Judge",
+        "ur": "فیصلہ کرنے والا",
+        "hi": "न्यायाधीश",
+        "ar": "الْحَكَمُ"
+      },
+      "description": {
+        "en": "He is the ruler and His judgment is His word.",
+        "ur": "وہ حاکم ہے اور اس کا فیصلہ اس کا کلام ہے۔",
+        "hi": "वह शासक हैं और उनका फैसला उनका वचन है।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 30,
+      "name": "الْعَدْلُ",
+      "transliteration": "Al-Adl",
+      "meaning": {
+        "en": "The Just",
+        "ur": "انصاف کرنے والا",
+        "hi": "न्यायी",
+        "ar": "الْعَدْلُ"
+      },
+      "description": {
+        "en": "The one who is entitled to do what He does.",
+        "ur": "جو کچھ کرتا ہے اس کا حق ہے۔",
+        "hi": "जो कुछ करते हैं उसका अधिकार है।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 31,
+      "name": "اللَّطِيفُ",
+      "transliteration": "Al-Latif",
+      "meaning": {
+        "en": "The Subtle One",
+        "ur": "باریک بین",
+        "hi": "सूक्ष्मदर्शी",
+        "ar": "اللَّطِيفُ"
+      },
+      "description": {
+        "en": "The one who is kind to His slaves and endows upon them.",
+        "ur": "جو اپنے بندوں پر مہربان ہے اور انہیں نوازتا ہے۔",
+        "hi": "जो अपने बंदों पर दयालु हैं और उन्हें नवाज़ते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 32,
+      "name": "الْخَبِيرُ",
+      "transliteration": "Al-Khabir",
+      "meaning": {
+        "en": "The All-Aware",
+        "ur": "باخبر",
+        "hi": "सब कुछ जानने वाला",
+        "ar": "الْخَبِيرُ"
+      },
+      "description": {
+        "en": "The one who knows the truth of things.",
+        "ur": "جو چیزوں کی حقیقت جانتا ہے۔",
+        "hi": "जो चीज़ों की हकीकत जानते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 33,
+      "name": "الْحَلِيمُ",
+      "transliteration": "Al-Halim",
+      "meaning": {
+        "en": "The Forbearing",
+        "ur": "بردبار",
+        "hi": "सहनशील",
+        "ar": "الْحَلِيمُ"
+      },
+      "description": {
+        "en": "The one who delays the punishment for those who deserve it.",
+        "ur": "جو مستحقین کی سزا میں تاخیر کرتا ہے۔",
+        "hi": "जो हकदारों की सज़ा में देरी करते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 34,
+      "name": "الْعَظِيمُ",
+      "transliteration": "Al-Azim",
+      "meaning": {
+        "en": "The Magnificent",
+        "ur": "عظیم",
+        "hi": "महान",
+        "ar": "الْعَظِيمُ"
+      },
+      "description": {
+        "en": "The one deserving the attributes of exaltment, glory, extolment.",
+        "ur": "جو بلندی، شان اور تعریف کی صفات کا مستحق ہے۔",
+        "hi": "जो उच्चता, महिमा और प्रशंसा के गुणों के योग्य हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 35,
+      "name": "الْغَفُورُ",
+      "transliteration": "Al-Ghafur",
+      "meaning": {
+        "en": "The Forgiving",
+        "ur": "بخشنے والا",
+        "hi": "क्षमा करने वाला",
+        "ar": "الْغَفُورُ"
+      },
+      "description": {
+        "en": "The one who forgives a lot.",
+        "ur": "جو بہت زیادہ معاف کرتا ہے۔",
+        "hi": "जो बहुत ज़्यादा माफ करते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 36,
+      "name": "الشَّكُورُ",
+      "transliteration": "Ash-Shakur",
+      "meaning": {
+        "en": "The Grateful",
+        "ur": "قدردان",
+        "hi": "कृतज्ञ",
+        "ar": "الشَّكُورُ"
+      },
+      "description": {
+        "en": "The one who gives a lot of reward for a little obedience.",
+        "ur": "جو تھوڑی فرمانبرداری پر بہت زیادہ اجر دیتا ہے۔",
+        "hi": "जो थोड़ी आज्ञाकारिता पर बहुत इनाम देते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 37,
+      "name": "الْعَلِيُّ",
+      "transliteration": "Al-Ali",
+      "meaning": {
+        "en": "The Most High",
+        "ur": "بلند",
+        "hi": "सर्वोच्च",
+        "ar": "الْعَلِيُّ"
+      },
+      "description": {
+        "en": "The one who is clear from the attributes of the creation.",
+        "ur": "جو مخلوق کی صفات سے پاک ہے۔",
+        "hi": "जो सृष्टि के गुणों से परे हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 38,
+      "name": "الْكَبِيرُ",
+      "transliteration": "Al-Kabir",
+      "meaning": {
+        "en": "The Most Great",
+        "ur": "بڑا",
+        "hi": "सबसे बड़ा",
+        "ar": "الْكَبِيرُ"
+      },
+      "description": {
+        "en": "The one who is greater than everything in status.",
+        "ur": "جو مرتبے میں سب سے بڑا ہے۔",
+        "hi": "जो हर चीज़ से बड़े हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 39,
+      "name": "الْحَفِيظُ",
+      "transliteration": "Al-Hafiz",
+      "meaning": {
+        "en": "The Preserver",
+        "ur": "حفاظت کرنے والا",
+        "hi": "रक्षक",
+        "ar": "الْحَفِيظُ"
+      },
+      "description": {
+        "en": "The one who protects whatever and whoever He willed.",
+        "ur": "جو جسے اور جو چاہے اس کی حفاظت کرتا ہے۔",
+        "hi": "जो जिसे चाहें उसकी रक्षा करते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 40,
+      "name": "المُقيِت",
+      "transliteration": "Al-Muqit",
+      "meaning": {
+        "en": "The Nourisher",
+        "ur": "قوت دینے والا",
+        "hi": "पोषण करने वाला",
+        "ar": "المُقيِت"
+      },
+      "description": {
+        "en": "The one who has the power.",
+        "ur": "جو طاقت رکھتا ہے۔",
+        "hi": "जो शक्ति रखते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 41,
+      "name": "الْحسِيبُ",
+      "transliteration": "Al-Hasib",
+      "meaning": {
+        "en": "The Reckoner",
+        "ur": "حساب لینے والا",
+        "hi": "हिसाब लेने वाला",
+        "ar": "الْحسِيبُ"
+      },
+      "description": {
+        "en": "The one who gives satisfaction.",
+        "ur": "جو تسلی دیتا ہے۔",
+        "hi": "जो संतोष देते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 42,
+      "name": "الْجَلِيلُ",
+      "transliteration": "Al-Jalil",
+      "meaning": {
+        "en": "The Majestic",
+        "ur": "جلیل",
+        "hi": "भव्य",
+        "ar": "الْجَلِيلُ"
+      },
+      "description": {
+        "en": "The one who is attributed with greatness of power.",
+        "ur": "جو طاقت کی عظمت سے متصف ہے۔",
+        "hi": "जो शक्ति की महानता से व���शेषित हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 43,
+      "name": "الْكَرِيمُ",
+      "transliteration": "Al-Karim",
+      "meaning": {
+        "en": "The Generous",
+        "ur": "کریم",
+        "hi": "उदार",
+        "ar": "الْكَرِيمُ"
+      },
+      "description": {
+        "en": "The one who is clear from abjectness.",
+        "ur": "جو ذلت سے پاک ہے۔",
+        "hi": "जो अधमता से मुक्त हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 44,
+      "name": "الرَّقِيبُ",
+      "transliteration": "Ar-Raqib",
+      "meaning": {
+        "en": "The Watchful",
+        "ur": "نگران",
+        "hi": "निगरानी करने वाला",
+        "ar": "الرَّقِيبُ"
+      },
+      "description": {
+        "en": "The one that nothing is absent from Him.",
+        "ur": "جس سے کوئی چیز پوشیدہ نہیں۔",
+        "hi": "जिनसे कुछ भी छुपा नहीं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 45,
+      "name": "الْمُجِيبُ",
+      "transliteration": "Al-Mujib",
+      "meaning": {
+        "en": "The Responsive",
+        "ur": "دعا قبول کرنے والا",
+        "hi": "दुआ कबूल करने वाला",
+        "ar": "الْمُجِيبُ"
+      },
+      "description": {
+        "en": "The one who answers the one in need if he asks Him.",
+        "ur": "جو ضرورت مند کی دعا قبول کرتا ہے اگر وہ مانگے۔",
+        "hi": "जो ज़रूरतमंद की दुआ कबूल करते हैं अगर वह मांगे।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 46,
+      "name": "الْوَاسِعُ",
+      "transliteration": "Al-Wasi",
+      "meaning": {
+        "en": "The All-Encompassing",
+        "ur": "وسعت والا",
+        "hi": "सर्वव्यापी",
+        "ar": "الْوَاسِعُ"
+      },
+      "description": {
+        "en": "The knowledgeable.",
+        "ur": "جو علم والا ہے۔",
+        "hi": "जो ज्ञानी हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 47,
+      "name": "الْحَكِيمُ",
+      "transliteration": "Al-Hakim",
+      "meaning": {
+        "en": "The All-Wise",
+        "ur": "حکمت والا",
+        "hi": "बुद्धिमान",
+        "ar": "الْحَكِيمُ"
+      },
+      "description": {
+        "en": "The one who is correct in His doings.",
+        "ur": "جو اپنے کاموں میں درست ہے۔",
+        "hi": "जो अपने कामों में सही हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 48,
+      "name": "الْوَدُودُ",
+      "transliteration": "Al-Wadud",
+      "meaning": {
+        "en": "The Most Loving",
+        "ur": "محبت کرنے والا",
+        "hi": "प्रेम करने वाला",
+        "ar": "الْوَدُودُ"
+      },
+      "description": {
+        "en": "The one who loves His believing slaves and His believing slaves love Him.",
+        "ur": "جو اپنے مومن بندوں سے محبت کرتا ہے اور مومن بندے اس سے محبت کرتے ہیں۔",
+        "hi": "जो अपने मोमिन बंदों से प्रेम करते हैं और मोमिन बंदे उनसे प्रेम करते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 49,
+      "name": "الْمَجِيدُ",
+      "transliteration": "Al-Majid",
+      "meaning": {
+        "en": "The Most Glorious",
+        "ur": "بزرگی والا",
+        "hi": "महिमावान",
+        "ar": "الْمَجِيدُ"
+      },
+      "description": {
+        "en": "The one who is with perfect power, high status, compassion, generosity.",
+        "ur": "جو کامل طاقت، بلند مرتبہ، رحم اور سخاوت والا ہے۔",
+        "hi": "जो पूर्ण शक्ति, उच्च स्थान, करुणा और उदारता वाले हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 50,
+      "name": "الْبَاعِثُ",
+      "transliteration": "Al-Baith",
+      "meaning": {
+        "en": "The Resurrector",
+        "ur": "اٹھانے والا",
+        "hi": "पुनर्जीवित करने वाला",
+        "ar": "الْبَاعِثُ"
+      },
+      "description": {
+        "en": "The one who resurrects His slaves after death.",
+        "ur": "جو اپنے بندوں کو موت کے بعد اٹھاتا ہے۔",
+        "hi": "जो अपने बंदों को मृत्यु के बाद उठाते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 51,
+      "name": "الشَّهِيدُ",
+      "transliteration": "Ash-Shahid",
+      "meaning": {
+        "en": "The Witness",
+        "ur": "گواہ",
+        "hi": "गवाह",
+        "ar": "الشَّهِيدُ"
+      },
+      "description": {
+        "en": "The one who nothing is absent from Him.",
+        "ur": "جس سے کوئی چیز پوشیدہ نہیں۔",
+        "hi": "जिनसे कुछ भी छुपा नहीं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 52,
+      "name": "الْحَقُّ",
+      "transliteration": "Al-Haqq",
+      "meaning": {
+        "en": "The Truth",
+        "ur": "سچا",
+        "hi": "सत्य",
+        "ar": "الْحَقُّ"
+      },
+      "description": {
+        "en": "The one who truly exists.",
+        "ur": "جو حقیقی طور پر موجود ہے۔",
+        "hi": "जो वास्तव में मौजूद हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 53,
+      "name": "الْوَكِيلُ",
+      "transliteration": "Al-Wakil",
+      "meaning": {
+        "en": "The Trustee",
+        "ur": "کارساز",
+        "hi": "कार्यवाहक",
+        "ar": "الْوَكِيلُ"
+      },
+      "description": {
+        "en": "The one who gives the satisfaction and is relied upon.",
+        "ur": "جو تسلی دیتا ہے اور جس پر بھروسہ کیا جاتا ہے۔",
+        "hi": "जो संतोष देते हैं और जिन पर भरोसा किया जाता है।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 54,
+      "name": "الْقَوِيُّ",
+      "transliteration": "Al-Qawiyy",
+      "meaning": {
+        "en": "The Most Strong",
+        "ur": "طاقتور",
+        "hi": "शक्तिशाली",
+        "ar": "الْقَوِيُّ"
+      },
+      "description": {
+        "en": "The one with the complete power.",
+        "ur": "جو مکمل طاقت رکھتا ہے۔",
+        "hi": "जो पूर्ण शक्ति रखते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 55,
+      "name": "الْمَتِينُ",
+      "transliteration": "Al-Matin",
+      "meaning": {
+        "en": "The Firm",
+        "ur": "مضبوط",
+        "hi": "दृढ़",
+        "ar": "الْمَتِينُ"
+      },
+      "description": {
+        "en": "The one with extreme power which is un-interrupted.",
+        "ur": "جو انتہائی طاقت رکھتا ہے جو کبھی ختم نہیں ہوتی۔",
+        "hi": "जो अत्यधिक शक्ति रखते हैं जो कभी समाप्त नहीं होती।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 56,
+      "name": "الْوَلِيُّ",
+      "transliteration": "Al-Waliyy",
+      "meaning": {
+        "en": "The Protecting Friend",
+        "ur": "دوست",
+        "hi": "मित्र",
+        "ar": "الْوَلِيُّ"
+      },
+      "description": {
+        "en": "The supporter.",
+        "ur": "جو مددگار ہے۔",
+        "hi": "जो सहायक हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 57,
+      "name": "الْحَمِيدُ",
+      "transliteration": "Al-Hamid",
+      "meaning": {
+        "en": "The Praiseworthy",
+        "ur": "قابل تعریف",
+        "hi": "प्रशंसनीय",
+        "ar": "الْحَمِيدُ"
+      },
+      "description": {
+        "en": "The praised one who deserves to be praised.",
+        "ur": "جو تعریف کا مستحق ہے۔",
+        "hi": "जो प्रशंसा के योग्य हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 58,
+      "name": "الْمُحْصِي",
+      "transliteration": "Al-Muhsi",
+      "meaning": {
+        "en": "The Accounter",
+        "ur": "شمار کرنے والا",
+        "hi": "गिनने वाला",
+        "ar": "الْمُحْصِي"
+      },
+      "description": {
+        "en": "The one who the count of things are known to Him.",
+        "ur": "جسے ہر چیز کا شمار معلوم ہے۔",
+        "hi": "जिन्हें हर चीज़ की गिनती मालूम है।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 59,
+      "name": "الْمُبْدِئُ",
+      "transliteration": "Al-Mubdi",
+      "meaning": {
+        "en": "The Originator",
+        "ur": "پہلی بار پیدا کرنے والا",
+        "hi": "उत्पत्तिकर्ता",
+        "ar": "الْمُبْدِئُ"
+      },
+      "description": {
+        "en": "The one who started the human being.",
+        "ur": "جس نے انسان کو پہلی بار پیدا کیا۔",
+        "hi": "जिसने इंसान को पहली बार पैदा किया।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 60,
+      "name": "الْمُعِيدُ",
+      "transliteration": "Al-Muid",
+      "meaning": {
+        "en": "The Restorer",
+        "ur": "دوبارہ پیدا کرنے والا",
+        "hi": "पुनर्स्थापक",
+        "ar": "الْمُعِيدُ"
+      },
+      "description": {
+        "en": "The one who brings back the creatures after death.",
+        "ur": "جو مخلوق کو موت کے بعد واپس لاتا ہے۔",
+        "hi": "जो सृष्टि को मृत्यु के बाद वापस लाते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 61,
+      "name": "الْمُحْيِي",
+      "transliteration": "Al-Muhyi",
+      "meaning": {
+        "en": "The Giver of Life",
+        "ur": "زندگی دینے والا",
+        "hi": "जीवन देने वाला",
+        "ar": "الْمُحْيِي"
+      },
+      "description": {
+        "en": "The one who took out a living human from semen that does not have a soul.",
+        "ur": "جس نے بے جان نطفے سے زندہ انسان نکالا۔",
+        "hi": "जिसने बेजान बीज से जीवित इंसान निकाला।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 62,
+      "name": "اَلْمُمِيتُ",
+      "transliteration": "Al-Mumit",
+      "meaning": {
+        "en": "The Taker of Life",
+        "ur": "موت دینے والا",
+        "hi": "मृत्यु देने वाला",
+        "ar": "اَلْمُمِيتُ"
+      },
+      "description": {
+        "en": "The one who renders the living dead.",
+        "ur": "جو زندوں کو مردہ کرتا ہے۔",
+        "hi": "जो जीवितों को मृत करते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 63,
+      "name": "الْحَيُّ",
+      "transliteration": "Al-Hayy",
+      "meaning": {
+        "en": "The Ever Living",
+        "ur": "ہمیشہ زندہ",
+        "hi": "सदा जीवित",
+        "ar": "الْحَيُّ"
+      },
+      "description": {
+        "en": "The one attributed with a life that is unlike our life.",
+        "ur": "جو ایسی زندگی سے متصف ہے جو ہماری زندگی جیسی نہیں۔",
+        "hi": "जो ऐसी जिंदगी से विशेषित हैं जो हमारी जिंदगी जैसी नहीं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 64,
+      "name": "الْقَيُّومُ",
+      "transliteration": "Al-Qayyum",
+      "meaning": {
+        "en": "The Self-Existing",
+        "ur": "قائم رہنے والا",
+        "hi": "स्वयंभू",
+        "ar": "الْقَيُّومُ"
+      },
+      "description": {
+        "en": "The one who remains and does not end.",
+        "ur": "جو باقی رہتا ہے اور ختم نہیں ہوتا۔",
+        "hi": "जो बाकी रहते हैं और खत्म नहीं होते।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 65,
+      "name": "الْوَاجِدُ",
+      "transliteration": "Al-Wajid",
+      "meaning": {
+        "en": "The Finder",
+        "ur": "پانے والا",
+        "hi": "पाने वाला",
+        "ar": "الْوَاجِدُ"
+      },
+      "description": {
+        "en": "The rich who is never poor.",
+        "ur": "جو غنی ہے اور کبھی فقیر نہیں۔",
+        "hi": "जो धनी हैं और कभी गरीब नहीं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 66,
+      "name": "الْمَاجِدُ",
+      "transliteration": "Al-Majid",
+      "meaning": {
+        "en": "The Glorious",
+        "ur": "بزرگ",
+        "hi": "गौरवशाली",
+        "ar": "الْمَاجِدُ"
+      },
+      "description": {
+        "en": "The one who is majid.",
+        "ur": "جو مجید ہے۔",
+        "hi": "जो गौरवशाली हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 67,
+      "name": "الْواحِدُ",
+      "transliteration": "Al-Wahid",
+      "meaning": {
+        "en": "The One",
+        "ur": "ایک",
+        "hi": "एक",
+        "ar": "الْواحِدُ"
+      },
+      "description": {
+        "en": "The one without a partner.",
+        "ur": "جس کا کوئی شریک نہیں۔",
+        "hi": "जिनका कोई साझीदार नहीं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 68,
+      "name": "اَلاَحَدُ",
+      "transliteration": "Al-Ahad",
+      "meaning": {
+        "en": "The Unique",
+        "ur": "یکتا",
+        "hi": "अद्वितीय",
+        "ar": "اَلاَحَدُ"
+      },
+      "description": {
+        "en": "The one without equal.",
+        "ur": "جس کا کوئی مثل نہیں۔",
+        "hi": "जिनका कोई बराबर नहीं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 69,
+      "name": "الصَّمَدُ",
+      "transliteration": "As-Samad",
+      "meaning": {
+        "en": "The Eternal",
+        "ur": "بے نیاز",
+        "hi": "अनन्त",
+        "ar": "الصَّمَدُ"
+      },
+      "description": {
+        "en": "The master who is relied upon in matters.",
+        "ur": "جس پر معاملات میں بھروسہ کیا جاتا ہے۔",
+        "hi": "जिन पर मामलों में भरोसा किया जाता है।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 70,
+      "name": "الْقَادِرُ",
+      "transliteration": "Al-Qadir",
+      "meaning": {
+        "en": "The Able",
+        "ur": "قادر",
+        "hi": "समर्थ",
+        "ar": "الْقَادِرُ"
+      },
+      "description": {
+        "en": "The one attributed with power.",
+        "ur": "جو طاقت سے متصف ہے۔",
+        "hi": "जो शक्ति से विशेषित हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 71,
+      "name": "الْمُقْتَدِرُ",
+      "transliteration": "Al-Muqtadir",
+      "meaning": {
+        "en": "The Powerful",
+        "ur": "اختیار والا",
+        "hi": "शक्तिशाली",
+        "ar": "الْمُقْتَدِرُ"
+      },
+      "description": {
+        "en": "The one with the perfect power that nothing is withheld from Him.",
+        "ur": "جو مکمل طاقت رکھتا ہے جس سے کوئی چیز روکی نہیں جاتی۔",
+        "hi": "जो पूर्ण शक्ति रखते हैं जिनसे कुछ भी रोका नहीं जा सकता।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 72,
+      "name": "الْمُقَدِّمُ",
+      "transliteration": "Al-Muqaddim",
+      "meaning": {
+        "en": "The Expediter",
+        "ur": "آگے کرنے والا",
+        "hi": "आगे करने वाला",
+        "ar": "الْمُقَدِّمُ"
+      },
+      "description": {
+        "en": "The one who puts things in their right places.",
+        "ur": "جو چیزوں کو ان کی صحیح جگہ رکھتا ہے۔",
+        "hi": "जो चीज़ों को उनकी सही जगह रखते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 73,
+      "name": "الْمُؤَخِّرُ",
+      "transliteration": "Al-Muakhkhir",
+      "meaning": {
+        "en": "The Delayer",
+        "ur": "پیچھے کرنے والا",
+        "hi": "पीछे करने वाला",
+        "ar": "الْمُؤَخِّرُ"
+      },
+      "description": {
+        "en": "The one who delays what He wills.",
+        "ur": "جو جسے چاہے موخر کرتا ہے۔",
+        "hi": "जो जिसे चाहें देरी करते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 74,
+      "name": "الأوَّلُ",
+      "transliteration": "Al-Awwal",
+      "meaning": {
+        "en": "The First",
+        "ur": "پہلا",
+        "hi": "पहला",
+        "ar": "الأوَّلُ"
+      },
+      "description": {
+        "en": "The one whose existence is without a beginning.",
+        "ur": "جس کے وجود کی کوئی ابتدا نہیں۔",
+        "hi": "जिनके अस्तित्व की कोई शुरुआत नहीं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 75,
+      "name": "الآخِرُ",
+      "transliteration": "Al-Akhir",
+      "meaning": {
+        "en": "The Last",
+        "ur": "آخری",
+        "hi": "आखिरी",
+        "ar": "الآخِرُ"
+      },
+      "description": {
+        "en": "The one whose existence is without an end.",
+        "ur": "جس کے وجود کا کوئی انت نہیں۔",
+        "hi": "जिनके अस्तित्व का कोई अंत नहीं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 76,
+      "name": "الظَّاهِرُ",
+      "transliteration": "Az-Zahir",
+      "meaning": {
+        "en": "The Manifest",
+        "ur": "ظاہر",
+        "hi": "प्रकट",
+        "ar": "الظَّاهِرُ"
+      },
+      "description": {
+        "en": "The one that nothing is above Him and nothing is beneath Him.",
+        "ur": "جس سے اوپر کچھ نہیں اور جس سے نیچے کچھ نہیں۔",
+        "hi": "जिनसे ऊपर कुछ नहीं और जिनसे नीचे कुछ नहीं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 77,
+      "name": "الْبَاطِنُ",
+      "transliteration": "Al-Batin",
+      "meaning": {
+        "en": "The Hidden",
+        "ur": "پوشیدہ",
+        "hi": "छुपा हुआ",
+        "ar": "الْبَاطِنُ"
+      },
+      "description": {
+        "en": "The one that nothing is beneath Him.",
+        "ur": "جس سے نیچے کچھ نہیں۔",
+        "hi": "जिनसे नीचे कुछ नहीं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 78,
+      "name": "الْوَالِي",
+      "transliteration": "Al-Wali",
+      "meaning": {
+        "en": "The Protecting Friend",
+        "ur": "مالک",
+        "hi": "स्वामी",
+        "ar": "الْوَالِي"
+      },
+      "description": {
+        "en": "The one who owns things and manages them.",
+        "ur": "جو چیزوں کا مالک ہے اور انہیں سنبھالتا ہے۔",
+        "hi": "जो चीज़ों के मालिक हैं और उन्हें संभालते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 79,
+      "name": "الْمُتَعَالِي",
+      "transliteration": "Al-Mutaali",
+      "meaning": {
+        "en": "The Most Exalted",
+        "ur": "بلند تر",
+        "hi": "सर्वोच्च",
+        "ar": "الْمُتَعَالِي"
+      },
+      "description": {
+        "en": "The one who is clear from the attributes of the creation.",
+        "ur": "جو مخلوق کی صفات سے پاک ہے۔",
+        "hi": "जो सृष्टि के गुणों से परे हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 80,
+      "name": "الْبَرُّ",
+      "transliteration": "Al-Barr",
+      "meaning": {
+        "en": "The Source of Goodness",
+        "ur": "نیکی کرنے والا",
+        "hi": "भलाई का स्रोत",
+        "ar": "الْبَرُّ"
+      },
+      "description": {
+        "en": "The one who is kind to His creatures.",
+        "ur": "جو اپنی مخلوق پر مہربان ہے۔",
+        "hi": "जो अपनी सृष्टि पर दयालु हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 81,
+      "name": "التَّوَّابُ",
+      "transliteration": "At-Tawwab",
+      "meaning": {
+        "en": "The Acceptor of Repentance",
+        "ur": "توبہ قبول کرنے والا",
+        "hi": "तौबा कबूल करने वाला",
+        "ar": "التَّوَّابُ"
+      },
+      "description": {
+        "en": "The one who grants repentance.",
+        "ur": "جو توبہ قبول کرتا ہے۔",
+        "hi": "जो तौबा कबूल करते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 82,
+      "name": "الْمُنْتَقِمُ",
+      "transliteration": "Al-Muntaqim",
+      "meaning": {
+        "en": "The Avenger",
+        "ur": "بدلہ لینے والا",
+        "hi": "बदला लेने वाला",
+        "ar": "الْمُنْتَقِمُ"
+      },
+      "description": {
+        "en": "The one who victoriously prevails over His enemies.",
+        "ur": "جو اپنے دشمنوں پر فتح مند ہوتا ہے۔",
+        "hi": "जो अपने दुश्मनों पर विजयी होते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 83,
+      "name": "العَفُوُّ",
+      "transliteration": "Al-Afuww",
+      "meaning": {
+        "en": "The Pardoner",
+        "ur": "معاف کرنے والا",
+        "hi": "माफ करने वाला",
+        "ar": "العَفُوُّ"
+      },
+      "description": {
+        "en": "The one with wide forgiveness.",
+        "ur": "جو وسیع مغفرت والا ہے۔",
+        "hi": "जो विस्तृत क्षमा वाले हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 84,
+      "name": "الرَّؤُوفُ",
+      "transliteration": "Ar-Rauf",
+      "meaning": {
+        "en": "The Compassionate",
+        "ur": "شفقت والا",
+        "hi": "करुणामय",
+        "ar": "الرَّؤُوفُ"
+      },
+      "description": {
+        "en": "The one with extreme mercy.",
+        "ur": "جو انتہائی رحم والا ہے۔",
+        "hi": "जो अत्यधिक दया वाले हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 85,
+      "name": "مَالِكُ الْمُلْكِ",
+      "transliteration": "Malik-ul-Mulk",
+      "meaning": {
+        "en": "Owner of Sovereignty",
+        "ur": "بادشاہت کا مالک",
+        "hi": "संप्रभुता के मालिक",
+        "ar": "مَالِكُ الْمُلْكِ"
+      },
+      "description": {
+        "en": "The one who controls the dominion.",
+        "ur": "جو سلطنت کو قابو میں رکھتا ہے۔",
+        "hi": "जो राज्य को नियंत्रित करते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 86,
+      "name": "ذُوالْجَلاَلِ وَالإكْرَامِ",
+      "transliteration": "Dhul-Jalal-wal-Ikram",
+      "meaning": {
+        "en": "Lord of Majesty and Bounty",
+        "ur": "عظمت اور کرم والا",
+        "hi": "महिमा और उदारता के स्वामी",
+        "ar": "ذُوالْجَلاَلِ وَالإكْرَامِ"
+      },
+      "description": {
+        "en": "The one who deserves to be exalted.",
+        "ur": "جو بلندی کا مستحق ہے۔",
+        "hi": "जो उच्चता के योग्य हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 87,
+      "name": "الْمُقْسِطُ",
+      "transliteration": "Al-Muqsit",
+      "meaning": {
+        "en": "The Equitable",
+        "ur": "انصاف کرنے والا",
+        "hi": "न्यायी",
+        "ar": "الْمُقْسِطُ"
+      },
+      "description": {
+        "en": "The one who is just in His judgment.",
+        "ur": "جو اپنے فیصلے میں عادل ہے۔",
+        "hi": "जो अपने फैसले में न्यायी हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 88,
+      "name": "الْجَامِعُ",
+      "transliteration": "Al-Jami",
+      "meaning": {
+        "en": "The Gatherer",
+        "ur": "جمع کرنے والا",
+        "hi": "इकट्ठा करने वाला",
+        "ar": "الْجَامِعُ"
+      },
+      "description": {
+        "en": "The one who gathers the creatures on a day.",
+        "ur": "جو مخلوق کو ایک دن جمع کرتا ہے۔",
+        "hi": "जो सृष्टि को एक दिन इकट्ठा करते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 89,
+      "name": "الْغَنِيُّ",
+      "transliteration": "Al-Ghani",
+      "meaning": {
+        "en": "The Self-Sufficient",
+        "ur": "بے نیاز",
+        "hi": "निस्पृह",
+        "ar": "الْغَنِيُّ"
+      },
+      "description": {
+        "en": "The one who does not need the creation.",
+        "ur": "جسے مخلوق کی ضرورت نہیں۔",
+        "hi": "जिन्हें सृष्टि की ज़रूरत नहीं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 90,
+      "name": "الْمُغْنِي",
+      "transliteration": "Al-Mughni",
+      "meaning": {
+        "en": "The Enricher",
+        "ur": "غنی کرنے والا",
+        "hi": "समृद्ध करने वाला",
+        "ar": "الْمُغْنِي"
+      },
+      "description": {
+        "en": "The one who satisfies the necessities of the creatures.",
+        "ur": "جو مخلوق کی ضروریات پوری کرتا ہے۔",
+        "hi": "जो सृष्टि की ज़रूरतें पूरी करते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 91,
+      "name": "اَلْمَانِعُ",
+      "transliteration": "Al-Mani",
+      "meaning": {
+        "en": "The Preventer of Harm",
+        "ur": "روکنے والا",
+        "hi": "रोकने वाला",
+        "ar": "اَلْمَانِعُ"
+      },
+      "description": {
+        "en": "The supporter who protects.",
+        "ur": "مددگار جو حفاظت کرتا ہے۔",
+        "hi": "सहायक जो रक्षा करते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 92,
+      "name": "الضَّارَّ",
+      "transliteration": "Ad-Darr",
+      "meaning": {
+        "en": "The Creator of Harm",
+        "ur": "نقصان پہنچانے والا",
+        "hi": "नुकसान पहुंचाने वाला",
+        "ar": "الضَّارَّ"
+      },
+      "description": {
+        "en": "The one who makes harm reach to whoever He willed.",
+        "ur": "جو جسے چاہے نقصان پہنچاتا ہے۔",
+        "hi": "जो जिसे चाहें नुकसान पहुंचाते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 93,
+      "name": "النَّافِعُ",
+      "transliteration": "An-Nafi",
+      "meaning": {
+        "en": "The Creator of Good",
+        "ur": "فائدہ پہنچانے والا",
+        "hi": "फायदा पहुंचाने वाला",
+        "ar": "النَّافِعُ"
+      },
+      "description": {
+        "en": "The one who makes benefit reach to whoever He willed.",
+        "ur": "جو جسے چاہے فائدہ پہنچاتا ہے۔",
+        "hi": "जो जिसे चाहें फायदा पहुंचाते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 94,
+      "name": "النُّورُ",
+      "transliteration": "An-Nur",
+      "meaning": {
+        "en": "The Light",
+        "ur": "روشنی",
+        "hi": "प्रकाश",
+        "ar": "النُّورُ"
+      },
+      "description": {
+        "en": "The one who guides.",
+        "ur": "جو رہنمائی کرتا ہے۔",
+        "hi": "जो मार्गदर्शन करते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 95,
+      "name": "الْهَادِي",
+      "transliteration": "Al-Hadi",
+      "meaning": {
+        "en": "The Guide",
+        "ur": "ہدایت دینے والا",
+        "hi": "मार्गदर्शक",
+        "ar": "الْهَادِي"
+      },
+      "description": {
+        "en": "The one whom with His guidance His believers were guided.",
+        "ur": "جس کی ہدایت سے مومن ہدایت پاتے ہیں۔",
+        "hi": "जिनकी हिदायत से मोमिन हिदायत पाते हैं।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 96,
+      "name": "الْبَدِيعُ",
+      "transliteration": "Al-Badi",
+      "meaning": {
+        "en": "The Originator",
+        "ur": "نئی چیز بنانے والا",
+        "hi": "नई चीज़ बनाने वाला",
+        "ar": "الْبَدِيعُ"
+      },
+      "description": {
+        "en": "The one who created the creation and formed it without any preceding example.",
+        "ur": "جس نے بغیر کسی سابقہ مثال کے مخلوق کو بنایا۔",
+        "hi": "जिसने बिना किसी पूर्व उदाहरण के सृष्टि बनाई।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 97,
+      "name": "اَلْبَاقِي",
+      "transliteration": "Al-Baqi",
+      "meaning": {
+        "en": "The Everlasting",
+        "ur": "باقی رہنے والا",
+        "hi": "शाश्वत",
+        "ar": "اَلْبَاقِي"
+      },
+      "description": {
+        "en": "The one that the state of non-existence is impossible for Him.",
+        "ur": "جس کے لیے عدم کی حالت ناممکن ہے۔",
+        "hi": "जिनके लिए अस्तित्वहीनता असंभव है।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 98,
+      "name": "الْوَارِثُ",
+      "transliteration": "Al-Warith",
+      "meaning": {
+        "en": "The Inheritor",
+        "ur": "وارث",
+        "hi": "उत्तराधिकारी",
+        "ar": "الْوَارِثُ"
+      },
+      "description": {
+        "en": "The one whose existence remains.",
+        "ur": "جس کا وجود باقی رہتا ہے۔",
+        "hi": "जिनका अस्तित्व बाकी रहता है।",
+        "ar": ""
+      }
+    },
+    {
+      "number": 99,
+      "name": "الرَّشِيدُ",
+      "transliteration": "Ar-Rashid",
+      "meaning": {
+        "en": "The Guide to the Right Path",
+        "ur": "سیدھے راستے کی رہنمائی کرنے والا",
+        "hi": "सीधे रास्ते का मार्गदर्शक",
+        "ar": "الرَّشِيدُ"
+      },
+      "description": {
+        "en": "The one who guides.",
+        "ur": "جو رہنمائی کرتا ہے۔",
+        "hi": "जो मार्गदर्शन करते हैं।",
+        "ar": ""
+      }
+    }
+  ]
+}

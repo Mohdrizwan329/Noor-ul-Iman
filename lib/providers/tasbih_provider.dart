@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/services/location_service.dart';
+import '../core/services/content_service.dart';
 import 'package:geolocator/geolocator.dart';
 
 class TasbihProvider with ChangeNotifier {
@@ -12,6 +13,8 @@ class TasbihProvider with ChangeNotifier {
   static const String _soundKey = 'tasbih_sound';
   static const String _lapCountKey = 'tasbih_lap_count';
   static const String _historyKey = 'tasbih_history';
+
+  final ContentService _contentService = ContentService();
 
   int _count = 0;
   int _target = 100;
@@ -25,52 +28,10 @@ class TasbihProvider with ChangeNotifier {
   String? _currentCountry;
   bool _isLoadingLocation = false;
   List<TasbihHistoryItem> _history = [];
+  List<DhikrItem> _dhikrList = [];
 
-  // Predefined dhikr options
-  final List<DhikrItem> dhikrList = [
-    DhikrItem(
-      arabic: 'سُبْحَانَ اللَّهِ',
-      transliteration: 'SubhanAllah',
-      meaning: 'Glory be to Allah',
-      defaultTarget: 33,
-    ),
-    DhikrItem(
-      arabic: 'الْحَمْدُ لِلَّهِ',
-      transliteration: 'Alhamdulillah',
-      meaning: 'Praise be to Allah',
-      defaultTarget: 33,
-    ),
-    DhikrItem(
-      arabic: 'اللَّهُ أَكْبَرُ',
-      transliteration: 'Allahu Akbar',
-      meaning: 'Allah is the Greatest',
-      defaultTarget: 34,
-    ),
-    DhikrItem(
-      arabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ',
-      transliteration: 'La ilaha illallah',
-      meaning: 'There is no god but Allah',
-      defaultTarget: 100,
-    ),
-    DhikrItem(
-      arabic: 'أَسْتَغْفِرُ اللَّهَ',
-      transliteration: 'Astaghfirullah',
-      meaning: 'I seek forgiveness from Allah',
-      defaultTarget: 100,
-    ),
-    DhikrItem(
-      arabic: 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ',
-      transliteration: 'SubhanAllahi wa bihamdihi',
-      meaning: 'Glory and praise be to Allah',
-      defaultTarget: 100,
-    ),
-    DhikrItem(
-      arabic: 'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',
-      transliteration: 'La hawla wa la quwwata illa billah',
-      meaning: 'There is no power except with Allah',
-      defaultTarget: 100,
-    ),
-  ];
+  // Getter for dhikr list (loaded from Firebase/ContentService)
+  List<DhikrItem> get dhikrList => _dhikrList;
 
   // Getters
   int get count => _count;
@@ -97,6 +58,27 @@ class TasbihProvider with ChangeNotifier {
     _lapCount = prefs.getInt(_lapCountKey) ?? 0;
     _vibrationEnabled = prefs.getBool(_vibrationKey) ?? true;
     _soundEnabled = prefs.getBool(_soundKey) ?? true;
+
+    // Load dhikr items from Firestore
+    try {
+      final firestoreDhikr = await _contentService.getTasbihDhikr();
+      if (firestoreDhikr.isNotEmpty) {
+        _dhikrList = firestoreDhikr.map((d) => DhikrItem(
+          arabic: d.arabic,
+          transliteration: d.transliteration,
+          meaning: d.meaning.en,
+          meaningUrdu: d.meaning.ur,
+          meaningHindi: d.meaning.hi,
+          meaningArabic: d.meaning.ar,
+          defaultTarget: d.defaultTarget,
+        )).toList();
+        debugPrint('Loaded ${_dhikrList.length} dhikr items from Firestore');
+      }
+    } catch (e) {
+      debugPrint('Error loading dhikr from Firestore: $e');
+      // Will use hardcoded fallback via getter
+    }
+
     notifyListeners();
   }
 
@@ -343,14 +325,33 @@ class DhikrItem {
   final String arabic;
   final String transliteration;
   final String meaning;
+  final String meaningUrdu;
+  final String meaningHindi;
+  final String meaningArabic;
   final int defaultTarget;
 
   DhikrItem({
     required this.arabic,
     required this.transliteration,
     required this.meaning,
+    this.meaningUrdu = '',
+    this.meaningHindi = '',
+    this.meaningArabic = '',
     required this.defaultTarget,
   });
+
+  String getMeaning(String langCode) {
+    switch (langCode) {
+      case 'ur':
+        return meaningUrdu.isNotEmpty ? meaningUrdu : meaning;
+      case 'hi':
+        return meaningHindi.isNotEmpty ? meaningHindi : meaning;
+      case 'ar':
+        return meaningArabic.isNotEmpty ? meaningArabic : meaning;
+      default:
+        return meaning;
+    }
+  }
 }
 
 class TasbihHistoryItem {

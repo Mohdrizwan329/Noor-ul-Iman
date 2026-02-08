@@ -5,6 +5,8 @@ import '../../core/utils/app_utils.dart';
 import '../../providers/quran_provider.dart';
 import '../../widgets/common/empty_state_widget.dart';
 import 'surah_detail_screen.dart';
+import '../../core/utils/ad_navigation.dart';
+import '../../widgets/common/banner_ad_widget.dart';
 
 class BookmarksScreen extends StatelessWidget {
   const BookmarksScreen({super.key});
@@ -22,9 +24,16 @@ class BookmarksScreen extends StatelessWidget {
           final bookmarks = provider.bookmarks.toList();
 
           if (bookmarks.isEmpty) {
-            return EmptyStateWidget(
-              icon: Icons.bookmark_border,
-              message: '${context.tr('no_bookmarks')}\n${context.tr('bookmark_hint')}',
+            return Column(
+              children: [
+                Expanded(
+                  child: EmptyStateWidget(
+                    icon: Icons.bookmark_border,
+                    message: '${context.tr('no_bookmarks')}\n${context.tr('bookmark_hint')}',
+                  ),
+                ),
+                const BannerAdWidget(),
+              ],
             );
           }
 
@@ -37,30 +46,37 @@ class BookmarksScreen extends StatelessWidget {
             return int.parse(aParts[1]).compareTo(int.parse(bParts[1]));
           });
 
-          return ListView.builder(
-            padding: responsive.paddingRegular,
-            itemCount: bookmarks.length,
-            itemBuilder: (context, index) {
-              final bookmark = bookmarks[index];
-              final parts = bookmark.split(':');
-              final surahNumber = int.parse(parts[0]);
-              final ayahNumber = int.parse(parts[1]);
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  padding: responsive.paddingRegular,
+                  itemCount: bookmarks.length,
+                  itemBuilder: (context, index) {
+                    final bookmark = bookmarks[index];
+                    final parts = bookmark.split(':');
+                    final surahNumber = int.parse(parts[0]);
+                    final ayahNumber = int.parse(parts[1]);
 
-              // Find surah info
-              final surahInfo = provider.surahList.firstWhere(
-                (s) => s.number == surahNumber,
-                orElse: () => provider.surahList.first,
-              );
+                    // Find surah info
+                    final surahInfo = provider.surahList.firstWhere(
+                      (s) => s.number == surahNumber,
+                      orElse: () => provider.surahList.first,
+                    );
 
-              return _buildBookmarkCard(
-                context,
-                surahNumber,
-                ayahNumber,
-                surahInfo.englishName,
-                surahInfo.name,
-                provider,
-              );
-            },
+                    return _buildBookmarkCard(
+                      context,
+                      surahNumber,
+                      ayahNumber,
+                      surahInfo.englishName,
+                      surahInfo.name,
+                      provider,
+                    );
+                  },
+                ),
+              ),
+              const BannerAdWidget(),
+            ],
           );
         },
       ),
@@ -84,12 +100,7 @@ class BookmarksScreen extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SurahDetailScreen(surahNumber: surahNumber),
-            ),
-          );
+          AdNavigator.push(context, SurahDetailScreen(surahNumber: surahNumber));
         },
         borderRadius: BorderRadius.circular(responsive.radiusMedium),
         child: Padding(

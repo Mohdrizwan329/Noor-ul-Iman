@@ -8,8 +8,9 @@ class WeatherData {
   final String icon;
   final int humidity;
   final double windSpeed;
-  final int aqi; // Air Quality Index
-  final String aqiLevel; // Good, Fair, Moderate, Poor, Very Poor
+  final int aqi; // Air Quality Index (US EPA scale 0-500)
+  final String aqiLevel; // Good, Moderate, Unhealthy for Sensitive, Unhealthy, Very Unhealthy, Hazardous
+  final double pm25; // PM2.5 value in μg/m³
 
   WeatherData({
     required this.temperature,
@@ -19,6 +20,7 @@ class WeatherData {
     required this.windSpeed,
     required this.aqi,
     required this.aqiLevel,
+    this.pm25 = 0,
   });
 }
 
@@ -54,17 +56,33 @@ class WeatherService {
         '$_baseUrl/air_pollution?lat=$lat&lon=$lon&appid=$_apiKey',
       );
 
+      debugPrint('🌐 AQI URL: $aqiUrl');
       final aqiResponse = await http.get(aqiUrl);
+      debugPrint('🌐 AQI Response Code: ${aqiResponse.statusCode}');
 
       int aqi = 0;
       String aqiLevel = 'Unknown';
+      double pm25 = 0;
 
       if (aqiResponse.statusCode == 200) {
         final aqiJson = json.decode(aqiResponse.body);
+        debugPrint('🌐 AQI Response: $aqiJson');
+
         if (aqiJson['list'] != null && aqiJson['list'].isNotEmpty) {
-          aqi = aqiJson['list'][0]['main']['aqi'] ?? 0;
-          aqiLevel = _getAQILevel(aqi);
+          final components = aqiJson['list'][0]['components'];
+
+          // Get PM2.5 value (most important for AQI)
+          pm25 = (components?['pm2_5'] ?? 0).toDouble();
+          debugPrint('🌐 PM2.5: $pm25 μg/m³');
+
+          // Calculate US EPA AQI from PM2.5
+          aqi = _calculateAQIFromPM25(pm25);
+          aqiLevel = _getAQILevelFromValue(aqi);
+
+          debugPrint('🌐 Calculated AQI: $aqi ($aqiLevel)');
         }
+      } else {
+        debugPrint('🌐 AQI API Error: ${aqiResponse.body}');
       }
 
       return WeatherData(
@@ -75,6 +93,7 @@ class WeatherService {
         windSpeed: (weatherJson['wind']['speed'] ?? 0).toDouble(),
         aqi: aqi,
         aqiLevel: aqiLevel,
+        pm25: pm25,
       );
     } catch (e) {
       debugPrint('Error fetching weather data: $e');
@@ -82,37 +101,62 @@ class WeatherService {
     }
   }
 
-  static String _getAQILevel(int aqi) {
-    switch (aqi) {
-      case 1:
-        return 'Good';
-      case 2:
-        return 'Fair';
-      case 3:
-        return 'Moderate';
-      case 4:
-        return 'Poor';
-      case 5:
-        return 'Very Poor';
-      default:
-        return 'Unknown';
+  // Calculate US EPA AQI from PM2.5 concentration (μg/m³)
+  static int _calculateAQIFromPM25(double pm25) {
+    if (pm25 <= 12.0) {
+      return _linearScale(pm25, 0, 12.0, 0, 50);
+    } else if (pm25 <= 35.4) {
+      return _linearScale(pm25, 12.1, 35.4, 51, 100);
+    } else if (pm25 <= 55.4) {
+      return _linearScale(pm25, 35.5, 55.4, 101, 150);
+    } else if (pm25 <= 150.4) {
+      return _linearScale(pm25, 55.5, 150.4, 151, 200);
+    } else if (pm25 <= 250.4) {
+      return _linearScale(pm25, 150.5, 250.4, 201, 300);
+    } else if (pm25 <= 350.4) {
+      return _linearScale(pm25, 250.5, 350.4, 301, 400);
+    } else if (pm25 <= 500.4) {
+      return _linearScale(pm25, 350.5, 500.4, 401, 500);
+    } else {
+      return 500; // Maximum AQI
     }
   }
 
+  static int _linearScale(double value, double iLow, double iHigh, int aqiLow, int aqiHigh) {
+    return ((aqiHigh - aqiLow) / (iHigh - iLow) * (value - iLow) + aqiLow).round();
+  }
+
+  // Get AQI level description based on US EPA scale
+  static String _getAQILevelFromValue(int aqi) {
+    if (aqi <= 50) {
+      return 'Good';
+    } else if (aqi <= 100) {
+      return 'Moderate';
+    } else if (aqi <= 150) {
+      return 'Unhealthy for Sensitive';
+    } else if (aqi <= 200) {
+      return 'Unhealthy';
+    } else if (aqi <= 300) {
+      return 'Very Unhealthy';
+    } else {
+      return 'Hazardous';
+    }
+  }
+
+  // Get color based on US EPA AQI scale
   static Color getAQIColor(int aqi) {
-    switch (aqi) {
-      case 1:
-        return Colors.green;
-      case 2:
-        return Colors.lightGreen;
-      case 3:
-        return Colors.yellow;
-      case 4:
-        return Colors.orange;
-      case 5:
-        return Colors.red;
-      default:
-        return Colors.grey;
+    if (aqi <= 50) {
+      return Colors.green;
+    } else if (aqi <= 100) {
+      return Colors.yellow.shade700;
+    } else if (aqi <= 150) {
+      return Colors.orange;
+    } else if (aqi <= 200) {
+      return Colors.red;
+    } else if (aqi <= 300) {
+      return Colors.purple;
+    } else {
+      return Colors.brown.shade800;
     }
   }
 

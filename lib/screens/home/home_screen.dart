@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:hijri/hijri_calendar.dart';
@@ -18,11 +19,8 @@ import '../tasbih/tasbih_screen.dart';
 import '../dua/dua_category_screen.dart';
 import '../calendar/calendar_screen.dart';
 import '../names_of_allah/names_of_allah_screen.dart';
-import '../hadith/sahih_bukhari_screen.dart';
-import '../hadith/sahih_muslim_screen.dart';
-import '../hadith/sunan_nasai_screen.dart';
-import '../hadith/sunan_abu_dawud_screen.dart';
-import '../hadith/jami_tirmidhi_screen.dart';
+import '../hadith/hadith_books_screen.dart';
+import '../../providers/hadith_provider.dart';
 import '../zakat_calculator/zakat_calculator_screen.dart';
 import '../zakat_calculator/zakat_guide_screen.dart';
 // New feature imports
@@ -33,13 +31,8 @@ import '../hajj_guide/hajj_guide_screen.dart';
 import '../notifications/notifications_screen.dart';
 import '../fasting_times/fasting_times_screen.dart';
 import '../greeting_cards/greeting_cards_screen.dart';
-// Islamic Names imports
-import '../islamic_names/nabi_names_screen.dart';
-import '../islamic_names/sahaba_names_screen.dart';
-import '../islamic_names/khalifa_names_screen.dart';
-import '../islamic_names/twelve_imams_screen.dart';
-import '../islamic_names/panjatan_screen.dart';
-import '../islamic_names/ahlebait_screen.dart';
+// Islamic Names
+import '../islamic_names/islamic_names_list_screen.dart';
 // Basic Amal imports
 import '../basic_amal/namaz_guide_screen.dart';
 import '../basic_amal/nazar_karika_screen.dart';
@@ -59,6 +52,9 @@ import '../basic_amal/namaz_fazilat_screen.dart';
 import '../basic_amal/savab_fazilat_screen.dart';
 import '../basic_amal/zamzam_fazilat_screen.dart';
 import '../kalma/seven_kalma_screen.dart';
+import '../../core/services/azan_permission_service.dart';
+import '../../core/services/content_service.dart';
+import 'dart:io';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -74,11 +70,27 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isListening = false;
   WeatherData? _weatherData;
   bool _isLoadingWeather = true;
+  final ContentService _contentService = ContentService();
+
+  // PageView carousel state
+  final PageController _pageController = PageController();
+  Timer? _autoScrollTimer;
+  int _currentPage = 0;
+  static const int _totalPages = 3;
 
   @override
   void initState() {
     super.initState();
+    _loadLanguageNames();
+    _loadNotificationStrings();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Request all required permissions for Azan on Android
+      if (Platform.isAndroid) {
+        await _requestAzanPermissions();
+      }
+
+      if (!mounted) return;
+
       // Initialize prayer times
       final prayerProvider = context.read<PrayerProvider>();
       await prayerProvider.initialize();
@@ -109,6 +121,70 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     _initSpeech();
     _fetchWeather();
+    _startAutoScroll();
+  }
+
+  Future<void> _loadLanguageNames() async {
+    try {
+      final data = await _contentService.getLanguageNames();
+      if (data.isNotEmpty) {
+        LanguageHelpers.loadFromFirestore(data);
+      }
+    } catch (e) {
+      debugPrint('Home: Error loading language names: $e');
+    }
+  }
+
+  Future<void> _loadNotificationStrings() async {
+    try {
+      final prayerData = await _contentService.getNotificationStrings('prayer');
+      if (prayerData.isNotEmpty) {
+        PrayerNotificationStrings.loadFromFirestore(prayerData);
+      }
+      final reminderData = await _contentService.getNotificationStrings('reminders');
+      if (reminderData.isNotEmpty) {
+        IslamicReminderStrings.loadFromFirestore(reminderData);
+      }
+    } catch (e) {
+      debugPrint('Home: Error loading notification strings: $e');
+    }
+  }
+
+  /// Request all permissions required for background Azan
+  Future<void> _requestAzanPermissions() async {
+    // Check current permission status
+    final status = await AzanPermissionService.checkAllPermissions();
+    debugPrint('Azan Permissions: $status');
+
+    // Request notification permission first (Android 13+)
+    if (!status.notification && status.androidVersion >= 33) {
+      await AzanPermissionService.requestNotificationPermission();
+      await Future.delayed(const Duration(milliseconds: 1000));
+    }
+
+    // Request exact alarm permission (Android 12+)
+    if (!status.exactAlarm && status.androidVersion >= 31) {
+      await AzanPermissionService.requestExactAlarmPermission();
+    }
+
+    // Request battery optimization disable
+    if (!status.batteryOptimization) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      await AzanPermissionService.requestDisableBatteryOptimization();
+    }
+  }
+
+  void _startAutoScroll() {
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (_pageController.hasClients) {
+        final nextPage = (_currentPage + 1) % _totalPages;
+        _pageController.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
   Future<void> _fetchWeather() async {
@@ -167,6 +243,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _pageController.dispose();
+    _autoScrollTimer?.cancel();
     super.dispose();
   }
 
@@ -194,6 +272,25 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
     // DateTime.weekday returns 1 for Monday, 7 for Sunday
     return context.tr(days[now.weekday - 1]);
+  }
+
+  String _getTranslatedMonth(BuildContext context) {
+    final now = DateTime.now();
+    final months = [
+      'january',
+      'february',
+      'march',
+      'april',
+      'may',
+      'june',
+      'july',
+      'august',
+      'september',
+      'october',
+      'november',
+      'december',
+    ];
+    return context.tr(months[now.month - 1]);
   }
 
   String _getTranslatedWeatherDescription(
@@ -564,7 +661,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Colors.green,
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const NabiNamesScreen()),
+          MaterialPageRoute(builder: (context) => const IslamicNamesListScreen(collectionKey: 'prophets', assetFileName: 'prophets_names.json', titleKey: 'nabi_names', hasSearch: true, emptyStateKey: 'no_prophets_found', detailCategory: 'Prophet of Allah', detailIcon: Icons.person, detailColor: Colors.green)),
         ),
       ),
       FeatureGridItem(
@@ -574,7 +671,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Colors.blue,
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const SahabaNamesScreen()),
+          MaterialPageRoute(builder: (context) => const IslamicNamesListScreen(collectionKey: 'sahaba', assetFileName: 'sahaba_names.json', titleKey: 'sahaba_names', hasSearch: true, emptyStateKey: 'no_companions_found', detailCategory: 'Companion of Prophet ﷺ', detailIcon: Icons.people, detailColor: Colors.blue)),
         ),
       ),
       FeatureGridItem(
@@ -584,7 +681,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Colors.orange,
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const KhalifaNamesScreen()),
+          MaterialPageRoute(builder: (context) => const IslamicNamesListScreen(collectionKey: 'khalifas', assetFileName: 'khalifa_names.json', titleKey: 'khalifa_names', showPeriodInMeaning: true, detailCategory: 'Rightly Guided Caliph', detailIcon: Icons.account_balance, detailColor: Colors.orange)),
         ),
       ),
       FeatureGridItem(
@@ -594,7 +691,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Colors.purple,
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const TwelveImamsScreen()),
+          MaterialPageRoute(builder: (context) => const IslamicNamesListScreen(collectionKey: 'twelve_imams', assetFileName: 'twelve_imams_names.json', titleKey: 'twelve_imams', hasSearch: true, emptyStateKey: 'no_imams_found', showKunya: true, detailCategory: 'Imam of Ahlul Bayt', detailIcon: Icons.stars, detailColor: Colors.purple)),
         ),
       ),
       FeatureGridItem(
@@ -604,7 +701,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Colors.red,
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const PanjatanScreen()),
+          MaterialPageRoute(builder: (context) => const IslamicNamesListScreen(collectionKey: 'panjatan', assetFileName: 'panjatan_names.json', titleKey: 'panjatan', detailCategory: 'Panjatan Pak', detailIcon: Icons.favorite, detailColor: Colors.red)),
         ),
       ),
       FeatureGridItem(
@@ -614,7 +711,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Colors.teal,
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const AhlebaitScreen()),
+          MaterialPageRoute(builder: (context) => const IslamicNamesListScreen(collectionKey: 'ahlebait', assetFileName: 'ahlebait_names.json', titleKey: 'ahlebait', hasSearch: true, emptyStateKey: 'no_members_found', detailCategory: 'Ahlul Bayt', detailIcon: Icons.family_restroom, detailColor: Colors.teal)),
         ),
       ),
     ];
@@ -820,7 +917,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: AppColors.primary,
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const SahihBukhariScreen()),
+          MaterialPageRoute(builder: (context) => const HadithBooksScreen(collection: HadithCollection.bukhari, collectionKey: 'bukhari', titleKey: 'sahih_bukhari')),
         ),
       ),
       FeatureGridItem(
@@ -830,7 +927,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Colors.teal,
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const SahihMuslimScreen()),
+          MaterialPageRoute(builder: (context) => const HadithBooksScreen(collection: HadithCollection.muslim, collectionKey: 'muslim', titleKey: 'sahih_muslim')),
         ),
       ),
       FeatureGridItem(
@@ -840,7 +937,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Colors.indigo,
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const SunanNasaiScreen()),
+          MaterialPageRoute(builder: (context) => const HadithBooksScreen(collection: HadithCollection.nasai, collectionKey: 'nasai', titleKey: 'sunan_nasai')),
         ),
       ),
       FeatureGridItem(
@@ -850,7 +947,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Colors.brown,
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const SunanAbuDawudScreen()),
+          MaterialPageRoute(builder: (context) => const HadithBooksScreen(collection: HadithCollection.abudawud, collectionKey: 'abudawud', titleKey: 'sunan_abu_dawud')),
         ),
       ),
       FeatureGridItem(
@@ -860,7 +957,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Colors.deepPurple,
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const JamiTirmidhiScreen()),
+          MaterialPageRoute(builder: (context) => const HadithBooksScreen(collection: HadithCollection.tirmidhi, collectionKey: 'tirmidhi', titleKey: 'jami_tirmidhi')),
         ),
       ),
     ];
@@ -930,7 +1027,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final hijriDate = HijriCalendar.now();
-    final isDark = context.isDarkMode;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -1010,11 +1106,11 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Search Bar
-            _buildSearchBar(isDark),
+            _buildSearchBar(),
             context.responsive.vSpaceMedium,
 
-            // Header with greeting
-            _buildHeader(hijriDate, isDark),
+            // Header carousel with greeting cards
+            _buildHeaderCarousel(hijriDate),
             context.responsive.vSpaceLarge,
 
             // Search Results Section (only shown when searching)
@@ -1024,7 +1120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: context.tr('search_results'),
               ),
               context.responsive.vSpaceMedium,
-              _buildSearchResultsGrid(context, isDark),
+              _buildSearchResultsGrid(context),
               context.responsive.vSpaceLarge,
             ],
 
@@ -1034,7 +1130,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: context.tr('islamic_fast_halal'),
             ),
             context.responsive.vSpaceMedium,
-            _buildMoreFeaturesGrid(context, isDark),
+            _buildMoreFeaturesGrid(context),
             context.responsive.vSpaceLarge,
 
             // Islamic Books Section
@@ -1043,7 +1139,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: context.tr('islamic_books'),
             ),
             context.responsive.vSpaceMedium,
-            _buildIslamicBooksGrid(context, isDark),
+            _buildIslamicBooksGrid(context),
             context.responsive.vSpaceLarge,
 
             // Islamic Names Section
@@ -1052,7 +1148,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: context.tr('islamic_names'),
             ),
             context.responsive.vSpaceMedium,
-            _buildIslamicNamesGrid(context, isDark),
+            _buildIslamicNamesGrid(context),
             context.responsive.vSpaceLarge,
 
             // Islamic Ibadaat & Farz Section
@@ -1061,7 +1157,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: context.tr('islamic_ibadat_farz'),
             ),
             context.responsive.vSpaceMedium,
-            _buildIslamicIbadatFarzGrid(context, isDark),
+            _buildIslamicIbadatFarzGrid(context),
             context.responsive.vSpaceLarge,
 
             // Deen Ki Buniyadi Amal Section
@@ -1070,14 +1166,19 @@ class _HomeScreenState extends State<HomeScreen> {
               title: context.tr('deen_buniyadi_amal'),
             ),
             context.responsive.vSpaceMedium,
-            _buildBasicAmalGrid(context, isDark),
+            _buildBasicAmalGrid(context),
+            context.responsive.vSpaceLarge,
+
+            // Banner Ad at the end of content
+            const BannerAdWidget(),
+            context.responsive.vSpaceMedium,
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSearchBar(bool isDark) {
+  Widget _buildSearchBar() {
     final responsive = context.responsive;
     return Container(
       decoration: AppDecorations.searchBar(context),
@@ -1138,7 +1239,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 borderSide: BorderSide.none,
               ),
               filled: true,
-              fillColor: isDark ? AppColors.darkCard : Colors.white,
+              fillColor: Colors.white,
               contentPadding: responsive.paddingSymmetric(
                 horizontal: 16,
                 vertical: 14,
@@ -1156,7 +1257,7 @@ class _HomeScreenState extends State<HomeScreen> {
       width: responsive.spacing(44),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(3, (index) {
+        children: List.generate(2, (index) {
           return AnimatedContainer(
             duration: Duration(milliseconds: 300 + (index * 100)),
             curve: Curves.easeInOut,
@@ -1175,7 +1276,61 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHeader(HijriCalendar hijriDate, bool isDark) {
+  Widget _buildHeaderCarousel(HijriCalendar hijriDate) {
+    final responsive = context.responsive;
+    // Calculate card height based on weather data availability
+    final double cardHeight = _weatherData != null ? 220.0 : 155.0;
+
+    return Column(
+      children: [
+        SizedBox(
+          height: cardHeight,
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: _totalPages,
+            onPageChanged: (index) {
+              setState(() {
+                _currentPage = index;
+              });
+            },
+            itemBuilder: (context, index) {
+              switch (index) {
+                case 0:
+                  return _buildGreetingCard(hijriDate);
+                case 1:
+                  return _buildNextNamazCard();
+                case 2:
+                  return _buildAdCard(isActive: _currentPage == 2);
+                default:
+                  return _buildGreetingCard(hijriDate);
+              }
+            },
+          ),
+        ),
+        responsive.vSpaceSmall,
+        // Dot indicators
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(_totalPages, (index) {
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: responsive.paddingSymmetric(horizontal: 4),
+              width: _currentPage == index ? 24.0 : 8.0,
+              height: 8.0,
+              decoration: BoxDecoration(
+                color: _currentPage == index
+                    ? AppColors.primary
+                    : AppColors.primary.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(4.0),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGreetingCard(HijriCalendar hijriDate) {
     final responsive = context.responsive;
     return Container(
       padding: responsive.paddingAll(16),
@@ -1216,110 +1371,72 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           responsive.vSpaceMedium,
-          Wrap(
-            spacing: responsive.spaceSmall,
-            runSpacing: responsive.spaceSmall,
-            alignment: WrapAlignment.spaceBetween,
+          Row(
             children: [
-              // Hijri Date
-              Container(
-                padding: responsive.paddingSymmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: AppDecorations.primaryContainer(context),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.calendar_today_rounded,
-                      color: AppColors.primary,
-                      size: responsive.fontSize(12),
-                    ),
-                    responsive.hSpaceXSmall,
-                    Flexible(
-                      child: Text(
-                        '${_getTranslatedDay(context)}, ${hijriDate.hDay} ${_getTranslatedHijriMonth(context, hijriDate.longMonthName)} ${hijriDate.hYear}',
-                        style: AppTextStyles.caption(context).copyWith(
-                          color: isDark
-                              ? AppColors.darkTextPrimary
-                              : AppColors.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+              // Regular Date (Left)
+              Expanded(
+                child: Container(
+                  padding: responsive.paddingSymmetric(
+                    horizontal: 8,
+                    vertical: 6,
+                  ),
+                  decoration: AppDecorations.primaryContainer(context),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.calendar_today_rounded,
+                        color: AppColors.primary,
+                        size: responsive.fontSize(12),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              // Next Prayer Info
-              Consumer<PrayerProvider>(
-                builder: (context, prayerProvider, _) {
-                  if (prayerProvider.nextPrayer.isEmpty ||
-                      prayerProvider.todayPrayerTimes == null) {
-                    return const SizedBox.shrink();
-                  }
-
-                  final nextPrayerName = prayerProvider.nextPrayer;
-                  final prayerTimes = prayerProvider.todayPrayerTimes!;
-
-                  // Get the time for the next prayer
-                  String prayerTime = '';
-                  switch (nextPrayerName.toLowerCase()) {
-                    case 'fajr':
-                      prayerTime = prayerTimes.fajr;
-                      break;
-                    case 'dhuhr':
-                      prayerTime = prayerTimes.dhuhr;
-                      break;
-                    case 'asr':
-                      prayerTime = prayerTimes.asr;
-                      break;
-                    case 'maghrib':
-                      prayerTime = prayerTimes.maghrib;
-                      break;
-                    case 'isha':
-                      prayerTime = prayerTimes.isha;
-                      break;
-                    default:
-                      prayerTime = '';
-                  }
-
-                  final translatedPrayerName = context.tr(
-                    nextPrayerName.toLowerCase(),
-                  );
-
-                  return Container(
-                    padding: responsive.paddingSymmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: AppDecorations.primaryContainer(context),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.access_time,
-                          color: AppColors.primary,
-                          size: responsive.fontSize(12),
-                        ),
-                        responsive.hSpaceXSmall,
-                        Text(
-                          '$translatedPrayerName $prayerTime',
+                      responsive.hSpaceXSmall,
+                      Flexible(
+                        child: Text(
+                          '${_getTranslatedDay(context)}, ${DateTime.now().day} ${_getTranslatedMonth(context)}',
                           style: AppTextStyles.caption(context).copyWith(
-                            color: isDark
-                                ? AppColors.darkTextPrimary
-                                : AppColors.primary,
+                            color: AppColors.primary,
                             fontWeight: FontWeight.w600,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                    ),
-                  );
-                },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              responsive.hSpaceSmall,
+              // Hijri Date (Right)
+              Expanded(
+                child: Container(
+                  padding: responsive.paddingSymmetric(
+                    horizontal: 8,
+                    vertical: 6,
+                  ),
+                  decoration: AppDecorations.primaryContainer(context),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.mosque_rounded,
+                        color: AppColors.primary,
+                        size: responsive.fontSize(12),
+                      ),
+                      responsive.hSpaceXSmall,
+                      Flexible(
+                        child: Text(
+                          '${hijriDate.hDay} ${_getTranslatedHijriMonth(context, hijriDate.longMonthName)}',
+                          style: AppTextStyles.caption(context).copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
@@ -1336,9 +1453,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: responsive.paddingAll(8),
                     decoration: AppDecorations.chip(
                       context,
-                      color: isDark
-                          ? Colors.grey.shade800
-                          : AppColors.primary.withValues(alpha: 0.05),
+                      color: AppColors.primary.withValues(alpha: 0.05),
                       borderRadius: responsive.radiusMedium,
                     ),
                     child: Column(
@@ -1383,9 +1498,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Icon(
                                   Icons.water_drop,
                                   size: responsive.fontSize(12),
-                                  color: isDark
-                                      ? AppColors.darkTextSecondary
-                                      : AppColors.textSecondary,
+                                  color: AppColors.textSecondary,
                                 ),
                                 responsive.hSpaceXSmall,
                                 Text(
@@ -1399,9 +1512,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Icon(
                                   Icons.air,
                                   size: responsive.fontSize(12),
-                                  color: isDark
-                                      ? AppColors.darkTextSecondary
-                                      : AppColors.textSecondary,
+                                  color: AppColors.textSecondary,
                                 ),
                                 responsive.hSpaceXSmall,
                                 Text(
@@ -1423,11 +1534,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: responsive.paddingAll(8),
                     decoration: AppDecorations.chip(
                       context,
-                      color: isDark
-                          ? Colors.grey.shade800
-                          : WeatherService.getAQIColor(
-                              _weatherData!.aqi,
-                            ).withValues(alpha: 0.1),
+                      color: WeatherService.getAQIColor(
+                        _weatherData!.aqi,
+                      ).withValues(alpha: 0.1),
                       borderRadius: responsive.radiusMedium,
                     ),
                     child: Column(
@@ -1498,7 +1607,192 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSearchResultsGrid(BuildContext context, bool isDark) {
+  Widget _buildNextNamazCard() {
+    final responsive = context.responsive;
+    final double cardHeight = _weatherData != null ? 220.0 : 155.0;
+
+    return Consumer<PrayerProvider>(
+      builder: (context, prayerProvider, _) {
+        final nextPrayerName = prayerProvider.nextPrayer.toLowerCase();
+        final prayerTimes = prayerProvider.todayPrayerTimes;
+
+        // All 5 prayers with their names and icons
+        // On Friday, show Jummah instead of Dhuhr
+        final isFriday = DateTime.now().weekday == 5;
+        final prayers = [
+          {'name': 'fajr', 'icon': Icons.wb_twilight},
+          {
+            'name': isFriday ? 'jummah' : 'dhuhr',
+            'icon': isFriday ? Icons.mosque : Icons.wb_sunny,
+          },
+          {'name': 'asr', 'icon': Icons.sunny_snowing},
+          {'name': 'maghrib', 'icon': Icons.nightlight_round},
+          {'name': 'isha', 'icon': Icons.nights_stay},
+        ];
+
+        String getPrayerTime(String name) {
+          if (prayerTimes == null) return '--:--';
+          switch (name) {
+            case 'fajr':
+              return prayerTimes.fajr;
+            case 'dhuhr':
+            case 'jummah':
+              return prayerTimes.dhuhr;
+            case 'asr':
+              return prayerTimes.asr;
+            case 'maghrib':
+              return prayerTimes.maghrib;
+            case 'isha':
+              return prayerTimes.isha;
+            default:
+              return '--:--';
+          }
+        }
+
+        return Container(
+          height: cardHeight,
+          padding: responsive.paddingAll(12),
+          decoration: AppDecorations.card(context),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                children: [
+                  Container(
+                    padding: responsive.paddingAll(8),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.orange, Colors.orange.shade700],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(
+                        responsive.radiusMedium,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.mosque_rounded,
+                      color: Colors.white,
+                      size: responsive.iconSize(20),
+                    ),
+                  ),
+                  responsive.hSpaceSmall,
+                  Text(
+                    context.tr('prayer_times'),
+                    style: AppTextStyles.heading3(context),
+                  ),
+                ],
+              ),
+              responsive.vSpaceSmall,
+              // Prayer times list
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: prayers.map((prayer) {
+                    final name = prayer['name'] as String;
+                    final icon = prayer['icon'] as IconData;
+                    // On Friday, if next prayer is dhuhr, highlight jummah instead
+                    final isNext =
+                        name == nextPrayerName ||
+                        (isFriday &&
+                            name == 'jummah' &&
+                            nextPrayerName == 'dhuhr');
+                    final time = getPrayerTime(name);
+
+                    return Expanded(
+                      child: Container(
+                        margin: responsive.paddingSymmetric(horizontal: 2),
+                        padding: responsive.paddingSymmetric(
+                          vertical: 8,
+                          horizontal: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isNext
+                              ? AppColors.primary
+                              : AppColors.primary.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(
+                            responsive.radiusMedium,
+                          ),
+                          border: isNext
+                              ? null
+                              : Border.all(
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.1,
+                                  ),
+                                ),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Icon at top
+                            Icon(
+                              icon,
+                              size: responsive.iconSize(isNext ? 24 : 20),
+                              color: isNext ? Colors.white : AppColors.primary,
+                            ),
+                            // Name in center
+                            Text(
+                              context.tr(name),
+                              style: AppTextStyles.caption(context).copyWith(
+                                color: isNext
+                                    ? Colors.white
+                                    : AppColors.textPrimary,
+                                fontWeight: isNext
+                                    ? FontWeight.bold
+                                    : FontWeight.w500,
+                                fontSize: responsive.fontSize(11),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            // Time at bottom
+                            Text(
+                              time,
+                              style: AppTextStyles.bodySmall(context).copyWith(
+                                color: isNext
+                                    ? Colors.white
+                                    : AppColors.textPrimary,
+                                fontWeight: isNext
+                                    ? FontWeight.bold
+                                    : FontWeight.w600,
+                                fontSize: responsive.fontSize(12),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAdCard({required bool isActive}) {
+    final double cardHeight = _weatherData != null ? 220.0 : 155.0;
+
+    // Full height/width ad card without header
+    return isActive
+        ? BannerAdWidget(key: const ValueKey('carousel_ad'), height: cardHeight)
+        : Container(
+            height: cardHeight,
+            decoration: AppDecorations.card(context),
+            child: Center(
+              child: Icon(
+                Icons.ads_click,
+                size: 40,
+                color: AppColors.primary.withValues(alpha: 0.3),
+              ),
+            ),
+          );
+  }
+
+  Widget _buildSearchResultsGrid(BuildContext context) {
     final matchedFeatures = _getAllMatchedFeatures(context);
 
     // Show "no results found" message if search returns empty
@@ -1512,31 +1806,31 @@ class _HomeScreenState extends State<HomeScreen> {
     return FeatureGridBuilder(items: matchedFeatures);
   }
 
-  Widget _buildMoreFeaturesGrid(BuildContext context, bool isDark) {
+  Widget _buildMoreFeaturesGrid(BuildContext context) {
     final features = _getMoreFeaturesList(context);
     final filteredFeatures = _filterFeatures(features);
     return FeatureGridBuilder(items: filteredFeatures);
   }
 
-  Widget _buildIslamicNamesGrid(BuildContext context, bool isDark) {
+  Widget _buildIslamicNamesGrid(BuildContext context) {
     final features = _getIslamicNamesList(context);
     final filteredFeatures = _filterFeatures(features);
     return FeatureGridBuilder(items: filteredFeatures);
   }
 
-  Widget _buildBasicAmalGrid(BuildContext context, bool isDark) {
+  Widget _buildBasicAmalGrid(BuildContext context) {
     final features = _getBasicAmalList(context);
     final filteredFeatures = _filterFeatures(features);
     return FeatureGridBuilder(items: filteredFeatures);
   }
 
-  Widget _buildIslamicBooksGrid(BuildContext context, bool isDark) {
+  Widget _buildIslamicBooksGrid(BuildContext context) {
     final features = _getIslamicBooksList(context);
     final filteredFeatures = _filterFeatures(features);
     return FeatureGridBuilder(items: filteredFeatures);
   }
 
-  Widget _buildIslamicIbadatFarzGrid(BuildContext context, bool isDark) {
+  Widget _buildIslamicIbadatFarzGrid(BuildContext context) {
     final features = _getMainFeaturesList(context);
     final filteredFeatures = _filterFeatures(features);
     return FeatureGridBuilder(items: filteredFeatures);
