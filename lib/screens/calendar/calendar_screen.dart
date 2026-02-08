@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
+import '../../core/services/hijri_date_service.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/app_utils.dart';
 import '../../core/services/content_service.dart';
@@ -18,8 +19,8 @@ class CalendarScreen extends StatefulWidget {
 class _CalendarScreenState extends State<CalendarScreen> {
   late HijriCalendar _selectedHijriDate;
   late DateTime _selectedGregorianDate;
-  int _currentHijriMonth = HijriCalendar.now().hMonth;
-  int _currentHijriYear = HijriCalendar.now().hYear;
+  int _currentHijriMonth = HijriDateService.instance.getHijriNow().hMonth;
+  int _currentHijriYear = HijriDateService.instance.getHijriNow().hYear;
   final ContentService _contentService = ContentService();
   bool _isContentLoading = true;
   CalendarScreenContentFirestore? _calendarContent;
@@ -27,7 +28,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedHijriDate = HijriCalendar.now();
+    _selectedHijriDate = HijriDateService.instance.getHijriNow();
     _selectedGregorianDate = DateTime.now();
     _loadCalendarContent();
   }
@@ -131,7 +132,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget _buildTodayCard() {
     final responsive = ResponsiveUtils(context);
     final langCode = context.watch<LanguageProvider>().languageCode;
-    final today = HijriCalendar.now();
+    final today = HijriDateService.instance.getHijriNow();
     final gregorianToday = DateTime.now();
 
     return Container(
@@ -262,7 +263,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
     final startWeekday = gregorianFirst.weekday % 7; // Sunday = 0
 
-    final today = HijriCalendar.now();
+    final today = HijriDateService.instance.getHijriNow();
     final isCurrentMonth =
         today.hMonth == _currentHijriMonth && today.hYear == _currentHijriYear;
 

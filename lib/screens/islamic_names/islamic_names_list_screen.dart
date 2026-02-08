@@ -9,7 +9,6 @@ import '../../data/models/firestore_models.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/common/search_bar_widget.dart';
 import '../../widgets/common/banner_ad_widget.dart';
-import '../../widgets/common/native_ad_widget.dart';
 import '../../core/utils/ad_list_helper.dart';
 import '../../core/utils/ad_navigation.dart';
 import 'islamic_name_detail_screen.dart';
@@ -193,7 +192,6 @@ class _IslamicNamesListScreenState extends State<IslamicNamesListScreen> {
                 controller: _searchController,
                 hintText: context.tr('search_by_name_meaning'),
                 onClear: () => _searchController.clear(),
-                enableVoiceSearch: true,
               ),
             ),
           if (widget.hasSearch && _searchController.text.isNotEmpty)
@@ -237,7 +235,7 @@ class _IslamicNamesListScreenState extends State<IslamicNamesListScreen> {
                       if (AdListHelper.isAdPosition(index)) {
                         return const Padding(
                           padding: EdgeInsets.only(bottom: 10),
-                          child: NativeAdWidget(),
+                          child: BannerAdWidget(height: 250),
                         );
                       }
                       final dataIndex = AdListHelper.dataIndex(index);

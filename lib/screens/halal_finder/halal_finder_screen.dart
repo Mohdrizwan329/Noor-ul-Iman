@@ -9,6 +9,7 @@ import '../../core/services/location_service.dart';
 import '../../core/utils/app_utils.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class HalalFinderScreen extends StatefulWidget {
   const HalalFinderScreen({super.key});
@@ -1040,9 +1041,16 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
             onRefresh: _refreshData,
             child: ListView.builder(
               padding: responsive.paddingSymmetric(horizontal: 16),
-              itemCount: places.length,
+              itemCount: AdListHelper.totalCount(places.length),
               itemBuilder: (context, index) {
-                return _buildPlaceCard(places[index], index + 1);
+                if (AdListHelper.isAdPosition(index)) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: BannerAdWidget(height: 250),
+                  );
+                }
+                final dataIdx = AdListHelper.dataIndex(index);
+                return _buildPlaceCard(places[dataIdx], dataIdx + 1);
               },
             ),
           ),

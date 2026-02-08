@@ -63,6 +63,8 @@ class ContentService {
   static const String _privacyPolicyScreenContentCacheKey =
       'privacy_policy_screen_content_cache';
   static const String _uiTranslationsCacheKey = 'ui_translations_cache';
+  static const String _homeScreenContentCacheKey =
+      'home_screen_content_cache';
 
   // Hive box for content caching
   Box<String>? _contentBox;
@@ -104,6 +106,12 @@ class ContentService {
   AboutScreenContentFirestore? _cachedAboutScreenContent;
   PrivacyPolicyScreenContentFirestore? _cachedPrivacyPolicyScreenContent;
   UITranslationsFirestore? _cachedUITranslations;
+  FastingTimesContentFirestore? _cachedFastingTimesContent;
+  HomeScreenContentFirestore? _cachedHomeScreenContent;
+
+  // Cache key for fasting times content
+  static const String _fastingTimesContentCacheKey =
+      'fasting_times_content_cache';
 
   /// Initialize the service and Hive box
   Future<void> initialize() async {
@@ -957,6 +965,46 @@ class ContentService {
     return result;
   }
 
+  // ==================== FASTING TIMES CONTENT ====================
+
+  /// Fetch fasting times screen content (all data: duas, virtues, rules, months in 4 languages)
+  Future<FastingTimesContentFirestore?> getFastingTimesContent() async {
+    if (_cachedFastingTimesContent != null) return _cachedFastingTimesContent;
+
+    final result = await _fetchWithCache<FastingTimesContentFirestore?>(
+      cacheKey: _fastingTimesContentCacheKey,
+      contentType: 'fasting_times_content',
+      fetchFromFirestore: () async {
+        final doc = await _firestore
+            .collection('fasting_times_content')
+            .doc('data')
+            .get();
+
+        if (!doc.exists) return null;
+        return FastingTimesContentFirestore.fromJson(doc.data()!);
+      },
+      fromCache: (cached) {
+        final decoded = jsonDecode(cached) as Map<String, dynamic>;
+        return FastingTimesContentFirestore.fromJson(decoded);
+      },
+      toCache: (data) => data != null ? jsonEncode(data.toJson()) : '{}',
+      fallback: null,
+    );
+
+    if (result == null) {
+      final fallback = await _loadFromAssetFallback<FastingTimesContentFirestore>(
+        assetPath: 'assets/data/firebase/fasting_times_content.json',
+        fromJson: FastingTimesContentFirestore.fromJson,
+        cacheKey: _fastingTimesContentCacheKey,
+      );
+      _cachedFastingTimesContent = fallback;
+      return fallback;
+    }
+
+    _cachedFastingTimesContent = result;
+    return result;
+  }
+
   // ==================== FASTING DATA ====================
 
   /// Fetch fasting duas
@@ -1267,6 +1315,8 @@ class ContentService {
     _cachedZakatGuideScreenContent = null;
     _cachedQuranScreenContent = null;
     _cachedSurahContent = null;
+    _cachedFastingTimesContent = null;
+    _cachedHomeScreenContent = null;
 
     // Clear Hive cache
     await _contentBox?.clear();
@@ -1423,6 +1473,14 @@ class ContentService {
         for (final key in surahKeys ?? []) {
           await _contentBox?.delete(key);
         }
+        break;
+      case 'fasting_times_content':
+        _cachedFastingTimesContent = null;
+        await _contentBox?.delete(_fastingTimesContentCacheKey);
+        break;
+      case 'home_screen_content':
+        _cachedHomeScreenContent = null;
+        await _contentBox?.delete(_homeScreenContentCacheKey);
         break;
     }
 
@@ -1973,6 +2031,91 @@ class ContentService {
     await getUITranslations();
   }
 
+  // ==================== HOME SCREEN CONTENT ====================
+
+  /// Fetch home screen content (sections, features, maps in 4 languages)
+  Future<HomeScreenContentFirestore?> getHomeScreenContent() async {
+    if (_cachedHomeScreenContent != null) return _cachedHomeScreenContent;
+
+    final result = await _fetchWithCache<HomeScreenContentFirestore?>(
+      cacheKey: _homeScreenContentCacheKey,
+      contentType: 'home_screen_content',
+      fetchFromFirestore: () async {
+        final doc = await _firestore
+            .collection('home_screen_content')
+            .doc('data')
+            .get();
+
+        if (!doc.exists) return null;
+        return HomeScreenContentFirestore.fromJson(doc.data()!);
+      },
+      fromCache: (cached) {
+        final decoded = jsonDecode(cached) as Map<String, dynamic>;
+        return HomeScreenContentFirestore.fromJson(decoded);
+      },
+      toCache: (data) => data != null ? jsonEncode(data.toJson()) : '{}',
+      fallback: null,
+    );
+
+    if (result == null) {
+      final fallback = await _loadFromAssetFallback<HomeScreenContentFirestore>(
+        assetPath: 'assets/data/firebase/home_screen_content.json',
+        fromJson: HomeScreenContentFirestore.fromJson,
+        cacheKey: _homeScreenContentCacheKey,
+      );
+      _cachedHomeScreenContent = fallback;
+      return fallback;
+    }
+
+    _cachedHomeScreenContent = result;
+    return result;
+  }
+
+  // ==================== ISLAMIC EVENTS ====================
+
+  List<Map<String, dynamic>>? _cachedIslamicEvents;
+
+  /// Fetch Islamic events from Firestore, falling back to local JSON asset
+  Future<List<Map<String, dynamic>>> getIslamicEvents() async {
+    if (_cachedIslamicEvents != null) return _cachedIslamicEvents!;
+
+    try {
+      final doc = await _firestore
+          .collection('app_data')
+          .doc('islamic_events')
+          .get();
+
+      if (doc.exists && doc.data() != null) {
+        final events = (doc.data()!['events'] as List<dynamic>? ?? [])
+            .map((e) => e as Map<String, dynamic>)
+            .toList();
+        if (events.isNotEmpty) {
+          _cachedIslamicEvents = events;
+          return events;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching Islamic events from Firestore: $e');
+    }
+
+    // Fallback to local JSON asset
+    try {
+      final jsonString = await rootBundle.loadString(
+        'assets/data/firebase/islamic_events.json',
+      );
+      final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
+      final events = (jsonData['events'] as List<dynamic>? ?? [])
+          .map((e) => e as Map<String, dynamic>)
+          .toList();
+      _cachedIslamicEvents = events;
+      return events;
+    } catch (e) {
+      debugPrint('Error loading local Islamic events: $e');
+    }
+
+    return [];
+  }
+
   /// Clear all cached data
   void clearRamadanDuasCache() {
     _cachedRamadanDuas = null;
@@ -2013,6 +2156,8 @@ class ContentService {
     _cachedAboutScreenContent = null;
     _cachedPrivacyPolicyScreenContent = null;
     _cachedUITranslations = null;
+    _cachedFastingTimesContent = null;
+    _cachedHomeScreenContent = null;
     _cachedVersions = null;
     await _contentBox?.clear();
     debugPrint('All cache cleared');

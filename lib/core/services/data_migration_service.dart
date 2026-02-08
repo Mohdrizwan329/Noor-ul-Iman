@@ -216,6 +216,18 @@ class DataMigrationService {
       onProgress?.call('Migrating quran screen content...');
       result.quranScreenContentMigrated = await migrateQuranScreenContent();
 
+      // 28. Migrate UI Translations
+      onProgress?.call('Migrating UI translations...');
+      result.uiTranslationsMigrated = await migrateUITranslations();
+
+      // 29. Migrate Islamic Events
+      onProgress?.call('Migrating Islamic events...');
+      result.islamicEventsMigrated = await migrateIslamicEvents();
+
+      // 30. Migrate Fasting Times Content
+      onProgress?.call('Migrating fasting times content...');
+      result.fastingTimesContentMigrated = await migrateFastingTimesContent();
+
       result.success = true;
       onProgress?.call('Migration completed successfully!');
     } catch (e) {
@@ -258,6 +270,9 @@ class DataMigrationService {
       'zakat_calculator_content_version': 1,
       'zakat_guide_screen_content_version': 1,
       'quran_screen_content_version': 1,
+      'ui_translations_version': 2,
+      'fasting_times_content_version': 1,
+      'islamic_events_version': 1,
       'last_updated': FieldValue.serverTimestamp(),
     });
   }
@@ -1335,67 +1350,53 @@ class DataMigrationService {
 
   /// Migrate fasting data (fasting duas) to Firestore
   Future<int> migrateFastingData() async {
-    final duas = getHardcodedFastingDuas();
-
-    final duaData = duas
-        .map(
-          (d) {
-            final title = d['title'] as Map<String, dynamic>?;
-            return {
-              'title_key': d['titleKey'] ?? '',
-              'title': {
-                'en': title?['en'] ?? d['titleKey'] ?? '',
-                'ur': title?['ur'] ?? '',
-                'hi': title?['hi'] ?? '',
-                'ar': title?['ar'] ?? '',
-              },
-              'arabic': d['arabic'] ?? '',
-              'transliteration': d['transliteration'] ?? '',
-              'translation': {
-                'en': d['english'] ?? '',
-                'ur': d['urdu'] ?? '',
-                'hi': d['hindi'] ?? '',
-                'ar': d['ar'] ?? '',
-              },
-              'color': d['color'] ?? '#000000',
-              'reference': d['reference'],
-            };
-          },
-        )
-        .toList();
+    final jsonString = await rootBundle.loadString('assets/data/firebase/fasting_times_content.json');
+    final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
+    final duas = jsonData['duas'] as List<dynamic>;
 
     await _firestore.collection('fasting_data').doc('fasting_duas').set({
-      'duas': duaData,
+      'duas': duas,
     });
 
     debugPrint('Migrated ${duas.length} fasting duas');
     return duas.length;
   }
 
-  /// Migrate fasting virtues to Firestore (with 4-language translations)
+  /// Migrate fasting virtues to Firestore (from JSON asset)
   Future<int> migrateFastingVirtues() async {
-    final virtues = getHardcodedFastingVirtues();
-    await _firestore.collection('fasting_data').doc('fasting_virtues').set({
-      'virtues': virtues,
-    });
-    debugPrint('Migrated ${virtues.length} fasting virtues');
-    return virtues.length;
+    final jsonString = await rootBundle.loadString('assets/data/firebase/fasting_times_content.json');
+    final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
+    final virtues = jsonData['virtues'] as Map<String, dynamic>;
+
+    await _firestore.collection('fasting_data').doc('fasting_virtues').set(virtues);
+
+    final items = virtues['items'] as List<dynamic>;
+    debugPrint('Migrated ${items.length} fasting virtues');
+    return items.length;
   }
 
-  /// Migrate fasting rules to Firestore (with 4-language translations)
+  /// Migrate fasting rules to Firestore (from JSON asset)
   Future<int> migrateFastingRules() async {
-    final data = getHardcodedFastingRules();
-    await _firestore.collection('fasting_data').doc('fasting_rules').set(data);
-    final count = (data['breaks_fast'] as List).length + (data['does_not_break_fast'] as List).length;
+    final jsonString = await rootBundle.loadString('assets/data/firebase/fasting_times_content.json');
+    final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
+    final rules = jsonData['rules'] as Map<String, dynamic>;
+
+    await _firestore.collection('fasting_data').doc('fasting_rules').set(rules);
+
+    final count = (rules['breaks_fast'] as List).length + (rules['does_not_break_fast'] as List).length;
     debugPrint('Migrated $count fasting rules');
     return count;
   }
 
-  /// Migrate Islamic months fasting chart to Firestore (with 4-language translations)
+  /// Migrate Islamic months fasting chart to Firestore (from JSON asset)
   Future<int> migrateIslamicMonths() async {
-    final data = getHardcodedIslamicMonthsData();
-    await _firestore.collection('fasting_data').doc('islamic_months').set(data);
-    final count = (data['months'] as List).length;
+    final jsonString = await rootBundle.loadString('assets/data/firebase/fasting_times_content.json');
+    final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
+    final islamicMonths = jsonData['islamic_months'] as Map<String, dynamic>;
+
+    await _firestore.collection('fasting_data').doc('islamic_months').set(islamicMonths);
+
+    final count = (islamicMonths['months'] as List).length;
     debugPrint('Migrated $count Islamic months data');
     return count;
   }
@@ -1629,6 +1630,42 @@ class DataMigrationService {
 
     return true;
   }
+
+  /// Migrate Islamic events from JSON asset to Firestore
+  Future<bool> migrateIslamicEvents() async {
+    final jsonString =
+        await rootBundle.loadString('assets/data/firebase/islamic_events.json');
+    final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
+
+    await _firestore.collection('app_data').doc('islamic_events').set(jsonData);
+
+    debugPrint('Islamic events migrated successfully');
+    return true;
+  }
+
+  /// Migrate fasting times screen content from JSON asset to Firestore
+  Future<bool> migrateFastingTimesContent() async {
+    final jsonString =
+        await rootBundle.loadString('assets/data/firebase/fasting_times_content.json');
+    final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
+
+    await _firestore.collection('fasting_times_content').doc('data').set(jsonData);
+
+    debugPrint('Fasting times content migrated successfully');
+    return true;
+  }
+
+  /// Migrate UI translations from JSON asset to Firestore
+  Future<bool> migrateUITranslations() async {
+    final jsonString =
+        await rootBundle.loadString('assets/data/firebase/ui_translations.json');
+    final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
+
+    await _firestore.collection('ui_translations').doc('all_translations').set(jsonData);
+
+    debugPrint('UI translations migrated successfully');
+    return true;
+  }
 }
 
 /// Result of migration operation
@@ -1661,6 +1698,9 @@ class MigrationResult {
   bool zakatCalculatorContentMigrated = false;
   bool zakatGuideScreenContentMigrated = false;
   bool quranScreenContentMigrated = false;
+  bool uiTranslationsMigrated = false;
+  bool islamicEventsMigrated = false;
+  bool fastingTimesContentMigrated = false;
   String? error;
 
   @override
@@ -1695,6 +1735,9 @@ Migration completed successfully!
 - Zakat Calculator Content: ${zakatCalculatorContentMigrated ? 'Migrated' : 'Skipped'}
 - Zakat Guide Screen Content: ${zakatGuideScreenContentMigrated ? 'Migrated' : 'Skipped'}
 - Quran Screen Content: ${quranScreenContentMigrated ? 'Migrated' : 'Skipped'}
+- UI Translations: ${uiTranslationsMigrated ? 'Migrated' : 'Skipped'}
+- Islamic Events: ${islamicEventsMigrated ? 'Migrated' : 'Skipped'}
+- Fasting Times Content: ${fastingTimesContentMigrated ? 'Migrated' : 'Skipped'}
 ''';
   }
 }
@@ -2447,7 +2490,12 @@ List<Map<String, dynamic>> getHardcodedFastingDuas() => [
       'urdu': 'پیاس چلی گئی، رگیں تر ہوگئیں، اور ان شاءاللہ اجر ثابت ہوگیا۔',
       'ar': 'ذهب الظمأ وابتلت العروق وثبت الأجر إن شاء الله.',
       'color': '#00897B',
-      'reference': 'Abu Dawud',
+      'reference': {
+        'en': 'Abu Dawud',
+        'ur': 'ابو داؤد',
+        'hi': 'अबू दाऊद',
+        'ar': 'أبو داود',
+      },
     },
     {
       'titleKey': 'duaForFastingPerson',
@@ -2464,7 +2512,12 @@ List<Map<String, dynamic>> getHardcodedFastingDuas() => [
       'urdu': 'تمہارے یہاں روزہ داروں نے افطار کیا، اور تمہارا کھانا نیک لوگوں نے کھایا، اور فرشتوں نے تم پر درود بھیجا۔',
       'ar': 'أفطر عندكم الصائمون وأكل طعامكم الأبرار وصلت عليكم الملائكة.',
       'color': '#5E35B1',
-      'reference': 'Abu Dawud, Ibn Majah',
+      'reference': {
+        'en': 'Abu Dawud, Ibn Majah',
+        'ur': 'ابو داؤد، ابن ماجہ',
+        'hi': 'अबू दाऊद, इब्ने माजाह',
+        'ar': 'أبو داود، ابن ماجه',
+      },
     },
     {
       'titleKey': 'duaAfterCompletingFast',
@@ -2481,7 +2534,12 @@ List<Map<String, dynamic>> getHardcodedFastingDuas() => [
       'urdu': 'اے اللہ! میں تجھ سے تیری اس رحمت کے وسیلے سے جو ہر چیز کو گھیرے ہوئے ہے، دعا کرتا ہوں کہ تو مجھے معاف کردے۔',
       'ar': 'اللهم إني أسألك برحمتك التي وسعت كل شيء أن تغفر لي.',
       'color': '#D84315',
-      'reference': 'Ibn Majah',
+      'reference': {
+        'en': 'Ibn Majah',
+        'ur': 'ابن ماجہ',
+        'hi': 'इब्ने माजाह',
+        'ar': 'ابن ماجه',
+      },
     },
     {
       'titleKey': 'duaForSeeingMoon',
@@ -2498,7 +2556,12 @@ List<Map<String, dynamic>> getHardcodedFastingDuas() => [
       'urdu': 'اے اللہ! اس چاند کو ہم پر برکت، ایمان، سلامتی اور اسلام کے ساتھ نکال۔ میرا اور تیرا رب اللہ ہے۔',
       'ar': 'اللهم أهلّه علينا باليمن والإيمان والسلامة والإسلام ربي وربك الله.',
       'color': '#1565C0',
-      'reference': 'Tirmidhi',
+      'reference': {
+        'en': 'Tirmidhi',
+        'ur': 'ترمذی',
+        'hi': 'तिर्मिज़ी',
+        'ar': 'الترمذي',
+      },
     },
   ];
 
@@ -2518,7 +2581,12 @@ List<Map<String, dynamic>> getHardcodedFastingVirtues() => [
         'hi': 'जन्नत में एक दरवाज़ा है जिसे रय्यान कहते हैं, उससे सिर्फ़ रोज़ेदार दाखिल होंगे।',
         'ar': 'في الجنة باب يقال له الريان، يدخل منه الصائمون.',
       },
-      'reference': 'Bukhari & Muslim',
+      'reference': {
+        'en': 'Bukhari & Muslim',
+        'ur': 'بخاری و مسلم',
+        'hi': 'बुखारी व मुस्लिम',
+        'ar': 'البخاري ومسلم',
+      },
     },
     {
       'icon': 'shield',
@@ -2534,7 +2602,12 @@ List<Map<String, dynamic>> getHardcodedFastingVirtues() => [
         'hi': 'रोज़ा जहन्नम से बचाव की ढाल है, जैसे जंग में ढाल हिफ़ाज़त करती है।',
         'ar': 'الصيام جُنّة من النار، كما يقي أحدكم درعه في القتال.',
       },
-      'reference': 'Ahmad, Nasai',
+      'reference': {
+        'en': 'Ahmad, Nasai',
+        'ur': 'احمد، نسائی',
+        'hi': 'अहमद, नसई',
+        'ar': 'أحمد، النسائي',
+      },
     },
     {
       'icon': 'favorite',
@@ -2550,7 +2623,12 @@ List<Map<String, dynamic>> getHardcodedFastingVirtues() => [
         'hi': 'रोज़ेदार के मुंह की बू अल्लाह के नज़दीक मुश्क से ज़्यादा पाकीज़ा है।',
         'ar': 'لخلوف فم الصائم أطيب عند الله من ريح المسك.',
       },
-      'reference': 'Bukhari & Muslim',
+      'reference': {
+        'en': 'Bukhari & Muslim',
+        'ur': 'بخاری و مسلم',
+        'hi': 'बुखारी व मुस्लिम',
+        'ar': 'البخاري ومسلم',
+      },
     },
     {
       'icon': 'celebration',
@@ -2566,7 +2644,12 @@ List<Map<String, dynamic>> getHardcodedFastingVirtues() => [
         'hi': 'रोज़ेदार को दो खुशियां हैं: इफ़्तार के वक़्त और अपने रब से मिलने के वक़्त।',
         'ar': 'للصائم فرحتان: فرحة عند فطره، وفرحة عند لقاء ربه.',
       },
-      'reference': 'Bukhari & Muslim',
+      'reference': {
+        'en': 'Bukhari & Muslim',
+        'ur': 'بخاری و مسلم',
+        'hi': 'बुखारी व मुस्लिम',
+        'ar': 'البخاري ومسلم',
+      },
     },
     {
       'icon': 'handshake',
@@ -2582,7 +2665,12 @@ List<Map<String, dynamic>> getHardcodedFastingVirtues() => [
         'hi': 'तीन दुआएं रद्द नहीं होतीं: रोज़ेदार की दुआ जब तक इफ़्तार न करे।',
         'ar': 'ثلاث دعوات لا ترد: دعوة الصائم حتى يفطر.',
       },
-      'reference': 'Tirmidhi, Ibn Majah',
+      'reference': {
+        'en': 'Tirmidhi, Ibn Majah',
+        'ur': 'ترمذی، ابن ماجہ',
+        'hi': 'तिर्मिज़ी, इब्ने माजाह',
+        'ar': 'الترمذي، ابن ماجه',
+      },
     },
   ];
 

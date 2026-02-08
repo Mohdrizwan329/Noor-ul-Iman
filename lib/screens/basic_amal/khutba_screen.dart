@@ -4,6 +4,7 @@ import '../../core/utils/app_utils.dart';
 import 'basic_amal_detail_screen.dart';
 import '../../core/utils/ad_navigation.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 import '../../core/services/content_service.dart';
 import '../../core/utils/icon_color_helpers.dart';
 
@@ -99,10 +100,17 @@ class _KhutbaScreenState extends State<KhutbaScreen> {
                       ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _allKhutbaTypes.length,
-                        itemBuilder: (context, index) => _buildKhutbaCard(
-                          _allKhutbaTypes[index],
-                        ),
+                        itemCount: AdListHelper.totalCount(_allKhutbaTypes.length),
+                        itemBuilder: (context, index) {
+                          if (AdListHelper.isAdPosition(index)) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: BannerAdWidget(height: 250),
+                            );
+                          }
+                          final dataIdx = AdListHelper.dataIndex(index);
+                          return _buildKhutbaCard(_allKhutbaTypes[dataIdx]);
+                        },
                       ),
                     ],
                   ),

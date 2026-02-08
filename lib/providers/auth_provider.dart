@@ -131,6 +131,7 @@ class AuthProvider with ChangeNotifier {
         _userModel = UserModel.fromFirebaseUser(_firebaseUser!);
       }
     }
+    notifyListeners();
   }
 
   // Sync user to Firestore

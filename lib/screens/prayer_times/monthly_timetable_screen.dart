@@ -9,6 +9,7 @@ import '../../providers/prayer_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../data/models/prayer_time_model.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class MonthlyTimetableScreen extends StatefulWidget {
   const MonthlyTimetableScreen({super.key});
@@ -222,9 +223,16 @@ class _MonthlyTimetableScreenState extends State<MonthlyTimetableScreen> {
                       }
 
                       return ListView.builder(
-                        itemCount: prayerTimes.length,
+                        itemCount: AdListHelper.totalCount(prayerTimes.length),
                         itemBuilder: (context, index) {
-                          return _buildDayRow(context, prayerTimes[index], index);
+                          if (AdListHelper.isAdPosition(index)) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: BannerAdWidget(height: 250),
+                            );
+                          }
+                          final dataIdx = AdListHelper.dataIndex(index);
+                          return _buildDayRow(context, prayerTimes[dataIdx], dataIdx);
                         },
                       );
                     },

@@ -8,7 +8,6 @@ import '../../data/models/surah_model.dart';
 import '../../data/models/firestore_models.dart';
 import '../../widgets/common/search_bar_widget.dart';
 import 'juz_detail_screen.dart';
-import '../../core/utils/ad_navigation.dart';
 import '../../core/services/content_service.dart';
 
 class QuranScreen extends StatefulWidget {
@@ -52,31 +51,16 @@ class _QuranScreenState extends State<QuranScreen> {
     super.dispose();
   }
 
-  // Get Surah name based on language
-  String _getSurahName(int surahNumber, QuranLanguage language) {
+  // Get Surah name based on app language
+  String _getSurahName(int surahNumber, String langCode) {
     if (_quranContent == null) return 'Surah $surahNumber';
-    final langCode = _langCodeFromQuranLanguage(language);
     return _quranContent!.getSurahName(surahNumber, langCode);
   }
 
-  // Get Para name based on language
-  String _getParaName(int paraNumber, QuranLanguage language) {
+  // Get Para name based on app language
+  String _getParaName(int paraNumber, String langCode) {
     if (_quranContent == null) return 'Para $paraNumber';
-    final langCode = _langCodeFromQuranLanguage(language);
     return _quranContent!.getParaName(paraNumber, langCode);
-  }
-
-  String _langCodeFromQuranLanguage(QuranLanguage language) {
-    switch (language) {
-      case QuranLanguage.hindi:
-        return 'hi';
-      case QuranLanguage.urdu:
-        return 'ur';
-      case QuranLanguage.arabic:
-        return 'ar';
-      default:
-        return 'en';
-    }
   }
 
   List<JuzInfo> _getFilteredJuz(List<JuzInfo> juzList, QuranProvider provider) {
@@ -185,7 +169,6 @@ class _QuranScreenState extends State<QuranScreen> {
                             _searchQuery = '';
                           });
                         },
-                        enableVoiceSearch: true,
                       ),
                     ),
                   Expanded(
@@ -230,12 +213,10 @@ class _QuranScreenState extends State<QuranScreen> {
     const emeraldGreen = Color(0xFF1E8F5A);
     const lightGreenBorder = Color(0xFF8AAF9A);
 
-    // Get Surah names for range display (localized based on selected language)
-    final startSurahName = _getSurahName(
-      juz.startSurah,
-      provider.selectedLanguage,
-    );
-    final endSurahName = _getSurahName(juz.endSurah, provider.selectedLanguage);
+    // Get Surah names for range display (localized based on app language)
+    final langCode = context.languageProvider.languageCode;
+    final startSurahName = _getSurahName(juz.startSurah, langCode);
+    final endSurahName = _getSurahName(juz.endSurah, langCode);
 
     return Container(
       margin: responsive.paddingOnly(bottom: 10),
@@ -253,7 +234,7 @@ class _QuranScreenState extends State<QuranScreen> {
       ),
       child: InkWell(
         onTap: () {
-          AdNavigator.push(context, JuzDetailScreen(juzNumber: juz.number));
+          Navigator.push(context, MaterialPageRoute(builder: (_) => JuzDetailScreen(juzNumber: juz.number)));
         },
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
         child: Padding(
@@ -320,27 +301,18 @@ class _QuranScreenState extends State<QuranScreen> {
                               ),
                             ),
                             child: Text(
-                              _getParaName(
-                                juz.number,
-                                provider.selectedLanguage,
-                              ),
+                              _getParaName(juz.number, langCode),
                               style: TextStyle(
                                 fontSize: responsive.textXSmall,
                                 fontWeight: FontWeight.w600,
                                 color: emeraldGreen,
                                 fontFamily:
-                                    provider.selectedLanguage ==
-                                            QuranLanguage.arabic ||
-                                        provider.selectedLanguage ==
-                                            QuranLanguage.urdu
+                                    langCode == 'ar' || langCode == 'ur'
                                     ? 'Poppins'
                                     : null,
                               ),
                               textDirection:
-                                  provider.selectedLanguage ==
-                                          QuranLanguage.arabic ||
-                                      provider.selectedLanguage ==
-                                          QuranLanguage.urdu
+                                  langCode == 'ar' || langCode == 'ur'
                                   ? TextDirection.rtl
                                   : TextDirection.ltr,
                               overflow: TextOverflow.ellipsis,

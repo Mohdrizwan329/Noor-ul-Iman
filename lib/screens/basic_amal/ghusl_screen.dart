@@ -6,6 +6,7 @@ import '../../core/utils/icon_color_helpers.dart';
 import 'basic_amal_detail_screen.dart';
 import '../../core/utils/ad_navigation.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class GhuslScreen extends StatefulWidget {
   const GhuslScreen({super.key});
@@ -101,12 +102,17 @@ class _GhuslScreenState extends State<GhuslScreen> {
                       ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _allTypes.length,
+                        itemCount: AdListHelper.totalCount(_allTypes.length),
                         itemBuilder: (context, index) {
-                          final ghusl = _allTypes[index];
-                          return _buildGhuslCard(
-                            ghusl,
-                          );
+                          if (AdListHelper.isAdPosition(index)) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: BannerAdWidget(height: 250),
+                            );
+                          }
+                          final dataIdx = AdListHelper.dataIndex(index);
+                          final ghusl = _allTypes[dataIdx];
+                          return _buildGhuslCard(ghusl);
                         },
                       ),
                     ],

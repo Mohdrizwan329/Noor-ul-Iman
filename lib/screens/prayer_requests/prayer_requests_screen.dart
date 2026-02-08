@@ -4,6 +4,7 @@ import 'dart:convert';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/app_utils.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class PrayerRequestsScreen extends StatefulWidget {
   const PrayerRequestsScreen({super.key});
@@ -195,9 +196,16 @@ class _PrayerRequestsScreenState extends State<PrayerRequestsScreen>
 
     return ListView.builder(
       padding: responsive.paddingRegular,
-      itemCount: requests.length,
+      itemCount: AdListHelper.totalCount(requests.length),
       itemBuilder: (context, index) {
-        return _buildRequestCard(context, requests[index]);
+        if (AdListHelper.isAdPosition(index)) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: BannerAdWidget(height: 250),
+          );
+        }
+        final dataIdx = AdListHelper.dataIndex(index);
+        return _buildRequestCard(context, requests[dataIdx]);
       },
     );
   }

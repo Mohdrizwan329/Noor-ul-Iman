@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_assets.dart';
 import '../../core/utils/app_utils.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/auth/auth_text_field.dart';
 import '../../widgets/auth/phone_number_field.dart';
@@ -86,6 +87,10 @@ class _SignupScreenState extends State<SignupScreen> {
     if (!mounted) return;
 
     if (success) {
+      // Save user name locally before signing out
+      if (name.isNotEmpty) {
+        context.read<SettingsProvider>().setProfileName(name);
+      }
       // Sign out the user immediately after account creation
       await authProvider.signOut();
 

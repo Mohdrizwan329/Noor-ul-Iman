@@ -10,6 +10,7 @@ import '../../data/models/firestore_models.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/common/header_action_button.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class SevenKalmaScreen extends StatefulWidget {
   const SevenKalmaScreen({super.key});
@@ -230,9 +231,16 @@ $translation
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _kalmas.length,
+                    itemCount: AdListHelper.totalCount(_kalmas.length),
                     itemBuilder: (context, index) {
-                      final kalma = _kalmas[index];
+                      if (AdListHelper.isAdPosition(index)) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: BannerAdWidget(height: 250),
+                        );
+                      }
+                      final dataIdx = AdListHelper.dataIndex(index);
+                      final kalma = _kalmas[dataIdx];
                       return _buildKalmaCard(context, kalma);
                     },
                   ),

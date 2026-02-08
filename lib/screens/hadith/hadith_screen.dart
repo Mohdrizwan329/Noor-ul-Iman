@@ -9,6 +9,7 @@ import '../../core/utils/hadith_reference_translator.dart';
 import '../../data/models/hadith_model.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class HadithScreen extends StatefulWidget {
   const HadithScreen({super.key});
@@ -145,9 +146,16 @@ class _HadithScreenState extends State<HadithScreen> {
 
     return ListView.builder(
       padding: responsive.paddingAll(16),
-      itemCount: hadiths.length,
+      itemCount: AdListHelper.totalCount(hadiths.length),
       itemBuilder: (context, index) {
-        return _HadithCard(hadith: hadiths[index]);
+        if (AdListHelper.isAdPosition(index)) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: BannerAdWidget(height: 250),
+          );
+        }
+        final dataIdx = AdListHelper.dataIndex(index);
+        return _HadithCard(hadith: hadiths[dataIdx]);
       },
     );
   }

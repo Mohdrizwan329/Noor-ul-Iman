@@ -1,0 +1,64 @@
+{
+  "events": [
+    {
+      "month": 1,
+      "day": 1,
+      "key": "islamic_new_year",
+      "icon": "auto_awesome"
+    },
+    {
+      "month": 1,
+      "day": 10,
+      "key": "ashura",
+      "icon": "brightness_2"
+    },
+    {
+      "month": 3,
+      "day": 12,
+      "key": "milad_un_nabi",
+      "icon": "star"
+    },
+    {
+      "month": 7,
+      "day": 27,
+      "key": "shab_e_meraj",
+      "icon": "nights_stay"
+    },
+    {
+      "month": 8,
+      "day": 15,
+      "key": "shab_e_barat",
+      "icon": "nights_stay"
+    },
+    {
+      "month": 9,
+      "day": 1,
+      "key": "ramadan_start",
+      "icon": "celebration"
+    },
+    {
+      "month": 9,
+      "day": 27,
+      "key": "laylatul_qadr",
+      "icon": "auto_awesome"
+    },
+    {
+      "month": 10,
+      "day": 1,
+      "key": "eid_ul_fitr",
+      "icon": "celebration"
+    },
+    {
+      "month": 12,
+      "day": 8,
+      "key": "hajj_start",
+      "icon": "flight_takeoff"
+    },
+    {
+      "month": 12,
+      "day": 10,
+      "key": "eid_ul_adha",
+      "icon": "celebration"
+    }
+  ]
+}

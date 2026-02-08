@@ -10,6 +10,7 @@ import '../../providers/language_provider.dart';
 import '../../data/models/hadith_model.dart';
 import '../../data/models/firestore_models.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class HadithCollectionScreen extends StatefulWidget {
   final HadithCollection collection;
@@ -321,9 +322,10 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      itemCount: hadiths.length + (_isLoadingMore ? 1 : 0),
+      itemCount: AdListHelper.totalCount(hadiths.length) + (_isLoadingMore ? 1 : 0),
       itemBuilder: (context, index) {
-        if (index >= hadiths.length) {
+        final totalWithAds = AdListHelper.totalCount(hadiths.length);
+        if (index >= totalWithAds) {
           return const Padding(
             padding: EdgeInsets.all(16),
             child: Center(
@@ -331,9 +333,16 @@ class _HadithCollectionScreenState extends State<HadithCollectionScreen> {
             ),
           );
         }
+        if (AdListHelper.isAdPosition(index)) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: BannerAdWidget(height: 250),
+          );
+        }
+        final dataIdx = AdListHelper.dataIndex(index);
 
         return _buildHadithCard(
-          hadiths[index],
+          hadiths[dataIdx],
           provider,
           settings.arabicFontSize,
           settings.translationFontSize,

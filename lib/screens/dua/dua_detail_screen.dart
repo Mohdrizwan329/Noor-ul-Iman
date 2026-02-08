@@ -8,6 +8,7 @@ import '../../data/models/dua_model.dart';
 import '../../widgets/common/search_bar_widget.dart';
 import '../../widgets/common/header_action_button.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class DuaDetailScreen extends StatefulWidget {
   final DuaModel dua;
@@ -289,7 +290,6 @@ class _DuaDetailScreenState extends State<DuaDetailScreen> {
                   _searchQuery = '';
                 });
               },
-              enableVoiceSearch: true,
             ),
           ),
 
@@ -319,9 +319,16 @@ class _DuaDetailScreenState extends State<DuaDetailScreen> {
                 : ListView.builder(
                     controller: _scrollController,
                     padding: responsive.paddingAll(12),
-                    itemCount: filteredDuas.length,
+                    itemCount: AdListHelper.totalCount(filteredDuas.length),
                     itemBuilder: (context, index) {
-                      final dua = filteredDuas[index];
+                      if (AdListHelper.isAdPosition(index)) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: BannerAdWidget(height: 250),
+                        );
+                      }
+                      final dataIdx = AdListHelper.dataIndex(index);
+                      final dua = filteredDuas[dataIdx];
                       // Get original index for card keys
                       final originalIndex = widget.category.duas.indexOf(dua);
                       return _buildDuaCard(dua, originalIndex);

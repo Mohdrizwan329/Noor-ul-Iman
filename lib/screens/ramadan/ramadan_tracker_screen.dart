@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:hijri/hijri_calendar.dart';
+import '../../core/services/hijri_date_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:share_plus/share_plus.dart';
@@ -26,7 +26,7 @@ class RamadanTrackerScreen extends StatefulWidget {
 class _RamadanTrackerScreenState extends State<RamadanTrackerScreen>
     with WidgetsBindingObserver {
   Map<int, FastingDay> _fastingDays = {};
-  int _currentRamadanYear = HijriCalendar.now().hYear;
+  int _currentRamadanYear = HijriDateService.instance.getHijriNow().hYear;
   bool _isRamadan = false;
   int _currentDay = 0;
   int _totalFasted = 0;
@@ -159,7 +159,7 @@ class _RamadanTrackerScreenState extends State<RamadanTrackerScreen>
 
       setState(() {
         _lastCheckedDate = now;
-        _currentRamadanYear = HijriCalendar.now().hYear;
+        _currentRamadanYear = HijriDateService.instance.getHijriNow().hYear;
       });
 
       // Refresh all data
@@ -245,7 +245,7 @@ class _RamadanTrackerScreenState extends State<RamadanTrackerScreen>
   }
 
   void _checkRamadan() {
-    final hijri = HijriCalendar.now();
+    final hijri = HijriDateService.instance.getHijriNow();
     _isRamadan = hijri.hMonth == 9; // Ramadan is the 9th month
     if (_isRamadan) {
       _currentDay = hijri.hDay;

@@ -9,6 +9,7 @@ import '../../core/services/location_service.dart';
 import '../../core/utils/app_utils.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class MosqueFinderScreen extends StatefulWidget {
   const MosqueFinderScreen({super.key});
@@ -974,9 +975,16 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
             onRefresh: _loadMosques,
             child: ListView.builder(
               padding: responsive.paddingSymmetric(horizontal: 16),
-              itemCount: _mosques.length,
+              itemCount: AdListHelper.totalCount(_mosques.length),
               itemBuilder: (context, index) {
-                return _buildMosqueCard(_mosques[index], index + 1);
+                if (AdListHelper.isAdPosition(index)) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: BannerAdWidget(height: 250),
+                  );
+                }
+                final dataIdx = AdListHelper.dataIndex(index);
+                return _buildMosqueCard(_mosques[dataIdx], dataIdx + 1);
               },
             ),
           ),

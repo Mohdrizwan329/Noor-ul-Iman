@@ -5,6 +5,7 @@ import 'package:geocoding/geocoding.dart';
 import '../core/services/location_service.dart';
 import '../core/services/prayer_time_service.dart';
 import '../data/models/prayer_time_model.dart';
+import 'settings_provider.dart';
 
 class PrayerProvider with ChangeNotifier {
   final LocationService _locationService = LocationService();
@@ -78,9 +79,17 @@ class PrayerProvider with ChangeNotifier {
                      placemark.administrativeArea ??
                      'Unknown';
         final country = placemark.country ?? '';
+        final isoCountryCode = placemark.isoCountryCode ?? '';
 
         _locationService.updateCity(city, country);
-        debugPrint('📍 Location updated: $city, $country');
+
+        // Auto-detect calculation method from user's country
+        if (isoCountryCode.isNotEmpty) {
+          _calculationMethod = SettingsProvider.getRecommendedMethod(isoCountryCode);
+          debugPrint('📍 Auto-detected calculation method: $_calculationMethod for $isoCountryCode');
+        }
+
+        debugPrint('📍 Location updated: $city, $country ($isoCountryCode)');
       }
     } catch (e) {
       debugPrint('Geocoding error: $e');

@@ -28,6 +28,8 @@ class WeatherService {
   // OpenWeatherMap API key
   static const String _apiKey = 'c9a265c562d658b01faf8b2344239b19';
   static const String _baseUrl = 'https://api.openweathermap.org/data/2.5';
+  // WAQI (World Air Quality Index) API token - free from https://aqicn.org/data-platform/token/
+  static const String _waqiToken = 'b392e4ad279f2d58d3a26c73f824df1b4e7bd3e1';
 
   static Future<WeatherData?> getWeather({
     required double lat,
@@ -51,38 +53,58 @@ class WeatherService {
 
       final weatherJson = json.decode(weatherResponse.body);
 
-      // Fetch air quality data
-      final aqiUrl = Uri.parse(
-        '$_baseUrl/air_pollution?lat=$lat&lon=$lon&appid=$_apiKey',
-      );
-
-      debugPrint('🌐 AQI URL: $aqiUrl');
-      final aqiResponse = await http.get(aqiUrl);
-      debugPrint('🌐 AQI Response Code: ${aqiResponse.statusCode}');
-
+      // Fetch air quality data from WAQI (World Air Quality Index) API
       int aqi = 0;
       String aqiLevel = 'Unknown';
       double pm25 = 0;
 
-      if (aqiResponse.statusCode == 200) {
-        final aqiJson = json.decode(aqiResponse.body);
-        debugPrint('🌐 AQI Response: $aqiJson');
+      try {
+        final waqiUrl = Uri.parse(
+          'https://api.waqi.info/feed/geo:$lat;$lon/?token=$_waqiToken',
+        );
+        debugPrint('🌐 WAQI URL: $waqiUrl');
+        final waqiResponse = await http.get(waqiUrl);
+        debugPrint('🌐 WAQI Response Code: ${waqiResponse.statusCode}');
 
-        if (aqiJson['list'] != null && aqiJson['list'].isNotEmpty) {
-          final components = aqiJson['list'][0]['components'];
+        if (waqiResponse.statusCode == 200) {
+          final waqiJson = json.decode(waqiResponse.body);
+          debugPrint('🌐 WAQI Response status: ${waqiJson['status']}');
 
-          // Get PM2.5 value (most important for AQI)
-          pm25 = (components?['pm2_5'] ?? 0).toDouble();
-          debugPrint('🌐 PM2.5: $pm25 μg/m³');
-
-          // Calculate US EPA AQI from PM2.5
-          aqi = _calculateAQIFromPM25(pm25);
-          aqiLevel = _getAQILevelFromValue(aqi);
-
-          debugPrint('🌐 Calculated AQI: $aqi ($aqiLevel)');
+          if (waqiJson['status'] == 'ok' && waqiJson['data'] != null) {
+            aqi = (waqiJson['data']['aqi'] ?? 0) is int
+                ? waqiJson['data']['aqi']
+                : (waqiJson['data']['aqi'] ?? 0).toInt();
+            aqiLevel = _getAQILevelFromValue(aqi);
+            pm25 = (waqiJson['data']['iaqi']?['pm25']?['v'] ?? 0).toDouble();
+            debugPrint('🌐 WAQI AQI: $aqi ($aqiLevel), PM2.5: $pm25');
+          }
         }
-      } else {
-        debugPrint('🌐 AQI API Error: ${aqiResponse.body}');
+      } catch (e) {
+        debugPrint('🌐 WAQI API Error: $e');
+      }
+
+      // Fallback to OpenWeatherMap if WAQI failed
+      if (aqi == 0) {
+        try {
+          final aqiUrl = Uri.parse(
+            '$_baseUrl/air_pollution?lat=$lat&lon=$lon&appid=$_apiKey',
+          );
+          final aqiResponse = await http.get(aqiUrl);
+          if (aqiResponse.statusCode == 200) {
+            final aqiJson = json.decode(aqiResponse.body);
+            if (aqiJson['list'] != null && aqiJson['list'].isNotEmpty) {
+              // Use OpenWeatherMap's own AQI (1-5 scale) mapped to EPA ranges
+              final owmAqi = aqiJson['list'][0]['main']?['aqi'] ?? 0;
+              final components = aqiJson['list'][0]['components'];
+              pm25 = (components?['pm2_5'] ?? 0).toDouble();
+              aqi = _mapOwmAqiToEpa(owmAqi);
+              aqiLevel = _getAQILevelFromValue(aqi);
+              debugPrint('🌐 OWM Fallback AQI: $owmAqi → EPA: $aqi ($aqiLevel)');
+            }
+          }
+        } catch (e) {
+          debugPrint('🌐 OWM AQI Fallback Error: $e');
+        }
       }
 
       return WeatherData(
@@ -101,29 +123,16 @@ class WeatherService {
     }
   }
 
-  // Calculate US EPA AQI from PM2.5 concentration (μg/m³)
-  static int _calculateAQIFromPM25(double pm25) {
-    if (pm25 <= 12.0) {
-      return _linearScale(pm25, 0, 12.0, 0, 50);
-    } else if (pm25 <= 35.4) {
-      return _linearScale(pm25, 12.1, 35.4, 51, 100);
-    } else if (pm25 <= 55.4) {
-      return _linearScale(pm25, 35.5, 55.4, 101, 150);
-    } else if (pm25 <= 150.4) {
-      return _linearScale(pm25, 55.5, 150.4, 151, 200);
-    } else if (pm25 <= 250.4) {
-      return _linearScale(pm25, 150.5, 250.4, 201, 300);
-    } else if (pm25 <= 350.4) {
-      return _linearScale(pm25, 250.5, 350.4, 301, 400);
-    } else if (pm25 <= 500.4) {
-      return _linearScale(pm25, 350.5, 500.4, 401, 500);
-    } else {
-      return 500; // Maximum AQI
+  // Map OpenWeatherMap AQI (1-5) to approximate US EPA AQI
+  static int _mapOwmAqiToEpa(int owmAqi) {
+    switch (owmAqi) {
+      case 1: return 25;   // Good
+      case 2: return 75;   // Fair → Moderate
+      case 3: return 125;  // Moderate → Unhealthy for Sensitive
+      case 4: return 175;  // Poor → Unhealthy
+      case 5: return 300;  // Very Poor → Very Unhealthy
+      default: return 0;
     }
-  }
-
-  static int _linearScale(double value, double iLow, double iHigh, int aqiLow, int aqiHigh) {
-    return ((aqiHigh - aqiLow) / (iHigh - iLow) * (value - iLow) + aqiLow).round();
   }
 
   // Get AQI level description based on US EPA scale

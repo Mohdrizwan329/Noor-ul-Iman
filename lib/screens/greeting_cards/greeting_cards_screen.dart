@@ -3,6 +3,7 @@ import '../../core/utils/app_utils.dart';
 import 'package:nooruliman/core/constants/app_colors.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:hijri/hijri_calendar.dart';
+import '../../core/services/hijri_date_service.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:path_provider/path_provider.dart';
@@ -11,6 +12,7 @@ import 'dart:io';
 import '../../providers/language_provider.dart';
 import '../../core/utils/ad_navigation.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/services/data_migration_service.dart';
 import '../../data/models/firestore_models.dart';
@@ -48,7 +50,7 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
   @override
   void initState() {
     super.initState();
-    _currentHijriDate = HijriCalendar.now();
+    _currentHijriDate = HijriDateService.instance.getHijriNow();
     _loadFromFirestore();
   }
 
@@ -3032,10 +3034,17 @@ class MonthCardsScreen extends StatelessWidget {
               )
             : ListView.builder(
                 padding: responsive.paddingAll(16),
-                itemCount: month.cards.length,
+                itemCount: AdListHelper.totalCount(month.cards.length),
                 itemBuilder: (context, index) {
+                  if (AdListHelper.isAdPosition(index)) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: BannerAdWidget(height: 250),
+                    );
+                  }
+                  final dataIdx = AdListHelper.dataIndex(index);
                   return _GreetingCardTile(
-                    card: month.cards[index],
+                    card: month.cards[dataIdx],
                     month: month,
                     language: language,
                   );

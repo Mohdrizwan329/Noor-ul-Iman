@@ -11,9 +11,8 @@ import '../../providers/language_provider.dart';
 import '../../data/models/hadith_model.dart';
 import '../../widgets/common/search_bar_widget.dart';
 import '../../widgets/common/chip_badge.dart';
-import '../../widgets/common/native_ad_widget.dart';
-import '../../core/utils/ad_list_helper.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 import '../../core/services/content_service.dart';
 
 class HadithBookDetailScreen extends StatefulWidget {
@@ -317,7 +316,6 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                       _searchQuery = '';
                     });
                   },
-                  enableVoiceSearch: true,
                 ),
               ),
               Padding(
@@ -417,7 +415,10 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
       itemCount: AdListHelper.totalCount(hadiths.length),
       itemBuilder: (context, index) {
         if (AdListHelper.isAdPosition(index)) {
-          return const NativeAdWidget();
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: BannerAdWidget(height: 250),
+          );
         }
         final dataIdx = AdListHelper.dataIndex(index);
         return _buildHadithCard(
@@ -588,62 +589,48 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
           if (hadith.arabic.isNotEmpty)
             Padding(
               padding: responsive.paddingRegular,
-              child: GestureDetector(
-                onTap: () {
-                  if (isPlaying && !showTranslation) {
-                    _stopPlaying();
-                  } else if (!showTranslation) {
-                    playHadith(
-                      hadith,
-                      provider.selectedLanguage,
-                      cardIndex,
-                      false,
-                    );
-                  }
-                },
-                child: Container(
-                  padding: isPlaying && !showTranslation
-                      ? responsive.paddingAll(8)
-                      : EdgeInsets.zero,
-                  decoration: (isPlaying && !showTranslation)
-                      ? BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(
-                            responsive.radiusMedium,
-                          ),
-                        )
-                      : null,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (isPlaying && !showTranslation)
-                        Padding(
-                          padding: responsive.paddingOnly(right: 8, top: 8),
-                          child: Icon(
-                            Icons.volume_up,
-                            size: responsive.iconSmall,
-                            color: AppColors.primary,
-                          ),
+              child: Container(
+                padding: isPlaying && !showTranslation
+                    ? responsive.paddingAll(8)
+                    : EdgeInsets.zero,
+                decoration: (isPlaying && !showTranslation)
+                    ? BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(
+                          responsive.radiusMedium,
                         ),
-                      Expanded(
-                        child: Text(
-                          hadith.arabic,
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: arabicFontSize,
-                            height: 2.0,
-                            color: (isPlaying && !showTranslation)
-                                ? AppColors.primary
-                                : AppColors.arabicText,
-                          ),
-                          textAlign: TextAlign.right,
-                          textDirection: TextDirection.rtl,
-                          softWrap: true,
-                          overflow: TextOverflow.visible,
+                      )
+                    : null,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (isPlaying && !showTranslation)
+                      Padding(
+                        padding: responsive.paddingOnly(right: 8, top: 8),
+                        child: Icon(
+                          Icons.volume_up,
+                          size: responsive.iconSmall,
+                          color: AppColors.primary,
                         ),
                       ),
-                    ],
-                  ),
+                    Expanded(
+                      child: Text(
+                        hadith.arabic,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: arabicFontSize,
+                          height: 2.0,
+                          color: (isPlaying && !showTranslation)
+                              ? AppColors.primary
+                              : AppColors.arabicText,
+                        ),
+                        textAlign: TextAlign.right,
+                        textDirection: TextDirection.rtl,
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -657,44 +644,31 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                   bottomRight: Radius.circular(responsive.radiusLarge),
                 ),
               ),
-              child: GestureDetector(
-                onTap: () {
-                  if (isPlaying && showTranslation) {
-                    _stopPlaying();
-                  } else {
-                    playHadith(
-                      hadith,
-                      provider.selectedLanguage,
-                      cardIndex,
-                      true,
-                    );
-                  }
-                },
-                child: Container(
-                  padding: isPlaying && showTranslation
-                      ? responsive.paddingAll(8)
-                      : EdgeInsets.zero,
-                  decoration: (isPlaying && showTranslation)
-                      ? BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(
-                            responsive.radiusMedium,
-                          ),
-                        )
-                      : null,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (isPlaying && showTranslation)
-                        Padding(
-                          padding: responsive.paddingOnly(right: 8, top: 4),
-                          child: Icon(
-                            Icons.volume_up,
-                            size: responsive.iconSmall,
-                            color: AppColors.primary,
-                          ),
+              child: Container(
+                padding: isPlaying && showTranslation
+                    ? responsive.paddingAll(8)
+                    : EdgeInsets.zero,
+                decoration: (isPlaying && showTranslation)
+                    ? BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(
+                          responsive.radiusMedium,
                         ),
-                      Expanded(
+                      )
+                    : null,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (isPlaying && showTranslation)
+                      Padding(
+                        padding: responsive.paddingOnly(right: 8, top: 4),
+                        child: Icon(
+                          Icons.volume_up,
+                          size: responsive.iconSmall,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -843,7 +817,6 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                   ),
                 ),
               ),
-            ),
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(

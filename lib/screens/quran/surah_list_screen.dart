@@ -10,6 +10,7 @@ import '../../widgets/common/search_bar_widget.dart';
 import 'surah_detail_screen.dart';
 import '../../core/utils/ad_navigation.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 import '../../core/services/content_service.dart';
 
 class SurahListScreen extends StatefulWidget {
@@ -144,7 +145,6 @@ class _SurahListScreenState extends State<SurahListScreen> {
                       _searchQuery = '';
                     });
                   },
-                  enableVoiceSearch: true,
                 ),
               ),
 
@@ -153,9 +153,16 @@ class _SurahListScreenState extends State<SurahListScreen> {
                 child: ListView.builder(
                   key: ValueKey(langProvider.languageCode),
                   padding: responsive.paddingRegular,
-                  itemCount: surahList.length,
+                  itemCount: AdListHelper.totalCount(surahList.length),
                   itemBuilder: (context, index) {
-                    return _buildSurahCard(context, surahList[index], langProvider.languageCode);
+                    if (AdListHelper.isAdPosition(index)) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: BannerAdWidget(height: 250),
+                      );
+                    }
+                    final dataIdx = AdListHelper.dataIndex(index);
+                    return _buildSurahCard(context, surahList[dataIdx], langProvider.languageCode);
                   },
                 ),
               ),

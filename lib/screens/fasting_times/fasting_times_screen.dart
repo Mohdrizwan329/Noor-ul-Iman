@@ -4,17 +4,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
 import 'package:hijri/hijri_calendar.dart';
+import '../../core/services/hijri_date_service.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/utils/app_utils.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/services/location_service.dart';
+import '../../core/services/content_service.dart';
 import '../../data/models/dua_model.dart';
+import '../../data/models/firestore_models.dart';
 import '../../providers/prayer_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/common/banner_ad_widget.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../core/services/data_migration_service.dart';
-import '../../data/models/firestore_models.dart';
 
 class FastingTimesScreen extends StatefulWidget {
   const FastingTimesScreen({super.key});
@@ -40,15 +39,9 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
   bool _isSpeaking = false;
   final Set<int> _expandedDuas = {};
 
-  // Firestore
-  List<Map<String, dynamic>>? _firestoreFastingDuas;
-  List<Map<String, dynamic>>? _firestoreVirtues;
-  Map<String, dynamic>? _firestoreRules;
-  Map<String, dynamic>? _firestoreMonths;
-  bool _isDuasLoading = true;
-  bool _isVirtuesLoading = true;
-  bool _isRulesLoading = true;
-  bool _isMonthsLoading = true;
+  // Firebase content
+  FastingTimesContentFirestore? _content;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -58,137 +51,25 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
     _startMidnightTimer();
     _initTts();
     _initializePrayerTimes();
-    _loadFromFirestore();
+    _loadContent();
   }
 
-  Future<void> _loadFromFirestore() async {
+  Future<void> _loadContent() async {
     if (mounted) {
-      setState(() {
-        _isDuasLoading = true;
-        _isVirtuesLoading = true;
-        _isRulesLoading = true;
-        _isMonthsLoading = true;
-      });
+      setState(() => _isLoading = true);
     }
 
-    final migrationService = DataMigrationService();
-    final firestore = FirebaseFirestore.instance;
-
-    // Load all 4 docs in parallel
     try {
-      final results = await Future.wait([
-        firestore.collection('fasting_data').doc('fasting_duas').get(),
-        firestore.collection('fasting_data').doc('fasting_virtues').get(),
-        firestore.collection('fasting_data').doc('fasting_rules').get(),
-        firestore.collection('fasting_data').doc('islamic_months').get(),
-      ]);
-
-      var duasDoc = results[0];
-      var virtuesDoc = results[1];
-      var rulesDoc = results[2];
-      var monthsDoc = results[3];
-
-      // Auto-push any missing data
-      bool needsRefetch = false;
-      if (!duasDoc.exists || (duasDoc.data()?['duas'] as List?)?.isEmpty != false) {
-        await migrationService.migrateFastingData();
-        needsRefetch = true;
-      }
-      if (!virtuesDoc.exists || (virtuesDoc.data()?['virtues'] as List?)?.isEmpty != false) {
-        await migrationService.migrateFastingVirtues();
-        needsRefetch = true;
-      }
-      if (!rulesDoc.exists || rulesDoc.data()?['breaks_fast'] == null) {
-        await migrationService.migrateFastingRules();
-        needsRefetch = true;
-      }
-      if (!monthsDoc.exists || (monthsDoc.data()?['months'] as List?)?.isEmpty != false) {
-        await migrationService.migrateIslamicMonths();
-        needsRefetch = true;
-      }
-
-      if (needsRefetch) {
-        final refreshed = await Future.wait([
-          firestore.collection('fasting_data').doc('fasting_duas').get(),
-          firestore.collection('fasting_data').doc('fasting_virtues').get(),
-          firestore.collection('fasting_data').doc('fasting_rules').get(),
-          firestore.collection('fasting_data').doc('islamic_months').get(),
-        ]);
-        duasDoc = refreshed[0];
-        virtuesDoc = refreshed[1];
-        rulesDoc = refreshed[2];
-        monthsDoc = refreshed[3];
-      }
-
+      final content = await ContentService().getFastingTimesContent();
       if (!mounted) return;
-
-      // Parse duas
-      if (duasDoc.exists) {
-        final firestoreDuas = (duasDoc.data()!['duas'] as List<dynamic>? ?? [])
-            .map((d) => FastingDuaFirestore.fromJson(d as Map<String, dynamic>))
-            .toList();
-        if (firestoreDuas.isNotEmpty) {
-          _firestoreFastingDuas = firestoreDuas.map((dua) {
-            final colorHex = dua.color;
-            Color color = const Color(0xFF1565C0);
-            if (colorHex.isNotEmpty) {
-              try {
-                color = Color(int.parse(colorHex.replaceFirst('#', '0xFF')));
-              } catch (_) {}
-            }
-            return <String, dynamic>{
-              'titleKey': dua.titleKey,
-              'title': {
-                'en': dua.title.en.isNotEmpty ? dua.title.en : dua.titleKey,
-                'ur': dua.title.ur,
-                'hi': dua.title.hi,
-                'ar': dua.title.ar,
-              },
-              'arabic': dua.arabic,
-              'transliteration': dua.transliteration,
-              'hindi': dua.translation.get('hi'),
-              'english': dua.translation.get('en'),
-              'urdu': dua.translation.get('ur'),
-              'ar': dua.translation.get('ar'),
-              'color': color,
-              if (dua.reference != null) 'reference': dua.reference,
-            };
-          }).toList();
-        }
-      }
-
-      // Parse virtues
-      if (virtuesDoc.exists) {
-        _firestoreVirtues = (virtuesDoc.data()!['virtues'] as List<dynamic>? ?? [])
-            .map((v) => v as Map<String, dynamic>)
-            .toList();
-      }
-
-      // Parse rules
-      if (rulesDoc.exists) {
-        _firestoreRules = rulesDoc.data();
-      }
-
-      // Parse islamic months
-      if (monthsDoc.exists) {
-        _firestoreMonths = monthsDoc.data();
-      }
-
       setState(() {
-        _isDuasLoading = false;
-        _isVirtuesLoading = false;
-        _isRulesLoading = false;
-        _isMonthsLoading = false;
+        _content = content;
+        _isLoading = false;
       });
     } catch (e) {
-      debugPrint('Error loading fasting data from Firestore: $e');
+      debugPrint('Error loading fasting times content: $e');
       if (mounted) {
-        setState(() {
-          _isDuasLoading = false;
-          _isVirtuesLoading = false;
-          _isRulesLoading = false;
-          _isMonthsLoading = false;
-        });
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -199,6 +80,12 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
     final code = context.read<LanguageProvider>().languageCode;
     final val = multiLangMap[code] as String? ?? '';
     return val.isNotEmpty ? val : (multiLangMap['en'] as String? ?? fallback);
+  }
+
+  /// Get string from content strings map
+  String _s(String key) {
+    if (_content == null) return key;
+    return _content!.getString(key, context.read<LanguageProvider>().languageCode);
   }
 
   @override
@@ -239,7 +126,7 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
           _lastCheckedDate = DateTime.now();
         });
         _refreshPrayerTimes();
-        _startMidnightTimer(); // Restart for next day
+        _startMidnightTimer();
       }
     });
   }
@@ -344,7 +231,6 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
 
   DateTime? _parseTime(String timeStr) {
     try {
-      // Remove AM/PM and extra spaces
       String cleanTime = timeStr.trim().replaceAll(
         RegExp(r'\s*(AM|PM)\s*', caseSensitive: false),
         '',
@@ -353,14 +239,12 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
       final parts = cleanTime.split(':');
       if (parts.length >= 2) {
         final hour = int.parse(parts[0].trim());
-        // Extract only numeric part from minute string
         final minuteStr = parts[1].trim().replaceAll(RegExp(r'[^0-9]'), '');
         if (minuteStr.isEmpty) return null;
 
         final minute = int.parse(minuteStr);
         final now = DateTime.now();
 
-        // Convert to 24-hour format if needed
         int hour24 = hour;
         if (timeStr.toUpperCase().contains('PM') && hour != 12) {
           hour24 = hour + 12;
@@ -381,14 +265,14 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
     final responsive = ResponsiveUtils(context);
     final prayerProvider = context.watch<PrayerProvider>();
     final prayerTimes = prayerProvider.todayPrayerTimes;
-    final hijriDate = HijriCalendar.now();
+    final hijriDate = HijriDateService.instance.getHijriNow();
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         title: Text(
-          context.tr('fasting_times'),
+          _s('fasting_times'),
           style: TextStyle(fontSize: responsive.textLarge),
         ),
         centerTitle: true,
@@ -396,7 +280,7 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
       body: Column(
         children: [
           Expanded(
-            child: prayerProvider.isLoading
+            child: (_isLoading && _content == null) || prayerProvider.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : prayerTimes == null
                 ? _buildNoDataView(responsive)
@@ -404,39 +288,22 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
                     padding: responsive.paddingRegular,
                     child: Column(
                       children: [
-                        // Location Banner
-                        _buildLocationBanner(responsive),
-                        SizedBox(height: responsive.spaceMedium),
-
-                        // Current Month Fasting Dates
                         _buildCurrentMonthFastingCard(hijriDate, responsive),
                         SizedBox(height: responsive.spaceLarge),
-
-                        // Current Status Card
                         _buildStatusCard(responsive),
                         SizedBox(height: responsive.spaceLarge),
-
-                        // Suhoor & Iftar Times
                         _buildTimesRow(
                           prayerTimes.fajr,
                           prayerTimes.maghrib,
                           responsive,
                         ),
                         SizedBox(height: responsive.spaceLarge),
-
-                        // Dua Cards
                         _buildDuaSection(responsive),
                         SizedBox(height: responsive.spaceLarge),
-
-                        // Fasting Virtues Section
                         _buildFastingVirtuesSection(responsive),
                         SizedBox(height: responsive.spaceLarge),
-
-                        // Fasting Rules Section
                         _buildFastingRulesSection(responsive),
                         SizedBox(height: responsive.spaceLarge),
-
-                        // Islamic 12 Months Fasting Chart
                         _buildIslamicMonthsChart(responsive),
                       ],
                     ),
@@ -460,7 +327,7 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
           ),
           SizedBox(height: responsive.spaceRegular),
           Text(
-            context.tr('unable_load_prayer_times'),
+            _s('unable_load_prayer_times'),
             style: TextStyle(
               fontSize: responsive.textLarge,
               color: AppColors.textPrimary,
@@ -468,105 +335,11 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
           ),
           SizedBox(height: responsive.spaceSmall),
           Text(
-            context.tr('enable_location_services'),
+            _s('enable_location_services'),
             style: TextStyle(
               fontSize: responsive.textMedium,
               color: AppColors.textSecondary,
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLocationBanner(ResponsiveUtils responsive) {
-    final locationService = LocationService();
-    final city = locationService.currentCity;
-    final country = locationService.currentCountry;
-    final position = locationService.currentPosition;
-
-    String locationText;
-    if (city != null && city.isNotEmpty) {
-      locationText = country != null && country.isNotEmpty
-          ? '$city, $country'
-          : city;
-    } else if (position != null) {
-      locationText = '${position.latitude.toStringAsFixed(2)}°, ${position.longitude.toStringAsFixed(2)}°';
-    } else {
-      locationText = context.tr('loading');
-    }
-
-    return Container(
-      width: double.infinity,
-      padding: responsive.paddingSymmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primaryLight.withValues(alpha: 0.15), AppColors.primary.withValues(alpha: 0.08)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(responsive.radiusLarge),
-        border: Border.all(
-          color: AppColors.primaryLight,
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: responsive.paddingAll(8),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.location_on,
-              color: AppColors.primary,
-              size: responsive.iconSize(20),
-            ),
-          ),
-          SizedBox(width: responsive.spacing(12)),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    locationText,
-                    style: TextStyle(
-                      fontSize: responsive.fontSize(15),
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
-                    maxLines: 1,
-                  ),
-                ),
-                SizedBox(height: responsive.spacing(2)),
-                Text(
-                  '${context.tr('calculation_method')}: Karachi',
-                  style: TextStyle(
-                    fontSize: responsive.fontSize(11),
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            onPressed: () async {
-              await _refreshPrayerTimes();
-              if (mounted) {
-                setState(() {});
-              }
-            },
-            icon: Icon(
-              Icons.refresh,
-              color: AppColors.primary,
-              size: responsive.iconSize(22),
-            ),
-            tooltip: context.tr('refresh'),
           ),
         ],
       ),
@@ -601,8 +374,8 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
               fit: BoxFit.scaleDown,
               child: Text(
                 _isFastingTime
-                    ? context.tr('currently_fasting')
-                    : context.tr('not_fasting_time'),
+                    ? _s('currently_fasting')
+                    : _s('not_fasting_time'),
                 style: TextStyle(
                   fontSize: responsive.textXLarge,
                   fontWeight: FontWeight.bold,
@@ -627,7 +400,7 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
       children: [
         Expanded(
           child: _buildTimeCard(
-            context.tr('suhoor_ends'),
+            _s('suhoor_ends'),
             suhoorEnd,
             Icons.wb_twilight,
             const Color(0xFF3949AB),
@@ -637,7 +410,7 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
         SizedBox(width: responsive.spaceMedium),
         Expanded(
           child: _buildTimeCard(
-            context.tr('iftar_time'),
+            _s('iftar_time'),
             iftarTime,
             Icons.nights_stay,
             const Color(0xFFE65100),
@@ -660,17 +433,14 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
-        border: Border.all(
-          color: AppColors.lightGreenBorder,
-          width: 1.5,
-        ),
+        border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
         boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -726,35 +496,35 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
 
   String _getDuaTitle(Map<String, dynamic> dua) {
     final title = dua['title'] as Map<String, dynamic>?;
-    if (title == null) return context.tr(dua['titleKey'] ?? '');
-    final code = context.read<LanguageProvider>().languageCode;
-    final val = title[code] as String? ?? '';
-    return val.isNotEmpty ? val : (title['en'] as String? ?? dua['titleKey'] ?? '');
+    if (title == null) return dua['title_key'] ?? '';
+    return _tr(title, fallback: dua['title_key'] ?? '');
   }
 
   String _getCurrentTranslation(Map<String, dynamic> dua) {
+    final translation = dua['translation'] as Map<String, dynamic>?;
+    if (translation == null) return '';
     switch (_selectedLanguage) {
       case DuaLanguage.hindi:
-        return dua['hindi'] ?? '';
+        return translation['hi'] ?? '';
       case DuaLanguage.english:
-        return dua['english'] ?? '';
+        return translation['en'] ?? '';
       case DuaLanguage.urdu:
-        return dua['urdu'] ?? '';
+        return translation['ur'] ?? '';
       case DuaLanguage.arabic:
-        return dua['ar'] ?? dua['english'] ?? '';
+        return translation['ar'] ?? translation['en'] ?? '';
     }
   }
 
   String _getCurrentLanguageLabel() {
     switch (_selectedLanguage) {
       case DuaLanguage.hindi:
-        return context.tr('hindi');
+        return _s('hindi');
       case DuaLanguage.english:
-        return context.tr('english');
+        return _s('english');
       case DuaLanguage.urdu:
-        return context.tr('urdu');
+        return _s('urdu');
       case DuaLanguage.arabic:
-        return context.tr('arabic');
+        return _s('arabic');
     }
   }
 
@@ -834,13 +604,13 @@ ${_getCurrentTranslation(dua)}
   }
 
   Widget _buildDuaSection(ResponsiveUtils responsive) {
-    final duasList = _firestoreFastingDuas ?? [];
+    final duasList = _content?.duas ?? [];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          context.tr('duas_for_fasting'),
+          _s('duas_for_fasting'),
           style: TextStyle(
             fontSize: responsive.textLarge,
             fontWeight: FontWeight.bold,
@@ -848,7 +618,7 @@ ${_getCurrentTranslation(dua)}
           ),
         ),
         SizedBox(height: responsive.spaceMedium),
-        if (_isDuasLoading && _firestoreFastingDuas == null)
+        if (_isLoading && _content == null)
           Center(
             child: Padding(
               padding: responsive.paddingLarge,
@@ -856,18 +626,18 @@ ${_getCurrentTranslation(dua)}
             ),
           )
         else
-        ...duasList.asMap().entries.map((entry) {
-          final isExpanded = _expandedDuas.contains(entry.key);
-          return Padding(
-            padding: EdgeInsets.only(bottom: responsive.spaceMedium),
-            child: _buildDuaCard(
-              entry.key,
-              entry.value,
-              isExpanded,
-              responsive,
-            ),
-          );
-        }),
+          ...duasList.asMap().entries.map((entry) {
+            final isExpanded = _expandedDuas.contains(entry.key);
+            return Padding(
+              padding: EdgeInsets.only(bottom: responsive.spaceMedium),
+              child: _buildDuaCard(
+                entry.key,
+                entry.value,
+                isExpanded,
+                responsive,
+              ),
+            );
+          }),
       ],
     );
   }
@@ -907,7 +677,6 @@ ${_getCurrentTranslation(dua)}
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header Section with Light Green Background
           Container(
             padding: responsive.paddingSymmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
@@ -921,7 +690,6 @@ ${_getCurrentTranslation(dua)}
             ),
             child: Column(
               children: [
-                // Number Badge and Title Row
                 Row(
                   children: [
                     Container(
@@ -976,34 +744,33 @@ ${_getCurrentTranslation(dua)}
                   ],
                 ),
                 responsive.vSpaceSmall,
-                // Action Buttons Row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildHeaderActionButton(
                       icon: isPlayingArabic ? Icons.stop : Icons.volume_up,
                       label: isPlayingArabic
-                          ? context.tr('stop')
-                          : context.tr('audio'),
+                          ? _s('stop')
+                          : _s('audio'),
                       onTap: () =>
                           _playDua(duaIndex * 2, dua['arabic'], isArabic: true),
                       isActive: isPlayingArabic,
                     ),
                     _buildHeaderActionButton(
                       icon: Icons.translate,
-                      label: context.tr('translate'),
+                      label: _s('translate'),
                       onTap: () => _toggleDuaExpanded(duaIndex),
                       isActive: isExpanded,
                     ),
                     _buildHeaderActionButton(
                       icon: Icons.copy,
-                      label: context.tr('copy'),
+                      label: _s('copy'),
                       onTap: () => _copyDua(context, dua),
                       isActive: false,
                     ),
                     _buildHeaderActionButton(
                       icon: Icons.share,
-                      label: context.tr('share'),
+                      label: _s('share'),
                       onTap: () => _shareDua(context, dua),
                       isActive: false,
                     ),
@@ -1013,7 +780,6 @@ ${_getCurrentTranslation(dua)}
             ),
           ),
 
-          // Arabic Text with Tap to Play
           GestureDetector(
             onTap: () {
               if (isPlayingArabic) {
@@ -1055,9 +821,7 @@ ${_getCurrentTranslation(dua)}
                         fontFamily: 'Poppins',
                         fontSize: responsive.fontSize(26),
                         height: 2.0,
-                        color: isPlayingArabic
-                            ? AppColors.primary
-                            : AppColors.primary,
+                        color: AppColors.primary,
                       ),
                       textAlign: TextAlign.center,
                       textDirection: TextDirection.rtl,
@@ -1068,7 +832,6 @@ ${_getCurrentTranslation(dua)}
             ),
           ),
 
-          // Translation Section (Shown when expanded)
           if (isExpanded)
             GestureDetector(
               onTap: () {
@@ -1123,7 +886,7 @@ ${_getCurrentTranslation(dua)}
                               SizedBox(width: responsive.spaceSmall),
                               Flexible(
                                 child: Text(
-                                  '${context.tr('translation')} ($languageLabel)',
+                                  '${_s('translation')} ($languageLabel)',
                                   style: TextStyle(
                                     fontSize: responsive.textSmall,
                                     fontWeight: FontWeight.bold,
@@ -1157,8 +920,8 @@ ${_getCurrentTranslation(dua)}
                     ),
                   ],
                 ),
-              ),
             ),
+          ),
         ],
       ),
     );
@@ -1216,40 +979,58 @@ ${_getCurrentTranslation(dua)}
     });
   }
 
-  // Get current month fasting data from Firebase
   Map<String, dynamic>? _getCurrentMonthFastingData(int hijriMonth) {
-    final months = _firestoreMonths?['months'] as List<dynamic>?;
-    if (months == null || hijriMonth < 1 || hijriMonth > months.length) return null;
+    final months = _content?.islamicMonths['months'] as List<dynamic>?;
+    if (months == null || hijriMonth < 1 || hijriMonth > months.length)
+      return null;
     return months[hijriMonth - 1] as Map<String, dynamic>;
   }
 
-  /// Map icon string name to IconData
   IconData _getIconData(String? iconName) {
     switch (iconName) {
-      case 'nights_stay': return Icons.nights_stay;
-      case 'wb_twilight': return Icons.wb_twilight;
-      case 'star': return Icons.star;
-      case 'star_border': return Icons.star_border;
-      case 'brightness_5': return Icons.brightness_5;
-      case 'brightness_6': return Icons.brightness_6;
-      case 'auto_awesome': return Icons.auto_awesome;
-      case 'brightness_3': return Icons.brightness_3;
-      case 'mosque': return Icons.mosque;
-      case 'celebration': return Icons.celebration;
-      case 'terrain': return Icons.terrain;
-      case 'landscape': return Icons.landscape;
-      case 'door_front_door': return Icons.door_front_door;
-      case 'shield': return Icons.shield;
-      case 'favorite': return Icons.favorite;
-      case 'handshake': return Icons.handshake;
-      case 'calendar_month': return Icons.calendar_month;
-      case 'repeat': return Icons.repeat;
-      case 'block': return Icons.block;
-      default: return Icons.circle;
+      case 'nights_stay':
+        return Icons.nights_stay;
+      case 'wb_twilight':
+        return Icons.wb_twilight;
+      case 'star':
+        return Icons.star;
+      case 'star_border':
+        return Icons.star_border;
+      case 'brightness_5':
+        return Icons.brightness_5;
+      case 'brightness_6':
+        return Icons.brightness_6;
+      case 'auto_awesome':
+        return Icons.auto_awesome;
+      case 'brightness_3':
+        return Icons.brightness_3;
+      case 'mosque':
+        return Icons.mosque;
+      case 'celebration':
+        return Icons.celebration;
+      case 'terrain':
+        return Icons.terrain;
+      case 'landscape':
+        return Icons.landscape;
+      case 'door_front_door':
+        return Icons.door_front_door;
+      case 'shield':
+        return Icons.shield;
+      case 'favorite':
+        return Icons.favorite;
+      case 'handshake':
+        return Icons.handshake;
+      case 'calendar_month':
+        return Icons.calendar_month;
+      case 'repeat':
+        return Icons.repeat;
+      case 'block':
+        return Icons.block;
+      default:
+        return Icons.circle;
     }
   }
 
-  /// Parse hex color string to Color
   Color _parseColor(String? hex) {
     if (hex == null || hex.isEmpty) return const Color(0xFF1565C0);
     try {
@@ -1259,7 +1040,13 @@ ${_getCurrentTranslation(dua)}
     }
   }
 
-  /// Get text from a field that may be a String or a 4-lang Map
+  String _getTranslatedHijriMonth(String monthName) {
+    final monthKeys = _content?.hijriMonthKeys ?? {};
+    final key = monthKeys[monthName];
+    if (key != null) return _s(key);
+    return monthName;
+  }
+
   String _getLocalizedText(dynamic field) {
     if (field is String) return field;
     if (field is Map) return _tr(field);
@@ -1284,21 +1071,17 @@ ${_getCurrentTranslation(dua)}
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
-        border: Border.all(
-          color: AppColors.lightGreenBorder,
-          width: 1.5,
-        ),
+        border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
         boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          // Header with month name
           Container(
             padding: responsive.paddingRegular,
             decoration: BoxDecoration(
@@ -1333,7 +1116,7 @@ ${_getCurrentTranslation(dua)}
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          context.tr('current_month'),
+                          _s('current_month'),
                           style: TextStyle(
                             fontSize: responsive.textSmall,
                             color: AppColors.textSecondary,
@@ -1361,7 +1144,6 @@ ${_getCurrentTranslation(dua)}
             ),
           ),
 
-          // Current Hijri Date Display
           Container(
             width: double.infinity,
             padding: responsive.paddingSymmetric(horizontal: 16, vertical: 12),
@@ -1378,14 +1160,14 @@ ${_getCurrentTranslation(dua)}
                 ),
                 SizedBox(width: responsive.spacing(8)),
                 Text(
-                  '${context.tr('today')}: ',
+                  '${_s('today')}: ',
                   style: TextStyle(
                     fontSize: responsive.fontSize(14),
                     color: AppColors.textSecondary,
                   ),
                 ),
                 Text(
-                  '${hijriDate.hDay} ${hijriDate.longMonthName} ${hijriDate.hYear} AH',
+                  '${hijriDate.hDay} ${_getTranslatedHijriMonth(hijriDate.longMonthName)} ${hijriDate.hYear} ${_s('ah')}',
                   style: TextStyle(
                     fontSize: responsive.fontSize(16),
                     fontWeight: FontWeight.bold,
@@ -1396,14 +1178,13 @@ ${_getCurrentTranslation(dua)}
             ),
           ),
 
-          // Fasting days list
           Padding(
             padding: responsive.paddingRegular,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  context.tr('fasting_dates_this_month'),
+                  _s('fasting_dates_this_month'),
                   style: TextStyle(
                     fontSize: responsive.textMedium,
                     fontWeight: FontWeight.w600,
@@ -1411,17 +1192,15 @@ ${_getCurrentTranslation(dua)}
                   ),
                 ),
                 SizedBox(height: responsive.spaceMedium),
-                ...fastingDays.map(
-                  (day) {
-                    final d = day as Map<String, dynamic>;
-                    return _buildCurrentMonthFastingRow(
-                      _getLocalizedText(d['days']),
-                      _tr(d['desc']),
-                      d['type'] as String? ?? 'nafil',
-                      responsive,
-                    );
-                  },
-                ),
+                ...fastingDays.map((day) {
+                  final d = day as Map<String, dynamic>;
+                  return _buildCurrentMonthFastingRow(
+                    _getLocalizedText(d['days']),
+                    _tr(d['desc']),
+                    d['type'] as String? ?? 'nafil',
+                    responsive,
+                  );
+                }),
               ],
             ),
           ),
@@ -1516,34 +1295,36 @@ ${_getCurrentTranslation(dua)}
   }
 
   Widget _buildFastingVirtuesSection(ResponsiveUtils responsive) {
-    final virtues = _firestoreVirtues ?? [];
-
-    if (_isVirtuesLoading && virtues.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: responsive.paddingLarge,
-          child: CircularProgressIndicator(color: AppColors.primary),
-        ),
-      );
+    final virtuesData = _content?.virtues;
+    if (virtuesData == null || _isLoading) {
+      if (_isLoading) {
+        return Center(
+          child: Padding(
+            padding: responsive.paddingLarge,
+            child: CircularProgressIndicator(color: AppColors.primary),
+          ),
+        );
+      }
+      return const SizedBox.shrink();
     }
-    if (virtues.isEmpty) return const SizedBox.shrink();
+
+    final virtuesTitle = virtuesData['title'] as Map<String, dynamic>?;
+    final virtueItems = virtuesData['items'] as List<dynamic>? ?? [];
+    if (virtueItems.isEmpty) return const SizedBox.shrink();
 
     return Container(
       padding: responsive.paddingRegular,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
-        border: Border.all(
-          color: AppColors.lightGreenBorder,
-          width: 1.5,
-        ),
+        border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
         boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1561,7 +1342,7 @@ ${_getCurrentTranslation(dua)}
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    _tr(_firestoreRules?['title'], fallback: 'Virtues of Fasting'),
+                    _tr(virtuesTitle, fallback: 'Virtues of Fasting'),
                     style: TextStyle(
                       fontSize: responsive.fontSize(18),
                       fontWeight: FontWeight.bold,
@@ -1573,94 +1354,101 @@ ${_getCurrentTranslation(dua)}
             ],
           ),
           SizedBox(height: responsive.spacing(16)),
-          ...virtues.map((virtue) => Padding(
-            padding: EdgeInsets.only(bottom: responsive.spacing(12)),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: responsive.paddingAll(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
-                  ),
-                  child: Icon(
-                    _getIconData(virtue['icon'] as String?),
-                    color: AppColors.primary,
-                    size: responsive.iconSize(20),
-                  ),
+          ...virtueItems.map(
+            (virtue) {
+              final v = virtue as Map<String, dynamic>;
+              return Padding(
+                padding: EdgeInsets.only(bottom: responsive.spacing(12)),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: responsive.paddingAll(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(
+                          responsive.borderRadius(8),
+                        ),
+                      ),
+                      child: Icon(
+                        _getIconData(v['icon'] as String?),
+                        color: AppColors.primary,
+                        size: responsive.iconSize(20),
+                      ),
+                    ),
+                    SizedBox(width: responsive.spacing(12)),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _tr(v['title']),
+                            style: TextStyle(
+                              fontSize: responsive.fontSize(14),
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          SizedBox(height: responsive.spacing(4)),
+                          Text(
+                            _tr(v['description']),
+                            style: TextStyle(
+                              fontSize: responsive.fontSize(12),
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          SizedBox(height: responsive.spacing(2)),
+                          Text(
+                            '- ${_tr(v['reference'])}',
+                            style: TextStyle(
+                              fontSize: responsive.fontSize(10),
+                              fontStyle: FontStyle.italic,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(width: responsive.spacing(12)),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _tr(virtue['title']),
-                        style: TextStyle(
-                          fontSize: responsive.fontSize(14),
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      SizedBox(height: responsive.spacing(4)),
-                      Text(
-                        _tr(virtue['description']),
-                        style: TextStyle(
-                          fontSize: responsive.fontSize(12),
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      SizedBox(height: responsive.spacing(2)),
-                      Text(
-                        '- ${virtue['reference'] ?? ''}',
-                        style: TextStyle(
-                          fontSize: responsive.fontSize(10),
-                          fontStyle: FontStyle.italic,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          )),
+              );
+            },
+          ),
         ],
       ),
     );
   }
 
   Widget _buildFastingRulesSection(ResponsiveUtils responsive) {
-    if (_isRulesLoading && _firestoreRules == null) {
-      return Center(
-        child: Padding(
-          padding: responsive.paddingLarge,
-          child: CircularProgressIndicator(color: AppColors.primary),
-        ),
-      );
+    final rulesData = _content?.rules;
+    if (rulesData == null || _isLoading) {
+      if (_isLoading) {
+        return Center(
+          child: Padding(
+            padding: responsive.paddingLarge,
+            child: CircularProgressIndicator(color: AppColors.primary),
+          ),
+        );
+      }
+      return const SizedBox.shrink();
     }
-    if (_firestoreRules == null) return const SizedBox.shrink();
 
-    final breaksFast = (_firestoreRules!['breaks_fast'] as List<dynamic>? ?? []);
-    final doesNotBreak = (_firestoreRules!['does_not_break_fast'] as List<dynamic>? ?? []);
+    final breaksFast = (rulesData['breaks_fast'] as List<dynamic>? ?? []);
+    final doesNotBreak = (rulesData['does_not_break_fast'] as List<dynamic>? ?? []);
 
     return Container(
       padding: responsive.paddingRegular,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
-        border: Border.all(
-          color: AppColors.lightGreenBorder,
-          width: 1.5,
-        ),
+        border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
         boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1678,7 +1466,7 @@ ${_getCurrentTranslation(dua)}
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    _tr(_firestoreRules!['title'], fallback: 'Fasting Rules'),
+                    _tr(rulesData['title'], fallback: 'Fasting Rules'),
                     style: TextStyle(
                       fontSize: responsive.fontSize(18),
                       fontWeight: FontWeight.bold,
@@ -1691,7 +1479,6 @@ ${_getCurrentTranslation(dua)}
           ),
           SizedBox(height: responsive.spacing(16)),
 
-          // What breaks the fast
           Container(
             padding: responsive.paddingAll(12),
             decoration: BoxDecoration(
@@ -1707,40 +1494,29 @@ ${_getCurrentTranslation(dua)}
                     Icon(Icons.cancel, color: Colors.red.shade700, size: responsive.iconSize(18)),
                     SizedBox(width: responsive.spacing(8)),
                     Text(
-                      _tr(_firestoreRules!['breaks_fast_title'], fallback: 'What Breaks the Fast'),
-                      style: TextStyle(
-                        fontSize: responsive.fontSize(14),
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red.shade700,
-                      ),
+                      _tr(rulesData['breaks_fast_title'], fallback: 'What Breaks the Fast'),
+                      style: TextStyle(fontSize: responsive.fontSize(14), fontWeight: FontWeight.bold, color: Colors.red.shade700),
                     ),
                   ],
                 ),
                 SizedBox(height: responsive.spacing(8)),
-                ...breaksFast.map((item) => Padding(
-                  padding: EdgeInsets.symmetric(vertical: responsive.spacing(2)),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('\u2022 ', style: TextStyle(color: Colors.red.shade700, fontSize: responsive.fontSize(12))),
-                      Expanded(
-                        child: Text(
-                          _tr(item),
-                          style: TextStyle(
-                            fontSize: responsive.fontSize(12),
-                            color: Colors.red.shade700,
-                          ),
-                        ),
-                      ),
-                    ],
+                ...breaksFast.map(
+                  (item) => Padding(
+                    padding: EdgeInsets.symmetric(vertical: responsive.spacing(2)),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('\u2022 ', style: TextStyle(color: Colors.red.shade700, fontSize: responsive.fontSize(12))),
+                        Expanded(child: Text(_tr(item), style: TextStyle(fontSize: responsive.fontSize(12), color: Colors.red.shade700))),
+                      ],
+                    ),
                   ),
-                )),
+                ),
               ],
             ),
           ),
           SizedBox(height: responsive.spacing(12)),
 
-          // What doesn\'t break the fast
           Container(
             padding: responsive.paddingAll(12),
             decoration: BoxDecoration(
@@ -1756,34 +1532,24 @@ ${_getCurrentTranslation(dua)}
                     Icon(Icons.check_circle, color: Colors.green.shade700, size: responsive.iconSize(18)),
                     SizedBox(width: responsive.spacing(8)),
                     Text(
-                      _tr(_firestoreRules!['does_not_break_fast_title'], fallback: 'Does Not Break Fast'),
-                      style: TextStyle(
-                        fontSize: responsive.fontSize(14),
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green.shade700,
-                      ),
+                      _tr(rulesData['does_not_break_fast_title'], fallback: 'Does Not Break Fast'),
+                      style: TextStyle(fontSize: responsive.fontSize(14), fontWeight: FontWeight.bold, color: Colors.green.shade700),
                     ),
                   ],
                 ),
                 SizedBox(height: responsive.spacing(8)),
-                ...doesNotBreak.map((item) => Padding(
-                  padding: EdgeInsets.symmetric(vertical: responsive.spacing(2)),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('\u2022 ', style: TextStyle(color: Colors.green.shade700, fontSize: responsive.fontSize(12))),
-                      Expanded(
-                        child: Text(
-                          _tr(item),
-                          style: TextStyle(
-                            fontSize: responsive.fontSize(12),
-                            color: Colors.green.shade700,
-                          ),
-                        ),
-                      ),
-                    ],
+                ...doesNotBreak.map(
+                  (item) => Padding(
+                    padding: EdgeInsets.symmetric(vertical: responsive.spacing(2)),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('\u2022 ', style: TextStyle(color: Colors.green.shade700, fontSize: responsive.fontSize(12))),
+                        Expanded(child: Text(_tr(item), style: TextStyle(fontSize: responsive.fontSize(12), color: Colors.green.shade700))),
+                      ],
+                    ),
                   ),
-                )),
+                ),
               ],
             ),
           ),
@@ -1793,24 +1559,27 @@ ${_getCurrentTranslation(dua)}
   }
 
   Widget _buildIslamicMonthsChart(ResponsiveUtils responsive) {
-    if (_isMonthsLoading && _firestoreMonths == null) {
-      return Center(
-        child: Padding(
-          padding: responsive.paddingLarge,
-          child: CircularProgressIndicator(color: AppColors.primary),
-        ),
-      );
+    final monthsData = _content?.islamicMonths;
+    if (monthsData == null || _isLoading) {
+      if (_isLoading) {
+        return Center(
+          child: Padding(
+            padding: responsive.paddingLarge,
+            child: CircularProgressIndicator(color: AppColors.primary),
+          ),
+        );
+      }
+      return const SizedBox.shrink();
     }
-    if (_firestoreMonths == null) return const SizedBox.shrink();
 
-    final months = _firestoreMonths!['months'] as List<dynamic>? ?? [];
-    final labels = _firestoreMonths!['section_labels'] as Map<String, dynamic>? ?? {};
+    final months = monthsData['months'] as List<dynamic>? ?? [];
+    final labels = monthsData['section_labels'] as Map<String, dynamic>? ?? {};
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _tr(_firestoreMonths!['title'], fallback: 'Islamic 12 Months - Fasting Chart'),
+          _tr(monthsData['title'], fallback: 'Islamic 12 Months - Fasting Chart'),
           style: TextStyle(
             fontSize: responsive.textLarge,
             fontWeight: FontWeight.bold,
@@ -1821,16 +1590,17 @@ ${_getCurrentTranslation(dua)}
         ...months.asMap().entries.map(
           (entry) => Padding(
             padding: EdgeInsets.only(bottom: responsive.spaceSmall),
-            child: _buildMonthCard(entry.key, entry.value as Map<String, dynamic>, labels, responsive),
+            child: _buildMonthCard(
+              entry.key,
+              entry.value as Map<String, dynamic>,
+              labels,
+              responsive,
+            ),
           ),
         ),
         SizedBox(height: responsive.spaceRegular),
-
-        // Prohibited Days Summary
         _buildProhibitedDaysSummary(labels, responsive),
         SizedBox(height: responsive.spaceRegular),
-
-        // Quick Rules
         _buildQuickRulesSummary(labels, responsive),
       ],
     );
@@ -1854,30 +1624,23 @@ ${_getCurrentTranslation(dua)}
           color: Colors.white,
           borderRadius: BorderRadius.circular(responsive.radiusLarge),
           border: Border.all(
-            color: (isExpanded
-                      ? AppColors.primaryLight
-                      : AppColors.lightGreenBorder),
+            color: (isExpanded ? AppColors.primaryLight : AppColors.lightGreenBorder),
             width: isExpanded ? 2 : 1.5,
           ),
           boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(
-                      alpha: isExpanded ? 0.12 : 0.08,
-                    ),
-                    blurRadius: isExpanded ? 12 : 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: isExpanded ? 0.12 : 0.08),
+              blurRadius: isExpanded ? 12 : 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           children: [
-            // Header
             Container(
               padding: responsive.paddingRegular,
               decoration: BoxDecoration(
-                color: isExpanded
-                    ? monthColor.withValues(alpha: 0.1)
-                    : Colors.transparent,
+                color: isExpanded ? monthColor.withValues(alpha: 0.1) : Colors.transparent,
                 borderRadius: BorderRadius.vertical(
                   top: const Radius.circular(15),
                   bottom: isExpanded ? Radius.zero : const Radius.circular(15),
@@ -1925,28 +1688,24 @@ ${_getCurrentTranslation(dua)}
                     ),
                   ),
                   Icon(
-                    isExpanded
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
+                    isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                     color: monthColor,
                   ),
                 ],
               ),
             ),
-
-            // Expanded Content
             if (isExpanded)
               Container(
-                padding: responsive.paddingOnly(
-                  left: 16,
-                  right: 16,
-                  bottom: 16,
-                ),
+                padding: responsive.paddingOnly(left: 16, right: 16, bottom: 16),
                 child: Column(
                   children: [
                     const Divider(),
                     ...fastingDays.map(
-                      (day) => _buildFastingDayRow(day as Map<String, dynamic>, labels, responsive),
+                      (day) => _buildFastingDayRow(
+                        day as Map<String, dynamic>,
+                        labels,
+                        responsive,
+                      ),
                     ),
                   ],
                 ),
@@ -1996,11 +1755,7 @@ ${_getCurrentTranslation(dua)}
               color: typeColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
             ),
-            child: Icon(
-              typeIcon,
-              color: typeColor,
-              size: responsive.iconSize(18),
-            ),
+            child: Icon(typeIcon, color: typeColor, size: responsive.iconSize(18)),
           ),
           SizedBox(width: responsive.spacing(12)),
           Expanded(
@@ -2013,37 +1768,25 @@ ${_getCurrentTranslation(dua)}
                     fontSize: responsive.fontSize(14),
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
-                    decoration: typeStr == 'prohibited'
-                        ? TextDecoration.lineThrough
-                        : null,
+                    decoration: typeStr == 'prohibited' ? TextDecoration.lineThrough : null,
                   ),
                 ),
                 Text(
                   _tr(day['desc']),
-                  style: TextStyle(
-                    fontSize: responsive.fontSize(12),
-                    color: AppColors.textSecondary,
-                  ),
+                  style: TextStyle(fontSize: responsive.fontSize(12), color: AppColors.textSecondary),
                 ),
               ],
             ),
           ),
           Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: responsive.spacing(8),
-              vertical: responsive.spacing(4),
-            ),
+            padding: EdgeInsets.symmetric(horizontal: responsive.spacing(8), vertical: responsive.spacing(4)),
             decoration: BoxDecoration(
               color: typeColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(responsive.borderRadius(12)),
             ),
             child: Text(
               typeLabel,
-              style: TextStyle(
-                fontSize: responsive.fontSize(10),
-                fontWeight: FontWeight.bold,
-                color: typeColor,
-              ),
+              style: TextStyle(fontSize: responsive.fontSize(10), fontWeight: FontWeight.bold, color: typeColor),
             ),
           ),
         ],
@@ -2051,8 +1794,11 @@ ${_getCurrentTranslation(dua)}
     );
   }
 
-  Widget _buildProhibitedDaysSummary(Map<String, dynamic> labels, ResponsiveUtils responsive) {
-    final prohibitedDays = _firestoreMonths?['prohibited_days'] as List<dynamic>? ?? [];
+  Widget _buildProhibitedDaysSummary(
+    Map<String, dynamic> labels,
+    ResponsiveUtils responsive,
+  ) {
+    final prohibitedDays = _content?.islamicMonths['prohibited_days'] as List<dynamic>? ?? [];
     if (prohibitedDays.isEmpty) return const SizedBox.shrink();
 
     return Container(
@@ -2067,19 +1813,11 @@ ${_getCurrentTranslation(dua)}
         children: [
           Row(
             children: [
-              Icon(
-                Icons.cancel,
-                color: Colors.red.shade700,
-                size: responsive.iconSize(24),
-              ),
+              Icon(Icons.cancel, color: Colors.red.shade700, size: responsive.iconSize(24)),
               SizedBox(width: responsive.spacing(8)),
               Text(
                 _tr(labels['fasting_prohibited'], fallback: 'Fasting PROHIBITED'),
-                style: TextStyle(
-                  fontSize: responsive.fontSize(16),
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red.shade700,
-                ),
+                style: TextStyle(fontSize: responsive.fontSize(16), fontWeight: FontWeight.bold, color: Colors.red.shade700),
               ),
             ],
           ),
@@ -2089,21 +1827,9 @@ ${_getCurrentTranslation(dua)}
               padding: EdgeInsets.symmetric(vertical: responsive.spacing(4)),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.block,
-                    color: Colors.red.shade400,
-                    size: responsive.iconSize(16),
-                  ),
+                  Icon(Icons.block, color: Colors.red.shade400, size: responsive.iconSize(16)),
                   SizedBox(width: responsive.spacing(8)),
-                  Expanded(
-                    child: Text(
-                      _tr(day),
-                      style: TextStyle(
-                        fontSize: responsive.fontSize(14),
-                        color: Colors.red.shade700,
-                      ),
-                    ),
-                  ),
+                  Expanded(child: Text(_tr(day), style: TextStyle(fontSize: responsive.fontSize(14), color: Colors.red.shade700))),
                 ],
               ),
             ),
@@ -2113,8 +1839,11 @@ ${_getCurrentTranslation(dua)}
     );
   }
 
-  Widget _buildQuickRulesSummary(Map<String, dynamic> labels, ResponsiveUtils responsive) {
-    final quickRules = _firestoreMonths?['quick_rules'] as List<dynamic>? ?? [];
+  Widget _buildQuickRulesSummary(
+    Map<String, dynamic> labels,
+    ResponsiveUtils responsive,
+  ) {
+    final quickRules = _content?.islamicMonths['quick_rules'] as List<dynamic>? ?? [];
     if (quickRules.isEmpty) return const SizedBox.shrink();
 
     return Container(
@@ -2122,36 +1851,25 @@ ${_getCurrentTranslation(dua)}
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
-        border: Border.all(
-          color: AppColors.lightGreenBorder,
-          width: 1.5,
-        ),
+        border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
         boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(
-                Icons.lightbulb,
-                color: AppColors.secondary,
-                size: responsive.iconSize(24),
-              ),
+              Icon(Icons.lightbulb, color: AppColors.secondary, size: responsive.iconSize(24)),
               SizedBox(width: responsive.spacing(8)),
               Text(
                 _tr(labels['quick_rules_remember'], fallback: 'Quick Rules'),
-                style: TextStyle(
-                  fontSize: responsive.fontSize(16),
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
+                style: TextStyle(fontSize: responsive.fontSize(16), fontWeight: FontWeight.bold, color: AppColors.textPrimary),
               ),
             ],
           ),
@@ -2170,22 +1888,9 @@ ${_getCurrentTranslation(dua)}
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          _tr(r['label']),
-                          style: TextStyle(
-                            fontSize: responsive.fontSize(14),
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
+                        Text(_tr(r['label']), style: TextStyle(fontSize: responsive.fontSize(14), fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
                         SizedBox(height: responsive.spacing(2)),
-                        Text(
-                          _tr(r['value']),
-                          style: TextStyle(
-                            fontSize: responsive.fontSize(13),
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
+                        Text(_tr(r['value']), style: TextStyle(fontSize: responsive.fontSize(13), color: AppColors.textSecondary)),
                       ],
                     ),
                   ),

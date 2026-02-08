@@ -132,7 +132,6 @@ class _DuaListScreenState extends State<DuaListScreen> {
                   _searchQuery = '';
                 });
               },
-              enableVoiceSearch: true,
             ),
           ),
           VSpace.large,
@@ -149,7 +148,10 @@ class _DuaListScreenState extends State<DuaListScreen> {
                     itemCount: AdListHelper.totalCount(filteredDuas.length),
                     itemBuilder: (context, index) {
                       if (AdListHelper.isAdPosition(index)) {
-                        return const NativeAdWidget();
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: BannerAdWidget(height: 250),
+                        );
                       }
                       final dataIdx = AdListHelper.dataIndex(index);
                       final dua = filteredDuas[dataIdx];

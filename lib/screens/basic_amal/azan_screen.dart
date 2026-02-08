@@ -6,6 +6,7 @@ import '../../core/services/content_service.dart';
 import 'basic_amal_detail_screen.dart';
 import '../../core/utils/ad_navigation.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class AzanScreen extends StatefulWidget {
   const AzanScreen({super.key});
@@ -97,9 +98,17 @@ class _AzanScreenState extends State<AzanScreen> {
                       ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _allSections.length,
-                        itemBuilder: (context, index) =>
-                            _buildCard(_allSections[index]),
+                        itemCount: AdListHelper.totalCount(_allSections.length),
+                        itemBuilder: (context, index) {
+                          if (AdListHelper.isAdPosition(index)) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: BannerAdWidget(height: 250),
+                            );
+                          }
+                          final dataIdx = AdListHelper.dataIndex(index);
+                          return _buildCard(_allSections[dataIdx]);
+                        },
                       ),
                     ],
                   ),

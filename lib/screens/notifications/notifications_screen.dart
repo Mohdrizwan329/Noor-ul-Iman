@@ -7,6 +7,7 @@ import '../../data/models/firestore_models.dart';
 import '../../providers/adhan_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -306,9 +307,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       color: AppColors.primary,
       child: ListView.builder(
         padding: responsive.paddingRegular,
-        itemCount: sortedDateKeys.length,
+        itemCount: AdListHelper.totalCount(sortedDateKeys.length),
         itemBuilder: (context, index) {
-          final dateKey = sortedDateKeys[index];
+          if (AdListHelper.isAdPosition(index)) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: BannerAdWidget(height: 250),
+            );
+          }
+          final dataIdx = AdListHelper.dataIndex(index);
+          final dateKey = sortedDateKeys[dataIdx];
           final dayNotificationsList = groupedNotifications[dateKey];
 
           // Skip if null or empty

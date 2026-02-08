@@ -6,6 +6,7 @@ import '../../widgets/common/search_bar_widget.dart';
 import 'basic_amal_detail_screen.dart';
 import '../../core/utils/ad_navigation.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 import '../../core/services/content_service.dart';
 
 class NamazGuideScreen extends StatefulWidget {
@@ -157,7 +158,6 @@ class _NamazGuideScreenState extends State<NamazGuideScreen> {
                   _searchQuery = '';
                 });
               },
-              enableVoiceSearch: true,
             ),
           ),
 
@@ -189,13 +189,17 @@ class _NamazGuideScreenState extends State<NamazGuideScreen> {
                       )
                     : ListView.builder(
                         padding: context.responsive.paddingRegular,
-                        itemCount: filteredNamazCategories.length,
+                        itemCount: AdListHelper.totalCount(filteredNamazCategories.length),
                         itemBuilder: (context, index) {
-                          final namaz = filteredNamazCategories[index];
-                          return _buildNamazCard(
-                            namaz,
-                            index,
-                          );
+                          if (AdListHelper.isAdPosition(index)) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: BannerAdWidget(height: 250),
+                            );
+                          }
+                          final dataIdx = AdListHelper.dataIndex(index);
+                          final namaz = filteredNamazCategories[dataIdx];
+                          return _buildNamazCard(namaz, dataIdx);
                         },
                       ),
           ),

@@ -150,7 +150,6 @@ class _NamesOfAllahScreenState extends State<NamesOfAllahScreen> {
               hintText: context.tr('search_name_meaning_number'),
               onChanged: _filterNames,
               onClear: () => _filterNames(''),
-              enableVoiceSearch: true,
             ),
           ),
 

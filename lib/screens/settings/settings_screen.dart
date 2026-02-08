@@ -328,7 +328,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // Get display name
     String displayName = authProvider.displayName;
 
-    if (defaultUserNames.contains(displayName)) {
+    if (displayName.isEmpty || defaultUserNames.contains(displayName)) {
       displayName = _t('user');
     } else {
       displayName = _transliterateName(displayName);
@@ -336,6 +336,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     String profileName;
     if (settings.profileName.isEmpty ||
+        settings.profileName == 'User' ||
         defaultUserNames.contains(settings.profileName)) {
       profileName = displayName;
     } else {

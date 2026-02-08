@@ -13,6 +13,7 @@ import '../../data/models/firestore_models.dart';
 import '../../widgets/common/search_bar_widget.dart';
 import '../../widgets/common/header_action_button.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 import '../../core/services/content_service.dart';
 
 class SurahDetailScreen extends StatefulWidget {
@@ -364,7 +365,6 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                       _searchQuery = '';
                     });
                   },
-                  enableVoiceSearch: true,
                 ),
               ),
 
@@ -380,9 +380,16 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                     : ListView.builder(
                         controller: _scrollController,
                         padding: responsive.paddingAll(12),
-                        itemCount: cardCount,
+                        itemCount: AdListHelper.totalCount(cardCount),
                         itemBuilder: (context, cardIndex) {
-                          final ayahIndices = _getAyahIndicesForCard(cardIndex, totalAyahs);
+                          if (AdListHelper.isAdPosition(cardIndex)) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: BannerAdWidget(height: 250),
+                            );
+                          }
+                          final dataIdx = AdListHelper.dataIndex(cardIndex);
+                          final ayahIndices = _getAyahIndicesForCard(dataIdx, totalAyahs);
                           final ayahs = ayahIndices.map((i) => filteredAyahs[i]).toList();
 
                           // Get translations for filtered ayahs by matching ayah numbers
@@ -401,7 +408,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                             provider,
                             settings.arabicFontSize,
                             settings.translationFontSize,
-                            cardIndex,
+                            dataIdx,
                           );
                         },
                       ),
@@ -550,9 +557,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
               children: ayahs.asMap().entries.map((entry) {
                 final ayah = entry.value;
                 final isPlaying = _playingAyah == ayah.number;
-                return GestureDetector(
-                  onTap: isPlaying ? _stopPlaying : () => _playAyah(ayah),
-                  child: Container(
+                return Container(
                     margin: entry.key < ayahs.length - 1
                         ? responsive.paddingOnly(bottom: 12)
                         : EdgeInsets.zero,
@@ -594,8 +599,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                         ),
                       ],
                     ),
-                  ),
-                );
+                  );
               }).toList(),
             ),
           ),

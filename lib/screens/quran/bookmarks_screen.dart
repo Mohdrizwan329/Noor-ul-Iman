@@ -5,8 +5,6 @@ import '../../core/utils/app_utils.dart';
 import '../../providers/quran_provider.dart';
 import '../../widgets/common/empty_state_widget.dart';
 import 'surah_detail_screen.dart';
-import '../../core/utils/ad_navigation.dart';
-import '../../widgets/common/banner_ad_widget.dart';
 
 class BookmarksScreen extends StatelessWidget {
   const BookmarksScreen({super.key});
@@ -16,9 +14,7 @@ class BookmarksScreen extends StatelessWidget {
     final responsive = context.responsive;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.tr('bookmarked_ayahs')),
-      ),
+      appBar: AppBar(title: Text(context.tr('bookmarked_ayahs'))),
       body: Consumer<QuranProvider>(
         builder: (context, provider, child) {
           final bookmarks = provider.bookmarks.toList();
@@ -29,10 +25,10 @@ class BookmarksScreen extends StatelessWidget {
                 Expanded(
                   child: EmptyStateWidget(
                     icon: Icons.bookmark_border,
-                    message: '${context.tr('no_bookmarks')}\n${context.tr('bookmark_hint')}',
+                    message:
+                        '${context.tr('no_bookmarks')}\n${context.tr('bookmark_hint')}',
                   ),
                 ),
-                const BannerAdWidget(),
               ],
             );
           }
@@ -41,7 +37,9 @@ class BookmarksScreen extends StatelessWidget {
           bookmarks.sort((a, b) {
             final aParts = a.split(':');
             final bParts = b.split(':');
-            final surahCompare = int.parse(aParts[0]).compareTo(int.parse(bParts[0]));
+            final surahCompare = int.parse(
+              aParts[0],
+            ).compareTo(int.parse(bParts[0]));
             if (surahCompare != 0) return surahCompare;
             return int.parse(aParts[1]).compareTo(int.parse(bParts[1]));
           });
@@ -75,7 +73,6 @@ class BookmarksScreen extends StatelessWidget {
                   },
                 ),
               ),
-              const BannerAdWidget(),
             ],
           );
         },
@@ -100,7 +97,12 @@ class BookmarksScreen extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          AdNavigator.push(context, SurahDetailScreen(surahNumber: surahNumber));
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => SurahDetailScreen(surahNumber: surahNumber),
+            ),
+          );
         },
         borderRadius: BorderRadius.circular(responsive.radiusMedium),
         child: Padding(
@@ -174,7 +176,11 @@ class BookmarksScreen extends StatelessWidget {
 
               // Delete button
               IconButton(
-                icon: Icon(Icons.delete_outline, color: Colors.red[400], size: responsive.iconMedium),
+                icon: Icon(
+                  Icons.delete_outline,
+                  color: Colors.red[400],
+                  size: responsive.iconMedium,
+                ),
                 onPressed: () {
                   _showDeleteConfirmation(
                     context,
@@ -204,7 +210,10 @@ class BookmarksScreen extends StatelessWidget {
       builder: (dialogContext) => AlertDialog(
         title: Text(dialogContext.tr('remove_bookmark')),
         content: Text(
-          dialogContext.tr('remove_bookmark_confirmation').replaceAll('{surah}', surahName).replaceAll('{ayah}', ayahNumber.toString()),
+          dialogContext
+              .tr('remove_bookmark_confirmation')
+              .replaceAll('{surah}', surahName)
+              .replaceAll('{ayah}', ayahNumber.toString()),
         ),
         actions: [
           TextButton(

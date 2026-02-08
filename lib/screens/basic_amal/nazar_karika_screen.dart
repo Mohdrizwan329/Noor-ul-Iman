@@ -6,6 +6,7 @@ import '../../core/services/content_service.dart';
 import 'basic_amal_detail_screen.dart';
 import '../../core/utils/ad_navigation.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class NazarKarikaScreen extends StatefulWidget {
   const NazarKarikaScreen({super.key});
@@ -116,13 +117,17 @@ class _NazarKarikaScreenState extends State<NazarKarikaScreen> {
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _allItems.length,
+                    itemCount: AdListHelper.totalCount(_allItems.length),
                     itemBuilder: (context, index) {
-                      final nazar = _allItems[index];
-                      return _buildNazarCard(
-                        nazar,
-                        index,
-                      );
+                      if (AdListHelper.isAdPosition(index)) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: BannerAdWidget(height: 250),
+                        );
+                      }
+                      final dataIdx = AdListHelper.dataIndex(index);
+                      final nazar = _allItems[dataIdx];
+                      return _buildNazarCard(nazar, dataIdx);
                     },
                   ),
                 ],

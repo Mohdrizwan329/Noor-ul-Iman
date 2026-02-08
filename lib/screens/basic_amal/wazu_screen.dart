@@ -7,6 +7,7 @@ import '../../widgets/common/search_bar_widget.dart';
 import 'basic_amal_detail_screen.dart';
 import '../../core/utils/ad_navigation.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class WazuScreen extends StatefulWidget {
   const WazuScreen({super.key});
@@ -188,7 +189,6 @@ class _WazuScreenState extends State<WazuScreen> {
                     _searchQuery = '';
                   });
                 },
-                enableVoiceSearch: true,
               ),
             ),
 
@@ -220,12 +220,17 @@ class _WazuScreenState extends State<WazuScreen> {
                 : ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: filteredWazuSteps.length,
+                    itemCount: AdListHelper.totalCount(filteredWazuSteps.length),
                     itemBuilder: (context, index) {
-                      final step = filteredWazuSteps[index];
-                      return _buildStepCard(
-                        step,
-                      );
+                      if (AdListHelper.isAdPosition(index)) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: BannerAdWidget(height: 250),
+                        );
+                      }
+                      final dataIdx = AdListHelper.dataIndex(index);
+                      final step = filteredWazuSteps[dataIdx];
+                      return _buildStepCard(step);
                     },
                   ),
 
@@ -248,12 +253,17 @@ class _WazuScreenState extends State<WazuScreen> {
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: filteredAdditionalInfo.length,
+                  itemCount: AdListHelper.totalCount(filteredAdditionalInfo.length),
                   itemBuilder: (context, index) {
-                    final info = filteredAdditionalInfo[index];
-                    return _buildInfoCard(
-                      info,
-                    );
+                    if (AdListHelper.isAdPosition(index)) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: BannerAdWidget(height: 250),
+                      );
+                    }
+                    final dataIdx = AdListHelper.dataIndex(index);
+                    final info = filteredAdditionalInfo[dataIdx];
+                    return _buildInfoCard(info);
                   },
                 ),
               ],

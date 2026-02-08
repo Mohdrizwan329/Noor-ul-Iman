@@ -1127,7 +1127,7 @@ class FastingDuaFirestore {
   final String transliteration;
   final MultilingualText translation;
   final String color;
-  final String? reference;
+  final dynamic reference;
 
   FastingDuaFirestore({
     required this.titleKey,
@@ -1148,7 +1148,7 @@ class FastingDuaFirestore {
       translation:
           MultilingualText.fromJson(json['translation'] as Map<String, dynamic>?),
       color: json['color'] as String? ?? '#000000',
-      reference: json['reference'] as String?,
+      reference: json['reference'],
     );
   }
 
@@ -2390,4 +2390,305 @@ class UITranslationsFirestore {
   Map<String, dynamic> toJson() => {
         'translations': translations,
       };
+}
+
+/// Fasting times screen content model for Firestore with multilingual support
+/// Contains all fasting data: duas, virtues, rules, islamic months chart
+class FastingTimesContentFirestore {
+  final Map<String, MultilingualText> strings;
+  final List<Map<String, dynamic>> duas;
+  final Map<String, dynamic> virtues;
+  final Map<String, dynamic> rules;
+  final Map<String, dynamic> islamicMonths;
+  final Map<String, String> hijriMonthKeys;
+
+  FastingTimesContentFirestore({
+    required this.strings,
+    required this.duas,
+    required this.virtues,
+    required this.rules,
+    required this.islamicMonths,
+    required this.hijriMonthKeys,
+  });
+
+  factory FastingTimesContentFirestore.fromJson(Map<String, dynamic> json) {
+    final stringsMap = <String, MultilingualText>{};
+    final rawStrings = json['strings'] as Map<String, dynamic>? ?? {};
+    for (final entry in rawStrings.entries) {
+      stringsMap[entry.key] = MultilingualText.fromJson(
+        entry.value as Map<String, dynamic>?,
+      );
+    }
+
+    final duasList = <Map<String, dynamic>>[];
+    for (final d in (json['duas'] as List<dynamic>? ?? [])) {
+      duasList.add(Map<String, dynamic>.from(d as Map));
+    }
+
+    return FastingTimesContentFirestore(
+      strings: stringsMap,
+      duas: duasList,
+      virtues: Map<String, dynamic>.from(json['virtues'] as Map? ?? {}),
+      rules: Map<String, dynamic>.from(json['rules'] as Map? ?? {}),
+      islamicMonths: Map<String, dynamic>.from(json['islamic_months'] as Map? ?? {}),
+      hijriMonthKeys: (json['hijri_month_keys'] as Map<String, dynamic>? ?? {})
+          .map((k, v) => MapEntry(k, v.toString())),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final stringsJson = <String, dynamic>{};
+    for (final entry in strings.entries) {
+      stringsJson[entry.key] = entry.value.toJson();
+    }
+    return {
+      'strings': stringsJson,
+      'duas': duas,
+      'virtues': virtues,
+      'rules': rules,
+      'islamic_months': islamicMonths,
+      'hijri_month_keys': hijriMonthKeys,
+    };
+  }
+
+  /// Get a translated string by key and language code
+  String getString(String key, String languageCode) {
+    final text = strings[key];
+    if (text == null) return key;
+    return text.get(languageCode);
+  }
+}
+
+/// Feature item within a home screen section
+class HomeFeatureItemFirestore {
+  final String key;
+  final String titleKey;
+  final String icon;
+  final String color;
+  final String route;
+  final String? emoji;
+  final int order;
+  final Map<String, dynamic>? navParams;
+
+  HomeFeatureItemFirestore({
+    required this.key,
+    required this.titleKey,
+    required this.icon,
+    required this.color,
+    required this.route,
+    this.emoji,
+    required this.order,
+    this.navParams,
+  });
+
+  factory HomeFeatureItemFirestore.fromJson(Map<String, dynamic> json) {
+    return HomeFeatureItemFirestore(
+      key: json['key'] as String? ?? '',
+      titleKey: json['title_key'] as String? ?? '',
+      icon: json['icon'] as String? ?? '',
+      color: json['color'] as String? ?? '#000000',
+      route: json['route'] as String? ?? '',
+      emoji: json['emoji'] as String?,
+      order: json['order'] as int? ?? 0,
+      navParams: json['nav_params'] as Map<String, dynamic>?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'key': key,
+    'title_key': titleKey,
+    'icon': icon,
+    'color': color,
+    'route': route,
+    if (emoji != null) 'emoji': emoji,
+    'order': order,
+    if (navParams != null) 'nav_params': navParams,
+  };
+}
+
+/// Section definition for home screen
+class HomeSectionFirestore {
+  final String key;
+  final String titleKey;
+  final int order;
+  final List<HomeFeatureItemFirestore> features;
+
+  HomeSectionFirestore({
+    required this.key,
+    required this.titleKey,
+    required this.order,
+    required this.features,
+  });
+
+  factory HomeSectionFirestore.fromJson(Map<String, dynamic> json) {
+    final featuresList = <HomeFeatureItemFirestore>[];
+    for (final f in (json['features'] as List<dynamic>? ?? [])) {
+      featuresList.add(HomeFeatureItemFirestore.fromJson(f as Map<String, dynamic>));
+    }
+    featuresList.sort((a, b) => a.order.compareTo(b.order));
+
+    return HomeSectionFirestore(
+      key: json['key'] as String? ?? '',
+      titleKey: json['title_key'] as String? ?? '',
+      order: json['order'] as int? ?? 0,
+      features: featuresList,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'key': key,
+    'title_key': titleKey,
+    'order': order,
+    'features': features.map((f) => f.toJson()).toList(),
+  };
+}
+
+/// Prayer item definition for home screen carousel
+class HomePrayerItemFirestore {
+  final String key;
+  final String icon;
+  final int order;
+
+  HomePrayerItemFirestore({
+    required this.key,
+    required this.icon,
+    required this.order,
+  });
+
+  factory HomePrayerItemFirestore.fromJson(Map<String, dynamic> json) {
+    return HomePrayerItemFirestore(
+      key: json['key'] as String? ?? '',
+      icon: json['icon'] as String? ?? '',
+      order: json['order'] as int? ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'key': key,
+    'icon': icon,
+    'order': order,
+  };
+}
+
+/// Home screen content model for Firestore with multilingual support
+/// Contains all home screen data: sections, features, weather/AQI maps, prayers
+class HomeScreenContentFirestore {
+  final Map<String, MultilingualText> strings;
+  final List<HomeSectionFirestore> sections;
+  final Map<String, String> weatherMap;
+  final Map<String, String> aqiMap;
+  final Map<String, String> hijriMonthMap;
+  final List<String> hijriMonthKeys;
+  final List<HomePrayerItemFirestore> prayers;
+  final Map<String, String> eventIconMap;
+  final List<String> dayKeys;
+  final List<String> gregorianMonthKeys;
+
+  HomeScreenContentFirestore({
+    required this.strings,
+    required this.sections,
+    required this.weatherMap,
+    required this.aqiMap,
+    required this.hijriMonthMap,
+    required this.hijriMonthKeys,
+    required this.prayers,
+    required this.eventIconMap,
+    required this.dayKeys,
+    required this.gregorianMonthKeys,
+  });
+
+  factory HomeScreenContentFirestore.fromJson(Map<String, dynamic> json) {
+    // Parse strings
+    final stringsMap = <String, MultilingualText>{};
+    final rawStrings = json['strings'] as Map<String, dynamic>? ?? {};
+    for (final entry in rawStrings.entries) {
+      stringsMap[entry.key] = MultilingualText.fromJson(
+        entry.value as Map<String, dynamic>?,
+      );
+    }
+
+    // Parse sections
+    final sectionsList = <HomeSectionFirestore>[];
+    for (final s in (json['sections'] as List<dynamic>? ?? [])) {
+      sectionsList.add(HomeSectionFirestore.fromJson(s as Map<String, dynamic>));
+    }
+    sectionsList.sort((a, b) => a.order.compareTo(b.order));
+
+    // Parse prayers
+    final prayersList = <HomePrayerItemFirestore>[];
+    for (final p in (json['prayers'] as List<dynamic>? ?? [])) {
+      prayersList.add(HomePrayerItemFirestore.fromJson(p as Map<String, dynamic>));
+    }
+    prayersList.sort((a, b) => a.order.compareTo(b.order));
+
+    // Parse day keys
+    final dayKeysList = <String>[];
+    for (final d in (json['day_keys'] as List<dynamic>? ?? [])) {
+      dayKeysList.add(d.toString());
+    }
+
+    // Parse gregorian month keys
+    final monthKeysList = <String>[];
+    for (final m in (json['gregorian_month_keys'] as List<dynamic>? ?? [])) {
+      monthKeysList.add(m.toString());
+    }
+
+    // Parse hijri month keys
+    final hijriKeysList = <String>[];
+    for (final h in (json['hijri_month_keys'] as List<dynamic>? ?? [])) {
+      hijriKeysList.add(h.toString());
+    }
+
+    return HomeScreenContentFirestore(
+      strings: stringsMap,
+      sections: sectionsList,
+      weatherMap: (json['weather_map'] as Map<String, dynamic>? ?? {})
+          .map((k, v) => MapEntry(k, v.toString())),
+      aqiMap: (json['aqi_map'] as Map<String, dynamic>? ?? {})
+          .map((k, v) => MapEntry(k, v.toString())),
+      hijriMonthMap: (json['hijri_month_map'] as Map<String, dynamic>? ?? {})
+          .map((k, v) => MapEntry(k, v.toString())),
+      hijriMonthKeys: hijriKeysList,
+      prayers: prayersList,
+      eventIconMap: (json['event_icon_map'] as Map<String, dynamic>? ?? {})
+          .map((k, v) => MapEntry(k, v.toString())),
+      dayKeys: dayKeysList,
+      gregorianMonthKeys: monthKeysList,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final stringsJson = <String, dynamic>{};
+    for (final entry in strings.entries) {
+      stringsJson[entry.key] = entry.value.toJson();
+    }
+    return {
+      'strings': stringsJson,
+      'sections': sections.map((s) => s.toJson()).toList(),
+      'weather_map': weatherMap,
+      'aqi_map': aqiMap,
+      'hijri_month_map': hijriMonthMap,
+      'hijri_month_keys': hijriMonthKeys,
+      'prayers': prayers.map((p) => p.toJson()).toList(),
+      'event_icon_map': eventIconMap,
+      'day_keys': dayKeys,
+      'gregorian_month_keys': gregorianMonthKeys,
+    };
+  }
+
+  /// Get a translated string by key and language code
+  String getString(String key, String languageCode) {
+    final text = strings[key];
+    if (text == null) return key;
+    return text.get(languageCode);
+  }
+
+  /// Get section by key
+  HomeSectionFirestore? getSection(String key) {
+    try {
+      return sections.firstWhere((s) => s.key == key);
+    } catch (_) {
+      return null;
+    }
+  }
 }

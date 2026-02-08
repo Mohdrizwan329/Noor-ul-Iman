@@ -9,6 +9,7 @@ import '../../widgets/common/search_bar_widget.dart';
 import 'dua_detail_screen.dart';
 import '../../core/utils/ad_navigation.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class DuaCategoryScreen extends StatefulWidget {
   const DuaCategoryScreen({super.key});
@@ -102,7 +103,6 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
                       _searchQuery = '';
                     });
                   },
-                  enableVoiceSearch: true,
                 ),
               ),
 
@@ -131,9 +131,16 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
                       )
                     : ListView.builder(
                         padding: responsive.paddingSymmetric(horizontal: 16),
-                        itemCount: filteredCategories.length,
+                        itemCount: AdListHelper.totalCount(filteredCategories.length),
                         itemBuilder: (context, index) {
-                          final category = filteredCategories[index];
+                          if (AdListHelper.isAdPosition(index)) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: BannerAdWidget(height: 250),
+                            );
+                          }
+                          final dataIdx = AdListHelper.dataIndex(index);
+                          final category = filteredCategories[dataIdx];
                           return _buildCategoryWithDuas(
                             context,
                             category,

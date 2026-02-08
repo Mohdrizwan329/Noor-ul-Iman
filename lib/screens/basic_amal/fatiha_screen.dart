@@ -5,6 +5,7 @@ import '../../widgets/common/search_bar_widget.dart';
 import 'basic_amal_detail_screen.dart';
 import '../../core/utils/ad_navigation.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 import '../../core/services/content_service.dart';
 import '../../core/utils/icon_color_helpers.dart';
 
@@ -141,7 +142,6 @@ class _FatihaScreenState extends State<FatihaScreen> {
                     _searchQuery = '';
                   });
                 },
-                enableVoiceSearch: true,
               ),
             ),
 
@@ -173,12 +173,17 @@ class _FatihaScreenState extends State<FatihaScreen> {
                 : ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: filteredFatihaTypes.length,
+                    itemCount: AdListHelper.totalCount(filteredFatihaTypes.length),
                     itemBuilder: (context, index) {
-                      final fatiha = filteredFatihaTypes[index];
-                      return _buildFatihaCard(
-                        fatiha,
-                      );
+                      if (AdListHelper.isAdPosition(index)) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: BannerAdWidget(height: 250),
+                        );
+                      }
+                      final dataIdx = AdListHelper.dataIndex(index);
+                      final fatiha = filteredFatihaTypes[dataIdx];
+                      return _buildFatihaCard(fatiha);
                     },
                   ),
           ],

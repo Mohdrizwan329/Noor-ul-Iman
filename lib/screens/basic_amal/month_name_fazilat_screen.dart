@@ -7,6 +7,7 @@ import '../../widgets/common/search_bar_widget.dart';
 import 'basic_amal_detail_screen.dart';
 import '../../core/utils/ad_navigation.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class MonthNameFazilatScreen extends StatefulWidget {
   const MonthNameFazilatScreen({super.key});
@@ -127,7 +128,6 @@ class _MonthNameFazilatScreenState extends State<MonthNameFazilatScreen> {
                           _searchQuery = '';
                         });
                       },
-                      enableVoiceSearch: true,
                     ),
                   ),
 
@@ -159,9 +159,16 @@ class _MonthNameFazilatScreenState extends State<MonthNameFazilatScreen> {
                       : ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          itemCount: filteredMonths.length,
+                          itemCount: AdListHelper.totalCount(filteredMonths.length),
                           itemBuilder: (context, index) {
-                            final month = filteredMonths[index];
+                            if (AdListHelper.isAdPosition(index)) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                                child: BannerAdWidget(height: 250),
+                              );
+                            }
+                            final dataIdx = AdListHelper.dataIndex(index);
+                            final month = filteredMonths[dataIdx];
                             return _buildMonthCard(month);
                           },
                         ),

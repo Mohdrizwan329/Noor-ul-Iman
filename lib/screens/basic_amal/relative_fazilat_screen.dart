@@ -6,6 +6,7 @@ import '../../core/utils/icon_color_helpers.dart';
 import 'basic_amal_detail_screen.dart';
 import '../../core/utils/ad_navigation.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class RelativeFazilatScreen extends StatefulWidget {
   const RelativeFazilatScreen({super.key});
@@ -91,9 +92,16 @@ class _RelativeFazilatScreenState extends State<RelativeFazilatScreen> {
                       ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _allItems.length,
+                        itemCount: AdListHelper.totalCount(_allItems.length),
                         itemBuilder: (context, index) {
-                          final topic = _allItems[index];
+                          if (AdListHelper.isAdPosition(index)) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: BannerAdWidget(height: 250),
+                            );
+                          }
+                          final dataIdx = AdListHelper.dataIndex(index);
+                          final topic = _allItems[dataIdx];
                           return _buildTopicCard(topic);
                         },
                       ),

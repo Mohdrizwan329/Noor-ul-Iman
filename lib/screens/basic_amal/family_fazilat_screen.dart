@@ -6,6 +6,7 @@ import '../../core/utils/icon_color_helpers.dart';
 import 'basic_amal_detail_screen.dart';
 import '../../core/utils/ad_navigation.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class FamilyFazilatScreen extends StatefulWidget {
   const FamilyFazilatScreen({super.key});
@@ -28,24 +29,30 @@ class _FamilyFazilatScreenState extends State<FamilyFazilatScreen> {
   Future<void> _loadFromFirestore() async {
     setState(() => _isLoading = true);
     try {
-      final firestoreData = await _contentService.getBasicAmalGuide('family_fazilat');
+      final firestoreData = await _contentService.getBasicAmalGuide(
+        'family_fazilat',
+      );
       if (firestoreData != null && firestoreData.steps.isNotEmpty) {
-        _allItems = firestoreData.steps.map((step) => {
-          'number': step.step,
-          'titleKey': step.titleKey,
-          'title': step.title.en,
-          'titleUrdu': step.title.ur,
-          'titleHindi': step.title.hi,
-          'titleArabic': step.title.ar,
-          'icon': getIconFromString(step.icon),
-          'color': getColorFromString(step.color),
-          'details': {
-            'english': step.details.en,
-            'urdu': step.details.ur,
-            'hindi': step.details.hi,
-            'arabic': step.details.ar,
-          },
-        }).toList();
+        _allItems = firestoreData.steps
+            .map(
+              (step) => {
+                'number': step.step,
+                'titleKey': step.titleKey,
+                'title': step.title.en,
+                'titleUrdu': step.title.ur,
+                'titleHindi': step.title.hi,
+                'titleArabic': step.title.ar,
+                'icon': getIconFromString(step.icon),
+                'color': getColorFromString(step.color),
+                'details': {
+                  'english': step.details.en,
+                  'urdu': step.details.ur,
+                  'hindi': step.details.hi,
+                  'arabic': step.details.ar,
+                },
+              },
+            )
+            .toList();
       }
     } catch (e) {
       debugPrint('Error loading family_fazilat from Firestore: $e');
@@ -55,7 +62,6 @@ class _FamilyFazilatScreenState extends State<FamilyFazilatScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -77,35 +83,46 @@ class _FamilyFazilatScreenState extends State<FamilyFazilatScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
-        children: [
-          Expanded(
-            child: Builder(
-              builder: (context) {
-                final langCode = context.languageProvider.languageCode;
-                final isRtl = langCode == 'ur' || langCode == 'ar';
-                return SingleChildScrollView(
-                  padding: context.responsive.paddingRegular,
-                  child: Column(
-                    crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                    children: [
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _allItems.length,
-                        itemBuilder: (context, index) {
-                          final topic = _allItems[index];
-                          return _buildTopicCard(topic);
-                        },
-                      ),
-                    ],
+              children: [
+                Expanded(
+                  child: Builder(
+                    builder: (context) {
+                      final langCode = context.languageProvider.languageCode;
+                      final isRtl = langCode == 'ur' || langCode == 'ar';
+                      return SingleChildScrollView(
+                        padding: context.responsive.paddingRegular,
+                        child: Column(
+                          crossAxisAlignment: isRtl
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                          children: [
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: AdListHelper.totalCount(
+                                _allItems.length,
+                              ),
+                              itemBuilder: (context, index) {
+                                if (AdListHelper.isAdPosition(index)) {
+                                  return const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 8),
+                                    child: BannerAdWidget(height: 250),
+                                  );
+                                }
+                                final dataIdx = AdListHelper.dataIndex(index);
+                                final topic = _allItems[dataIdx];
+                                return _buildTopicCard(topic);
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+                const BannerAdWidget(),
+              ],
             ),
-          ),
-          const BannerAdWidget(),
-        ],
-      ),
     );
   }
 
@@ -131,10 +148,7 @@ class _FamilyFazilatScreenState extends State<FamilyFazilatScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
-        border: Border.all(
-          color: AppColors.lightGreenBorder,
-          width: 1.5,
-        ),
+        border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.08),
@@ -262,19 +276,22 @@ class _FamilyFazilatScreenState extends State<FamilyFazilatScreen> {
 
   void _showTopicDetails(Map<String, dynamic> topic) {
     final details = topic['details'] as Map<String, String>;
-    AdNavigator.push(context, BasicAmalDetailScreen(
-      title: topic['title'] ?? '',
-      titleUrdu: topic['titleUrdu'] ?? '',
-      titleHindi: topic['titleHindi'] ?? '',
-      titleArabic: topic['titleArabic'] ?? '',
-      contentEnglish: details['english'] ?? '',
-      contentUrdu: details['urdu'] ?? '',
-      contentHindi: details['hindi'] ?? '',
-      contentArabic: details['arabic'] ?? '',
-      color: topic['color'] as Color,
-      icon: topic['icon'] as IconData,
-      categoryKey: 'category_family_fazilat',
-      number: topic['number'] as int?,
-    ));
+    AdNavigator.push(
+      context,
+      BasicAmalDetailScreen(
+        title: topic['title'] ?? '',
+        titleUrdu: topic['titleUrdu'] ?? '',
+        titleHindi: topic['titleHindi'] ?? '',
+        titleArabic: topic['titleArabic'] ?? '',
+        contentEnglish: details['english'] ?? '',
+        contentUrdu: details['urdu'] ?? '',
+        contentHindi: details['hindi'] ?? '',
+        contentArabic: details['arabic'] ?? '',
+        color: topic['color'] as Color,
+        icon: topic['icon'] as IconData,
+        categoryKey: 'category_family_fazilat',
+        number: topic['number'] as int?,
+      ),
+    );
   }
 }

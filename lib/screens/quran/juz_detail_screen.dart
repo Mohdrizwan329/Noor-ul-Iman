@@ -11,7 +11,6 @@ import '../../providers/language_provider.dart';
 import '../../data/models/surah_model.dart';
 import '../../data/models/firestore_models.dart';
 import '../../widgets/common/header_action_button.dart';
-import '../../widgets/common/banner_ad_widget.dart';
 import '../../core/services/content_service.dart';
 
 class JuzDetailScreen extends StatefulWidget {
@@ -392,7 +391,6 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
                   },
                 ),
               ),
-              const BannerAdWidget(),
             ],
           );
         },
@@ -596,9 +594,7 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
               children: ayahs.asMap().entries.map((entry) {
                 final ayah = entry.value;
                 final isPlaying = _playingAyah == ayah.number;
-                return GestureDetector(
-                  onTap: isPlaying ? _stopPlaying : () => _playAyah(ayah),
-                  child: Container(
+                return Container(
                     margin: entry.key < ayahs.length - 1
                         ? responsive.paddingOnly(bottom: 12)
                         : EdgeInsets.zero,
@@ -646,8 +642,7 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
                         ),
                       ],
                     ),
-                  ),
-                );
+                  );
               }).toList(),
             ),
           ),

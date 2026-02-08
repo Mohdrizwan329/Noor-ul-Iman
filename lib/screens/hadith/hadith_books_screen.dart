@@ -7,7 +7,6 @@ import '../../data/models/firestore_models.dart';
 import '../../providers/hadith_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/common/search_bar_widget.dart';
-import '../../widgets/common/native_ad_widget.dart';
 import '../../widgets/common/banner_ad_widget.dart';
 import '../../core/utils/ad_list_helper.dart';
 import 'hadith_book_detail_screen.dart';
@@ -112,7 +111,6 @@ class _HadithBooksScreenState extends State<HadithBooksScreen> {
                   _searchQuery = '';
                 });
               },
-              enableVoiceSearch: true,
             ),
           ),
           Expanded(
@@ -143,7 +141,10 @@ class _HadithBooksScreenState extends State<HadithBooksScreen> {
                             AdListHelper.totalCount(filteredBooks.length),
                         itemBuilder: (context, index) {
                           if (AdListHelper.isAdPosition(index)) {
-                            return const NativeAdWidget();
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: BannerAdWidget(height: 250),
+                            );
                           }
                           final dataIdx = AdListHelper.dataIndex(index);
                           final book = filteredBooks[dataIdx];

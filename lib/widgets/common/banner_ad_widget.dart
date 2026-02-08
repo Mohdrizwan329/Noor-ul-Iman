@@ -40,27 +40,10 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
     final width = MediaQuery.of(context).size.width.truncate();
     debugPrint('BannerAd: Loading ad, screen width: $width');
 
-    // If custom height specified, use appropriate ad size
-    if (widget.height != null) {
-      AdSize effectiveSize;
-      if (widget.height! >= 250) {
-        effectiveSize = AdSize.mediumRectangle; // 300x250
-      } else if (widget.height! >= 100) {
-        effectiveSize = AdSize.largeBanner; // 320x100
-      } else {
-        effectiveSize = AdSize.banner; // 320x50
-      }
-      debugPrint(
-        'BannerAd: Using fixed size: ${effectiveSize.width}x${effectiveSize.height} for height: ${widget.height}',
-      );
-      _createAndLoadAd(effectiveSize);
-      return;
-    }
-
+    // Use full-width adaptive for all ads
     AdSize.getAnchoredAdaptiveBannerAdSize(Orientation.portrait, width).then((
       adSize,
     ) {
-      // Fallback to standard banner if adaptive size fails
       final effectiveSize = adSize ?? AdSize.banner;
       debugPrint(
         'BannerAd: Ad size: ${effectiveSize.width}x${effectiveSize.height} (adaptive: ${adSize != null})',
@@ -123,41 +106,31 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   @override
   Widget build(BuildContext context) {
     if (!_isLoaded || _bannerAd == null) {
-      // Show placeholder with height if specified
-      if (widget.height != null) {
-        return Container(
-          width: double.infinity,
-          height: widget.height,
-          decoration: BoxDecoration(
-            color: AppColors.background,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
-          ),
-          child: const Center(
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: AppColors.primary,
-            ),
-          ),
-        );
-      }
       return const SizedBox.shrink();
     }
 
-    // If custom height provided, use it with centered ad
+    // Inline ad - card style matching list items
     if (widget.height != null) {
-      return Container(
-        width: double.infinity,
-        height: widget.height,
-        decoration: BoxDecoration(
-          color: AppColors.background,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
-        ),
-        child: Center(
-          child: SizedBox(
-            height: _bannerAd!.size.height.toDouble(),
-            child: AdWidget(ad: _bannerAd!),
+      final adHeight = _bannerAd!.size.height.toDouble();
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          width: double.infinity,
+          height: adHeight + 60,
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xFF8AAF9A), width: 1.5),
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16.5),
+            child: FittedBox(
+              fit: BoxFit.fill,
+              child: SizedBox(
+                width: _bannerAd!.size.width.toDouble(),
+                height: adHeight,
+                child: AdWidget(ad: _bannerAd!),
+              ),
+            ),
           ),
         ),
       );

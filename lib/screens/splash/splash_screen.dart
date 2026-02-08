@@ -7,6 +7,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_assets.dart';
 import '../../core/utils/app_utils.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../core/services/geo_restriction_service.dart';
 import '../../core/services/location_service.dart';
 import '../language_selection/language_selection_screen.dart';
@@ -134,11 +135,19 @@ class _SplashScreenState extends State<SplashScreen>
             final placemark = placemarks.first;
             final city = placemark.locality ?? placemark.subAdministrativeArea ?? 'Unknown';
             final country = placemark.country ?? '';
+            final isoCountryCode = placemark.isoCountryCode ?? '';
 
             // Update location service with city and country
             locationService.updateCity(city, country);
 
-            debugPrint('📍 Location fetched on splash: $city, $country');
+            // Auto-detect calculation method from user's country
+            if (isoCountryCode.isNotEmpty && mounted) {
+              final settingsProvider = context.read<SettingsProvider>();
+              await settingsProvider.autoDetectFromCountry(isoCountryCode);
+              await settingsProvider.setCountryCode(isoCountryCode);
+            }
+
+            debugPrint('📍 Location fetched on splash: $city, $country ($isoCountryCode)');
           }
         } catch (e) {
           debugPrint('Geocoding error: $e');

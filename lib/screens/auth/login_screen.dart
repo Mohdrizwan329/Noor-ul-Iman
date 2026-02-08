@@ -5,6 +5,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_assets.dart';
 import '../../core/utils/app_utils.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../widgets/auth/auth_text_field.dart';
 import '../../widgets/auth/phone_number_field.dart';
 import '../../screens/main/main_screen.dart';
@@ -87,6 +88,11 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
+      // Save user name locally for immediate availability
+      final name = authProvider.displayName;
+      if (name.isNotEmpty && name != 'User') {
+        context.read<SettingsProvider>().setProfileName(name);
+      }
       // Navigate to main screen
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const MainScreen()),
@@ -116,6 +122,11 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
+      // Save user name locally for immediate availability
+      final name = authProvider.displayName;
+      if (name.isNotEmpty && name != 'User') {
+        context.read<SettingsProvider>().setProfileName(name);
+      }
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const MainScreen()),
         (route) => false,

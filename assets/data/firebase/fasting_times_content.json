@@ -1,0 +1,339 @@
+{
+  "strings": {
+    "fasting_times": {"en": "Fasting Times", "ur": "روزے کے اوقات", "hi": "रोज़े के औक़ात", "ar": "أوقات الصيام"},
+    "currently_fasting": {"en": "Currently Fasting Time", "ur": "ابھی روزے کا وقت ہے", "hi": "अभी रोज़े का वक़्त है", "ar": "وقت الصيام الآن"},
+    "not_fasting_time": {"en": "Not Fasting Time", "ur": "ابھی روزے کا وقت نہیں", "hi": "अभी रोज़े का वक़्त नहीं", "ar": "ليس وقت الصيام"},
+    "suhoor_ends": {"en": "Suhoor Ends", "ur": "سحری ختم", "hi": "सेहरी ख़त्म", "ar": "انتهاء السحور"},
+    "iftar_time": {"en": "Iftar Time", "ur": "افطار کا وقت", "hi": "इफ़्तार का वक़्त", "ar": "وقت الإفطار"},
+    "duas_for_fasting": {"en": "Duas for Fasting", "ur": "روزے کی دعائیں", "hi": "रोज़े की दुआएं", "ar": "أدعية الصيام"},
+    "current_month": {"en": "Current Month", "ur": "موجودہ مہینہ", "hi": "मौजूदा महीना", "ar": "الشهر الحالي"},
+    "today": {"en": "Today", "ur": "آج", "hi": "आज", "ar": "اليوم"},
+    "ah": {"en": "AH", "ur": "ہجری", "hi": "हिजरी", "ar": "هـ"},
+    "fasting_dates_this_month": {"en": "Fasting Dates This Month", "ur": "اس مہینے روزے کی تاریخیں", "hi": "इस महीने रोज़े की तारीखें", "ar": "تواريخ الصيام هذا الشهر"},
+    "unable_load_prayer_times": {"en": "Unable to load prayer times", "ur": "نماز کے اوقات لوڈ نہیں ہو سکے", "hi": "नमाज़ के औक़ात लोड नहीं हो सके", "ar": "تعذر تحميل أوقات الصلاة"},
+    "enable_location_services": {"en": "Please enable location services", "ur": "براہ کرم لوکیشن سروسز فعال کریں", "hi": "कृपया लोकेशन सर्विसेज़ चालू करें", "ar": "يرجى تفعيل خدمات الموقع"},
+    "audio": {"en": "Audio", "ur": "آڈیو", "hi": "ऑडियो", "ar": "صوت"},
+    "stop": {"en": "Stop", "ur": "رکیں", "hi": "रुकें", "ar": "إيقاف"},
+    "translate": {"en": "Translate", "ur": "ترجمہ", "hi": "अनुवाद", "ar": "ترجمة"},
+    "copy": {"en": "Copy", "ur": "کاپی", "hi": "कॉपी", "ar": "نسخ"},
+    "share": {"en": "Share", "ur": "شیئر", "hi": "शेयर", "ar": "مشاركة"},
+    "translation": {"en": "Translation", "ur": "ترجمہ", "hi": "अनुवाद", "ar": "ترجمة"},
+    "hindi": {"en": "Hindi", "ur": "ہندی", "hi": "हिंदी", "ar": "الهندية"},
+    "english": {"en": "English", "ur": "انگریزی", "hi": "अंग्रेज़ी", "ar": "الإنجليزية"},
+    "urdu": {"en": "Urdu", "ur": "اردو", "hi": "उर्दू", "ar": "الأردية"},
+    "arabic": {"en": "Arabic", "ur": "عربی", "hi": "अरबी", "ar": "العربية"}
+  },
+  "duas": [
+    {
+      "title_key": "duaForSuhoor",
+      "title": {"en": "Dua for Suhoor", "ur": "سحری کی دعا", "hi": "सेहरी की दुआ", "ar": "دعاء السحور"},
+      "arabic": "نَوَيْتُ أَنْ أَصُومَ غَدًا مِنْ شَهْرِ رَمَضَانَ هٰذِهِ السَّنَةِ إِيمَانًا وَاحْتِسَابًا لِلَّهِ رَبِّ الْعَالَمِينَ",
+      "transliteration": "Nawaitu an asooma ghadan min shahri Ramadan hadhihi sanati imanan wahtisaban lillahi rabbil-'aalameen",
+      "translation": {
+        "en": "I intend to observe the fast tomorrow for this year of Ramadan with faith and seeking reward from Allah, Lord of the Worlds.",
+        "ur": "میں نے اس سال رمضان کے مہینے کا کل روزہ رکھنے کی نیت کی ایمان اور ثواب کی امید میں اللہ رب العالمین کے لیے۔",
+        "hi": "मैंने इस साल रमज़ान के महीने का कल रोज़ा रखने की नियत की ईमान और सवाब की उम्मीद में अल्लाह रब्बुल आलमीन के लिए।",
+        "ar": "نويت أن أصوم غداً من شهر رمضان هذه السنة إيماناً واحتساباً لله رب العالمين."
+      },
+      "color": "#3949AB"
+    },
+    {
+      "title_key": "duaForIftar",
+      "title": {"en": "Dua for Iftar", "ur": "افطار کی دعا", "hi": "इफ्तार की दुआ", "ar": "دعاء الإفطار"},
+      "arabic": "اللَّهُمَّ لَكَ صُمْتُ وَبِكَ آمَنْتُ وَعَلَيْكَ تَوَكَّلْتُ وَعَلَى رِزْقِكَ أَفْطَرْتُ",
+      "transliteration": "Allahumma laka sumtu wa bika aamantu wa 'alaika tawakkaltu wa 'ala rizqika aftartu",
+      "translation": {
+        "en": "O Allah! I fasted for You, and I believe in You, and I put my trust in You, and I break my fast with Your provision.",
+        "ur": "اے اللہ! میں نے تیرے لیے روزہ رکھا، اور تجھ پر ایمان لایا، اور تجھ پر بھروسہ کیا اور تیرے دیے ہوئے رزق سے افطار کیا۔",
+        "hi": "ऐ अल्लाह! मैंने तेरे लिए रोज़ा रखा, और तुझ पर ईमान लाया, और तुझ पर भरोसा किया और तेरे दिए हुए रिज़्क़ से इफ्तार किया।",
+        "ar": "اللهم لك صمت وبك آمنت وعليك توكلت وعلى رزقك أفطرت."
+      },
+      "color": "#E65100"
+    },
+    {
+      "title_key": "duaWhenBreakingWithDates",
+      "title": {"en": "Dua When Breaking Fast with Dates", "ur": "کھجور سے روزہ کھولنے کی دعا", "hi": "खजूर से रोज़ा खोलने की दुआ", "ar": "دعاء الإفطار على التمر"},
+      "arabic": "ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ",
+      "transliteration": "Dhahaba al-zama'u wa'btallatil-'urooqu wa thabatal-ajru in sha Allah",
+      "translation": {
+        "en": "The thirst has gone, the veins are moistened, and the reward is confirmed, if Allah wills.",
+        "ur": "پیاس چلی گئی، رگیں تر ہوگئیں، اور ان شاءاللہ اجر ثابت ہوگیا۔",
+        "hi": "प्यास चली गई, नसें तर हो गईं, और इन्शाअल्लाह अज्र साबित हो गया।",
+        "ar": "ذهب الظمأ وابتلت العروق وثبت الأجر إن شاء الله."
+      },
+      "color": "#00897B",
+      "reference": {"en": "Abu Dawud", "ur": "ابو داؤد", "hi": "अबू दाऊद", "ar": "أبو داود"}
+    },
+    {
+      "title_key": "duaForFastingPerson",
+      "title": {"en": "Dua for Fasting Person", "ur": "روزہ دار کے لیے دعا", "hi": "रोज़ेदार के लिए दुआ", "ar": "دعاء للصائم"},
+      "arabic": "أَفْطَرَ عِندَكُمُ الصَّائِمُونَ وَأَكَلَ طَعَامَكُمُ الْأَبْرَارُ وَصَلَّتْ عَلَيْكُمُ الْمَلَائِكَةُ",
+      "transliteration": "Aftara 'indakumus-saa'imoona wa akala ta'aamakumul-abraaru wa sallat 'alaikumul-malaa'ikah",
+      "translation": {
+        "en": "May the fasting people break their fast with you, may the righteous eat your food, and may the angels send blessings upon you.",
+        "ur": "تمہارے یہاں روزہ داروں نے افطار کیا، اور تمہارا کھانا نیک لوگوں نے کھایا، اور فرشتوں نے تم پر درود بھیجا۔",
+        "hi": "तुम्हारे यहाँ रोज़ेदारों ने इफ्तार किया, और तुम्हारा खाना नेक लोगों ने खाया, और फ़रिश्तों ने तुम पर दुरूद भेजा।",
+        "ar": "أفطر عندكم الصائمون وأكل طعامكم الأبرار وصلت عليكم الملائكة."
+      },
+      "color": "#5E35B1",
+      "reference": {"en": "Abu Dawud, Ibn Majah", "ur": "ابو داؤد، ابن ماجہ", "hi": "अबू दाऊद, इब्ने माजाह", "ar": "أبو داود، ابن ماجه"}
+    },
+    {
+      "title_key": "duaAfterCompletingFast",
+      "title": {"en": "Dua After Completing Fast", "ur": "روزہ مکمل کرنے کے بعد دعا", "hi": "रोज़ा पूरा करने के बाद दुआ", "ar": "دعاء بعد إتمام الصيام"},
+      "arabic": "اللَّهُمَّ إِنِّي أَسْأَلُكَ بِرَحْمَتِكَ الَّتِي وَسِعَتْ كُلَّ شَيْءٍ أَنْ تَغْفِرَ لِي",
+      "transliteration": "Allahumma inni as'aluka bi rahmatika al-lati wasi'at kulla shay'in an taghfira li",
+      "translation": {
+        "en": "O Allah! I ask You by Your mercy which encompasses all things, that You forgive me.",
+        "ur": "اے اللہ! میں تجھ سے تیری اس رحمت کے وسیلے سے جو ہر چیز کو گھیرے ہوئے ہے، دعا کرتا ہوں کہ تو مجھے معاف کردے۔",
+        "hi": "ऐ अल्लाह! मैं तुझसे तेरी उस रहमत के वसीले से जो हर चीज़ को घेरे हुए है, दुआ करता हूँ कि तू मुझे माफ़ कर दे।",
+        "ar": "اللهم إني أسألك برحمتك التي وسعت كل شيء أن تغفر لي."
+      },
+      "color": "#D84315",
+      "reference": {"en": "Ibn Majah", "ur": "ابن ماجہ", "hi": "इब्ने माजाह", "ar": "ابن ماجه"}
+    },
+    {
+      "title_key": "duaForSeeingMoon",
+      "title": {"en": "Dua for Seeing Moon", "ur": "چاند دیکھنے کی دعا", "hi": "चाँद देखने की दुआ", "ar": "دعاء رؤية الهلال"},
+      "arabic": "اللَّهُمَّ أَهِلَّهُ عَلَيْنَا بِالْيُمْنِ وَالْإِيمَانِ وَالسَّلَامَةِ وَالْإِسْلَامِ رَبِّي وَرَبُّكَ اللَّهُ",
+      "transliteration": "Allahumma ahillahu 'alaina bil-yumni wal-imaani was-salaamati wal-Islaam, Rabbi wa Rabbuk Allah",
+      "translation": {
+        "en": "O Allah! Let this moon appear on us with blessings, faith, safety and Islam. My Lord and your Lord is Allah.",
+        "ur": "اے اللہ! اس چاند کو ہم پر برکت، ایمان، سلامتی اور اسلام کے ساتھ نکال۔ میرا اور تیرا رب اللہ ہے۔",
+        "hi": "ऐ अल्लाह! इस चाँद को हम पर बरकत, ईमान, सलामती और इस्लाम के साथ निकाल। मेरा और तेरा रब अल्लाह है।",
+        "ar": "اللهم أهلّه علينا باليمن والإيمان والسلامة والإسلام ربي وربك الله."
+      },
+      "color": "#1565C0",
+      "reference": {"en": "Tirmidhi", "ur": "ترمذی", "hi": "तिर्मिज़ी", "ar": "الترمذي"}
+    }
+  ],
+  "virtues": {
+    "title": {"en": "Virtues of Fasting", "ur": "روزے کی فضیلتیں", "hi": "रोज़े की फ़ज़ीलतें", "ar": "فضائل الصيام"},
+    "items": [
+      {
+        "icon": "door_front_door",
+        "title": {"en": "Gate of Rayyan", "ur": "باب الریان", "hi": "बाब अर-रय्यान", "ar": "باب الريان"},
+        "description": {"en": "There is a gate in Paradise called Ar-Rayyan, through which only those who fast will enter.", "ur": "جنت میں ایک دروازہ ہے جسے ریان کہتے ہیں، اس میں سے صرف روزہ دار داخل ہوں گے۔", "hi": "जन्नत में एक दरवाज़ा है जिसे रय्यान कहते हैं, उससे सिर्फ़ रोज़ेदार दाखिल होंगे।", "ar": "في الجنة باب يقال له الريان، يدخل منه الصائمون."},
+        "reference": {"en": "Bukhari & Muslim", "ur": "بخاری و مسلم", "hi": "बुखारी व मुस्लिम", "ar": "البخاري ومسلم"}
+      },
+      {
+        "icon": "shield",
+        "title": {"en": "Fasting is a Shield", "ur": "روزہ ڈھال ہے", "hi": "रोज़ा ढाल है", "ar": "الصيام جُنّة"},
+        "description": {"en": "Fasting is a shield from the Hellfire, just like a shield protects one of you in battle.", "ur": "روزہ جہنم سے بچاؤ کی ڈھال ہے، جیسے جنگ میں ڈھال حفاظت کرتی ہے۔", "hi": "रोज़ा जहन्नम से बचाव की ढाल है, जैसे जंग में ढाल हिफ़ाज़त करती है।", "ar": "الصيام جُنّة من النار، كما يقي أحدكم درعه في القتال."},
+        "reference": {"en": "Ahmad, Nasai", "ur": "احمد، نسائی", "hi": "अहमद, नसई", "ar": "أحمد، النسائي"}
+      },
+      {
+        "icon": "favorite",
+        "title": {"en": "The Breath of Fasting Person", "ur": "روزہ دار کی سانس", "hi": "रोज़ेदार की सांस", "ar": "خلوف فم الصائم"},
+        "description": {"en": "The smell from the mouth of a fasting person is better in the sight of Allah than the scent of musk.", "ur": "روزہ دار کے منہ کی بو اللہ کے نزدیک مشک سے زیادہ پاکیزہ ہے۔", "hi": "रोज़ेदार के मुंह की बू अल्लाह के नज़दीक मुश्क से ज़्यादा पाकीज़ा है।", "ar": "لخلوف فم الصائم أطيب عند الله من ريح المسك."},
+        "reference": {"en": "Bukhari & Muslim", "ur": "بخاری و مسلم", "hi": "बुखारी व मुस्लिम", "ar": "البخاري ومسلم"}
+      },
+      {
+        "icon": "celebration",
+        "title": {"en": "Two Moments of Joy", "ur": "دو خوشیاں", "hi": "दो खुशियां", "ar": "فرحتان"},
+        "description": {"en": "The fasting person has two moments of joy: when breaking fast and when meeting their Lord.", "ur": "روزہ دار کو دو خوشیاں ہیں: افطار کے وقت اور اپنے رب سے ملاقات کے وقت۔", "hi": "रोज़ेदार को दो खुशियां हैं: इफ़्तार के वक़्त और अपने रब से मिलने के वक़्त।", "ar": "للصائم فرحتان: فرحة عند فطره، وفرحة عند لقاء ربه."},
+        "reference": {"en": "Bukhari & Muslim", "ur": "بخاری و مسلم", "hi": "बुखारी व मुस्लिम", "ar": "البخاري ومسلم"}
+      },
+      {
+        "icon": "handshake",
+        "title": {"en": "Dua is Accepted", "ur": "دعا قبول ہوتی ہے", "hi": "दुआ क़बूल होती है", "ar": "الدعاء مستجاب"},
+        "description": {"en": "Three prayers are not rejected: the prayer of a fasting person until they break their fast.", "ur": "تین دعائیں رد نہیں ہوتیں: روزہ دار کی دعا جب تک افطار نہ کرے۔", "hi": "तीन दुआएं रद्द नहीं होतीं: रोज़ेदार की दुआ जब तक इफ़्तार न करे।", "ar": "ثلاث دعوات لا ترد: دعوة الصائم حتى يفطر."},
+        "reference": {"en": "Tirmidhi, Ibn Majah", "ur": "ترمذی، ابن ماجہ", "hi": "तिर्मिज़ी, इब्ने माजाह", "ar": "الترمذي، ابن ماجه"}
+      }
+    ]
+  },
+  "rules": {
+    "title": {"en": "Fasting Rules", "ur": "روزے کے احکام", "hi": "रोज़े के अहकाम", "ar": "أحكام الصيام"},
+    "breaks_fast_title": {"en": "What Breaks the Fast", "ur": "روزہ توڑنے والی چیزیں", "hi": "रोज़ा तोड़ने वाली चीज़ें", "ar": "مبطلات الصيام"},
+    "does_not_break_fast_title": {"en": "What Does Not Break the Fast", "ur": "روزہ نہیں توڑتیں", "hi": "रोज़ा नहीं तोड़तीं", "ar": "ما لا يبطل الصيام"},
+    "breaks_fast": [
+      {"en": "Eating or drinking intentionally", "ur": "جان بوجھ کر کھانا پینا", "hi": "जान-बूझकर खाना-पीना", "ar": "الأكل أو الشرب عمداً"},
+      {"en": "Intentional vomiting", "ur": "جان بوجھ کر قے کرنا", "hi": "जान-बूझकर उल्टी करना", "ar": "القيء عمداً"},
+      {"en": "Sexual relations", "ur": "جماع", "hi": "जिमा (संभोग)", "ar": "الجماع"},
+      {"en": "Menstruation or postnatal bleeding", "ur": "حیض یا نفاس", "hi": "हैज़ या निफ़ास", "ar": "الحيض أو النفاس"}
+    ],
+    "does_not_break_fast": [
+      {"en": "Eating/drinking forgetfully", "ur": "بھول کر کھانا پینا", "hi": "भूलकर खाना-पीना", "ar": "الأكل أو الشرب نسياناً"},
+      {"en": "Swallowing saliva", "ur": "تھوک نگلنا", "hi": "थूक निगलना", "ar": "بلع الريق"},
+      {"en": "Tasting food without swallowing", "ur": "کھانا چکھنا بغیر نگلے", "hi": "खाना चखना बिना निगले", "ar": "تذوق الطعام دون بلعه"},
+      {"en": "Using miswak (tooth stick)", "ur": "مسواک کرنا", "hi": "मिसवाक करना", "ar": "استخدام السواك"},
+      {"en": "Injections not for nutrition", "ur": "غذائی نہیں انجکشن", "hi": "ग़ैर-ग़िज़ाई इंजेक्शन", "ar": "الحقن غير المغذية"}
+    ]
+  },
+  "islamic_months": {
+    "title": {"en": "Islamic 12 Months - Fasting Chart", "ur": "اسلامی 12 مہینے - روزے کا چارٹ", "hi": "इस्लामी 12 महीने - रोज़े का चार्ट", "ar": "الأشهر الإسلامية 12 - جدول الصيام"},
+    "months": [
+      {
+        "name": {"en": "Muharram", "ur": "محرم", "hi": "मुहर्रम", "ar": "محرم"},
+        "icon": "nights_stay",
+        "color": "#6A1B9A",
+        "fasting_days": [
+          {"days": "9, 10, 11", "desc": {"en": "Ashura fasts - Sunnah", "ur": "عاشورا کے روزے - سنت", "hi": "आशूरा के रोज़े - सुन्नत", "ar": "صيام عاشوراء - سنة"}, "type": "sunnah"},
+          {"days": "13, 14, 15", "desc": {"en": "Ayyam al-Beedh (White Days)", "ur": "ایام البیض (سفید دن)", "hi": "अय्याम अल-बीद (सफ़ेद दिन)", "ar": "الأيام البيض"}, "type": "sunnah"},
+          {"days": {"en": "Monday & Thursday", "ur": "پیر اور جمعرات", "hi": "सोमवार और गुरुवार", "ar": "الإثنين والخميس"}, "desc": {"en": "Every week", "ur": "ہر ہفتے", "hi": "हर हफ़्ते", "ar": "كل أسبوع"}, "type": "nafil"}
+        ]
+      },
+      {
+        "name": {"en": "Safar", "ur": "صفر", "hi": "सफ़र", "ar": "صفر"},
+        "icon": "wb_twilight",
+        "color": "#00695C",
+        "fasting_days": [
+          {"days": "13, 14, 15", "desc": {"en": "Ayyam al-Beedh (White Days)", "ur": "ایام البیض (سفید دن)", "hi": "अय्याम अल-बीद (सफ़ेद दिन)", "ar": "الأيام البيض"}, "type": "sunnah"},
+          {"days": {"en": "Monday & Thursday", "ur": "پیر اور جمعرات", "hi": "सोमवार और गुरुवार", "ar": "الإثنين والخميس"}, "desc": {"en": "Every week", "ur": "ہر ہفتے", "hi": "हर हफ़्ته", "ar": "كل أسبوع"}, "type": "nafil"},
+          {"days": {"en": "Any nafil fast", "ur": "کوئی بھی نفل روزہ", "hi": "कोई भी नफ्ल रोज़ा", "ar": "أي صيام نافلة"}, "desc": {"en": "At your will", "ur": "اپنی مرضی سے", "hi": "अपनी मर्ज़ी से", "ar": "حسب رغبتك"}, "type": "nafil"}
+        ]
+      },
+      {
+        "name": {"en": "Rabi ul-Awwal", "ur": "ربیع الاول", "hi": "रबी उल-अव्वल", "ar": "ربيع الأول"},
+        "icon": "star",
+        "color": "#2E7D32",
+        "fasting_days": [
+          {"days": "13, 14, 15", "desc": {"en": "Ayyam al-Beedh (White Days)", "ur": "ایام البیض (سفید دن)", "hi": "अय्याम अल-बीद (सफ़ेद दिन)", "ar": "الأيام البيض"}, "type": "sunnah"},
+          {"days": {"en": "Monday & Thursday", "ur": "پیر اور جمعرات", "hi": "सोमवार और गुरुवार", "ar": "الإثنين والخميس"}, "desc": {"en": "Every week", "ur": "ہر ہفتے", "hi": "हर हफ़्ते", "ar": "كل أسبوع"}, "type": "nafil"}
+        ]
+      },
+      {
+        "name": {"en": "Rabi ul-Aakhir", "ur": "ربیع الآخر", "hi": "रबी उल-आख़िर", "ar": "ربيع الآخر"},
+        "icon": "star_border",
+        "color": "#1565C0",
+        "fasting_days": [
+          {"days": "13, 14, 15", "desc": {"en": "Ayyam al-Beedh (White Days)", "ur": "ایام البیض (سفید دن)", "hi": "अय्याम अल-बीद (सफ़ेद दिन)", "ar": "الأيام البيض"}, "type": "sunnah"},
+          {"days": {"en": "Monday & Thursday", "ur": "پیر اور جمعرات", "hi": "सोमवार और गुरुवار", "ar": "الإثنين والخميس"}, "desc": {"en": "Every week", "ur": "ہر ہفتے", "hi": "हर हफ़्ته", "ar": "كل أسبوع"}, "type": "nafil"}
+        ]
+      },
+      {
+        "name": {"en": "Jumada ul-Ula", "ur": "جمادی الاولیٰ", "hi": "जुमादा उल-ऊला", "ar": "جمادى الأولى"},
+        "icon": "brightness_5",
+        "color": "#5E35B1",
+        "fasting_days": [
+          {"days": "13, 14, 15", "desc": {"en": "Ayyam al-Beedh (White Days)", "ur": "ایام البیض (سفید دن)", "hi": "अय्याम अल-बीद (सफ़ेद दिन)", "ar": "الأيام البيض"}, "type": "sunnah"},
+          {"days": {"en": "Monday & Thursday", "ur": "پیر اور جمعرات", "hi": "सोमवार और गुरुवार", "ar": "الإثنين والخميس"}, "desc": {"en": "Every week", "ur": "ہر ہفتے", "hi": "हर हफ़्ته", "ar": "كل أسبوع"}, "type": "nafil"}
+        ]
+      },
+      {
+        "name": {"en": "Jumada ul-Aakhira", "ur": "جمادی الآخرہ", "hi": "जुमादा उल-आख़िरा", "ar": "جمادى الآخرة"},
+        "icon": "brightness_6",
+        "color": "#00838F",
+        "fasting_days": [
+          {"days": "13, 14, 15", "desc": {"en": "Ayyam al-Beedh (White Days)", "ur": "ایام البیض (سفید دن)", "hi": "अय्याम अल-बीद (सफ़ेद دिन)", "ar": "الأيام البيض"}, "type": "sunnah"},
+          {"days": {"en": "Monday & Thursday", "ur": "پیر اور جمعرات", "hi": "सोमवार और गुरुवार", "ar": "الإثنين والخميس"}, "desc": {"en": "Every week", "ur": "ہر ہفتے", "hi": "هر هफ़्ته", "ar": "كل أسبوع"}, "type": "nafil"}
+        ]
+      },
+      {
+        "name": {"en": "Rajab", "ur": "رجب", "hi": "रजब", "ar": "رجب"},
+        "icon": "auto_awesome",
+        "color": "#7B1FA2",
+        "fasting_days": [
+          {"days": "13, 14, 15", "desc": {"en": "Ayyam al-Beedh (White Days)", "ur": "ایام البیض (سفید دن)", "hi": "अय्याम अल-बीद (सफ़ेद दिन)", "ar": "الأيام البيض"}, "type": "sunnah"},
+          {"days": {"en": "Monday & Thursday", "ur": "پیر اور جمعرات", "hi": "सोमवार और गुरुवार", "ar": "الإثنين والخميس"}, "desc": {"en": "Every week", "ur": "ہر ہفتے", "hi": "هर हफ़्ته", "ar": "كل أسبوع"}, "type": "nafil"},
+          {"days": {"en": "Any nafil fast", "ur": "کوئی بھی نفل روزہ", "hi": "कोई भी नफ्ल रोज़ा", "ar": "أي صيام نافلة"}, "desc": {"en": "Sacred month", "ur": "مقدس مہینہ", "hi": "पवित्र महीना", "ar": "شهر مقدس"}, "type": "nafil"}
+        ]
+      },
+      {
+        "name": {"en": "Shaban", "ur": "شعبان", "hi": "शाबान", "ar": "شعبان"},
+        "icon": "brightness_3",
+        "color": "#303F9F",
+        "fasting_days": [
+          {"days": {"en": "More fasts", "ur": "زیادہ روزے", "hi": "अधिक रोज़े", "ar": "المزيد من الصيام"}, "desc": {"en": "Keep more in this month", "ur": "اس مہینے میں زیادہ رکھیں", "hi": "इस महीने में अधिक रखें", "ar": "احتفظ بالمزيد في هذا الشهر"}, "type": "sunnah"},
+          {"days": "13, 14, 15", "desc": {"en": "Ayyam al-Beedh (White Days)", "ur": "ایام البیض (سفید دن)", "hi": "अय्याम अल-बीद (सफ़ेद दिन)", "ar": "الأيام البيض"}, "type": "sunnah"},
+          {"days": {"en": "Monday & Thursday", "ur": "پیر اور جمعرات", "hi": "सोमवार और गुरुवार", "ar": "الإثنين والخميس"}, "desc": {"en": "Every week", "ur": "ہر ہفتے", "hi": "هर हफ़्ته", "ar": "كل أسبوع"}, "type": "nafil"},
+          {"days": "29-30", "desc": {"en": "Day of doubt - avoid it", "ur": "شک کا دن - بچیں", "hi": "शक का दिन - बचें", "ar": "يوم الشك - تجنبه"}, "type": "prohibited"}
+        ]
+      },
+      {
+        "name": {"en": "Ramadan", "ur": "رمضان", "hi": "रमज़ान", "ar": "رمضان"},
+        "icon": "mosque",
+        "color": "#C62828",
+        "fasting_days": [
+          {"days": "1 se 29/30", "desc": {"en": "Compulsory Fasts - Full month", "ur": "فرض روزے - پورا مہینہ", "hi": "फ़र्ज़ रोज़े - पूरा महीना", "ar": "صيام إلزامي - شهر كامل"}, "type": "farz"}
+        ]
+      },
+      {
+        "name": {"en": "Shawwal", "ur": "شوال", "hi": "शव्वाल", "ar": "شوال"},
+        "icon": "celebration",
+        "color": "#EF6C00",
+        "fasting_days": [
+          {"days": "2-7", "desc": {"en": "6 Shawwal fasts", "ur": "6 شوال کے روزے", "hi": "6 शव्वाल के रोज़े", "ar": "6 صيام شوال"}, "type": "sunnah"},
+          {"days": "13, 14, 15", "desc": {"en": "Ayyam al-Beedh (White Days)", "ur": "ایام البیض (سفید دن)", "hi": "अय्याम अल-बीद (سف़ेد दिन)", "ar": "الأيام البيض"}, "type": "sunnah"},
+          {"days": {"en": "Monday & Thursday", "ur": "پیر اور جمعرات", "hi": "सोमवार और गुरुवार", "ar": "الإثنين والخميس"}, "desc": {"en": "Every week", "ur": "ہر ہفتے", "hi": "हर हफ़्ते", "ar": "كل أسبوع"}, "type": "nafil"},
+          {"days": "1", "desc": {"en": "Eid - Fasting PROHIBITED", "ur": "عید - روزہ منع", "hi": "ईद - रोज़ा मना", "ar": "العيد - الصيام محظور"}, "type": "prohibited"}
+        ]
+      },
+      {
+        "name": {"en": "Dhul-Qadah", "ur": "ذوالقعدہ", "hi": "ज़िल्क़ादा", "ar": "ذو القعدة"},
+        "icon": "terrain",
+        "color": "#4E342E",
+        "fasting_days": [
+          {"days": "13, 14, 15", "desc": {"en": "Ayyam al-Beedh (White Days)", "ur": "ایام البیض (سفید دن)", "hi": "अय्याम अल-बीद (सफ़ेद दिन)", "ar": "الأيام البيض"}, "type": "sunnah"},
+          {"days": {"en": "Monday & Thursday", "ur": "پیر اور جمعرات", "hi": "सोमवार और गुरुवार", "ar": "الإثنين والخميس"}, "desc": {"en": "Every week", "ur": "ہر ہفتے", "hi": "हर हफ़्ته", "ar": "كل أسبوع"}, "type": "nafil"}
+        ]
+      },
+      {
+        "name": {"en": "Dhul-Hijjah", "ur": "ذوالحجہ", "hi": "ज़िल्हिज्जा", "ar": "ذو الحجة"},
+        "icon": "landscape",
+        "color": "#827717",
+        "fasting_days": [
+          {"days": "1-9", "desc": {"en": "Up to Arafah (if not on Hajj)", "ur": "عرفہ تک (اگر حج پر نہ ہو)", "hi": "अरफा तक (अगर हज पर न हो)", "ar": "حتى عرفة (إذا لم يكن في الحج)"}, "type": "sunnah"},
+          {"days": "10", "desc": {"en": "Eid-ul-Adha - PROHIBITED", "ur": "عید الاضحیٰ - منع", "hi": "ईद-उल-अज़हा - मना", "ar": "عيد الأضحى - محظور"}, "type": "prohibited"},
+          {"days": "11, 12, 13", "desc": {"en": "Ayyam-e-Tashreeq - PROHIBITED", "ur": "ایام تشریق - منع", "hi": "अय्याम-ए-तशरीक़ - मना", "ar": "أيام التشريق - محظور"}, "type": "prohibited"}
+        ]
+      }
+    ],
+    "prohibited_days": [
+      {"en": "1 Shawwal (Eid-ul-Fitr)", "ur": "1 شوال (عید الفطر)", "hi": "1 शव्वाल (ईद-उल-फ़ित्र)", "ar": "1 شوال (عيد الفطر)"},
+      {"en": "10 Dhul-Hijjah (Eid-ul-Adha)", "ur": "10 ذوالحجہ (عید الاضحیٰ)", "hi": "10 ज़ुलहिज्जा (ईद-उल-अज़हा)", "ar": "10 ذو الحجة (عيد الأضحى)"},
+      {"en": "11, 12, 13 Dhul-Hijjah (Ayyam-e-Tashreeq)", "ur": "11، 12، 13 ذوالحجہ (ایام تشریق)", "hi": "11, 12, 13 ज़ुलहिज्जा (अय्याम-ए-तशरीक़)", "ar": "11، 12، 13 ذو الحجة (أيام التشريق)"}
+    ],
+    "quick_rules": [
+      {"icon": "calendar_month", "label": {"en": "Every Month:", "ur": "ہر مہینے:", "hi": "हर महीने:", "ar": "كل شهر:"}, "value": {"en": "13, 14, 15 (Ayyam al-Beedh (White Days))", "ur": "13, 14, 15 (ایام البیض (سفید دن))", "hi": "13, 14, 15 (अय्याम अल-बीद (सफ़ेद दिन))", "ar": "13, 14, 15 (الأيام البيض)"}, "color": "#4CAF50"},
+      {"icon": "repeat", "label": {"en": "Every Week:", "ur": "ہر ہفتے:", "hi": "हर हफ़्ते:", "ar": "كل أسبوع:"}, "value": {"en": "Monday & Thursday", "ur": "پیر اور جمعرات", "hi": "सोमवार और गुरुवार", "ar": "الإثنين والخميس"}, "color": "#2196F3"},
+      {"icon": "star", "label": {"en": "Special:", "ur": "خاص:", "hi": "विशेष:", "ar": "خاص:"}, "value": {"en": "Ashura Fasts, Day of Arafah, 6 Shawwal", "ur": "عاشورہ کے روزے, یوم عرفہ, 6 شوال", "hi": "आशूरा के रोज़े, अरफ़ात का दिन, 6 शव्वाल", "ar": "صيام عاشوراء, يوم عرفة, 6 شوال"}, "color": "#9C27B0"},
+      {"icon": "mosque", "label": {"en": "Compulsory:", "ur": "فرض:", "hi": "फ़र्ज़:", "ar": "إلزامي:"}, "value": {"en": "Full month of Ramadan", "ur": "رمضان کا پورا مہینہ", "hi": "रमज़ान का पूरा महीना", "ar": "شهر رمضان الكامل"}, "color": "#F44336"},
+      {"icon": "block", "label": {"en": "Forbidden:", "ur": "منع:", "hi": "मना:", "ar": "محظور:"}, "value": {"en": "Only on Eid days", "ur": "صرف عید کے دن", "hi": "सिर्फ़ ईद के दिन", "ar": "فقط أيام العيد"}, "color": "#9E9E9E"}
+    ],
+    "section_labels": {
+      "fasting_options": {"en": "Fasting options", "ur": "روزہ اختیارات", "hi": "रोज़ा विकल्प", "ar": "خيارات الصيام"},
+      "fasting_prohibited": {"en": "Fasting PROHIBITED", "ur": "روزہ منع", "hi": "रोज़ा मना", "ar": "الصيام محظور"},
+      "quick_rules_remember": {"en": "Quick Rules - Remember", "ur": "فوری قواعد - یاد رکھیں", "hi": "त्वरित नियम - याद रखें", "ar": "قواعد سريعة - تذكر"},
+      "farz": {"en": "Farz", "ur": "فرض", "hi": "फ़र्ज़", "ar": "فرض"},
+      "sunnah": {"en": "Sunnah", "ur": "سنت", "hi": "सुन्नत", "ar": "سنة"},
+      "nafil": {"en": "Nafil", "ur": "نفل", "hi": "नफ़्ल", "ar": "نافلة"},
+      "mana": {"en": "Prohibited", "ur": "منع", "hi": "मना", "ar": "محظور"}
+    }
+  },
+  "hijri_month_keys": {
+    "Muharram": "month_muharram",
+    "Safar": "month_safar",
+    "Rabi' al-awwal": "month_rabi_ul_awwal",
+    "Rabi' al-Awwal": "month_rabi_ul_awwal",
+    "Rabi' al-thani": "month_rabi_ul_aakhir",
+    "Rabi' al-Thani": "month_rabi_ul_aakhir",
+    "Rabi' al-akhir": "month_rabi_ul_aakhir",
+    "Rabi' al-Akhir": "month_rabi_ul_aakhir",
+    "Jumada al-awwal": "month_jumada_ul_ula",
+    "Jumada al-Awwal": "month_jumada_ul_ula",
+    "Jumada al-ula": "month_jumada_ul_ula",
+    "Jumada al-Ula": "month_jumada_ul_ula",
+    "Jumada al-thani": "month_jumada_ul_aakhira",
+    "Jumada al-Thani": "month_jumada_ul_aakhira",
+    "Jumada al-akhirah": "month_jumada_ul_aakhira",
+    "Jumada al-Akhirah": "month_jumada_ul_aakhira",
+    "Rajab": "month_rajab",
+    "Sha'ban": "month_shaban",
+    "Sha'aban": "month_shaban",
+    "Shaban": "month_shaban",
+    "Shaaban": "month_shaban",
+    "Ramadan": "month_ramadan",
+    "Ramadhan": "month_ramadan",
+    "Shawwal": "month_shawwal",
+    "Shaww\u0101l": "month_shawwal",
+    "Dhu al-Qi'dah": "month_dhul_qadah",
+    "Dhu al-Qidah": "month_dhul_qadah",
+    "Dhul-Qadah": "month_dhul_qadah",
+    "Dhul Qadah": "month_dhul_qadah",
+    "Dhu al-Hijjah": "month_dhul_hijjah",
+    "Dhu al-Hijja": "month_dhul_hijjah",
+    "Dhul-Hijjah": "month_dhul_hijjah",
+    "Dhul Hijjah": "month_dhul_hijjah"
+  }
+}

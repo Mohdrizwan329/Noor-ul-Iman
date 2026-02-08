@@ -1,0 +1,1485 @@
+{
+  "strings": {
+    "app_name": {
+      "en": "Noor-ul-Iman",
+      "ur": "نور الہدیٰ",
+      "ar": "نور الهدى",
+      "hi": "नूर-उल-ईमान"
+    },
+    "assalamu_alaikum": {
+      "en": "Assalamu Alaikum",
+      "ur": "السلام علیکم",
+      "ar": "السلام عليكم",
+      "hi": "अस्सलामु अलैकुम"
+    },
+    "good_morning": {
+      "en": "Good Morning",
+      "ur": "صبح بخیر",
+      "ar": "صباح الخير",
+      "hi": "सुप्रभात"
+    },
+    "good_afternoon": {
+      "en": "Good Afternoon",
+      "ur": "سہ پہر بخیر",
+      "ar": "مساء الخير",
+      "hi": "शुभ दोपहर"
+    },
+    "good_evening": {
+      "en": "Good Evening",
+      "ur": "شام بخیر",
+      "ar": "مساء الخير",
+      "hi": "शुभ संध्या"
+    },
+    "search_quran_duas_hadith": {
+      "en": "Search Quran, Duas, Hadith...",
+      "ur": "قرآن، دعائیں، حدیث تلاش کریں...",
+      "ar": "ابحث في القرآن والأدعية والحديث...",
+      "hi": "कुरान, दुआएं, हदीस खोजें..."
+    },
+    "prayer_times": {
+      "en": "Prayer Times",
+      "ur": "نماز کے اوقات",
+      "ar": "أوقات الصلاة",
+      "hi": "नमाज़ का समय"
+    },
+    "upcoming_event": {
+      "en": "Upcoming Event",
+      "ur": "آنے والا واقعہ",
+      "ar": "حدث قادم",
+      "hi": "आगामी कार्यक्रम"
+    },
+    "days_left": {
+      "en": "days left",
+      "ur": "دن باقی",
+      "ar": "يوم متبقي",
+      "hi": "दिन बाकी"
+    },
+    "today_event": {
+      "en": "Today!",
+      "ur": "آج!",
+      "ar": "اليوم!",
+      "hi": "आज!"
+    },
+    "air_quality": {
+      "en": "Air Quality",
+      "ur": "ہوا کی کوالٹی",
+      "ar": "جودة الهواء",
+      "hi": "वायु गुणवत्ता"
+    },
+    "aqi_label": {
+      "en": "AQI",
+      "ur": "اے کیو آئی",
+      "ar": "مؤشر جودة الهواء",
+      "hi": "एक्यूआई"
+    },
+    "temperature_unit": {
+      "en": "°C",
+      "ur": "°C",
+      "ar": "°C",
+      "hi": "°C"
+    },
+    "wind_speed_unit": {
+      "en": "m/s",
+      "ur": "m/s",
+      "ar": "m/s",
+      "hi": "m/s"
+    },
+    "no_results_found": {
+      "en": "No data found",
+      "ur": "کوئی ڈیٹا نہیں ملا",
+      "ar": "لم يتم العثور على بيانات",
+      "hi": "कोई डेटा नहीं मिला"
+    },
+    "search_results": {
+      "en": "Search Results",
+      "ur": "تلاش کے نتائج",
+      "ar": "نتائج البحث",
+      "hi": "खोज परिणाम"
+    },
+    "islamic_fast_halal": {
+      "en": "Islamic Fast & Halal",
+      "ur": "اسلامی روزہ اور حلال",
+      "ar": "الصيام والحلال الإسلامي",
+      "hi": "इस्लामी रोज़ा और हलाल"
+    },
+    "islamic_books": {
+      "en": "Islamic Books",
+      "ur": "اسلامی کتابیں",
+      "ar": "الكتب الإسلامية",
+      "hi": "इस्लामी किताबें"
+    },
+    "islamic_ibadat_farz": {
+      "en": "Islamic Ibadat & Farz",
+      "ur": "اسلامی عبادات اور فرائض",
+      "ar": "العبادات والفرائض الإسلامية",
+      "hi": "इस्लामी इबादत और फ़र्ज़"
+    },
+    "islamic_names": {
+      "en": "Islamic Names",
+      "ur": "اسلامی نام",
+      "ar": "الأسماء الإسلامية",
+      "hi": "इस्लामी नाम"
+    },
+    "deen_buniyadi_amal": {
+      "en": "Deen Ki Buniyadi Amal",
+      "ur": "دین کے بنیادی اعمال",
+      "ar": "الأعمال الأساسية للدين",
+      "hi": "दीन के बुनियादी अमल"
+    },
+    "surah": {
+      "en": "Surah",
+      "ur": "سورہ",
+      "ar": "السورة",
+      "hi": "सूरह"
+    },
+    "duas": {
+      "en": "Duas",
+      "ur": "دعائیں",
+      "ar": "الأدعية",
+      "hi": "दुआएं"
+    },
+    "seven_kalma": {
+      "en": "7 Kalma",
+      "ur": "7 کلمات",
+      "ar": "7 كلمات",
+      "hi": "7 कलमा"
+    },
+    "ramadan": {
+      "en": "Ramadan",
+      "ur": "رمضان",
+      "ar": "رمضان",
+      "hi": "रमज़ान"
+    },
+    "fasting": {
+      "en": "Fasting",
+      "ur": "روزہ",
+      "ar": "الصيام",
+      "hi": "रोज़ा"
+    },
+    "mosques": {
+      "en": "Mosques",
+      "ur": "مساجد",
+      "ar": "المساجد",
+      "hi": "मस्जिदें"
+    },
+    "halal": {
+      "en": "Halal",
+      "ur": "حلال",
+      "ar": "حلال",
+      "hi": "हलाल"
+    },
+    "status": {
+      "en": "Status",
+      "ur": "اسٹیٹس",
+      "ar": "الحالة",
+      "hi": "स्टेटस"
+    },
+    "hajj_guide": {
+      "en": "Hajj Guide",
+      "ur": "حج گائیڈ",
+      "ar": "دليل الحج",
+      "hi": "हज गाइड"
+    },
+    "qibla": {
+      "en": "Qibla",
+      "ur": "قبلہ",
+      "ar": "القبلة",
+      "hi": "क़िबला"
+    },
+    "tasbih": {
+      "en": "Tasbih",
+      "ur": "تسبیح",
+      "ar": "التسبيح",
+      "hi": "तस्बीह"
+    },
+    "calendar": {
+      "en": "Calendar",
+      "ur": "کیلنڈر",
+      "ar": "التقويم",
+      "hi": "कैलेंडर"
+    },
+    "zakat": {
+      "en": "Zakat",
+      "ur": "زکوٰۃ",
+      "ar": "الزكاة",
+      "hi": "ज़कात"
+    },
+    "zakat_guide": {
+      "en": "Zakat Guide",
+      "ur": "زکوٰۃ گائیڈ",
+      "ar": "دليل الزكاة",
+      "hi": "ज़कात गाइड"
+    },
+    "names_of_allah": {
+      "en": "Names of Allah",
+      "ur": "اسماء الحسنیٰ",
+      "ar": "أسماء الله الحسنى",
+      "hi": "अल्लाह के नाम"
+    },
+    "nabi_names": {
+      "en": "Nabi Names",
+      "ur": "انبیاء کے نام",
+      "ar": "أسماء الأنبياء",
+      "hi": "नबी के नाम"
+    },
+    "sahaba_names": {
+      "en": "Sahaba Names",
+      "ur": "صحابہ کے نام",
+      "ar": "أسماء الصحابة",
+      "hi": "सहाबा के नाम"
+    },
+    "khalifa_names": {
+      "en": "Khalifa Names",
+      "ur": "خلفاء کے نام",
+      "ar": "أسماء الخلفاء",
+      "hi": "खलीफा के नाम"
+    },
+    "twelve_imams": {
+      "en": "12 Imams",
+      "ur": "12 امام",
+      "ar": "12 إمام",
+      "hi": "12 इमाम"
+    },
+    "panjatan": {
+      "en": "Panjatan",
+      "ur": "پنجتن",
+      "ar": "بنجاتان",
+      "hi": "पंजतन"
+    },
+    "ahlebait": {
+      "en": "Ahlebait",
+      "ur": "اہل بیت",
+      "ar": "أهل البيت",
+      "hi": "अहले बैत"
+    },
+    "sabhi_namaz": {
+      "en": "Sabhi Namaz",
+      "ur": "تمام نمازیں",
+      "ar": "جميع الصلوات",
+      "hi": "सभी नमाज़ का तरीका"
+    },
+    "nazar_karika": {
+      "en": "Nazar Karika",
+      "ur": "نظر کریکا",
+      "ar": "نذر كريكا",
+      "hi": "नज़र का तरीका"
+    },
+    "fatiha": {
+      "en": "Fatiha",
+      "ur": "فاتحہ",
+      "ar": "الفاتحة",
+      "hi": "फातिहा का तरीका"
+    },
+    "wazu": {
+      "en": "Wazu",
+      "ur": "وضو",
+      "ar": "الوضوء",
+      "hi": "वज़ू का तरीका"
+    },
+    "ghusl": {
+      "en": "Ghusl",
+      "ur": "غسل",
+      "ar": "الغسل",
+      "hi": "ग़ुस्ल का तरीका"
+    },
+    "khutba": {
+      "en": "Khutba",
+      "ur": "خطبہ",
+      "ar": "الخطبة",
+      "hi": "खुतबा का तरीका"
+    },
+    "nazar_e_bad": {
+      "en": "Nazar-e-Bad",
+      "ur": "نظر بد",
+      "ar": "العين الحاسدة",
+      "hi": "नज़र-ए-बद"
+    },
+    "azan": {
+      "en": "Azan",
+      "ur": "اذان",
+      "ar": "الأذان",
+      "hi": "अज़ान का तरीका"
+    },
+    "jahannam": {
+      "en": "Jahannam",
+      "ur": "جہنم",
+      "ar": "جهنم",
+      "hi": "जहन्नम"
+    },
+    "family_fazilat": {
+      "en": "Family",
+      "ur": "خاندان کی فضیلت",
+      "ar": "فضل الأسرة",
+      "hi": "परिवार की फ़ज़ीलत"
+    },
+    "relative_fazilat": {
+      "en": "Relatives",
+      "ur": "رشتہ داروں کی فضیلت",
+      "ar": "فضل الأقارب",
+      "hi": "रिश्तेदारों की फ़ज़ीलत"
+    },
+    "jannat": {
+      "en": "Jannat",
+      "ur": "جنت",
+      "ar": "الجنة",
+      "hi": "जन्नत"
+    },
+    "gunha": {
+      "en": "Gunha",
+      "ur": "گناہ",
+      "ar": "الذنوب",
+      "hi": "गुनाह"
+    },
+    "savab": {
+      "en": "Savab",
+      "ur": "ثواب",
+      "ar": "الثواب",
+      "hi": "सवाब"
+    },
+    "namaz_fazilat": {
+      "en": "Namaz Fazilat",
+      "ur": "نماز کی فضیلت",
+      "ar": "فضل الصلاة",
+      "hi": "नमाज़ की फ़ज़ीलत"
+    },
+    "zamzam": {
+      "en": "Zamzam",
+      "ur": "زم زم",
+      "ar": "زمزم",
+      "hi": "ज़मज़म"
+    },
+    "month_fazilat": {
+      "en": "Month Fazilat",
+      "ur": "مہینوں کی فضیلت",
+      "ar": "فضل الشهور",
+      "hi": "महीनों की फ़ज़ीलत"
+    },
+    "quran": {
+      "en": "Quran",
+      "ur": "قرآن",
+      "ar": "القرآن",
+      "hi": "कुरान"
+    },
+    "sahih_bukhari": {
+      "en": "Sahih Bukhari",
+      "ur": "صحیح بخاری",
+      "ar": "صحيح البخاري",
+      "hi": "सहीह बुखारी"
+    },
+    "sahih_muslim": {
+      "en": "Sahih Muslim",
+      "ur": "صحیح مسلم",
+      "ar": "صحيح مسلم",
+      "hi": "सहीह मुस्लिम"
+    },
+    "sunan_nasai": {
+      "en": "Sunan Nasai",
+      "ur": "سنن نسائی",
+      "ar": "سنن النسائي",
+      "hi": "सुनन नसई"
+    },
+    "sunan_abu_dawud": {
+      "en": "Sunan Abu Dawud",
+      "ur": "سنن ابو داؤد",
+      "ar": "سنن أبي داود",
+      "hi": "सुनन अबू दाऊद"
+    },
+    "jami_tirmidhi": {
+      "en": "Jami Tirmidhi",
+      "ur": "جامع ترمذی",
+      "ar": "جامع الترمذي",
+      "hi": "जामी तिर्मिज़ी"
+    },
+    "fajr": {
+      "en": "Fajr",
+      "ur": "فجر",
+      "ar": "الفجر",
+      "hi": "फज्र"
+    },
+    "dhuhr": {
+      "en": "Dhuhr",
+      "ur": "ظہر",
+      "ar": "الظهر",
+      "hi": "ज़ुहर"
+    },
+    "jummah": {
+      "en": "Jummah",
+      "ur": "جمعہ",
+      "ar": "جمعة",
+      "hi": "जुमा"
+    },
+    "asr": {
+      "en": "Asr",
+      "ur": "عصر",
+      "ar": "العصر",
+      "hi": "अस्र"
+    },
+    "maghrib": {
+      "en": "Maghrib",
+      "ur": "مغرب",
+      "ar": "المغرب",
+      "hi": "मगरिब"
+    },
+    "isha": {
+      "en": "Isha",
+      "ur": "عشاء",
+      "ar": "العشاء",
+      "hi": "इशा"
+    },
+    "monday": {
+      "en": "Monday",
+      "ur": "پیر",
+      "ar": "الإثنين",
+      "hi": "सोमवार"
+    },
+    "tuesday": {
+      "en": "Tuesday",
+      "ur": "منگل",
+      "ar": "الثلاثاء",
+      "hi": "मंगलवार"
+    },
+    "wednesday": {
+      "en": "Wednesday",
+      "ur": "بدھ",
+      "ar": "الأربعاء",
+      "hi": "बुधवार"
+    },
+    "thursday": {
+      "en": "Thursday",
+      "ur": "جمعرات",
+      "ar": "الخميس",
+      "hi": "गुरुवार"
+    },
+    "friday": {
+      "en": "Friday",
+      "ur": "جمعہ",
+      "ar": "الجمعة",
+      "hi": "शुक्रवार"
+    },
+    "saturday": {
+      "en": "Saturday",
+      "ur": "ہفتہ",
+      "ar": "السبت",
+      "hi": "शनिवार"
+    },
+    "sunday": {
+      "en": "Sunday",
+      "ur": "اتوار",
+      "ar": "الأحد",
+      "hi": "रविवार"
+    },
+    "january": {
+      "en": "January",
+      "ur": "جنوری",
+      "ar": "يناير",
+      "hi": "जनवरी"
+    },
+    "february": {
+      "en": "February",
+      "ur": "فروری",
+      "ar": "فبراير",
+      "hi": "फरवरी"
+    },
+    "march": {
+      "en": "March",
+      "ur": "مارچ",
+      "ar": "مارس",
+      "hi": "मार्च"
+    },
+    "april": {
+      "en": "April",
+      "ur": "اپریل",
+      "ar": "أبريل",
+      "hi": "अप्रैल"
+    },
+    "may": {
+      "en": "May",
+      "ur": "مئی",
+      "ar": "مايو",
+      "hi": "मई"
+    },
+    "june": {
+      "en": "June",
+      "ur": "جون",
+      "ar": "يونيو",
+      "hi": "जून"
+    },
+    "july": {
+      "en": "July",
+      "ur": "جولائی",
+      "ar": "يوليو",
+      "hi": "जुलाई"
+    },
+    "august": {
+      "en": "August",
+      "ur": "اگست",
+      "ar": "أغسطس",
+      "hi": "अगस्त"
+    },
+    "september": {
+      "en": "September",
+      "ur": "ستمبر",
+      "ar": "سبتمبر",
+      "hi": "सितम्बर"
+    },
+    "october": {
+      "en": "October",
+      "ur": "اکتوبر",
+      "ar": "أكتوبر",
+      "hi": "अक्टूबर"
+    },
+    "november": {
+      "en": "November",
+      "ur": "نومبر",
+      "ar": "نوفمبر",
+      "hi": "नवम्बर"
+    },
+    "december": {
+      "en": "December",
+      "ur": "دسمبر",
+      "ar": "ديسمبر",
+      "hi": "दिसम्बर"
+    },
+    "month_muharram": {
+      "en": "Muharram",
+      "ur": "محرم",
+      "ar": "محرم",
+      "hi": "मुहर्रम"
+    },
+    "month_safar": {
+      "en": "Safar",
+      "ur": "صفر",
+      "ar": "صفر",
+      "hi": "सफ़र"
+    },
+    "month_rabi_ul_awwal": {
+      "en": "Rabi ul-Awwal",
+      "ur": "ربیع الاول",
+      "ar": "ربيع الأول",
+      "hi": "रबी उल-अव्वल"
+    },
+    "month_rabi_ul_aakhir": {
+      "en": "Rabi ul-Aakhir",
+      "ur": "ربیع الآخر",
+      "ar": "ربيع الآخر",
+      "hi": "रबी उल-आख़िर"
+    },
+    "month_jumada_ul_ula": {
+      "en": "Jumada ul-Ula",
+      "ur": "جمادی الاولیٰ",
+      "ar": "جمادى الأولى",
+      "hi": "जुमादा उल-ऊला"
+    },
+    "month_jumada_ul_aakhira": {
+      "en": "Jumada ul-Aakhira",
+      "ur": "جمادی الآخرہ",
+      "ar": "جمادى الآخرة",
+      "hi": "जुमादा उल-आख़िरा"
+    },
+    "month_rajab": {
+      "en": "Rajab",
+      "ur": "رجب",
+      "ar": "رجب",
+      "hi": "रजब"
+    },
+    "month_shaban": {
+      "en": "Shaban",
+      "ur": "شعبان",
+      "ar": "شعبان",
+      "hi": "शाबान"
+    },
+    "month_ramadan": {
+      "en": "Ramadan",
+      "ur": "رمضان",
+      "ar": "رمضان",
+      "hi": "रमज़ान"
+    },
+    "month_shawwal": {
+      "en": "Shawwal",
+      "ur": "شوال",
+      "ar": "شوال",
+      "hi": "शव्वाल"
+    },
+    "month_dhul_qadah": {
+      "en": "Dhul-Qa'dah",
+      "ur": "ذوالقعدہ",
+      "ar": "ذو القعدة",
+      "hi": "ज़िल्क़ादा"
+    },
+    "month_dhul_hijjah": {
+      "en": "Dhul-Hijjah",
+      "ur": "ذوالحجہ",
+      "ar": "ذو الحجة",
+      "hi": "ज़िल्हिज्जा"
+    },
+    "weather_clear_sky": {
+      "en": "Clear Sky",
+      "ur": "صاف آسمان",
+      "ar": "سماء صافية",
+      "hi": "साफ़ आसमान"
+    },
+    "weather_few_clouds": {
+      "en": "Few Clouds",
+      "ur": "کم بادل",
+      "ar": "غيوم قليلة",
+      "hi": "कम बादल"
+    },
+    "weather_scattered_clouds": {
+      "en": "Scattered Clouds",
+      "ur": "منتشر بادل",
+      "ar": "غيوم متفرقة",
+      "hi": "बिखरे हुए बादल"
+    },
+    "weather_broken_clouds": {
+      "en": "Broken Clouds",
+      "ur": "ٹوٹے ہوئے بادل",
+      "ar": "غيوم متقطعة",
+      "hi": "टूटे हुए बादल"
+    },
+    "weather_overcast_clouds": {
+      "en": "Overcast Clouds",
+      "ur": "گھنے بادل",
+      "ar": "غيوم كثيفة",
+      "hi": "घने बादल"
+    },
+    "weather_shower_rain": {
+      "en": "Shower Rain",
+      "ur": "جھڑی والی بارش",
+      "ar": "زخات مطر",
+      "hi": "झड़ीदार बारिश"
+    },
+    "weather_rain": {
+      "en": "Rain",
+      "ur": "بارش",
+      "ar": "مطر",
+      "hi": "बारिश"
+    },
+    "weather_light_rain": {
+      "en": "Light Rain",
+      "ur": "ہلکی بارش",
+      "ar": "مطر خفيف",
+      "hi": "हल्की बारिश"
+    },
+    "weather_moderate_rain": {
+      "en": "Moderate Rain",
+      "ur": "اعتدال پسند بارش",
+      "ar": "مطر معتدل",
+      "hi": "मध्यम बारिश"
+    },
+    "weather_heavy_rain": {
+      "en": "Heavy Rain",
+      "ur": "شدید بارش",
+      "ar": "مطر غزير",
+      "hi": "भारी बारिश"
+    },
+    "weather_thunderstorm": {
+      "en": "Thunderstorm",
+      "ur": "گرج چمک",
+      "ar": "عاصفة رعدية",
+      "hi": "गरज के साथ तूफ़ान"
+    },
+    "weather_snow": {
+      "en": "Snow",
+      "ur": "برف باری",
+      "ar": "ثلج",
+      "hi": "बर्फबारी"
+    },
+    "weather_mist": {
+      "en": "Mist",
+      "ur": "دھند",
+      "ar": "ضباب خفيف",
+      "hi": "धुंध"
+    },
+    "weather_haze": {
+      "en": "Haze",
+      "ur": "دھندلا پن",
+      "ar": "ضباب دخاني",
+      "hi": "धुंधलापन"
+    },
+    "weather_fog": {
+      "en": "Fog",
+      "ur": "کوہرا",
+      "ar": "ضباب",
+      "hi": "कोहरा"
+    },
+    "weather_dust": {
+      "en": "Dust",
+      "ur": "دھول",
+      "ar": "غبار",
+      "hi": "धूल"
+    },
+    "weather_smoke": {
+      "en": "Smoke",
+      "ur": "دھواں",
+      "ar": "دخان",
+      "hi": "धुआं"
+    },
+    "aqi_good": {
+      "en": "Good",
+      "ur": "اچھا",
+      "ar": "جيد",
+      "hi": "अच्छा"
+    },
+    "aqi_moderate": {
+      "en": "Moderate",
+      "ur": "اعتدال پسند",
+      "ar": "معتدل",
+      "hi": "मध्यम"
+    },
+    "aqi_unhealthy_sensitive": {
+      "en": "Unhealthy for Sensitive",
+      "ur": "حساس لوگوں کے لیے نقصان دہ",
+      "ar": "غير صحي للحساسين",
+      "hi": "संवेदनशील लोगों के लिए हानिकारक"
+    },
+    "aqi_unhealthy": {
+      "en": "Unhealthy",
+      "ur": "غیر صحت مند",
+      "ar": "غير صحي",
+      "hi": "अस्वस्थ"
+    },
+    "aqi_very_unhealthy": {
+      "en": "Very Unhealthy",
+      "ur": "بہت غیر صحت مند",
+      "ar": "غير صحي جداً",
+      "hi": "बहुत अस्वस्थ"
+    },
+    "aqi_hazardous": {
+      "en": "Hazardous",
+      "ur": "خطرناک",
+      "ar": "خطير",
+      "hi": "खतरनाक"
+    },
+    "aqi_unknown": {
+      "en": "Unknown",
+      "ur": "نامعلوم",
+      "ar": "غير معروف",
+      "hi": "अज्ञात"
+    },
+    "event_islamic_new_year": {
+      "en": "Islamic New Year",
+      "ur": "اسلامی نیا سال",
+      "ar": "رأس السنة الهجرية",
+      "hi": "इस्लामी नया साल"
+    },
+    "event_ashura": {
+      "en": "Day of Ashura",
+      "ur": "یوم عاشورہ",
+      "ar": "يوم عاشوراء",
+      "hi": "आशूरा का दिन"
+    },
+    "event_milad_un_nabi": {
+      "en": "Milad un-Nabi ﷺ",
+      "ur": "میلاد النبی ﷺ",
+      "ar": "المولد النبوي ﷺ",
+      "hi": "मीलाद-उन-नबी ﷺ"
+    },
+    "event_shab_e_meraj": {
+      "en": "Shab-e-Meraj",
+      "ur": "شب معراج",
+      "ar": "ليلة الإسراء والمعراج",
+      "hi": "शब-ए-मेराज"
+    },
+    "event_shab_e_barat": {
+      "en": "Shab-e-Barat",
+      "ur": "شب برات",
+      "ar": "ليلة النصف من شعبان",
+      "hi": "शब-ए-बारात"
+    },
+    "event_ramadan_start": {
+      "en": "Ramadan Begins",
+      "ur": "رمضان شروع",
+      "ar": "بداية رمضان",
+      "hi": "रमज़ान शुरू"
+    },
+    "event_laylatul_qadr": {
+      "en": "Laylatul Qadr",
+      "ur": "لیلۃ القدر",
+      "ar": "ليلة القدر",
+      "hi": "लैलतुल क़द्र"
+    },
+    "event_eid_ul_fitr": {
+      "en": "Eid ul-Fitr",
+      "ur": "عید الفطر",
+      "ar": "عيد الفطر",
+      "hi": "ईद उल-फ़ित्र"
+    },
+    "event_hajj_start": {
+      "en": "Hajj Begins",
+      "ur": "حج شروع",
+      "ar": "بداية الحج",
+      "hi": "हज शुरू"
+    },
+    "event_eid_ul_adha": {
+      "en": "Eid ul-Adha",
+      "ur": "عید الاضحی",
+      "ar": "عيد الأضحى",
+      "hi": "ईद उल-अज़हा"
+    },
+    "detail_category_prophets": {
+      "en": "Prophet of Allah",
+      "ur": "نبی اللہ",
+      "ar": "نبي الله",
+      "hi": "अल्लाह के नबी"
+    },
+    "detail_category_sahaba": {
+      "en": "Companion of Prophet ﷺ",
+      "ur": "صحابی رسول ﷺ",
+      "ar": "صحابي الرسول ﷺ",
+      "hi": "पैगंबर ﷺ के साथी"
+    },
+    "detail_category_khalifas": {
+      "en": "Rightly Guided Caliph",
+      "ur": "خلیفہ راشد",
+      "ar": "الخليفة الراشد",
+      "hi": "राशिदुन ख़लीफ़ा"
+    },
+    "detail_category_twelve_imams": {
+      "en": "Imam of Ahlul Bayt",
+      "ur": "اہل بیت کے امام",
+      "ar": "إمام أهل البيت",
+      "hi": "अहले बैत के इमाम"
+    },
+    "detail_category_panjatan": {
+      "en": "Panjatan Pak",
+      "ur": "پنجتن پاک",
+      "ar": "أهل الكساء",
+      "hi": "पंजतन पाक"
+    },
+    "detail_category_ahlebait": {
+      "en": "Ahlul Bayt",
+      "ur": "اہل بیت",
+      "ar": "أهل البيت",
+      "hi": "अहले बैत"
+    }
+  },
+  "sections": [
+    {
+      "key": "islamic_fast_halal",
+      "title_key": "islamic_fast_halal",
+      "order": 1,
+      "features": [
+        {
+          "key": "ramadan",
+          "title_key": "ramadan",
+          "icon": "nights_stay",
+          "color": "#673AB7",
+          "route": "ramadan_tracker",
+          "order": 1
+        },
+        {
+          "key": "fasting",
+          "title_key": "fasting",
+          "icon": "wb_twilight",
+          "color": "#3F51B5",
+          "route": "fasting_times",
+          "order": 2
+        },
+        {
+          "key": "mosques",
+          "title_key": "mosques",
+          "icon": "mosque",
+          "color": "#0A5C36",
+          "route": "mosque_finder",
+          "order": 3
+        },
+        {
+          "key": "halal",
+          "title_key": "halal",
+          "icon": "restaurant",
+          "color": "#4CAF50",
+          "route": "halal_finder",
+          "order": 4
+        },
+        {
+          "key": "status",
+          "title_key": "status",
+          "icon": "card_giftcard",
+          "color": "#673AB7",
+          "route": "greeting_cards",
+          "emoji": "🎴",
+          "order": 5
+        },
+        {
+          "key": "hajj_guide",
+          "title_key": "hajj_guide",
+          "icon": "flight_takeoff",
+          "color": "#795548",
+          "route": "hajj_guide",
+          "order": 6
+        },
+        {
+          "key": "qibla",
+          "title_key": "qibla",
+          "icon": "explore",
+          "color": "#C9A24D",
+          "route": "qibla",
+          "order": 7
+        },
+        {
+          "key": "tasbih",
+          "title_key": "tasbih",
+          "icon": "radio_button_checked",
+          "color": "#C9A24D",
+          "route": "tasbih",
+          "order": 8
+        },
+        {
+          "key": "calendar",
+          "title_key": "calendar",
+          "icon": "calendar_month",
+          "color": "#FF9800",
+          "route": "calendar",
+          "order": 9
+        },
+        {
+          "key": "zakat",
+          "title_key": "zakat",
+          "icon": "calculate",
+          "color": "#3F51B5",
+          "route": "zakat_calculator",
+          "order": 10
+        },
+        {
+          "key": "zakat_guide",
+          "title_key": "zakat_guide",
+          "icon": "menu_book_rounded",
+          "color": "#009688",
+          "route": "zakat_guide",
+          "order": 11
+        }
+      ]
+    },
+    {
+      "key": "islamic_books",
+      "title_key": "islamic_books",
+      "order": 2,
+      "features": [
+        {
+          "key": "quran",
+          "title_key": "quran",
+          "icon": "menu_book",
+          "color": "#0A5C36",
+          "route": "quran",
+          "order": 1
+        },
+        {
+          "key": "sahih_bukhari",
+          "title_key": "sahih_bukhari",
+          "icon": "auto_stories",
+          "color": "#0A5C36",
+          "route": "hadith",
+          "order": 2,
+          "nav_params": {
+            "screen_type": "hadith",
+            "hadith_collection": "bukhari",
+            "collection_key": "bukhari",
+            "title_key": "sahih_bukhari"
+          }
+        },
+        {
+          "key": "sahih_muslim",
+          "title_key": "sahih_muslim",
+          "icon": "auto_stories",
+          "color": "#009688",
+          "route": "hadith",
+          "order": 3,
+          "nav_params": {
+            "screen_type": "hadith",
+            "hadith_collection": "muslim",
+            "collection_key": "muslim",
+            "title_key": "sahih_muslim"
+          }
+        },
+        {
+          "key": "sunan_nasai",
+          "title_key": "sunan_nasai",
+          "icon": "auto_stories",
+          "color": "#3F51B5",
+          "route": "hadith",
+          "order": 4,
+          "nav_params": {
+            "screen_type": "hadith",
+            "hadith_collection": "nasai",
+            "collection_key": "nasai",
+            "title_key": "sunan_nasai"
+          }
+        },
+        {
+          "key": "sunan_abu_dawud",
+          "title_key": "sunan_abu_dawud",
+          "icon": "auto_stories",
+          "color": "#795548",
+          "route": "hadith",
+          "order": 5,
+          "nav_params": {
+            "screen_type": "hadith",
+            "hadith_collection": "abudawud",
+            "collection_key": "abudawud",
+            "title_key": "sunan_abu_dawud"
+          }
+        },
+        {
+          "key": "jami_tirmidhi",
+          "title_key": "jami_tirmidhi",
+          "icon": "auto_stories",
+          "color": "#673AB7",
+          "route": "hadith",
+          "order": 6,
+          "nav_params": {
+            "screen_type": "hadith",
+            "hadith_collection": "tirmidhi",
+            "collection_key": "tirmidhi",
+            "title_key": "jami_tirmidhi"
+          }
+        }
+      ]
+    },
+    {
+      "key": "islamic_ibadat_farz",
+      "title_key": "islamic_ibadat_farz",
+      "order": 3,
+      "features": [
+        {
+          "key": "surah",
+          "title_key": "surah",
+          "icon": "library_books",
+          "color": "#009688",
+          "route": "surah_list",
+          "order": 1
+        },
+        {
+          "key": "duas",
+          "title_key": "duas",
+          "icon": "volunteer_activism",
+          "color": "#E91E63",
+          "route": "dua_category",
+          "emoji": "🤲",
+          "order": 2
+        },
+        {
+          "key": "seven_kalma",
+          "title_key": "seven_kalma",
+          "icon": "menu_book",
+          "color": "#673AB7",
+          "route": "seven_kalma",
+          "order": 3
+        }
+      ]
+    },
+    {
+      "key": "islamic_names",
+      "title_key": "islamic_names",
+      "order": 4,
+      "features": [
+        {
+          "key": "names_of_allah",
+          "title_key": "names_of_allah",
+          "icon": "star",
+          "color": "#9C27B0",
+          "route": "names_of_allah",
+          "order": 1
+        },
+        {
+          "key": "nabi_names",
+          "title_key": "nabi_names",
+          "icon": "person",
+          "color": "#4CAF50",
+          "route": "islamic_names",
+          "order": 2,
+          "nav_params": {
+            "screen_type": "islamic_names",
+            "collection_key": "prophets",
+            "asset_file_name": "prophets_names.json",
+            "title_key": "nabi_names",
+            "has_search": true,
+            "empty_state_key": "no_prophets_found",
+            "detail_category_key": "detail_category_prophets",
+            "detail_icon": "person",
+            "detail_color": "#4CAF50"
+          }
+        },
+        {
+          "key": "sahaba_names",
+          "title_key": "sahaba_names",
+          "icon": "people",
+          "color": "#2196F3",
+          "route": "islamic_names",
+          "order": 3,
+          "nav_params": {
+            "screen_type": "islamic_names",
+            "collection_key": "sahaba",
+            "asset_file_name": "sahaba_names.json",
+            "title_key": "sahaba_names",
+            "has_search": true,
+            "empty_state_key": "no_companions_found",
+            "detail_category_key": "detail_category_sahaba",
+            "detail_icon": "people",
+            "detail_color": "#2196F3"
+          }
+        },
+        {
+          "key": "khalifa_names",
+          "title_key": "khalifa_names",
+          "icon": "account_balance",
+          "color": "#FF9800",
+          "route": "islamic_names",
+          "order": 4,
+          "nav_params": {
+            "screen_type": "islamic_names",
+            "collection_key": "khalifas",
+            "asset_file_name": "khalifa_names.json",
+            "title_key": "khalifa_names",
+            "show_period_in_meaning": true,
+            "detail_category_key": "detail_category_khalifas",
+            "detail_icon": "account_balance",
+            "detail_color": "#FF9800"
+          }
+        },
+        {
+          "key": "twelve_imams",
+          "title_key": "twelve_imams",
+          "icon": "stars",
+          "color": "#9C27B0",
+          "route": "islamic_names",
+          "order": 5,
+          "nav_params": {
+            "screen_type": "islamic_names",
+            "collection_key": "twelve_imams",
+            "asset_file_name": "twelve_imams_names.json",
+            "title_key": "twelve_imams",
+            "has_search": true,
+            "empty_state_key": "no_imams_found",
+            "show_kunya": true,
+            "detail_category_key": "detail_category_twelve_imams",
+            "detail_icon": "stars",
+            "detail_color": "#9C27B0"
+          }
+        },
+        {
+          "key": "panjatan",
+          "title_key": "panjatan",
+          "icon": "favorite",
+          "color": "#F44336",
+          "route": "islamic_names",
+          "order": 6,
+          "nav_params": {
+            "screen_type": "islamic_names",
+            "collection_key": "panjatan",
+            "asset_file_name": "panjatan_names.json",
+            "title_key": "panjatan",
+            "detail_category_key": "detail_category_panjatan",
+            "detail_icon": "favorite",
+            "detail_color": "#F44336"
+          }
+        },
+        {
+          "key": "ahlebait",
+          "title_key": "ahlebait",
+          "icon": "family_restroom",
+          "color": "#009688",
+          "route": "islamic_names",
+          "order": 7,
+          "nav_params": {
+            "screen_type": "islamic_names",
+            "collection_key": "ahlebait",
+            "asset_file_name": "ahlebait_names.json",
+            "title_key": "ahlebait",
+            "has_search": true,
+            "empty_state_key": "no_members_found",
+            "detail_category_key": "detail_category_ahlebait",
+            "detail_icon": "family_restroom",
+            "detail_color": "#009688"
+          }
+        }
+      ]
+    },
+    {
+      "key": "deen_buniyadi_amal",
+      "title_key": "deen_buniyadi_amal",
+      "order": 5,
+      "features": [
+        {
+          "key": "sabhi_namaz",
+          "title_key": "sabhi_namaz",
+          "icon": "mosque",
+          "color": "#4CAF50",
+          "route": "namaz_guide",
+          "order": 1
+        },
+        {
+          "key": "nazar_karika",
+          "title_key": "nazar_karika",
+          "icon": "handshake",
+          "color": "#009688",
+          "route": "nazar_karika",
+          "order": 2
+        },
+        {
+          "key": "fatiha",
+          "title_key": "fatiha",
+          "icon": "menu_book",
+          "color": "#9C27B0",
+          "route": "fatiha",
+          "order": 3
+        },
+        {
+          "key": "wazu",
+          "title_key": "wazu",
+          "icon": "water_drop",
+          "color": "#2196F3",
+          "route": "wazu",
+          "order": 4
+        },
+        {
+          "key": "ghusl",
+          "title_key": "ghusl",
+          "icon": "shower",
+          "color": "#00BCD4",
+          "route": "ghusl",
+          "order": 5
+        },
+        {
+          "key": "khutba",
+          "title_key": "khutba",
+          "icon": "record_voice_over",
+          "color": "#FF9800",
+          "route": "khutba",
+          "order": 6
+        },
+        {
+          "key": "nazar_e_bad",
+          "title_key": "nazar_e_bad",
+          "icon": "remove_red_eye",
+          "color": "#3F51B5",
+          "route": "nazar_e_bad",
+          "order": 7
+        },
+        {
+          "key": "azan",
+          "title_key": "azan",
+          "icon": "campaign",
+          "color": "#FFC107",
+          "route": "azan",
+          "order": 8
+        },
+        {
+          "key": "jahannam",
+          "title_key": "jahannam",
+          "icon": "local_fire_department",
+          "color": "#F44336",
+          "route": "jahannam_fazilat",
+          "order": 9
+        },
+        {
+          "key": "family_fazilat",
+          "title_key": "family_fazilat",
+          "icon": "family_restroom",
+          "color": "#E91E63",
+          "route": "family_fazilat",
+          "order": 10
+        },
+        {
+          "key": "relative_fazilat",
+          "title_key": "relative_fazilat",
+          "icon": "connect_without_contact",
+          "color": "#673AB7",
+          "route": "relative_fazilat",
+          "order": 11
+        },
+        {
+          "key": "jannat",
+          "title_key": "jannat",
+          "icon": "landscape",
+          "color": "#4CAF50",
+          "route": "jannat_fazilat",
+          "order": 12
+        },
+        {
+          "key": "gunha",
+          "title_key": "gunha",
+          "icon": "warning",
+          "color": "#795548",
+          "route": "gunha_fazilat",
+          "order": 13
+        },
+        {
+          "key": "savab",
+          "title_key": "savab",
+          "icon": "star",
+          "color": "#FFC107",
+          "route": "savab_fazilat",
+          "order": 14
+        },
+        {
+          "key": "namaz_fazilat",
+          "title_key": "namaz_fazilat",
+          "icon": "mosque",
+          "color": "#009688",
+          "route": "namaz_fazilat",
+          "order": 15
+        },
+        {
+          "key": "zamzam",
+          "title_key": "zamzam",
+          "icon": "water",
+          "color": "#03A9F4",
+          "route": "zamzam_fazilat",
+          "order": 16
+        },
+        {
+          "key": "month_fazilat",
+          "title_key": "month_fazilat",
+          "icon": "calendar_today",
+          "color": "#FF5722",
+          "route": "month_name_fazilat",
+          "order": 17
+        }
+      ]
+    }
+  ],
+  "weather_map": {
+    "clear sky": "weather_clear_sky",
+    "few clouds": "weather_few_clouds",
+    "scattered clouds": "weather_scattered_clouds",
+    "broken clouds": "weather_broken_clouds",
+    "overcast clouds": "weather_overcast_clouds",
+    "shower rain": "weather_shower_rain",
+    "rain": "weather_rain",
+    "light rain": "weather_light_rain",
+    "moderate rain": "weather_moderate_rain",
+    "heavy intensity rain": "weather_heavy_rain",
+    "heavy rain": "weather_heavy_rain",
+    "thunderstorm": "weather_thunderstorm",
+    "snow": "weather_snow",
+    "mist": "weather_mist",
+    "haze": "weather_haze",
+    "fog": "weather_fog",
+    "dust": "weather_dust",
+    "smoke": "weather_smoke"
+  },
+  "aqi_map": {
+    "Good": "aqi_good",
+    "Moderate": "aqi_moderate",
+    "Unhealthy for Sensitive": "aqi_unhealthy_sensitive",
+    "Unhealthy": "aqi_unhealthy",
+    "Very Unhealthy": "aqi_very_unhealthy",
+    "Hazardous": "aqi_hazardous",
+    "Unknown": "aqi_unknown"
+  },
+  "hijri_month_map": {
+    "Muharram": "month_muharram",
+    "Safar": "month_safar",
+    "Rabi' al-awwal": "month_rabi_ul_awwal",
+    "Rabi' al-Awwal": "month_rabi_ul_awwal",
+    "Rabi ul-Awal": "month_rabi_ul_awwal",
+    "Rabi' al-thani": "month_rabi_ul_aakhir",
+    "Rabi' al-Thani": "month_rabi_ul_aakhir",
+    "Rabi ul-Thani": "month_rabi_ul_aakhir",
+    "Rabi' al-akhir": "month_rabi_ul_aakhir",
+    "Rabi' al-Akhir": "month_rabi_ul_aakhir",
+    "Jumada al-awwal": "month_jumada_ul_ula",
+    "Jumada al-Awwal": "month_jumada_ul_ula",
+    "Jumada al-ula": "month_jumada_ul_ula",
+    "Jumada al-Ula": "month_jumada_ul_ula",
+    "Jumada al-thani": "month_jumada_ul_aakhira",
+    "Jumada al-Thani": "month_jumada_ul_aakhira",
+    "Jumada al-akhirah": "month_jumada_ul_aakhira",
+    "Jumada al-Akhirah": "month_jumada_ul_aakhira",
+    "Rajab": "month_rajab",
+    "Sha'ban": "month_shaban",
+    "Sha'aban": "month_shaban",
+    "Shaban": "month_shaban",
+    "Shaaban": "month_shaban",
+    "Ramadan": "month_ramadan",
+    "Ramadhan": "month_ramadan",
+    "Shawwal": "month_shawwal",
+    "Shawwāl": "month_shawwal",
+    "Dhu al-Qi'dah": "month_dhul_qadah",
+    "Dhu al-Qidah": "month_dhul_qadah",
+    "Dhul-Qadah": "month_dhul_qadah",
+    "Dhul Qadah": "month_dhul_qadah",
+    "Dhu al-Hijjah": "month_dhul_hijjah",
+    "Dhu al-Hijja": "month_dhul_hijjah",
+    "Dhul-Hijjah": "month_dhul_hijjah",
+    "Dhul Hijjah": "month_dhul_hijjah"
+  },
+  "hijri_month_keys": [
+    "month_muharram",
+    "month_safar",
+    "month_rabi_ul_awwal",
+    "month_rabi_ul_aakhir",
+    "month_jumada_ul_ula",
+    "month_jumada_ul_aakhira",
+    "month_rajab",
+    "month_shaban",
+    "month_ramadan",
+    "month_shawwal",
+    "month_dhul_qadah",
+    "month_dhul_hijjah"
+  ],
+  "prayers": [
+    {
+      "key": "fajr",
+      "icon": "wb_twilight",
+      "order": 1
+    },
+    {
+      "key": "dhuhr",
+      "icon": "wb_sunny",
+      "order": 2
+    },
+    {
+      "key": "jummah",
+      "icon": "mosque",
+      "order": 2
+    },
+    {
+      "key": "asr",
+      "icon": "sunny_snowing",
+      "order": 3
+    },
+    {
+      "key": "maghrib",
+      "icon": "nightlight_round",
+      "order": 4
+    },
+    {
+      "key": "isha",
+      "icon": "nights_stay",
+      "order": 5
+    }
+  ],
+  "event_icon_map": {
+    "auto_awesome": "auto_awesome",
+    "brightness_2": "brightness_2",
+    "star": "star",
+    "nights_stay": "nights_stay",
+    "celebration": "celebration",
+    "flight_takeoff": "flight_takeoff",
+    "mosque": "mosque"
+  },
+  "day_keys": [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday"
+  ],
+  "gregorian_month_keys": [
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december"
+  ]
+}

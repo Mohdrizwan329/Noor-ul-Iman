@@ -11,6 +11,7 @@ import 'core/services/background_location_service.dart';
 import 'core/services/azan_background_service.dart';
 import 'core/services/ad_service.dart';
 import 'core/services/content_service.dart';
+import 'core/services/hijri_date_service.dart';
 
 import 'providers/auth_provider.dart';
 import 'providers/prayer_provider.dart';
@@ -54,6 +55,9 @@ void main() async {
 
   // Configure Google Fonts to handle network errors gracefully
   GoogleFonts.config.allowRuntimeFetching = false;
+
+  // Initialize Hijri date service (fetches correct Islamic date from API)
+  await HijriDateService.instance.initialize();
 
   // Initialize AdMob
   await AdService.initialize();

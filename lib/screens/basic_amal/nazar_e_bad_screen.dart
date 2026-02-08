@@ -6,6 +6,7 @@ import '../../core/services/content_service.dart';
 import 'basic_amal_detail_screen.dart';
 import '../../core/utils/ad_navigation.dart';
 import '../../widgets/common/banner_ad_widget.dart';
+import '../../core/utils/ad_list_helper.dart';
 
 class NazarEBadScreen extends StatefulWidget {
   const NazarEBadScreen({super.key});
@@ -120,10 +121,17 @@ class _NazarEBadScreenState extends State<NazarEBadScreen> {
                       ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _allItems.length,
-                        itemBuilder: (context, index) => _buildCard(
-                          _allItems[index],
-                        ),
+                        itemCount: AdListHelper.totalCount(_allItems.length),
+                        itemBuilder: (context, index) {
+                          if (AdListHelper.isAdPosition(index)) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: BannerAdWidget(height: 250),
+                            );
+                          }
+                          final dataIdx = AdListHelper.dataIndex(index);
+                          return _buildCard(_allItems[dataIdx]);
+                        },
                       ),
                     ],
                   ),
