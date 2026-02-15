@@ -260,8 +260,6 @@ class _DuaDetailScreenState extends State<DuaDetailScreen> {
           categoryDisplayName,
           style: TextStyle(
             fontSize: responsive.textLarge,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Poppins',
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -371,7 +369,7 @@ class _DuaDetailScreenState extends State<DuaDetailScreen> {
 
     return Container(
       key: _cardKeys[cardIndex],
-      margin: responsive.paddingOnly(bottom: 16),
+      margin: responsive.paddingOnly(bottom: 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import '../constants/app_colors.dart';
 
 /// Service to check geographic restrictions
 class GeoRestrictionService {
@@ -54,7 +55,7 @@ class GeoRestrictionService {
         ),
         content: const Text(
           'This application is not available in your region.',
-          style: TextStyle(fontSize: 16),
+          style: TextStyle(color: AppColors.primary, fontSize: 16),
         ),
         actions: [
           TextButton(

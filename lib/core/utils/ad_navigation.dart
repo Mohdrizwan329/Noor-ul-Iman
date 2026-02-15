@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import '../services/ad_service.dart';
 
 class AdNavigator {
-  /// Push a route and show interstitial ad if conditions met
+  /// Push a route (interstitial ads removed)
   static Future<T?> push<T>(BuildContext context, Widget screen) async {
-    // Try to show interstitial ad (shows every 3 navigations)
-    await AdService.showInterstitialAd();
-
     if (!context.mounted) return null;
 
     return Navigator.push<T>(
@@ -15,10 +11,8 @@ class AdNavigator {
     );
   }
 
-  /// Push replacement route with interstitial ad
+  /// Push replacement route
   static Future<T?> pushReplacement<T, TO>(BuildContext context, Widget screen) async {
-    await AdService.showInterstitialAd();
-
     if (!context.mounted) return null;
 
     return Navigator.pushReplacement<T, TO>(
@@ -27,14 +21,12 @@ class AdNavigator {
     );
   }
 
-  /// Push and remove until with interstitial ad
+  /// Push and remove until
   static Future<T?> pushAndRemoveUntil<T>(
     BuildContext context,
     Widget screen,
     bool Function(Route<dynamic>) predicate,
   ) async {
-    await AdService.showInterstitialAd();
-
     if (!context.mounted) return null;
 
     return Navigator.pushAndRemoveUntil<T>(

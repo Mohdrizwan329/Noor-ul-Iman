@@ -294,6 +294,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             : Text(
                                 context.tr('sign_up'),
                                 style: TextStyle(
+                                  color: AppColors.primary,
                                   fontSize: responsive.fontSize(18),
                                   fontWeight: FontWeight.bold,
                                 ),

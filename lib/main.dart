@@ -85,21 +85,25 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()..initialize()),
-        ChangeNotifierProvider(create: (_) => LanguageProvider()..loadTranslations()),
+        ChangeNotifierProvider(
+          create: (_) => LanguageProvider()..loadTranslations(),
+        ),
         ChangeNotifierProvider(
           create: (_) => SettingsProvider()..loadSettings(),
         ),
-        ChangeNotifierProvider(create: (_) => PrayerProvider()..initialize()),
+        // AdhanProvider must be before PrayerProvider so its instance is available
+        // when PrayerProvider auto-schedules notifications after fetching prayer times
+        ChangeNotifierProvider(create: (_) => AdhanProvider()..initialize()),
+        ChangeNotifierProvider(create: (_) => PrayerProvider()),
         ChangeNotifierProvider(create: (_) => QuranProvider()),
         ChangeNotifierProvider(create: (_) => TasbihProvider()..loadSettings()),
-        ChangeNotifierProvider(create: (_) => AdhanProvider()..initialize()),
         ChangeNotifierProvider(create: (_) => HadithProvider()..initialize()),
         ChangeNotifierProvider(create: (_) => DuaProvider()..loadCategories()),
       ],
       child: Consumer2<SettingsProvider, LanguageProvider>(
         builder: (context, settings, language, child) {
           return MaterialApp(
-            title: 'Noor-ul-Iman',
+            title: 'Noor ul Iman',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             locale: language.locale,

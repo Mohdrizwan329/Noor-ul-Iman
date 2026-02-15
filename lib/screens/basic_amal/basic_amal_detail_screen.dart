@@ -203,6 +203,7 @@ ${_getCurrentContent(langCode)}
         title: Text(
           _getCurrentTitle(langCode),
           style: TextStyle(
+            color: Colors.white,
             fontSize: responsive.fontSize(18),
             fontWeight: FontWeight.bold,
           ),

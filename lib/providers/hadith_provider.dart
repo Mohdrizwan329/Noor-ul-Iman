@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:translator/translator.dart';
 import '../data/models/hadith_model.dart';
 import '../data/models/firestore_models.dart';
 import '../core/services/content_service.dart';
@@ -20,6 +21,9 @@ class HadithProvider with ChangeNotifier {
   // Saved preferences keys
   static const String _favoritesKey = 'hadith_favorites';
   static const String _languageKey = 'hadith_language';
+
+  // Google Translator for Hindi
+  final GoogleTranslator _translator = GoogleTranslator();
 
   // State variables
   bool _isLoading = false;
@@ -135,13 +139,7 @@ class HadithProvider with ChangeNotifier {
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_languageKey, language.index);
-
-    // Reload current hadiths if any
-    if (_currentCollection != null) {
-      if (_currentChapter != null) {
-        await fetchChapterHadiths(_currentCollection!, _currentChapter!);
-      }
-    }
+    // No need to re-fetch - all languages are loaded simultaneously
   }
 
   // Fetch chapters for a collection
@@ -196,27 +194,32 @@ class HadithProvider with ChangeNotifier {
 
     try {
       final collectionId = collection.name;
-      // For Hindi, we fetch English and translate to Hindi
-      // For Urdu, we fetch Urdu directly
-      final langCode = _selectedLanguage == HadithLanguage.urdu ? 'urd' : 'eng';
 
-      final url =
-          '$_hadithApiUrl/editions/$langCode-$collectionId/sections/$chapter.json';
-      final arabicUrl =
+      // Fetch all 3 available editions in parallel: English, Urdu, Arabic
+      final engUrl =
+          '$_hadithApiUrl/editions/eng-$collectionId/sections/$chapter.json';
+      final urdUrl =
+          '$_hadithApiUrl/editions/urd-$collectionId/sections/$chapter.json';
+      final araUrl =
           '$_hadithApiUrl/editions/ara-$collectionId/sections/$chapter.json';
 
-      debugPrint('Fetching hadiths from: $url');
+      debugPrint('Fetching hadiths (all languages) for $collectionId chapter $chapter');
 
-      // Fetch hadiths
-      final response = await http.get(Uri.parse(url));
+      final responses = await Future.wait([
+        http.get(Uri.parse(engUrl)),
+        http.get(Uri.parse(urdUrl)),
+        http.get(Uri.parse(araUrl)),
+      ]);
 
-      // Also fetch Arabic text
-      final arabicResponse = await http.get(Uri.parse(arabicUrl));
+      final engResponse = responses[0];
+      final urdResponse = responses[1];
+      final araResponse = responses[2];
 
+      // Parse Arabic texts
       Map<String, String> arabicTexts = {};
-      if (arabicResponse.statusCode == 200) {
+      if (araResponse.statusCode == 200) {
         try {
-          final arabicData = json.decode(arabicResponse.body);
+          final arabicData = json.decode(araResponse.body);
           if (arabicData['hadiths'] != null && arabicData['hadiths'] is List) {
             for (var hadith in arabicData['hadiths']) {
               final hadithNum = hadith['hadithnumber'];
@@ -231,16 +234,36 @@ class HadithProvider with ChangeNotifier {
         }
       }
 
-      if (response.statusCode == 200) {
+      // Parse Urdu texts
+      Map<String, String> urduTexts = {};
+      if (urdResponse.statusCode == 200) {
         try {
-          final data = json.decode(response.body);
+          final urduData = json.decode(urdResponse.body);
+          if (urduData['hadiths'] != null && urduData['hadiths'] is List) {
+            for (var hadith in urduData['hadiths']) {
+              final hadithNum = hadith['hadithnumber'];
+              if (hadithNum != null) {
+                urduTexts[hadithNum.toString()] =
+                    hadith['text']?.toString() ?? '';
+              }
+            }
+          }
+        } catch (e) {
+          debugPrint('Error parsing Urdu response: $e');
+        }
+      }
+
+      // Parse English texts (primary source for grades and narrator)
+      if (engResponse.statusCode == 200) {
+        try {
+          final data = json.decode(engResponse.body);
           if (data['hadiths'] != null && data['hadiths'] is List) {
             final List<HadithModel> hadithsList = [];
 
             for (var hadith in data['hadiths']) {
               try {
                 final hadithNum = hadith['hadithnumber'] ?? 0;
-                final text = hadith['text']?.toString() ?? '';
+                final engText = hadith['text']?.toString() ?? '';
 
                 // Safely extract grade
                 String grade = '';
@@ -255,19 +278,16 @@ class HadithProvider with ChangeNotifier {
                 final hadithNumInt = hadithNum is int
                     ? hadithNum
                     : int.tryParse(hadithNum.toString()) ?? 0;
+                final numStr = hadithNum.toString();
 
                 hadithsList.add(
                   HadithModel(
                     id: hadithNumInt,
-                    hadithNumber: hadithNum.toString(),
-                    arabic: arabicTexts[hadithNum.toString()] ?? '',
-                    english:
-                        (_selectedLanguage == HadithLanguage.english ||
-                            _selectedLanguage == HadithLanguage.hindi)
-                        ? text
-                        : '',
-                    urdu: _selectedLanguage == HadithLanguage.urdu ? text : '',
-                    narrator: _extractNarrator(text),
+                    hadithNumber: numStr,
+                    arabic: arabicTexts[numStr] ?? '',
+                    english: engText,
+                    urdu: urduTexts[numStr] ?? '',
+                    narrator: _extractNarrator(engText),
                     grade: grade,
                     reference:
                         '${getCollectionName(collection, 'en')}, Book $chapter, Hadith $hadithNum',
@@ -286,13 +306,18 @@ class HadithProvider with ChangeNotifier {
           _error = 'Error parsing response';
         }
       } else {
-        _error = 'Failed to fetch hadiths (${response.statusCode})';
-        debugPrint('API returned status: ${response.statusCode}');
+        _error = 'Failed to fetch hadiths (${engResponse.statusCode})';
+        debugPrint('API returned status: ${engResponse.statusCode}');
       }
     } catch (e, stackTrace) {
       _error = 'Network error';
       debugPrint('Error fetching hadiths: $e');
       debugPrint('Stack trace: $stackTrace');
+    }
+
+    // Translate to Hindi before showing data
+    if (_currentHadiths.isNotEmpty) {
+      await _translateHadithsToHindi(0);
     }
 
     _isLoading = false;
@@ -316,43 +341,63 @@ class HadithProvider with ChangeNotifier {
 
     try {
       final collectionId = collection.name;
-      // For Hindi, we fetch English and translate to Hindi
-      final langCode = _selectedLanguage == HadithLanguage.urdu ? 'urd' : 'eng';
-
       final start = (page - 1) * limit + 1;
       final end = page * limit;
 
-      // Fetch hadiths
-      final response = await http.get(
-        Uri.parse(
-          '$_hadithApiUrl/editions/$langCode-$collectionId/$start-$end.json',
-        ),
-      );
+      // Fetch all 3 available editions in parallel: English, Urdu, Arabic
+      final responses = await Future.wait([
+        http.get(Uri.parse(
+          '$_hadithApiUrl/editions/eng-$collectionId/$start-$end.json',
+        )),
+        http.get(Uri.parse(
+          '$_hadithApiUrl/editions/urd-$collectionId/$start-$end.json',
+        )),
+        http.get(Uri.parse(
+          '$_hadithApiUrl/editions/ara-$collectionId/$start-$end.json',
+        )),
+      ]);
 
-      // Also fetch Arabic text
-      final arabicResponse = await http.get(
-        Uri.parse('$_hadithApiUrl/editions/ara-$collectionId/$start-$end.json'),
-      );
+      final engResponse = responses[0];
+      final urdResponse = responses[1];
+      final araResponse = responses[2];
 
+      // Parse Arabic texts
       Map<String, String> arabicTexts = {};
-      if (arabicResponse.statusCode == 200) {
-        final arabicData = json.decode(arabicResponse.body);
+      if (araResponse.statusCode == 200) {
+        final arabicData = json.decode(araResponse.body);
         if (arabicData['hadiths'] != null) {
           for (var hadith in arabicData['hadiths']) {
             final hadithNum = hadith['hadithnumber'];
             if (hadithNum != null) {
-              arabicTexts[hadithNum.toString()] = hadith['text'] ?? '';
+              arabicTexts[hadithNum.toString()] =
+                  hadith['text']?.toString() ?? '';
             }
           }
         }
       }
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      // Parse Urdu texts
+      Map<String, String> urduTexts = {};
+      if (urdResponse.statusCode == 200) {
+        final urduData = json.decode(urdResponse.body);
+        if (urduData['hadiths'] != null) {
+          for (var hadith in urduData['hadiths']) {
+            final hadithNum = hadith['hadithnumber'];
+            if (hadithNum != null) {
+              urduTexts[hadithNum.toString()] =
+                  hadith['text']?.toString() ?? '';
+            }
+          }
+        }
+      }
+
+      // Parse English texts (primary source for grades and narrator)
+      if (engResponse.statusCode == 200) {
+        final data = json.decode(engResponse.body);
         if (data['hadiths'] != null) {
           final newHadiths = (data['hadiths'] as List).map((hadith) {
             final hadithNum = hadith['hadithnumber'] ?? 0;
-            final text = hadith['text'] ?? '';
+            final engText = hadith['text']?.toString() ?? '';
 
             // Safely extract grade
             String grade = '';
@@ -367,18 +412,15 @@ class HadithProvider with ChangeNotifier {
             final hadithNumInt = hadithNum is int
                 ? hadithNum
                 : int.tryParse(hadithNum.toString()) ?? 0;
+            final numStr = hadithNum.toString();
 
             return HadithModel(
               id: hadithNumInt,
-              hadithNumber: hadithNum.toString(),
-              arabic: arabicTexts[hadithNum.toString()] ?? '',
-              english:
-                  (_selectedLanguage == HadithLanguage.english ||
-                      _selectedLanguage == HadithLanguage.hindi)
-                  ? text
-                  : '',
-              urdu: _selectedLanguage == HadithLanguage.urdu ? text : '',
-              narrator: _extractNarrator(text),
+              hadithNumber: numStr,
+              arabic: arabicTexts[numStr] ?? '',
+              english: engText,
+              urdu: urduTexts[numStr] ?? '',
+              narrator: _extractNarrator(engText),
               grade: grade,
               reference:
                   '${getCollectionName(collection, 'en')}, Hadith $hadithNum',
@@ -386,7 +428,11 @@ class HadithProvider with ChangeNotifier {
             );
           }).toList();
 
+          final startIndex = _currentHadiths.length;
           _currentHadiths.addAll(newHadiths);
+
+          // Translate new hadiths to Hindi before showing
+          await _translateHadithsToHindi(startIndex);
         }
       } else {
         _error = 'Failed to fetch hadiths';
@@ -398,6 +444,31 @@ class HadithProvider with ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  // Translate English hadiths to Hindi (all in parallel for speed)
+  Future<void> _translateHadithsToHindi(int startIndex) async {
+    try {
+      final futures = <Future<void>>[];
+      for (int i = startIndex; i < _currentHadiths.length; i++) {
+        final hadith = _currentHadiths[i];
+        if (hadith.english.isEmpty || hadith.hindi.isNotEmpty) continue;
+
+        final index = i;
+        futures.add(
+          _translator.translate(hadith.english, from: 'en', to: 'hi').then((result) {
+            if (result.text.isNotEmpty) {
+              _currentHadiths[index] = hadith.copyWith(hindi: result.text);
+            }
+          }).catchError((e) {
+            debugPrint('Error translating hadith ${hadith.hadithNumber}: $e');
+          }),
+        );
+      }
+      await Future.wait(futures);
+    } catch (e) {
+      debugPrint('Error in Hindi translation batch: $e');
+    }
   }
 
   // Extract narrator from hadith text
@@ -485,6 +556,7 @@ class HadithProvider with ChangeNotifier {
       return hadith.english.toLowerCase().contains(lowerQuery) ||
           hadith.arabic.contains(query) ||
           hadith.urdu.contains(query) ||
+          hadith.hindi.contains(query) ||
           hadith.narrator.toLowerCase().contains(lowerQuery) ||
           hadith.hadithNumber.contains(query);
     }).toList();

@@ -8,6 +8,11 @@ extension LocalizationExtension on BuildContext {
     return Provider.of<LanguageProvider>(this, listen: true).translate(key);
   }
 
+  /// Translate a key without listening - for use in event handlers (onTap, copy, share)
+  String trRead(String key) {
+    return Provider.of<LanguageProvider>(this, listen: false).translate(key);
+  }
+
   /// Get language provider without listening (for one-time access)
   LanguageProvider get languageProvider =>
       Provider.of<LanguageProvider>(this, listen: false);

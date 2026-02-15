@@ -67,6 +67,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     try {
       final adhanProvider = context.read<AdhanProvider>();
 
+      // Ensure notifications are scheduled (triggers saving past ones to received)
+      if (adhanProvider.isInitialized) {
+        await adhanProvider.scheduleAllIslamicNotifications();
+      }
+
       // Load received notifications from storage
       await adhanProvider.loadReceivedNotifications();
       final receivedNotifications = adhanProvider.receivedNotifications;
@@ -101,9 +106,24 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         // Skip if already in received list
         if (items.any((n) => n.id == pendingId)) continue;
 
+        // Determine type based on notification ID ranges
         NotificationType type = NotificationType.prayer;
-        if (pendingId >= 300 && pendingId < 400) {
+        if (pendingId == 300) {
+          type = NotificationType.quran;
+        } else if (pendingId == 301) {
+          type = NotificationType.dhikr;
+        } else if (pendingId == 302) {
+          type = NotificationType.dua;
+        } else if (pendingId == 303) {
           type = NotificationType.reminder;
+        } else if (pendingId == 304) {
+          type = NotificationType.charity;
+        } else if (pendingId == 305) {
+          type = NotificationType.morningSummary;
+        } else if (pendingId == 306) {
+          type = NotificationType.sadqa;
+        } else if (pendingId == 307) {
+          type = NotificationType.jumma;
         } else if (pendingId >= 400) {
           type = NotificationType.festival;
         }
@@ -266,7 +286,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           backgroundColor: AppColors.primary,
           title: Text(
             _t('notifications'),
-            style: TextStyle(fontSize: responsive.textLarge),
+            style: TextStyle(color: Colors.white, fontSize: responsive.textLarge),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -421,13 +441,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         title: Text(
           _t('delete_notification'),
           style: TextStyle(
+            color: AppColors.primary,
             fontSize: responsive.textLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
         content: Text(
           _t('delete_notification_confirm'),
-          style: TextStyle(fontSize: responsive.textRegular),
+          style: TextStyle(color: AppColors.primary, fontSize: responsive.textRegular),
         ),
         actions: [
           TextButton(
@@ -451,7 +472,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
             child: Text(
               _t('delete'),
-              style: TextStyle(fontSize: responsive.textRegular),
+              style: TextStyle(color: AppColors.primary, fontSize: responsive.textRegular),
             ),
           ),
         ],
@@ -491,13 +512,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 title: Text(
                   _t('delete_notification'),
                   style: TextStyle(
+                    color: AppColors.primary,
                     fontSize: responsive.textLarge,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 content: Text(
                   _t('delete_notification_confirm'),
-                  style: TextStyle(fontSize: responsive.textRegular),
+                  style: TextStyle(color: AppColors.primary, fontSize: responsive.textRegular),
                 ),
                 actions: [
                   TextButton(
@@ -518,7 +540,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ),
                     child: Text(
                       _t('delete'),
-                      style: TextStyle(fontSize: responsive.textRegular),
+                      style: TextStyle(color: AppColors.primary, fontSize: responsive.textRegular),
                     ),
                   ),
                 ],
@@ -554,13 +576,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ],
         ),
         child: ListTile(
+          dense: true,
+          visualDensity: const VisualDensity(vertical: -2),
           contentPadding: responsive.paddingSymmetric(
             horizontal: 12,
-            vertical: 8,
+            vertical: 0,
           ),
           leading: Container(
-            width: responsive.spacing(44),
-            height: responsive.spacing(44),
+            width: responsive.spacing(36),
+            height: responsive.spacing(36),
             decoration: BoxDecoration(
               color: _getTypeColor(notification.type).withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(responsive.radiusSmall),

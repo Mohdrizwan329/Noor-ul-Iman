@@ -383,6 +383,7 @@ class _OtpPasswordVerificationScreenState
                         keyboardType: TextInputType.number,
                         maxLength: 1,
                         style: TextStyle(
+                          color: AppColors.primary,
                           fontSize: responsive.fontSize(24),
                           fontWeight: FontWeight.bold,
                         ),
@@ -460,6 +461,7 @@ class _OtpPasswordVerificationScreenState
                         : Text(
                             context.tr('verify_otp'),
                             style: TextStyle(
+                              color: AppColors.primary,
                               fontSize: responsive.fontSize(18),
                               fontWeight: FontWeight.bold,
                             ),

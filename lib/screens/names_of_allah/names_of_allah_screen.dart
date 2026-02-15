@@ -135,7 +135,7 @@ class _NamesOfAllahScreenState extends State<NamesOfAllahScreen> {
         backgroundColor: AppColors.primary,
         title: Text(
           context.tr('names_of_allah'),
-          style: TextStyle(fontSize: responsive.textLarge),
+          style: TextStyle(color: Colors.white, fontSize: responsive.textLarge),
         ),
       ),
       body: Column(
@@ -158,11 +158,15 @@ class _NamesOfAllahScreenState extends State<NamesOfAllahScreen> {
             padding: responsive.paddingSymmetric(horizontal: 16),
             child: Row(
               children: [
-                Text(
-                  '${context.tr('showing')} ${_filteredNames.length} ${context.tr('of_99_names')}',
-                  style: TextStyle(
-                    fontSize: responsive.textSmall,
-                    color: AppColors.textSecondary,
+                Expanded(
+                  child: Text(
+                    '${context.tr('showing')} ${_filteredNames.length} ${context.tr('of_99_names')}',
+                    style: TextStyle(
+                      fontSize: responsive.textSmall,
+                      color: AppColors.textSecondary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -229,7 +233,7 @@ class _NamesOfAllahScreenState extends State<NamesOfAllahScreen> {
     const lightGreenBorder = Color(0xFF8AAF9A);
 
     return Container(
-      margin: responsive.paddingOnly(bottom: 10),
+      margin: responsive.paddingOnly(bottom: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),

@@ -872,7 +872,7 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
   Widget _buildDetailRow(IconData icon, String text) {
     final responsive = context.responsive;
     return Padding(
-      padding: responsive.paddingOnly(bottom: 12),
+      padding: responsive.paddingOnly(bottom: 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -934,7 +934,7 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
             responsive.vSpaceRegular,
             Text(
               context.tr('finding_halal_places'),
-              style: TextStyle(fontSize: responsive.textMedium),
+              style: TextStyle(color: AppColors.primary, fontSize: responsive.textMedium),
             ),
           ],
         ),
@@ -1023,14 +1023,19 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
                 size: responsive.iconSize(18),
               ),
               SizedBox(width: responsive.spaceSmall),
-              Text(
-                context
-                    .tr('halal_places_found')
-                    .replaceAll('{count}', '${places.length}')
-                    .replaceAll('{type}', type),
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: responsive.textSmall,
+              Expanded(
+                child: Text(
+                  context
+                      .tr('halal_places_found')
+                      .replaceAll('{count}', '${places.length}')
+                      .replaceAll('{type}', type),
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: responsive.textSmall,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -1066,7 +1071,7 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
     final responsive = context.responsive;
 
     return Container(
-      margin: responsive.paddingOnly(bottom: 12),
+      margin: responsive.paddingOnly(bottom: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),

@@ -137,7 +137,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     return Container(
       margin: responsive.paddingAll(16),
-      padding: responsive.paddingAll(20),
+      padding: responsive.paddingAll(14),
       decoration: BoxDecoration(
         gradient: AppColors.headerGradient,
         borderRadius: BorderRadius.circular(responsive.borderRadius(20)),

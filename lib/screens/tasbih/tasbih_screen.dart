@@ -384,7 +384,7 @@ class _TasbihScreenState extends State<TasbihScreen> {
         backgroundColor: AppColors.primary,
         title: Text(
           _t('tasbih_counter'),
-          style: TextStyle(fontSize: responsive.textLarge),
+          style: TextStyle(color: Colors.white, fontSize: responsive.textLarge),
         ),
         actions: [
           Consumer<TasbihProvider>(
@@ -747,7 +747,7 @@ class _TasbihScreenState extends State<TasbihScreen> {
                 child: isNote
                     ? Row(
                         children: [
-                          const Text('📝 ', style: TextStyle(fontSize: 16)),
+                          const Text('📝 ', style: TextStyle(color: AppColors.primary, fontSize: 16)),
                           Flexible(
                             child: Text(
                               _t('note_label'),

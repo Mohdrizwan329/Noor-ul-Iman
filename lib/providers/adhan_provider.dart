@@ -358,8 +358,11 @@ class IslamicReminderStrings {
 }
 
 class AdhanProvider with ChangeNotifier {
-  // Static instance for accessing from static notification handlers
+  // Static instance for accessing from static notification handlers and background services
   static AdhanProvider? _instance;
+
+  /// Get the current AdhanProvider instance (set during initialization)
+  static AdhanProvider? get instance => _instance;
 
   final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
@@ -413,16 +416,13 @@ class AdhanProvider with ChangeNotifier {
     'abdul_basit': 'Abdul Basit',
   };
 
-  // Adhan URLs (using Islamic Network CDN)
+  // Adhan URLs (using Al Adhan CDN - reliable)
   static const Map<String, String> adhanUrls = {
-    'makkah':
-        'https://cdn.islamic.network/adhaan/128/ar.abdullahbasfaralhuthaify.mp3',
-    'madinah':
-        'https://cdn.islamic.network/adhaan/128/ar.abdullahawadaljuhani.mp3',
-    'alaqsa': 'https://cdn.islamic.network/adhaan/64/ar.misharyalafasy.mp3',
-    'mishary': 'https://cdn.islamic.network/adhaan/128/ar.misharyalafasy.mp3',
-    'abdul_basit':
-        'https://cdn.islamic.network/adhaan/128/ar.abdulbasitabdussamad.mp3',
+    'makkah': 'https://cdn.aladhan.com/audio/adhans/a1.mp3',
+    'madinah': 'https://cdn.aladhan.com/audio/adhans/a2.mp3',
+    'alaqsa': 'https://cdn.aladhan.com/audio/adhans/a3.mp3',
+    'mishary': 'https://cdn.aladhan.com/audio/adhans/a4.mp3',
+    'abdul_basit': 'https://cdn.aladhan.com/audio/adhans/a9.mp3',
   };
 
   Future<void> initialize() async {
@@ -433,32 +433,52 @@ class AdhanProvider with ChangeNotifier {
 
     debugPrint('🔔 AdhanProvider: Starting initialization...');
 
+    // Initialize each step independently - don't let one failure block everything
     try {
-      // Initialize timezone
       await _initializeTimezone();
       debugPrint('🔔 AdhanProvider: Timezone initialized');
+    } catch (e) {
+      debugPrint('🔔 AdhanProvider: Timezone init error (continuing): $e');
+    }
 
-      // Initialize notifications
+    try {
       await _initNotifications();
       debugPrint('🔔 AdhanProvider: Notifications initialized');
+    } catch (e) {
+      debugPrint('🔔 AdhanProvider: Notification init error (continuing): $e');
+    }
 
-      // Request permissions
+    try {
       await requestNotificationPermissions();
       debugPrint('🔔 AdhanProvider: Permissions requested');
+    } catch (e) {
+      debugPrint('🔔 AdhanProvider: Permission request error (continuing): $e');
+    }
 
-      // Load preferences
+    try {
       await _loadPreferences();
       debugPrint('🔔 AdhanProvider: Preferences loaded');
+    } catch (e) {
+      debugPrint('🔔 AdhanProvider: Preferences load error (continuing): $e');
+    }
 
-      // Load received notifications
+    try {
       await loadReceivedNotifications();
       debugPrint('🔔 AdhanProvider: Received notifications loaded');
-
-      _isInitialized = true;
-      debugPrint('🔔 AdhanProvider: Initialization complete!');
     } catch (e) {
-      debugPrint('🔔 AdhanProvider: Initialization error: $e');
+      debugPrint('🔔 AdhanProvider: Load notifications error (continuing): $e');
     }
+
+    // Mark as initialized even if some steps failed - so scheduling can proceed
+    _isInitialized = true;
+    debugPrint('🔔 AdhanProvider: Initialization complete!');
+
+    // Schedule Islamic reminders immediately at startup (don't depend on HomeScreen)
+    scheduleAllIslamicNotifications().then((_) {
+      debugPrint('🔔 AdhanProvider: Islamic reminders scheduled at startup');
+    }).catchError((e) {
+      debugPrint('🔔 AdhanProvider: Failed to schedule at startup: $e');
+    });
   }
 
   Future<void> _initializeTimezone() async {
@@ -572,6 +592,9 @@ class AdhanProvider with ChangeNotifier {
 
       // Parse payload for type info
       String type = 'reminder';
+      String title = 'Notification';
+      String body = '';
+
       if (response.id != null && response.id! < 10) {
         type = 'prayer';
       } else if (response.id != null && response.id! >= 400) {
@@ -580,21 +603,40 @@ class AdhanProvider with ChangeNotifier {
         type = 'reminder';
       }
 
+      // Try to get title and body from scheduled_notifications storage
+      final scheduledJson = prefs.getString('scheduled_notifications');
+      if (scheduledJson != null && response.id != null) {
+        try {
+          final List<dynamic> scheduledList = json.decode(scheduledJson);
+          final match = scheduledList.where((n) => n['id'] == response.id).toList();
+          if (match.isNotEmpty) {
+            title = match.first['title']?.toString() ?? title;
+            body = match.first['body']?.toString() ?? body;
+            type = match.first['type']?.toString() ?? type;
+          }
+        } catch (_) {}
+      }
+
+      // Fallback to payload if title is still default
+      if (title == 'Notification' && response.payload != null && response.payload!.isNotEmpty) {
+        title = response.payload!;
+      }
+
       notifications.insert(0, {
         'id': DateTime.now().millisecondsSinceEpoch,
-        'title': response.payload ?? 'Notification',
-        'body': '',
+        'title': title,
+        'body': body,
         'type': type,
         'receivedAt': DateTime.now().toIso8601String(),
       });
 
-      // Keep only last 50 notifications
-      if (notifications.length > 50) {
-        notifications.removeRange(50, notifications.length);
+      // Keep only last 100 notifications
+      if (notifications.length > 100) {
+        notifications.removeRange(100, notifications.length);
       }
 
       await prefs.setString('received_notifications', json.encode(notifications));
-      debugPrint('🔔 AdhanProvider: Received notification saved');
+      debugPrint('🔔 AdhanProvider: Received notification saved - $title');
 
       // Update instance if available
       _instance?.loadReceivedNotifications();
@@ -650,6 +692,8 @@ class AdhanProvider with ChangeNotifier {
 
     if (!enabled) {
       await _notifications.cancelAll();
+      // Also cancel native azan alarms
+      await AzanBackgroundService.cancelAllAlarms();
     }
 
     notifyListeners();
@@ -658,6 +702,12 @@ class AdhanProvider with ChangeNotifier {
   Future<void> setAdhanSoundEnabled(bool enabled) async {
     _adhanSoundEnabled = enabled;
     await _savePreferences();
+
+    if (!enabled) {
+      // Cancel native azan alarms when sound is disabled
+      await AzanBackgroundService.cancelAllAlarms();
+    }
+
     notifyListeners();
   }
 
@@ -665,6 +715,9 @@ class AdhanProvider with ChangeNotifier {
     _selectedAdhan = adhan;
     await _savePreferences();
     notifyListeners();
+
+    // Pre-cache the newly selected azan audio for offline playback
+    AzanBackgroundService.cacheAzan(adhan);
   }
 
   Future<void> setPrayerNotification(String prayer, bool enabled) async {
@@ -773,6 +826,12 @@ class AdhanProvider with ChangeNotifier {
       await initialize();
     }
 
+    // Re-request permissions if not granted yet
+    if (!_permissionsGranted) {
+      debugPrint('🔔 AdhanProvider: Permissions not granted, requesting again...');
+      await requestNotificationPermissions();
+    }
+
     // Cancel only prayer notifications (IDs 0-9), not all notifications
     for (int i = 0; i < 10; i++) {
       await _notifications.cancel(i);
@@ -819,6 +878,14 @@ class AdhanProvider with ChangeNotifier {
         if (permissionStatus.hasMissingPermissions) {
           debugPrint('🔔 AdhanProvider: Missing permissions: ${permissionStatus.missingPermissions}');
           // Still try to schedule - it may work with fallback methods
+        }
+
+        // Ensure azan audio is cached before scheduling alarms
+        try {
+          await AzanBackgroundService.cacheSelectedAzan();
+          debugPrint('🔔 AdhanProvider: Azan audio cached before scheduling');
+        } catch (e) {
+          debugPrint('🔔 AdhanProvider: Azan cache failed (continuing): $e');
         }
 
         await AzanBackgroundService.scheduleAzanAlarms(prayerTimes);
@@ -909,17 +976,33 @@ class AdhanProvider with ChangeNotifier {
         city: _currentCity,
       );
 
-      await _notifications.zonedSchedule(
-        id,
-        title,
-        body,
-        scheduledDate,
-        details,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time,
-      );
+      try {
+        await _notifications.zonedSchedule(
+          id,
+          title,
+          body,
+          scheduledDate,
+          details,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.time,
+        );
+      } catch (exactAlarmError) {
+        // Fallback: if exact alarm permission denied (Android 12+), use inexact scheduling
+        debugPrint('🔔 AdhanProvider: Exact alarm failed, using inexact fallback: $exactAlarmError');
+        await _notifications.zonedSchedule(
+          id,
+          title,
+          body,
+          scheduledDate,
+          details,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.time,
+        );
+      }
 
       // Save to scheduled notifications for display
       await _saveScheduledNotification(
@@ -950,7 +1033,42 @@ class AdhanProvider with ChangeNotifier {
     final jsonString = prefs.getString('scheduled_notifications') ?? '[]';
     final List<dynamic> notifications = json.decode(jsonString);
 
-    // Remove old entry with same id if exists
+    // Check if old entry exists and its time has passed - if so, save it as received
+    final now = DateTime.now();
+    final oldEntryIndex = notifications.indexWhere((n) => n['id'] == id);
+    if (oldEntryIndex >= 0) {
+      final oldEntry = notifications[oldEntryIndex];
+      if (oldEntry['scheduledTime'] != null) {
+        try {
+          final oldTime = DateTime.parse(oldEntry['scheduledTime'].toString());
+          if (oldTime.isBefore(now)) {
+            // Move past notification to received_notifications so it shows in the screen
+            final receivedJson = prefs.getString('received_notifications') ?? '[]';
+            final List<dynamic> receivedList = json.decode(receivedJson);
+            // Only add if not already in received list
+            final alreadyExists = receivedList.any((r) =>
+                r['id'] == oldEntry['id'] &&
+                r['receivedAt'] == oldEntry['scheduledTime']);
+            if (!alreadyExists) {
+              receivedList.insert(0, {
+                'id': oldEntry['id'],
+                'title': oldEntry['title'] ?? title,
+                'body': oldEntry['body'] ?? body,
+                'type': oldEntry['type'] ?? type,
+                'receivedAt': oldEntry['scheduledTime'],
+              });
+              // Keep only last 100 received notifications
+              if (receivedList.length > 100) {
+                receivedList.removeRange(100, receivedList.length);
+              }
+              await prefs.setString('received_notifications', json.encode(receivedList));
+            }
+          }
+        } catch (_) {}
+      }
+    }
+
+    // Remove old entry with same id
     notifications.removeWhere((n) => n['id'] == id);
 
     notifications.add({
@@ -1052,6 +1170,11 @@ class AdhanProvider with ChangeNotifier {
     // Ensure initialized
     if (!_isInitialized) {
       await initialize();
+    }
+
+    // Re-request permissions if not granted yet
+    if (!_permissionsGranted) {
+      await requestNotificationPermissions();
     }
 
     // Morning Quran reminder at 6:00 AM
@@ -1177,17 +1300,32 @@ class AdhanProvider with ChangeNotifier {
     );
 
     try {
-      await _notifications.zonedSchedule(
-        307,
-        title,
-        body,
-        scheduledDate,
-        details,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
-      );
+      try {
+        await _notifications.zonedSchedule(
+          307,
+          title,
+          body,
+          scheduledDate,
+          details,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+        );
+      } catch (exactAlarmError) {
+        debugPrint('🔔 AdhanProvider: Exact alarm failed for Jumma, using inexact: $exactAlarmError');
+        await _notifications.zonedSchedule(
+          307,
+          title,
+          body,
+          scheduledDate,
+          details,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+        );
+      }
 
       // Save to scheduled notifications
       await _saveScheduledNotification(
@@ -1284,17 +1422,32 @@ class AdhanProvider with ChangeNotifier {
     );
 
     try {
-      await _notifications.zonedSchedule(
-        id,
-        title,
-        body,
-        scheduledDate,
-        details,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time,
-      );
+      try {
+        await _notifications.zonedSchedule(
+          id,
+          title,
+          body,
+          scheduledDate,
+          details,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.time,
+        );
+      } catch (exactAlarmError) {
+        debugPrint('🔔 AdhanProvider: Exact alarm failed for reminder, using inexact: $exactAlarmError');
+        await _notifications.zonedSchedule(
+          id,
+          title,
+          body,
+          scheduledDate,
+          details,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.time,
+        );
+      }
 
       // Determine notification type based on titleKey
       String notificationType = 'reminder';
@@ -1367,16 +1520,30 @@ class AdhanProvider with ChangeNotifier {
     );
 
     try {
-      await _notifications.zonedSchedule(
-        id,
-        title,
-        body,
-        tzScheduledDate,
-        details,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-      );
+      try {
+        await _notifications.zonedSchedule(
+          id,
+          title,
+          body,
+          tzScheduledDate,
+          details,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+        );
+      } catch (exactAlarmError) {
+        debugPrint('🔔 AdhanProvider: Exact alarm failed for festival, using inexact: $exactAlarmError');
+        await _notifications.zonedSchedule(
+          id,
+          title,
+          body,
+          tzScheduledDate,
+          details,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+        );
+      }
 
       // Save to scheduled notifications
       await _saveScheduledNotification(

@@ -302,6 +302,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 : Text(
                                     context.tr('send_reset_link'),
                                     style: TextStyle(
+                                      color: AppColors.primary,
                                       fontSize: responsive.fontSize(18),
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -566,6 +567,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               keyboardType: TextInputType.number,
                               maxLength: 1,
                               style: TextStyle(
+                                color: AppColors.primary,
                                 fontSize: responsive.fontSize(24),
                                 fontWeight: FontWeight.bold,
                               ),
@@ -710,6 +712,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               : Text(
                                   context.tr('verify_otp'),
                                   style: TextStyle(
+                                    color: AppColors.primary,
                                     fontSize: responsive.fontSize(18),
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -918,6 +921,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 : Text(
                                     context.tr('reset_password'),
                                     style: TextStyle(
+                                      color: AppColors.primary,
                                       fontSize: responsive.fontSize(18),
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -1103,6 +1107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             : Text(
                                 context.tr('sign_in'),
                                 style: TextStyle(
+                                  color: AppColors.primary,
                                   fontSize: responsive.fontSize(18),
                                   fontWeight: FontWeight.bold,
                                 ),

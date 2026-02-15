@@ -92,7 +92,7 @@ class _AboutScreenState extends State<AboutScreen> {
         appBar: AppBar(
           title: Text(
             _isLoading ? '' : _t('about'),
-            style: TextStyle(fontSize: responsive.textLarge),
+            style: TextStyle(color: Colors.white, fontSize: responsive.textLarge),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -135,87 +135,97 @@ class _AboutScreenState extends State<AboutScreen> {
                             ),
                             SizedBox(height: responsive.spaceLarge),
 
-                            // App Description Card
-                            _buildInfoCard(
-                              context,
-                              responsive: responsive,
-                              title: _t('about_app'),
-                              child: Text(
-                                _t('about_app_description'),
-                                style: TextStyle(
-                                  fontSize: responsive.textRegular,
-                                  color: AppColors.textSecondary,
-                                  height: 1.5,
-                                ),
-                                textAlign: TextAlign.center,
-                                maxLines: 15,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            SizedBox(height: responsive.spaceRegular),
-
-                            // Features Card
-                            _buildInfoCard(
-                              context,
-                              responsive: responsive,
-                              title: _t('app_features'),
-                              child: Column(
-                                children: _aboutContent!.features
-                                    .map(
-                                      (feature) => _buildFeatureItem(
-                                        context,
-                                        responsive: responsive,
-                                        icon: _getIcon(feature.icon),
-                                        text: _t(feature.key),
-                                      ),
-                                    )
-                                    .toList(),
-                              ),
-                            ),
-                            SizedBox(height: responsive.spaceRegular),
-
-                            // Mission Card
-                            _buildInfoCard(
-                              context,
-                              responsive: responsive,
-                              title: _t('our_mission'),
-                              child: Text(
-                                _t('mission_description'),
-                                style: TextStyle(
-                                  fontSize: responsive.textRegular,
-                                  color: AppColors.textSecondary,
-                                  height: 1.5,
-                                ),
-                                textAlign: TextAlign.center,
-                                maxLines: 15,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            SizedBox(height: responsive.spaceRegular),
-
-                            // Developer Info Card
-                            _buildInfoCard(
-                              context,
-                              responsive: responsive,
-                              title: _t('developed_with_love'),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.favorite,
-                                    color: Colors.red,
-                                    size: responsive.iconSize(32),
+                            // All sections in a single card
+                            Container(
+                              width: double.infinity,
+                              padding: responsive.paddingLarge,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(responsive.radiusLarge),
+                                border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.primary.withValues(alpha: 0.08),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 2),
                                   ),
-                                  SizedBox(height: responsive.spaceSmall),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // About App
+                                  _buildSectionHeader(responsive, _t('about_app')),
+                                  SizedBox(height: responsive.spacing(4)),
                                   Text(
-                                    _t('made_for_ummah'),
+                                    _t('about_app_description'),
                                     style: TextStyle(
-                                      fontSize: responsive.textRegular,
-                                      color: AppColors.textSecondary,
-                                      fontStyle: FontStyle.italic,
+                                      fontSize: responsive.fontSize(13),
+                                      color: Colors.grey[700],
+                                      height: 1.5,
                                     ),
-                                    textAlign: TextAlign.center,
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
+                                  ),
+
+                                  Divider(height: responsive.spacing(24), color: AppColors.lightGreenBorder),
+
+                                  // Features
+                                  _buildSectionHeader(responsive, _t('app_features')),
+                                  SizedBox(height: responsive.spacing(8)),
+                                  ..._aboutContent!.features.map(
+                                    (feature) => _buildFeatureItem(
+                                      context,
+                                      responsive: responsive,
+                                      icon: _getIcon(feature.icon),
+                                      text: _t(feature.key),
+                                    ),
+                                  ),
+
+                                  Divider(height: responsive.spacing(24), color: AppColors.lightGreenBorder),
+
+                                  // Mission
+                                  _buildSectionHeader(responsive, _t('our_mission')),
+                                  SizedBox(height: responsive.spacing(4)),
+                                  Text(
+                                    _t('mission_description'),
+                                    style: TextStyle(
+                                      fontSize: responsive.fontSize(13),
+                                      color: Colors.grey[700],
+                                      height: 1.5,
+                                    ),
+                                  ),
+
+                                  Divider(height: responsive.spacing(24), color: AppColors.lightGreenBorder),
+
+                                  // Developed with Love
+                                  Center(
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          Icons.favorite,
+                                          color: Colors.red,
+                                          size: responsive.iconSize(28),
+                                        ),
+                                        SizedBox(height: responsive.spacing(4)),
+                                        Text(
+                                          _t('developed_with_love'),
+                                          style: TextStyle(
+                                            fontSize: responsive.fontSize(15),
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.primary,
+                                          ),
+                                        ),
+                                        SizedBox(height: responsive.spacing(4)),
+                                        Text(
+                                          _t('made_for_ummah'),
+                                          style: TextStyle(
+                                            fontSize: responsive.fontSize(13),
+                                            color: Colors.grey[700],
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
@@ -255,43 +265,13 @@ class _AboutScreenState extends State<AboutScreen> {
     );
   }
 
-  Widget _buildInfoCard(
-    BuildContext context, {
-    required ResponsiveUtils responsive,
-    required String title,
-    required Widget child,
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: responsive.paddingLarge,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(responsive.radiusLarge),
-        border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: responsive.textLarge,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          SizedBox(height: responsive.spaceRegular),
-          child,
-        ],
+  Widget _buildSectionHeader(ResponsiveUtils responsive, String title) {
+    return Text(
+      title,
+      style: TextStyle(
+        fontSize: responsive.fontSize(15),
+        fontWeight: FontWeight.bold,
+        color: AppColors.primary,
       ),
     );
   }

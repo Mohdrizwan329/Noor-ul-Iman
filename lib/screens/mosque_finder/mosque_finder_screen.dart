@@ -730,6 +730,7 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
                         Text(
                           mosque.name,
                           style: TextStyle(
+                            color: AppColors.primary,
                             fontSize: responsive.textLarge,
                             fontWeight: FontWeight.bold,
                           ),
@@ -824,7 +825,7 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
   Widget _buildDetailRow(IconData icon, String text) {
     final responsive = context.responsive;
     return Padding(
-      padding: responsive.paddingOnly(bottom: 12),
+      padding: responsive.paddingOnly(bottom: 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -885,7 +886,7 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
             responsive.vSpaceRegular,
             Text(
               context.tr('finding_mosques'),
-              style: TextStyle(fontSize: responsive.textMedium),
+              style: TextStyle(color: AppColors.primary, fontSize: responsive.textMedium),
             ),
           ],
         ),
@@ -959,11 +960,16 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
                 size: responsive.iconSmall,
               ),
               SizedBox(width: responsive.spaceSmall),
-              Text(
-                '${_mosques.length} ${context.tr('mosques_found')}',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: responsive.textMedium,
+              Expanded(
+                child: Text(
+                  '${_mosques.length} ${context.tr('mosques_found')}',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: responsive.textMedium,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -1004,7 +1010,7 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
     );
 
     return Container(
-      margin: responsive.paddingOnly(bottom: 12),
+      margin: responsive.paddingOnly(bottom: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
@@ -1052,6 +1058,7 @@ class _MosqueFinderScreenState extends State<MosqueFinderScreen> {
                 child: Text(
                   mosque.name,
                   style: TextStyle(
+                    color: AppColors.primary,
                     fontWeight: FontWeight.bold,
                     fontSize: responsive.fontSize(15),
                   ),

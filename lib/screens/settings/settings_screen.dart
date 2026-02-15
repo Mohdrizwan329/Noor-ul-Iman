@@ -179,7 +179,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         title: Text(
           _t('profile'),
-          style: TextStyle(fontSize: responsive.fontSize(18)),
+          style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(18)),
         ),
       ),
       body: Consumer2<SettingsProvider, LanguageProvider>(
@@ -192,7 +192,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 // Profile Card
                 _buildProfileCard(context, responsive: responsive),
-                SizedBox(height: responsive.spacing(24)),
+                SizedBox(height: responsive.spacing(8)),
 
                 // Prayer Settings Section
                 _buildSectionHeader(
@@ -214,7 +214,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     activeTrackColor: AppColors.primary,
                   ),
                 ),
-                SizedBox(height: responsive.spacing(24)),
+                SizedBox(height: responsive.spacing(8)),
 
                 // Language Section
                 _buildSectionHeader(
@@ -230,7 +230,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   subtitle: _t('select_your_language'),
                   onTap: () => _showLanguageDialog(context),
                 ),
-                SizedBox(height: responsive.spacing(24)),
+                SizedBox(height: responsive.spacing(8)),
 
                 // About Section
                 _buildSectionHeader(
@@ -262,11 +262,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   subtitle: _t('upload_all_data_to_firestore'),
                   onTap: () => _showMigrationDialog(context),
                 ),
-                SizedBox(height: responsive.spacing(24)),
+                SizedBox(height: responsive.spacing(8)),
 
                 // Logout
                 _buildLogoutCard(context, responsive: responsive),
-                SizedBox(height: responsive.spacing(24)),
+                SizedBox(height: responsive.spacing(8)),
 
                 // Banner Ad at the end of content
                 const BannerAdWidget(),
@@ -285,7 +285,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required ResponsiveUtils responsive,
   }) {
     return Padding(
-      padding: EdgeInsets.only(bottom: responsive.spacing(8)),
+      padding: EdgeInsets.only(bottom: responsive.spacing(4)),
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -351,7 +351,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final profileImagePath = settings.profileImagePath;
 
     return Container(
-      padding: responsive.paddingLarge,
+      padding: responsive.paddingSymmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
@@ -368,8 +368,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           // Profile Avatar
           Container(
-            width: responsive.spacing(70),
-            height: responsive.spacing(70),
+            width: responsive.spacing(60),
+            height: responsive.spacing(60),
             decoration: BoxDecoration(
               color: AppColors.primary,
               shape: BoxShape.circle,
@@ -406,14 +406,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   profileName,
                   style: TextStyle(
-                    fontSize: responsive.fontSize(20),
+                    fontSize: responsive.fontSize(18),
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: responsive.spaceXSmall),
+                SizedBox(height: responsive.spacing(4)),
                 Row(
                   children: [
                     Icon(
@@ -435,7 +435,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: responsive.spaceXSmall),
+                SizedBox(height: responsive.spacing(4)),
                 Row(
                   children: [
                     _isLoadingLocation
@@ -485,7 +485,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     VoidCallback? onTap,
   }) {
     return Container(
-      margin: EdgeInsets.only(bottom: responsive.spacing(16)),
+      margin: EdgeInsets.only(bottom: responsive.spacing(4)),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
@@ -501,7 +501,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: ListTile(
         contentPadding: responsive.paddingSymmetric(
           horizontal: 14,
-          vertical: 4,
+          vertical: 6,
         ),
         leading: Container(
           width: responsive.spacing(44),
@@ -533,7 +533,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           subtitle,
           style: TextStyle(
             color: const Color(0xFF6B7F73),
-            fontSize: responsive.fontSize(14),
+            fontSize: responsive.fontSize(13),
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -563,7 +563,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required ResponsiveUtils responsive,
   }) {
     return Container(
-      margin: EdgeInsets.only(bottom: responsive.spacing(16)),
+      margin: EdgeInsets.only(bottom: responsive.spacing(4)),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
@@ -579,7 +579,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: ListTile(
         contentPadding: responsive.paddingSymmetric(
           horizontal: 14,
-          vertical: 4,
+          vertical: 6,
         ),
         leading: Container(
           width: responsive.spacing(44),
@@ -615,7 +615,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _t('sign_out_message'),
           style: TextStyle(
             color: const Color(0xFF6B7F73),
-            fontSize: responsive.fontSize(14),
+            fontSize: responsive.fontSize(13),
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -672,7 +672,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               return ListTile(
                 leading: Text(
                   language['icon'] as String,
-                  style: TextStyle(fontSize: responsive.fontSize(28)),
+                  style: TextStyle(color: AppColors.primary, fontSize: responsive.fontSize(28)),
                 ),
                 title: Text(
                   language['name'] as String,
@@ -797,6 +797,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Text(
               _t('cancel'),
               style: TextStyle(
+                color: AppColors.primary,
                 fontSize: responsive.fontSize(16),
                 fontWeight: FontWeight.w600,
               ),

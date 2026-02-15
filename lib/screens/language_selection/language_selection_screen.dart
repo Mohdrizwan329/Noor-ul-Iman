@@ -84,45 +84,21 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
         'code': 'hi',
         'name': 'हिन्दी',
         'nativeName': 'Hindi',
-        'icon': '🇮🇳',
-        'gradient': const LinearGradient(
-          colors: [Color(0xFFFF9933), Color(0xFF138808)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
       },
       {
         'code': 'ur',
         'name': 'اردو',
         'nativeName': 'Urdu',
-        'icon': '🇵🇰',
-        'gradient': const LinearGradient(
-          colors: [Color(0xFF01411C), Color(0xFF64DD17)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
       },
       {
         'code': 'ar',
         'name': 'العربية',
         'nativeName': 'Arabic',
-        'icon': '🇸🇦',
-        'gradient': const LinearGradient(
-          colors: [Color(0xFF1B5E20), Color(0xFFFFFFFF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
       },
       {
         'code': 'en',
         'name': 'English',
         'nativeName': 'English',
-        'icon': '🇬🇧',
-        'gradient': const LinearGradient(
-          colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
       },
     ];
 
@@ -225,8 +201,6 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
                               languageCode: language['code'] as String,
                               name: language['name'] as String,
                               nativeName: language['nativeName'] as String,
-                              icon: language['icon'] as String,
-                              gradient: language['gradient'] as LinearGradient,
                               onTap: () => _selectLanguage(
                                 context,
                                 language['code'] as String,
@@ -252,16 +226,12 @@ class _LanguageCard extends StatefulWidget {
   final String languageCode;
   final String name;
   final String nativeName;
-  final String icon;
-  final LinearGradient gradient;
   final VoidCallback onTap;
 
   const _LanguageCard({
     required this.languageCode,
     required this.name,
     required this.nativeName,
-    required this.icon,
-    required this.gradient,
     required this.onTap,
   });
 
@@ -330,25 +300,6 @@ class _LanguageCardState extends State<_LanguageCard>
           padding: responsive.paddingAll(20),
           child: Row(
             children: [
-              // Flag Icon in Circle
-              Container(
-                width: responsive.spacing(60),
-                height: responsive.spacing(60),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: AppColors.lightGreenBorder,
-                    width: 1.5,
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    widget.icon,
-                    style: TextStyle(fontSize: responsive.fontSize(35)),
-                  ),
-                ),
-              ),
-              responsive.hSpaceMedium,
               // Language Names
               Expanded(
                 child: Column(

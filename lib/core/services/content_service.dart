@@ -159,8 +159,8 @@ class ContentService {
       final serverVersions = ContentVersions.fromJson(doc.data()!);
       _cachedVersions = serverVersions;
 
-      // Save to local cache
-      await _contentBox?.put(_versionsCacheKey, jsonEncode(doc.data()));
+      // Save to local cache (use toJson() to convert Timestamp to ISO string)
+      await _contentBox?.put(_versionsCacheKey, jsonEncode(serverVersions.toJson()));
 
       return serverVersions.getVersionFor(contentType) > cachedVersion;
     } catch (e) {

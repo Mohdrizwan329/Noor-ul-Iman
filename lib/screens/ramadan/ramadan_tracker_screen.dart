@@ -409,7 +409,7 @@ ${context.tr('shared_from_app')}
         backgroundColor: AppColors.primary,
         title: Text(
           context.tr('ramadan_tracker_title'),
-          style: TextStyle(fontSize: responsive.textLarge),
+          style: TextStyle(color: Colors.white, fontSize: responsive.textLarge),
         ),
       ),
       body: Column(
@@ -1047,7 +1047,7 @@ ${context.tr('shared_from_app')}
         ),
         content: Text(
           context.tr('select_fasting_status'),
-          style: TextStyle(fontSize: responsive.textRegular),
+          style: TextStyle(color: AppColors.primary, fontSize: responsive.textRegular),
         ),
         actions: [
           Column(

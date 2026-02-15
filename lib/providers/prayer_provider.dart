@@ -6,6 +6,7 @@ import '../core/services/location_service.dart';
 import '../core/services/prayer_time_service.dart';
 import '../data/models/prayer_time_model.dart';
 import 'settings_provider.dart';
+import 'adhan_provider.dart';
 
 class PrayerProvider with ChangeNotifier {
   final LocationService _locationService = LocationService();
@@ -16,6 +17,7 @@ class PrayerProvider with ChangeNotifier {
   String _nextPrayer = '';
   Duration _timeUntilNextPrayer = Duration.zero;
   bool _isLoading = false;
+  bool _isInitializing = false;
   String? _error;
   Position? _currentPosition;
   int _calculationMethod = 1; // Default: india
@@ -40,6 +42,10 @@ class PrayerProvider with ChangeNotifier {
       _prayerTimeService.formatDuration(_timeUntilNextPrayer);
 
   Future<void> initialize() async {
+    // Prevent concurrent initialization
+    if (_isInitializing) return;
+    _isInitializing = true;
+
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -60,6 +66,7 @@ class PrayerProvider with ChangeNotifier {
     }
 
     _isLoading = false;
+    _isInitializing = false;
     notifyListeners();
   }
 
@@ -111,6 +118,8 @@ class PrayerProvider with ChangeNotifier {
 
       if (_todayPrayerTimes != null) {
         _updateNextPrayer();
+        // Automatically schedule notifications when prayer times are fetched
+        _autoScheduleNotifications();
       }
     } catch (e) {
       _error = 'Failed to fetch prayer times: $e';
@@ -118,6 +127,65 @@ class PrayerProvider with ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  /// Automatically schedule notifications via AdhanProvider when prayer times are available
+  void _autoScheduleNotifications({int retryCount = 0}) {
+    if (_todayPrayerTimes == null) return;
+
+    final adhanProvider = AdhanProvider.instance;
+    if (adhanProvider == null) {
+      debugPrint('🔔 PrayerProvider: AdhanProvider not yet initialized (attempt ${retryCount + 1})');
+      // Retry up to 5 times with increasing delay
+      if (retryCount < 5) {
+        Future.delayed(Duration(seconds: 2 * (retryCount + 1)), () {
+          _autoScheduleNotifications(retryCount: retryCount + 1);
+        });
+      } else {
+        debugPrint('🔔 PrayerProvider: AdhanProvider still not ready after $retryCount retries, giving up');
+      }
+      return;
+    }
+
+    // Ensure AdhanProvider is fully initialized before scheduling
+    if (!adhanProvider.isInitialized) {
+      debugPrint('🔔 PrayerProvider: Waiting for AdhanProvider to finish initializing...');
+      adhanProvider.initialize().then((_) {
+        _scheduleWithProvider(adhanProvider);
+      }).catchError((e) {
+        debugPrint('🔔 PrayerProvider: AdhanProvider init failed: $e');
+      });
+      return;
+    }
+
+    _scheduleWithProvider(adhanProvider);
+  }
+
+  /// Actually schedule notifications using the initialized AdhanProvider
+  void _scheduleWithProvider(AdhanProvider adhanProvider) {
+    if (_todayPrayerTimes == null) return;
+
+    // Update location in AdhanProvider
+    final city = _locationService.currentCity ?? '';
+    if (_currentPosition != null) {
+      adhanProvider.updateLocation(
+        city: city,
+        latitude: _currentPosition!.latitude,
+        longitude: _currentPosition!.longitude,
+      );
+    }
+
+    // Schedule prayer notifications (fire and forget - don't await in sync context)
+    adhanProvider.schedulePrayerNotifications(_todayPrayerTimes!).then((_) {
+      debugPrint('🔔 PrayerProvider: Auto-scheduled prayer notifications');
+    }).catchError((e) {
+      debugPrint('🔔 PrayerProvider: Auto-schedule failed: $e');
+    });
+
+    // Schedule Islamic reminders (only once per app session)
+    adhanProvider.scheduleAllIslamicNotifications().catchError((e) {
+      debugPrint('🔔 PrayerProvider: Auto-schedule Islamic reminders failed: $e');
+    });
   }
 
   Future<void> fetchMonthlyPrayerTimes(int month, int year) async {

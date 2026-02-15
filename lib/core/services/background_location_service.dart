@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'location_service.dart';
 import 'prayer_time_service.dart';
 import 'geo_restriction_service.dart';
+import 'azan_background_service.dart';
 import '../../providers/adhan_provider.dart';
 
 class BackgroundLocationService {
@@ -118,22 +119,24 @@ class BackgroundLocationService {
       );
 
       if (prayerTimes != null) {
-        // Schedule notifications for new prayer times
-        final adhanProvider = AdhanProvider();
-        await adhanProvider.initialize();
-
-        // Update location for location-aware notifications
-        final city = _locationService.currentCity ?? '';
-        adhanProvider.updateLocation(
-          city: city,
-          latitude: position.latitude,
-          longitude: position.longitude,
-        );
-
-        await adhanProvider.schedulePrayerNotifications(prayerTimes);
+        // Use the existing AdhanProvider instance from the static reference
+        // instead of creating a new throwaway instance
+        final existingProvider = AdhanProvider.instance;
+        if (existingProvider != null) {
+          final city = _locationService.currentCity ?? '';
+          existingProvider.updateLocation(
+            city: city,
+            latitude: position.latitude,
+            longitude: position.longitude,
+          );
+          await existingProvider.schedulePrayerNotifications(prayerTimes);
+        } else {
+          // Fallback: at minimum schedule native Azan alarms directly
+          await AzanBackgroundService.scheduleAzanAlarms(prayerTimes);
+        }
 
         debugPrint('Prayer times updated for new location');
-        debugPrint('City: $city, Lat: ${position.latitude}, Lon: ${position.longitude}');
+        debugPrint('City: ${_locationService.currentCity}, Lat: ${position.latitude}, Lon: ${position.longitude}');
       }
     } catch (e) {
       debugPrint('Error updating prayer times: $e');

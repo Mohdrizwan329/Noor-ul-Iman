@@ -63,9 +63,10 @@ class AzanBootReceiver : BroadcastReceiver() {
             return
         }
 
-        // Get selected Adhan URL
+        // Get selected Adhan URL and cached file path
         val selectedAdhan = prefs.getString(KEY_SELECTED_ADHAN, "makkah") ?: "makkah"
         val azanUrl = ADHAN_URLS[selectedAdhan] ?: ADHAN_URLS["makkah"]!!
+        val cachedPath = prefs.getString("flutter.cached_azan_path", "") ?: ""
 
         // Get saved prayer times and reschedule
         val prayerTimes = mapOf(
@@ -81,7 +82,7 @@ class AzanBootReceiver : BroadcastReceiver() {
             val timeString = prayerInfo.second
 
             if (timeString != null) {
-                scheduleAlarm(context, alarmId, prayerName, timeString, azanUrl)
+                scheduleAlarm(context, alarmId, prayerName, timeString, azanUrl, cachedPath)
             }
         }
 
@@ -93,7 +94,8 @@ class AzanBootReceiver : BroadcastReceiver() {
         alarmId: Int,
         prayerName: String,
         timeString: String,
-        azanUrl: String
+        azanUrl: String,
+        cachedPath: String = ""
     ) {
         val parsedTime = parseTimeString(timeString) ?: return
 
@@ -115,6 +117,7 @@ class AzanBootReceiver : BroadcastReceiver() {
             putExtra(AzanAlarmReceiver.EXTRA_AZAN_URL, azanUrl)
             putExtra(AzanAlarmReceiver.EXTRA_PRAYER_NAME, prayerName)
             putExtra(AzanAlarmReceiver.EXTRA_ALARM_ID, alarmId)
+            putExtra(AzanAlarmReceiver.EXTRA_CACHED_PATH, cachedPath)
         }
 
         val pendingIntent = PendingIntent.getBroadcast(

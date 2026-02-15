@@ -257,6 +257,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
             child: Text(
               label,
               style: TextStyle(
+                color: AppColors.primary,
                 fontSize: responsive.textMedium,
                 fontWeight: isBold ? FontWeight.bold : null,
               ),
@@ -311,7 +312,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
         backgroundColor: AppColors.primary,
         title: Text(
           _t('zakat_calculator'),
-          style: TextStyle(fontSize: responsive.textLarge),
+          style: TextStyle(color: Colors.white, fontSize: responsive.textLarge),
         ),
       ),
       body: Column(
@@ -411,6 +412,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                         onPressed: _calculateZakat,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(responsive.radiusLarge),
                           ),
@@ -418,6 +420,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                         child: Text(
                           _t('calculate_zakat'),
                           style: TextStyle(
+                            color: Colors.white,
                             fontSize: responsive.textLarge,
                             fontWeight: FontWeight.bold,
                           ),
@@ -469,7 +472,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
             child: Center(
               child: Text(
                 flag,
-                style: TextStyle(fontSize: responsive.fontSize(28)),
+                style: TextStyle(color: AppColors.primary, fontSize: responsive.fontSize(28)),
               ),
             ),
           ),
@@ -791,6 +794,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                   child: Text(
                     _t('select_your_country'),
                     style: TextStyle(
+                      color: AppColors.primary,
                       fontSize: responsive.textLarge,
                       fontWeight: FontWeight.bold,
                     ),
@@ -807,7 +811,7 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
                       return ListTile(
                         leading: Text(
                           country.flag,
-                          style: const TextStyle(fontSize: 28),
+                          style: const TextStyle(color: AppColors.primary, fontSize: 28),
                         ),
                         title: Text('${country.countryName.get(langCode)} (${country.countryCode})'),
                         subtitle: Text('${country.currencyName.get(langCode)} (${country.currencyCode})'),

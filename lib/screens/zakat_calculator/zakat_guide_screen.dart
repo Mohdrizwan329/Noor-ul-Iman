@@ -247,7 +247,7 @@ class _ZakatGuideScreenState extends State<ZakatGuideScreen> {
     final responsive = ResponsiveUtils(context);
     return Container(
       width: double.infinity,
-      padding: responsive.paddingAll(20),
+      padding: responsive.paddingAll(14),
       decoration: BoxDecoration(
         gradient: AppColors.headerGradient,
         borderRadius: BorderRadius.circular(responsive.borderRadius(20)),
@@ -309,6 +309,35 @@ class _ZakatGuideScreenState extends State<ZakatGuideScreen> {
     );
   }
 
+  static IconData _mapIcon(String iconName) {
+    switch (iconName) {
+      case 'calculate': return Icons.calculate;
+      case 'account_balance': return Icons.account_balance;
+      case 'volunteer_activism': return Icons.volunteer_activism;
+      case 'people': return Icons.people;
+      case 'calendar_today': return Icons.calendar_today;
+      case 'star': return Icons.star;
+      case 'menu_book': return Icons.menu_book;
+      case 'info': return Icons.info;
+      case 'check_circle': return Icons.check_circle;
+      case 'monetization_on': return Icons.monetization_on;
+      case 'balance': return Icons.balance;
+      case 'favorite': return Icons.favorite;
+      case 'handshake': return Icons.handshake;
+      case 'shield': return Icons.shield;
+      case 'mosque': return Icons.mosque;
+      case 'auto_stories': return Icons.auto_stories;
+      case 'library_books': return Icons.library_books;
+      case 'format_quote': return Icons.format_quote;
+      case 'water_drop': return Icons.water_drop;
+      case 'landscape': return Icons.landscape;
+      case 'nights_stay': return Icons.nights_stay;
+      case 'wb_sunny': return Icons.wb_sunny;
+      case 'circle': return Icons.circle;
+      default: return Icons.star;
+    }
+  }
+
   Widget _buildSection({required int sectionIndex}) {
     final responsive = ResponsiveUtils(context);
     if (_guideContent == null) return const SizedBox.shrink();
@@ -319,7 +348,7 @@ class _ZakatGuideScreenState extends State<ZakatGuideScreen> {
 
     final title = section.title.get(langCode);
     final content = section.content.get(langCode);
-    final iconData = IconData(section.iconCode, fontFamily: 'MaterialIcons');
+    final iconData = _mapIcon(section.icon);
 
     const lightGreenBorder = Color(0xFF8AAF9A);
     const darkGreen = Color(0xFF0A5C36);
@@ -479,7 +508,7 @@ class _ZakatGuideScreenState extends State<ZakatGuideScreen> {
 
     return Container(
       width: double.infinity,
-      padding: responsive.paddingAll(20),
+      padding: responsive.paddingAll(14),
       decoration: BoxDecoration(
         gradient: AppColors.goldGradient,
         borderRadius: BorderRadius.circular(responsive.borderRadius(16)),

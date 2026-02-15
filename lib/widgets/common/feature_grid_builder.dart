@@ -116,7 +116,7 @@ class _FeatureGridCard extends StatelessWidget {
               child: item.emoji != null
                   ? Text(
                       item.emoji!,
-                      style: TextStyle(fontSize: responsive.fontSize(24)),
+                      style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(24)),
                     )
                   : Icon(
                       item.icon,

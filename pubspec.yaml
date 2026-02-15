@@ -54,6 +54,9 @@ dependencies:
   # HTTP & API
   http: ^1.2.0
 
+  # Translation
+  translator: ^1.0.3
+
   # UI Components
   cached_network_image: ^3.3.1
   shimmer: ^3.0.0

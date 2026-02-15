@@ -237,6 +237,7 @@ $description
         title: Text(
           _getDisplayName(langProvider.languageCode),
           style: TextStyle(
+            color: Colors.white,
             fontSize: responsive.textLarge,
             fontWeight: FontWeight.bold,
             fontFamily: 'Poppins',
@@ -317,6 +318,7 @@ $description
                           child: Text(
                             _getDisplayName(langProvider.languageCode),
                             style: TextStyle(
+                              color: AppColors.primary,
                               fontSize: responsive.textRegular,
                               fontWeight: FontWeight.w600,
                               fontFamily: 'Poppins',
@@ -410,6 +412,7 @@ $description
                             Text(
                               _getDisplayName(langProvider.languageCode),
                               style: TextStyle(
+                                color: AppColors.primary,
                                 fontSize: responsive.textXLarge,
                                 fontFamily: 'Poppins',
                               ),

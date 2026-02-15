@@ -72,6 +72,7 @@ class DuaListCard extends StatelessWidget {
                 Text(
                   title,
                   style: const TextStyle(
+                    color: AppColors.primary,
                     fontSize: AppDimens.fontSizeNormal,
                     fontWeight: FontWeight.w600,
                   ),

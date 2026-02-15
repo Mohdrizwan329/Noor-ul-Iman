@@ -10,6 +10,11 @@ import '../../widgets/common/search_bar_widget.dart';
 import '../../widgets/common/banner_ad_widget.dart';
 import '../../core/utils/ad_list_helper.dart';
 import 'hadith_book_detail_screen.dart';
+import 'bukhari_viewer_screen.dart';
+import 'muslim_viewer_screen.dart';
+import 'nasai_viewer_screen.dart';
+import 'abudawud_viewer_screen.dart';
+import 'tirmidhi_viewer_screen.dart';
 
 class HadithBooksScreen extends StatefulWidget {
   final HadithCollection collection;
@@ -27,16 +32,30 @@ class HadithBooksScreen extends StatefulWidget {
   State<HadithBooksScreen> createState() => _HadithBooksScreenState();
 }
 
-class _HadithBooksScreenState extends State<HadithBooksScreen> {
+class _HadithBooksScreenState extends State<HadithBooksScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   final ContentService _contentService = ContentService();
   List<HadithBookFirestore> _allBooks = [];
   bool _isLoadingBooks = true;
+  late TabController _tabController;
+
+  // Show Mushaf tab for Bukhari, Muslim, Nasai, and Abu Dawud collections
+  bool get _showMushafTab =>
+      widget.collectionKey == 'bukhari' ||
+      widget.collectionKey == 'muslim' ||
+      widget.collectionKey == 'nasai' ||
+      widget.collectionKey == 'abudawud' ||
+      widget.collectionKey == 'tirmidhi';
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(
+      length: _showMushafTab ? 2 : 1,
+      vsync: this,
+    );
     _loadBooksFromFirestore();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final hadithProvider = context.read<HadithProvider>();
@@ -63,6 +82,7 @@ class _HadithBooksScreenState extends State<HadithBooksScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -82,7 +102,6 @@ class _HadithBooksScreenState extends State<HadithBooksScreen> {
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
-    final filteredBooks = _getFilteredBooks();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -92,74 +111,262 @@ class _HadithBooksScreenState extends State<HadithBooksScreen> {
           context.tr(widget.titleKey),
           style: TextStyle(fontSize: responsive.textLarge),
         ),
+        bottom: _showMushafTab
+            ? TabBar(
+                controller: _tabController,
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.white70,
+                indicatorColor: Colors.white,
+                indicatorWeight: 3,
+                labelStyle: TextStyle(
+                  fontSize: responsive.fontSize(14),
+                  fontWeight: FontWeight.bold,
+                ),
+                unselectedLabelStyle: TextStyle(
+                  fontSize: responsive.fontSize(14),
+                ),
+                tabs: [
+                  Tab(text: context.tr(widget.titleKey)),
+                  Tab(text: context.tr('mushaf')),
+                ],
+              )
+            : null,
       ),
-      body: Column(
-        children: [
-          if (_isLoadingBooks) const LinearProgressIndicator(),
-          Padding(
-            padding: responsive.paddingAll(16),
-            child: SearchBarWidget(
-              controller: _searchController,
-              hintText: context.tr('search_books'),
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value;
-                });
-              },
-              onClear: () {
-                setState(() {
-                  _searchQuery = '';
-                });
-              },
-            ),
+      body: _showMushafTab
+          ? TabBarView(
+              controller: _tabController,
+              children: [
+                _buildBooksTab(responsive),
+                _buildMushafTab(responsive),
+              ],
+            )
+          : _buildBooksTab(responsive),
+    );
+  }
+
+  Widget _buildBooksTab(ResponsiveUtils responsive) {
+    final filteredBooks = _getFilteredBooks();
+
+    return Column(
+      children: [
+        if (_isLoadingBooks) const LinearProgressIndicator(),
+        Padding(
+          padding: responsive.paddingAll(16),
+          child: SearchBarWidget(
+            controller: _searchController,
+            hintText: context.tr('search_books'),
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value;
+              });
+            },
+            onClear: () {
+              setState(() {
+                _searchQuery = '';
+              });
+            },
           ),
-          Expanded(
-            child: Consumer2<HadithProvider, LanguageProvider>(
-              builder: (context, provider, langProvider, child) {
-                if (_isLoadingBooks) {
-                  return const Center(
-                    child:
-                        CircularProgressIndicator(color: AppColors.primary),
-                  );
-                }
-                return filteredBooks.isEmpty
-                    ? Center(
-                        child: Text(
-                          context.tr('no_books_found'),
+        ),
+        Expanded(
+          child: Consumer2<HadithProvider, LanguageProvider>(
+            builder: (context, provider, langProvider, child) {
+              if (_isLoadingBooks) {
+                return const Center(
+                  child:
+                      CircularProgressIndicator(color: AppColors.primary),
+                );
+              }
+              return filteredBooks.isEmpty
+                  ? Center(
+                      child: Text(
+                        context.tr('no_books_found'),
+                        style: TextStyle(
+                          fontSize: responsive.textMedium,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: responsive.paddingSymmetric(
+                        horizontal: 16,
+                        vertical: 0,
+                      ),
+                      itemCount:
+                          AdListHelper.totalCount(filteredBooks.length),
+                      itemBuilder: (context, index) {
+                        if (AdListHelper.isAdPosition(index)) {
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            child: BannerAdWidget(height: 250),
+                          );
+                        }
+                        final dataIdx = AdListHelper.dataIndex(index);
+                        final book = filteredBooks[dataIdx];
+                        final originalIndex =
+                            _allBooks.indexOf(book) + 1;
+                        return _buildBookCard(
+                            context, book, originalIndex);
+                      },
+                    );
+            },
+          ),
+        ),
+        const BannerAdWidget(),
+      ],
+    );
+  }
+
+  Widget _buildMushafTab(ResponsiveUtils responsive) {
+    const darkGreen = Color(0xFF0A5C36);
+    const emeraldGreen = Color(0xFF1E8F5A);
+    const lightGreenBorder = Color(0xFF8AAF9A);
+
+    final collectionKey = widget.collectionKey;
+    final volumeCount = 10;
+    final titleKey = collectionKey == 'bukhari'
+        ? 'sahih_bukhari'
+        : collectionKey == 'muslim'
+            ? 'sahih_muslim'
+            : collectionKey == 'nasai'
+                ? 'sunan_nasai'
+                : collectionKey == 'abudawud'
+                    ? 'sunan_abu_dawud'
+                    : 'jami_tirmidhi';
+
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+      padding: responsive.paddingRegular,
+      itemCount: AdListHelper.totalCount(volumeCount),
+      itemBuilder: (context, index) {
+        if (AdListHelper.isAdPosition(index)) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: BannerAdWidget(height: 250),
+          );
+        }
+        final dataIdx = AdListHelper.dataIndex(index);
+        final volumeNumber = dataIdx + 1;
+
+        return Container(
+          margin: responsive.paddingOnly(bottom: 6),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(responsive.radiusLarge),
+            border: Border.all(color: lightGreenBorder, width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: darkGreen.withValues(alpha: 0.08),
+                blurRadius: responsive.spacing(10),
+                offset: Offset(0, responsive.spacing(2)),
+              ),
+            ],
+          ),
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => collectionKey == 'bukhari'
+                      ? BukhariViewerScreen(volumeNumber: volumeNumber)
+                      : collectionKey == 'muslim'
+                          ? MuslimViewerScreen(volumeNumber: volumeNumber)
+                          : collectionKey == 'nasai'
+                              ? NasaiViewerScreen(volumeNumber: volumeNumber)
+                              : collectionKey == 'abudawud'
+                                  ? AbuDawudViewerScreen(volumeNumber: volumeNumber)
+                                  : TirmidhiViewerScreen(volumeNumber: volumeNumber),
+                ),
+              );
+            },
+            borderRadius: BorderRadius.circular(responsive.radiusLarge),
+            child: Padding(
+              padding: responsive.paddingAll(14),
+              child: Row(
+                children: [
+                  Container(
+                    width: responsive.spacing(50),
+                    height: responsive.spacing(50),
+                    decoration: BoxDecoration(
+                      color: darkGreen,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: darkGreen.withValues(alpha: 0.3),
+                          blurRadius: responsive.spacing(8),
+                          offset: Offset(0, responsive.spacing(2)),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        '$volumeNumber',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: responsive.textLarge,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: responsive.spacing(14)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${context.tr('volume')} $volumeNumber',
                           style: TextStyle(
-                            fontSize: responsive.textMedium,
-                            color: AppColors.textSecondary,
+                            fontSize: responsive.textSmall,
+                            fontWeight: FontWeight.bold,
+                            color: darkGreen,
                           ),
                         ),
-                      )
-                    : ListView.builder(
-                        padding: responsive.paddingSymmetric(
-                          horizontal: 16,
-                          vertical: 0,
+                        SizedBox(height: responsive.spacing(2)),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.menu_book_rounded,
+                              size: responsive.fontSize(12),
+                              color: emeraldGreen,
+                            ),
+                            SizedBox(width: responsive.spacing(4)),
+                            Text(
+                              context.tr(titleKey),
+                              style: TextStyle(
+                                fontSize: responsive.textXSmall,
+                                color: Colors.grey[500],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
-                        itemCount:
-                            AdListHelper.totalCount(filteredBooks.length),
-                        itemBuilder: (context, index) {
-                          if (AdListHelper.isAdPosition(index)) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 8),
-                              child: BannerAdWidget(height: 250),
-                            );
-                          }
-                          final dataIdx = AdListHelper.dataIndex(index);
-                          final book = filteredBooks[dataIdx];
-                          final originalIndex =
-                              _allBooks.indexOf(book) + 1;
-                          return _buildBookCard(
-                              context, book, originalIndex);
-                        },
-                      );
-              },
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: responsive.paddingAll(6),
+                    decoration: const BoxDecoration(
+                      color: emeraldGreen,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colors.white,
+                      size: responsive.iconSmall,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          const BannerAdWidget(),
-        ],
-      ),
+        );
+      },
+    ),
+        ),
+        const BannerAdWidget(),
+      ],
     );
   }
 
@@ -171,7 +378,7 @@ class _HadithBooksScreenState extends State<HadithBooksScreen> {
     final responsive = context.responsive;
 
     return Container(
-      margin: responsive.paddingOnly(bottom: 10),
+      margin: responsive.paddingOnly(bottom: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
@@ -240,19 +447,46 @@ class _HadithBooksScreenState extends State<HadithBooksScreen> {
                         ? TextDirection.rtl
                         : TextDirection.ltr;
 
-                    return Text(
-                      displayName,
-                      style: TextStyle(
-                        fontSize: responsive.textSmall,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                        fontFamily: 'Poppins',
-                        height: 1.3,
-                      ),
-                      textDirection: textDir,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: true,
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          displayName,
+                          style: TextStyle(
+                            fontSize: responsive.textSmall,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                            fontFamily: 'Poppins',
+                            height: 1.3,
+                          ),
+                          textDirection: textDir,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                        ),
+                        if (book.hadithCount > 0)
+                          Padding(
+                            padding: EdgeInsets.only(top: responsive.spacing(3)),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.menu_book_rounded,
+                                  size: responsive.fontSize(12),
+                                  color: AppColors.emeraldGreen,
+                                ),
+                                SizedBox(width: responsive.spacing(4)),
+                                Text(
+                                  '${book.hadithCount} ${context.tr('hadiths')}',
+                                  style: TextStyle(
+                                    fontSize: responsive.textXSmall,
+                                    color: Colors.grey[500],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
                     );
                   },
                 ),

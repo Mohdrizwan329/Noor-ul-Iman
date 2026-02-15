@@ -39,13 +39,10 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
-    // Watch LanguageProvider to rebuild when language changes
-    context.watch<LanguageProvider>();
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
         title: Text(
           context.tr('duas'),
           style: TextStyle(fontSize: responsive.textLarge),
@@ -196,7 +193,7 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
     }
 
     return Container(
-      margin: responsive.paddingOnly(bottom: 10),
+      margin: responsive.paddingOnly(bottom: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
@@ -245,7 +242,7 @@ class _DuaCategoryScreenState extends State<DuaCategoryScreen> {
                 child: Center(
                   child: Text(
                     category.icon,
-                    style: TextStyle(fontSize: responsive.fontSize(24)),
+                    style: TextStyle(color: AppColors.primary, fontSize: responsive.fontSize(24)),
                   ),
                 ),
               ),

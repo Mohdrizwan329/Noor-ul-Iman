@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'localization_helper.dart';
 
 /// Utility class for common action helpers like share, copy, save.
 /// Centralizes repeated action logic across the app.
@@ -56,9 +57,9 @@ class ActionHelpers {
       debugPrint('Error copying to clipboard: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to copy'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(context.tr('failed_to_copy')),
+            duration: const Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
           ),
         );

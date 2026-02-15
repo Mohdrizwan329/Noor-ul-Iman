@@ -56,8 +56,9 @@ class MainActivity : FlutterActivity() {
                 "playAzan" -> {
                     val url = call.argument<String>("url")
                     val prayerName = call.argument<String>("prayerName") ?: "Prayer"
+                    val cachedPath = call.argument<String>("cachedPath") ?: ""
                     if (url != null) {
-                        playAzan(url, prayerName)
+                        playAzan(url, prayerName, cachedPath)
                         result.success(true)
                     } else {
                         result.error("INVALID_ARGUMENT", "URL is required", null)
@@ -72,7 +73,8 @@ class MainActivity : FlutterActivity() {
                     val triggerTimeMillis = call.argument<Long>("triggerTimeMillis") ?: 0L
                     val url = call.argument<String>("url") ?: ""
                     val prayerName = call.argument<String>("prayerName") ?: "Prayer"
-                    scheduleAzanAlarm(alarmId, triggerTimeMillis, url, prayerName)
+                    val cachedPath = call.argument<String>("cachedPath") ?: ""
+                    scheduleAzanAlarm(alarmId, triggerTimeMillis, url, prayerName, cachedPath)
                     result.success(true)
                 }
                 "cancelAzanAlarm" -> {
@@ -326,11 +328,12 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    private fun playAzan(url: String, prayerName: String) {
+    private fun playAzan(url: String, prayerName: String, cachedPath: String = "") {
         val intent = Intent(this, AzanService::class.java).apply {
             action = AzanService.ACTION_PLAY
             putExtra(AzanService.EXTRA_AZAN_URL, url)
             putExtra(AzanService.EXTRA_PRAYER_NAME, prayerName)
+            putExtra(AzanService.EXTRA_CACHED_PATH, cachedPath)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(intent)
@@ -346,13 +349,14 @@ class MainActivity : FlutterActivity() {
         startService(intent)
     }
 
-    private fun scheduleAzanAlarm(alarmId: Int, triggerTimeMillis: Long, url: String, prayerName: String) {
+    private fun scheduleAzanAlarm(alarmId: Int, triggerTimeMillis: Long, url: String, prayerName: String, cachedPath: String = "") {
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         val intent = Intent(this, AzanAlarmReceiver::class.java).apply {
             putExtra(AzanAlarmReceiver.EXTRA_AZAN_URL, url)
             putExtra(AzanAlarmReceiver.EXTRA_PRAYER_NAME, prayerName)
             putExtra(AzanAlarmReceiver.EXTRA_ALARM_ID, alarmId)
+            putExtra(AzanAlarmReceiver.EXTRA_CACHED_PATH, cachedPath)
         }
 
         val pendingIntent = PendingIntent.getBroadcast(
@@ -374,20 +378,40 @@ class MainActivity : FlutterActivity() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // Use setAlarmClock - MOST RELIABLE method
-        // Android treats this as a user-set alarm and will NEVER skip it
-        // This works even with battery optimization ON
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val alarmClockInfo = AlarmManager.AlarmClockInfo(triggerTimeMillis, showPendingIntent)
-            alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
-            android.util.Log.d("AzanAlarm", "Scheduled $prayerName alarm using setAlarmClock at $triggerTimeMillis")
-        } else {
-            // Fallback for older devices
-            alarmManager.setExact(
-                AlarmManager.RTC_WAKEUP,
-                triggerTimeMillis,
-                pendingIntent
-            )
+        try {
+            // Use setAlarmClock - MOST RELIABLE method
+            // Android treats this as a user-set alarm and will NEVER skip it
+            // This works even with battery optimization ON
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                val alarmClockInfo = AlarmManager.AlarmClockInfo(triggerTimeMillis, showPendingIntent)
+                alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
+                android.util.Log.d("AzanAlarm", "Scheduled $prayerName alarm using setAlarmClock at $triggerTimeMillis")
+            } else {
+                alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerTimeMillis,
+                    pendingIntent
+                )
+            }
+        } catch (se: SecurityException) {
+            // Exact alarm permission denied (Android 12+) - fallback to inexact alarm
+            android.util.Log.w("AzanAlarm", "Exact alarm permission denied for $prayerName, using fallback: ${se.message}")
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    alarmManager.setAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        triggerTimeMillis,
+                        pendingIntent
+                    )
+                    android.util.Log.d("AzanAlarm", "Scheduled $prayerName using setAndAllowWhileIdle fallback")
+                } else {
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, triggerTimeMillis, pendingIntent)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("AzanAlarm", "Failed to schedule $prayerName even with fallback: ${e.message}")
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("AzanAlarm", "Error scheduling $prayerName alarm: ${e.message}")
         }
     }
 

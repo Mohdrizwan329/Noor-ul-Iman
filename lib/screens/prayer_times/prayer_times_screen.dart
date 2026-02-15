@@ -24,6 +24,7 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
   String _lastNextPrayer = '';
   PrayerTimesScreenContentFirestore? _content;
   bool _isContentLoading = true;
+  bool _hasScheduledNotifications = false;
 
   @override
   void initState() {
@@ -215,27 +216,31 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
   Widget build(BuildContext context) {
     final responsive = context.responsive;
 
-    // Schedule notifications when prayer times are loaded
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final prayerProvider = context.read<PrayerProvider>();
-      final adhanProvider = context.read<AdhanProvider>();
-      if (prayerProvider.todayPrayerTimes != null) {
-        final locationService = LocationService();
-        final position = prayerProvider.currentPosition;
-        if (position != null) {
-          final city = locationService.currentCity ?? '';
-          adhanProvider.updateLocation(
-            city: city,
-            latitude: position.latitude,
-            longitude: position.longitude,
-          );
-        }
+    // Schedule notifications once when prayer times are loaded (not on every rebuild)
+    if (!_hasScheduledNotifications) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_hasScheduledNotifications) return;
+        final prayerProvider = context.read<PrayerProvider>();
+        final adhanProvider = context.read<AdhanProvider>();
+        if (prayerProvider.todayPrayerTimes != null) {
+          final locationService = LocationService();
+          final position = prayerProvider.currentPosition;
+          if (position != null) {
+            final city = locationService.currentCity ?? '';
+            adhanProvider.updateLocation(
+              city: city,
+              latitude: position.latitude,
+              longitude: position.longitude,
+            );
+          }
 
-        adhanProvider.schedulePrayerNotifications(
-          prayerProvider.todayPrayerTimes!,
-        );
-      }
-    });
+          adhanProvider.schedulePrayerNotifications(
+            prayerProvider.todayPrayerTimes!,
+          );
+          _hasScheduledNotifications = true;
+        }
+      });
+    }
 
     if (_isContentLoading) {
       return Scaffold(
@@ -306,14 +311,14 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                       children: [
                         // Next Prayer Card with Date
                         _buildNextPrayerCard(context, provider, prayerTimes),
-                        responsive.vSpaceLarge,
+                        responsive.vSpaceMedium,
 
                         // Prayer Times List
                         Text(
                           _t('today_prayer_times'),
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
-                        responsive.vSpaceMedium,
+                        responsive.vSpaceSmall,
                         ...prayerList.map(
                           (prayer) => _buildPrayerTimeCard(
                             context,
@@ -361,30 +366,32 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
           ),
           responsive.vSpaceRegular,
           // Date and Hijri Date Row
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: responsive.spacing(8),
-            runSpacing: responsive.spacing(4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                _translateEnglishDate(prayerTimes.date),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: responsive.fontSize(14),
-                  fontWeight: FontWeight.bold,
+              Flexible(
+                child: Text(
+                  _translateEnglishDate(prayerTimes.date),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: responsive.fontSize(14),
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
-              Text(
-                _translateHijriDate(prayerTimes.hijriDate),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: responsive.fontSize(14),
-                  fontWeight: FontWeight.bold,
+              Flexible(
+                child: Text(
+                  _translateHijriDate(prayerTimes.hijriDate),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: responsive.fontSize(14),
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -414,12 +421,16 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                     size: responsive.iconSize(18),
                   ),
                   SizedBox(width: responsive.spacing(4)),
-                  Text(
-                    _translateTimeRemaining(provider.formattedTimeRemaining),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: responsive.fontSize(16),
-                      fontWeight: FontWeight.bold,
+                  Flexible(
+                    child: Text(
+                      _translateTimeRemaining(provider.formattedTimeRemaining),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: responsive.fontSize(16),
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -446,7 +457,7 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
     final prayerIcon = _getPrayerIcon(prayer.name);
 
     return Container(
-      margin: responsive.paddingOnly(bottom: 12),
+      margin: responsive.paddingOnly(bottom: 6),
       padding: responsive.paddingRegular,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -484,7 +495,7 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
             child: Center(
               child: Text(
                 prayerIcon,
-                style: TextStyle(fontSize: responsive.fontSize(28)),
+                style: TextStyle(color: AppColors.primary, fontSize: responsive.fontSize(28)),
               ),
             ),
           ),

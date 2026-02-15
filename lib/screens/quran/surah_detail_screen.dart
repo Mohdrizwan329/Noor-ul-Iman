@@ -113,31 +113,9 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
     super.initState();
     _loadContent();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Sync QuranProvider language with app's global language
-      final langProvider = context.read<LanguageProvider>();
-      final appLangCode = langProvider.languageCode;
-
-      // Map app language to QuranLanguage enum
-      QuranLanguage quranLang;
-      switch (appLangCode) {
-        case 'hi':
-          quranLang = QuranLanguage.hindi;
-          break;
-        case 'ur':
-          quranLang = QuranLanguage.urdu;
-          break;
-        case 'ar':
-          quranLang = QuranLanguage.arabic;
-          break;
-        case 'en':
-        default:
-          quranLang = QuranLanguage.english;
-      }
-
-      // Set language and fetch surah with translation
-      _quranProvider.setLanguage(quranLang).then((_) {
-        _quranProvider.fetchSurah(widget.surahNumber);
-      });
+      final langCode = context.read<LanguageProvider>().languageCode;
+      _quranProvider.syncWithAppLanguage(langCode);
+      _quranProvider.fetchSurah(widget.surahNumber);
     });
     _audioPlayer.playerStateStream.listen((state) {
       if (mounted) {
@@ -249,7 +227,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
       }
       shareText.writeln();
     }
-    shareText.writeln('- ${context.tr('surah')} ${widget.surahNumber}');
+    shareText.writeln('- ${context.trRead('surah')} ${widget.surahNumber}');
     Share.share(shareText.toString());
   }
 
@@ -263,7 +241,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
       }
       copyText.writeln();
     }
-    copyText.writeln('- ${context.tr('surah')} ${widget.surahNumber}');
+    copyText.writeln('- ${context.trRead('surah')} ${widget.surahNumber}');
     Clipboard.setData(ClipboardData(text: copyText.toString()));
   }
 
@@ -306,6 +284,8 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
               textDirection: (langProvider.languageCode == 'ar' || langProvider.languageCode == 'ur')
                   ? TextDirection.rtl
                   : TextDirection.ltr,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             );
           },
         ),
@@ -436,7 +416,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
     final cardNumber = cardIndex + 1;
 
     return Container(
-      margin: responsive.paddingOnly(bottom: 12),
+      margin: responsive.paddingOnly(bottom: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
@@ -559,7 +539,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                 final isPlaying = _playingAyah == ayah.number;
                 return Container(
                     margin: entry.key < ayahs.length - 1
-                        ? responsive.paddingOnly(bottom: 12)
+                        ? responsive.paddingOnly(bottom: 6)
                         : EdgeInsets.zero,
                     padding: isPlaying
                         ? responsive.paddingAll(8)
@@ -623,7 +603,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
 
                   return Container(
                     margin: index < translations.length - 1
-                        ? responsive.paddingOnly(bottom: 12)
+                        ? responsive.paddingOnly(bottom: 6)
                         : EdgeInsets.zero,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -648,6 +628,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                         Text(
                           translation,
                           style: TextStyle(
+                            color: AppColors.primary,
                             fontSize: translationFontSize,
                             height: 1.5,
                           ),

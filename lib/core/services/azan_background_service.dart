@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
 import '../../data/models/prayer_time_model.dart';
 
 /// Background service for playing Azan at prayer times
@@ -17,21 +19,113 @@ class AzanBackgroundService {
   static const int _maghribAlarmId = 103;
   static const int _ishaAlarmId = 104;
 
-  // Azan URLs (using Islamic Network CDN)
+  // Adhan URLs (using Al Adhan CDN - reliable)
   static const Map<String, String> adhanUrls = {
-    'makkah':
-        'https://cdn.islamic.network/adhaan/128/ar.abdullahbasfaralhuthaify.mp3',
-    'madinah':
-        'https://cdn.islamic.network/adhaan/128/ar.abdullahawadaljuhani.mp3',
-    'alaqsa': 'https://cdn.islamic.network/adhaan/64/ar.misharyalafasy.mp3',
-    'mishary': 'https://cdn.islamic.network/adhaan/128/ar.misharyalafasy.mp3',
-    'abdul_basit':
-        'https://cdn.islamic.network/adhaan/128/ar.abdulbasitabdussamad.mp3',
+    'makkah': 'https://cdn.aladhan.com/audio/adhans/a1.mp3',
+    'madinah': 'https://cdn.aladhan.com/audio/adhans/a2.mp3',
+    'alaqsa': 'https://cdn.aladhan.com/audio/adhans/a3.mp3',
+    'mishary': 'https://cdn.aladhan.com/audio/adhans/a4.mp3',
+    'abdul_basit': 'https://cdn.aladhan.com/audio/adhans/a9.mp3',
   };
 
-  /// Initialize the service (no-op, native service handles everything)
+  /// Initialize the service and pre-cache selected azan audio
   static Future<void> initialize() async {
     debugPrint('AzanBackgroundService initialized (using native Android service)');
+    // Pre-cache the selected azan audio in background (don't block app startup)
+    cacheSelectedAzan().then((_) {
+      debugPrint('Azan audio pre-cached for offline playback');
+    }).catchError((e) {
+      debugPrint('Azan cache failed (will retry later): $e');
+      return null;
+    });
+  }
+
+  /// Pre-cache the currently selected azan audio file for offline playback
+  static Future<String?> cacheSelectedAzan() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final selectedAzan = prefs.getString('selected_adhan') ?? 'makkah';
+      final azanUrl = adhanUrls[selectedAzan] ?? adhanUrls['makkah']!;
+
+      // Check if already cached
+      final cachedPath = await _getCachedAzanPath(selectedAzan);
+      if (cachedPath != null) {
+        debugPrint('Azan already cached: $cachedPath');
+        await prefs.setString('cached_azan_path', cachedPath);
+        return cachedPath;
+      }
+
+      // Download and cache
+      debugPrint('Downloading azan audio for offline cache: $selectedAzan');
+      final response = await http.get(Uri.parse(azanUrl)).timeout(
+        const Duration(seconds: 30),
+      );
+
+      if (response.statusCode == 200) {
+        final dir = await getApplicationDocumentsDirectory();
+        final azanDir = Directory('${dir.path}/azan_cache');
+        if (!await azanDir.exists()) {
+          await azanDir.create(recursive: true);
+        }
+
+        final file = File('${azanDir.path}/$selectedAzan.mp3');
+        await file.writeAsBytes(response.bodyBytes);
+
+        final path = file.path;
+        await prefs.setString('cached_azan_path', path);
+        debugPrint('Azan cached successfully: $path');
+        return path;
+      } else {
+        debugPrint('Failed to download azan: HTTP ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Error caching azan audio: $e');
+      return null;
+    }
+  }
+
+  /// Get cached azan file path if it exists
+  static Future<String?> _getCachedAzanPath(String azanName) async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/azan_cache/$azanName.mp3');
+      if (await file.exists() && await file.length() > 0) {
+        return file.path;
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Cache a specific azan by name (called when user changes azan selection)
+  static Future<void> cacheAzan(String azanName) async {
+    final azanUrl = adhanUrls[azanName];
+    if (azanUrl == null) return;
+
+    try {
+      final response = await http.get(Uri.parse(azanUrl)).timeout(
+        const Duration(seconds: 30),
+      );
+
+      if (response.statusCode == 200) {
+        final dir = await getApplicationDocumentsDirectory();
+        final azanDir = Directory('${dir.path}/azan_cache');
+        if (!await azanDir.exists()) {
+          await azanDir.create(recursive: true);
+        }
+
+        final file = File('${azanDir.path}/$azanName.mp3');
+        await file.writeAsBytes(response.bodyBytes);
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('cached_azan_path', file.path);
+        debugPrint('Azan "$azanName" cached: ${file.path}');
+      }
+    } catch (e) {
+      debugPrint('Error caching azan "$azanName": $e');
+    }
   }
 
   /// Schedule Azan alarms for all prayer times using native Android AlarmManager
@@ -53,6 +147,7 @@ class AzanBackgroundService {
 
     final selectedAzan = prefs.getString('selected_adhan') ?? 'makkah';
     final azanUrl = adhanUrls[selectedAzan] ?? adhanUrls['makkah']!;
+    final cachedPath = prefs.getString('cached_azan_path') ?? '';
 
     // Save prayer times for recovery after device reboot
     await prefs.setString('last_fajr_time', prayerTimes.fajr);
@@ -62,12 +157,29 @@ class AzanBackgroundService {
     await prefs.setString('last_isha_time', prayerTimes.isha);
     debugPrint('Prayer times saved for boot recovery');
 
-    // Schedule each prayer's Azan (except Sunrise)
-    await _scheduleAzanAlarm(_fajrAlarmId, prayerTimes.fajr, 'Fajr', azanUrl);
-    await _scheduleAzanAlarm(_dhuhrAlarmId, prayerTimes.dhuhr, 'Dhuhr', azanUrl);
-    await _scheduleAzanAlarm(_asrAlarmId, prayerTimes.asr, 'Asr', azanUrl);
-    await _scheduleAzanAlarm(_maghribAlarmId, prayerTimes.maghrib, 'Maghrib', azanUrl);
-    await _scheduleAzanAlarm(_ishaAlarmId, prayerTimes.isha, 'Isha', azanUrl);
+    // Schedule each prayer's Azan, respecting per-prayer toggles
+    final prayers = {
+      'Fajr': {'id': _fajrAlarmId, 'time': prayerTimes.fajr},
+      'Dhuhr': {'id': _dhuhrAlarmId, 'time': prayerTimes.dhuhr},
+      'Asr': {'id': _asrAlarmId, 'time': prayerTimes.asr},
+      'Maghrib': {'id': _maghribAlarmId, 'time': prayerTimes.maghrib},
+      'Isha': {'id': _ishaAlarmId, 'time': prayerTimes.isha},
+    };
+
+    for (final entry in prayers.entries) {
+      final prayerName = entry.key;
+      final alarmId = entry.value['id'] as int;
+      final time = entry.value['time'] as String;
+      final isEnabled = prefs.getBool('notify_$prayerName') ?? true;
+
+      if (isEnabled) {
+        await _scheduleAzanAlarm(alarmId, time, prayerName, azanUrl, cachedPath);
+      } else {
+        // Cancel alarm for disabled prayer
+        await cancelAlarm(alarmId);
+        debugPrint('$prayerName azan alarm cancelled (notification disabled)');
+      }
+    }
 
     debugPrint('All Azan alarms scheduled using native Android service');
   }
@@ -78,6 +190,7 @@ class AzanBackgroundService {
     String time,
     String prayerName,
     String azanUrl,
+    String cachedPath,
   ) async {
     final parsedTime = _parseTimeString(time);
     if (parsedTime == null) {
@@ -105,6 +218,7 @@ class AzanBackgroundService {
         'triggerTimeMillis': scheduledTime.millisecondsSinceEpoch,
         'url': azanUrl,
         'prayerName': prayerName,
+        'cachedPath': cachedPath,
       });
 
       debugPrint('Scheduled $prayerName Azan for $scheduledTime (ID: $alarmId)');
@@ -145,10 +259,12 @@ class AzanBackgroundService {
       final prefs = await SharedPreferences.getInstance();
       final selectedAzan = prefs.getString('selected_adhan') ?? 'makkah';
       final azanUrl = adhanUrls[selectedAzan] ?? adhanUrls['makkah']!;
+      final cachedPath = prefs.getString('cached_azan_path') ?? '';
 
       await _channel.invokeMethod('playAzan', {
         'url': azanUrl,
         'prayerName': prayerName ?? 'Azan',
+        'cachedPath': cachedPath,
       });
       debugPrint('Playing Azan...');
     } catch (e) {

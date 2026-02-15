@@ -195,7 +195,7 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
                   : _allMonths.isEmpty
                   ? Center(
                       child: Text(
-                        'No data available',
+                        context.tr('no_data_available'),
                         style: TextStyle(color: AppColors.textSecondary),
                       ),
                     )
@@ -215,7 +215,7 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
     );
   }
 
-  Widget _buildCurrentMonthBanner(GreetingLanguage language, responsive) {
+  Widget _buildCurrentMonthBanner(GreetingLanguage language, ResponsiveUtils responsive) {
     const darkGreen = Color(0xFF0A5C36);
     const lightGreen = Color(0xFFE8F3ED);
 
@@ -306,7 +306,7 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
     );
   }
 
-  Widget _buildUpcomingEventsSection(GreetingLanguage language, responsive) {
+  Widget _buildUpcomingEventsSection(GreetingLanguage language, ResponsiveUtils responsive) {
     // Get events for the current month and next 30 days
     final upcomingEvents = _getUpcomingEvents();
 
@@ -363,7 +363,7 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
     );
   }
 
-  Widget _buildMonthsSection(GreetingLanguage language, responsive) {
+  Widget _buildMonthsSection(GreetingLanguage language, ResponsiveUtils responsive) {
     final sectionTitle = language == GreetingLanguage.urdu
         ? 'اسلامی مہینے'
         : language == GreetingLanguage.hindi
@@ -444,7 +444,7 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
   Widget _buildEventCard(
     IslamicEvent event,
     GreetingLanguage language,
-    responsive,
+    ResponsiveUtils responsive,
   ) {
     final isToday =
         event.month == _currentHijriDate.hMonth &&
@@ -460,7 +460,7 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
     final eventMonth = _allMonths[event.month - 1];
 
     return Container(
-      margin: responsive.paddingOnly(bottom: 14.0),
+      margin: responsive.paddingOnly(bottom: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(responsive.borderRadius(18.0)),
         boxShadow: [
@@ -665,7 +665,7 @@ class _MonthCard extends StatelessWidget {
     const lightGreen = Color(0xFFE8F3ED);
 
     return Container(
-      margin: responsive.paddingOnly(bottom: 14),
+      margin: responsive.paddingOnly(bottom: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(responsive.borderRadius(18)),
         boxShadow: [
@@ -1084,7 +1084,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
                               : widget.language == GreetingLanguage.arabic
                               ? 'تعديل'
                               : 'Edit',
-                          style: TextStyle(fontSize: responsive.fontSize(13)),
+                          style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(13)),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
@@ -1116,7 +1116,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
                               : widget.language == GreetingLanguage.arabic
                               ? 'مشاركة'
                               : 'Share',
-                          style: TextStyle(fontSize: responsive.fontSize(13)),
+                          style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(13)),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
@@ -1151,7 +1151,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
                               : widget.language == GreetingLanguage.arabic
                               ? 'تحميل'
                               : 'Download',
-                          style: TextStyle(fontSize: responsive.fontSize(13)),
+                          style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(13)),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
@@ -3004,7 +3004,7 @@ class MonthCardsScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: responsive.paddingAll(20),
+                      padding: responsive.paddingAll(14),
                       decoration: BoxDecoration(
                         color: darkGreen.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
@@ -3076,7 +3076,7 @@ class _GreetingCardTile extends StatelessWidget {
     const lightGreenChip = Color(0xFFE8F3ED);
 
     return Container(
-      margin: responsive.paddingOnly(bottom: 14),
+      margin: responsive.paddingOnly(bottom: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(responsive.borderRadius(18)),
         boxShadow: [
@@ -3705,7 +3705,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                               : widget.language == GreetingLanguage.arabic
                               ? 'تعديل'
                               : 'Edit',
-                          style: TextStyle(fontSize: responsive.fontSize(13)),
+                          style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(13)),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
@@ -3737,7 +3737,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                               : widget.language == GreetingLanguage.arabic
                               ? 'مشاركة'
                               : 'Share',
-                          style: TextStyle(fontSize: responsive.fontSize(13)),
+                          style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(13)),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
@@ -3772,7 +3772,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                               : widget.language == GreetingLanguage.arabic
                               ? 'تحميل'
                               : 'Download',
-                          style: TextStyle(fontSize: responsive.fontSize(13)),
+                          style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(13)),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
@@ -5019,7 +5019,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                   responsive.borderRadius(12),
                 ),
               ),
-              padding: responsive.paddingAll(20),
+              padding: responsive.paddingAll(14),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -5216,7 +5216,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                       width: responsive.spacing(2),
                     ),
                   ),
-                  padding: responsive.paddingAll(20),
+                  padding: responsive.paddingAll(14),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -5776,7 +5776,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
 
                         // Message with Decorative Frame
                         Container(
-                          padding: responsive.paddingAll(20),
+                          padding: responsive.paddingAll(14),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.topLeft,
@@ -6208,7 +6208,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                           : widget.language == GreetingLanguage.arabic
                           ? 'إعادة'
                           : 'Reset',
-                      style: TextStyle(fontSize: responsive.fontSize(12)),
+                      style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(12)),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFF9800), // Orange
@@ -6238,7 +6238,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                           : widget.language == GreetingLanguage.arabic
                           ? 'إلغاء'
                           : 'Cancel',
-                      style: TextStyle(fontSize: responsive.fontSize(12)),
+                      style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(12)),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFD32F2F), // Red
@@ -6274,7 +6274,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                           : widget.language == GreetingLanguage.arabic
                           ? 'حفظ'
                           : 'Save',
-                      style: TextStyle(fontSize: responsive.fontSize(12)),
+                      style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(12)),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0A5C36), // Islamic Green

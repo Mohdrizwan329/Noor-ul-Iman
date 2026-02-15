@@ -56,8 +56,14 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
       color = Color(int.parse(fs.color.replaceFirst('#', '0xFF')));
     } catch (_) {}
     return HajjStep(
-      day: fs.day.en, dayUrdu: fs.day.ur, dayHindi: fs.day.hi, dayArabic: fs.day.ar,
-      title: fs.title.en, titleUrdu: fs.title.ur, titleHindi: fs.title.hi, titleArabic: fs.title.ar,
+      day: fs.day.en,
+      dayUrdu: fs.day.ur,
+      dayHindi: fs.day.hi,
+      dayArabic: fs.day.ar,
+      title: fs.title.en,
+      titleUrdu: fs.title.ur,
+      titleHindi: fs.title.hi,
+      titleArabic: fs.title.ar,
       icon: _iconMap[fs.icon] ?? Icons.circle,
       color: color,
       steps: fs.steps.map<String>((s) => s.en).toList(),
@@ -87,7 +93,9 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
 
       // Check if duas doc exists (added later, may be missing even if steps exist)
       var duasDoc = await FirebaseFirestore.instance
-          .collection('hajj_guide').doc('duas').get();
+          .collection('hajj_guide')
+          .doc('duas')
+          .get();
 
       // Auto-push if Firebase is empty OR duas are missing
       if (hajjData.isEmpty || umrahData.isEmpty || !duasDoc.exists) {
@@ -96,7 +104,9 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
         if (hajjData.isEmpty) hajjData = await _fetchGuide('hajj');
         if (umrahData.isEmpty) umrahData = await _fetchGuide('umrah');
         duasDoc = await FirebaseFirestore.instance
-            .collection('hajj_guide').doc('duas').get();
+            .collection('hajj_guide')
+            .doc('duas')
+            .get();
       }
 
       // Parse duas
@@ -109,7 +119,9 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
 
       // Fetch prohibitions
       final prohibDoc = await FirebaseFirestore.instance
-          .collection('hajj_guide').doc('prohibitions').get();
+          .collection('hajj_guide')
+          .doc('prohibitions')
+          .get();
       List<MultilingualText> prohibList = [];
       if (prohibDoc.exists) {
         prohibList = (prohibDoc.data()!['items'] as List<dynamic>? ?? [])
@@ -119,15 +131,25 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
 
       // Fetch intro texts
       final introDoc = await FirebaseFirestore.instance
-          .collection('hajj_guide').doc('intro').get();
+          .collection('hajj_guide')
+          .doc('intro')
+          .get();
       Map<String, MultilingualText>? introMap;
       if (introDoc.exists) {
         final data = introDoc.data()!;
         introMap = {
-          'hajj_subtitle': MultilingualText.fromJson(data['hajj_subtitle'] as Map<String, dynamic>?),
-          'umrah_subtitle': MultilingualText.fromJson(data['umrah_subtitle'] as Map<String, dynamic>?),
-          'duas_section_title': MultilingualText.fromJson(data['duas_section_title'] as Map<String, dynamic>?),
-          'prohibitions_section_title': MultilingualText.fromJson(data['prohibitions_section_title'] as Map<String, dynamic>?),
+          'hajj_subtitle': MultilingualText.fromJson(
+            data['hajj_subtitle'] as Map<String, dynamic>?,
+          ),
+          'umrah_subtitle': MultilingualText.fromJson(
+            data['umrah_subtitle'] as Map<String, dynamic>?,
+          ),
+          'duas_section_title': MultilingualText.fromJson(
+            data['duas_section_title'] as Map<String, dynamic>?,
+          ),
+          'prohibitions_section_title': MultilingualText.fromJson(
+            data['prohibitions_section_title'] as Map<String, dynamic>?,
+          ),
         };
       }
 
@@ -137,7 +159,9 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
             _firestoreHajjSteps = hajjData.map(_convertFirestoreStep).toList();
           }
           if (umrahData.isNotEmpty) {
-            _firestoreUmrahSteps = umrahData.map(_convertFirestoreStep).toList();
+            _firestoreUmrahSteps = umrahData
+                .map(_convertFirestoreStep)
+                .toList();
           }
           if (duasList.isNotEmpty) _firestoreDuas = duasList;
           if (prohibList.isNotEmpty) _firestoreProhibitions = prohibList;
@@ -214,7 +238,7 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
         toolbarHeight: responsive.value(mobile: 50, tablet: 60, desktop: 70),
         title: Text(
           context.tr('hajj_guide'),
-          style: TextStyle(fontSize: responsive.textLarge),
+          style: TextStyle(color: Colors.white, fontSize: responsive.textLarge),
         ),
         bottom: TabBar(
           controller: _tabController,
@@ -245,7 +269,12 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
       return Center(child: CircularProgressIndicator(color: AppColors.primary));
     }
     if (_firestoreHajjSteps == null || _firestoreHajjSteps!.isEmpty) {
-      return Center(child: Text('No data available', style: TextStyle(color: AppColors.textSecondary)));
+      return Center(
+        child: Text(
+          context.tr('no_data_available'),
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
+      );
     }
     return _buildGuideList(_firestoreHajjSteps!, 'Hajj');
   }
@@ -255,7 +284,12 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
       return Center(child: CircularProgressIndicator(color: AppColors.primary));
     }
     if (_firestoreUmrahSteps == null || _firestoreUmrahSteps!.isEmpty) {
-      return Center(child: Text('No data available', style: TextStyle(color: AppColors.textSecondary)));
+      return Center(
+        child: Text(
+          context.tr('no_data_available'),
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
+      );
     }
     return _buildGuideList(_firestoreUmrahSteps!, 'Umrah');
   }
@@ -295,9 +329,10 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
         : 'en';
 
     final subtitleKey = type == 'Hajj' ? 'hajj_subtitle' : 'umrah_subtitle';
-    final subtitle = _firestoreIntro?[subtitleKey]?.get(langCode) ??
+    final subtitle =
+        _firestoreIntro?[subtitleKey]?.get(langCode) ??
         (type == 'Hajj'
-            ? 'The fifth pillar of Islam - obligatory once in a lifetime'
+            ? context.tr('hajj_description')
             : context.tr('umrah_description'));
 
     return Container(
@@ -309,7 +344,11 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
       ),
       child: Column(
         children: [
-          Icon(Icons.mosque, color: Colors.white, size: responsive.iconSize(48)),
+          Icon(
+            Icons.mosque,
+            color: Colors.white,
+            size: responsive.iconSize(48),
+          ),
           responsive.vSpaceMedium,
           Text(
             title,
@@ -363,11 +402,14 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
         : step.steps;
 
     return Container(
-      margin: responsive.paddingOnly(bottom: 16),
+      margin: responsive.paddingOnly(bottom: 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
-        border: Border.all(color: lightGreenBorder, width: responsive.spacing(1.5)),
+        border: Border.all(
+          color: lightGreenBorder,
+          width: responsive.spacing(1.5),
+        ),
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
@@ -394,6 +436,7 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
           title: Text(
             title,
             style: TextStyle(
+              color: AppColors.primary,
               fontWeight: FontWeight.bold,
               fontSize: responsive.textRegular,
             ),
@@ -435,6 +478,8 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
                           child: Text(
                             entry.value,
                             style: TextStyle(
+                              color: AppColors.primary,
+
                               height: 1.4,
                               fontSize: responsive.textMedium,
                             ),
@@ -468,7 +513,9 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
         ? 'ar'
         : 'en';
 
-    final sectionTitle = _firestoreIntro?['duas_section_title']?.get(langCode) ?? 'Important Duas';
+    final sectionTitle =
+        _firestoreIntro?['duas_section_title']?.get(langCode) ??
+        'Important Duas';
 
     const lightGreenBorder = Color(0xFF8AAF9A);
     const darkGreen = Color(0xFF0A5C36);
@@ -477,7 +524,10 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
-        border: Border.all(color: lightGreenBorder, width: responsive.spacing(1.5)),
+        border: Border.all(
+          color: lightGreenBorder,
+          width: responsive.spacing(1.5),
+        ),
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
@@ -499,12 +549,16 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
                   size: responsive.iconMedium,
                 ),
                 responsive.hSpaceSmall,
-                Text(
-                  sectionTitle,
-                  style: TextStyle(
-                    fontSize: responsive.textLarge,
-                    fontWeight: FontWeight.bold,
-                    color: darkGreen,
+                Expanded(
+                  child: Text(
+                    sectionTitle,
+                    style: TextStyle(
+                      fontSize: responsive.textLarge,
+                      fontWeight: FontWeight.bold,
+                      color: darkGreen,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -534,8 +588,10 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
     final translation = dua.translation.get(langCode);
 
     final isExpanded = _expandedDuas.contains(dua.id);
-    final isPlayingArabic = _isPlaying && _currentPlayingId == '${dua.id}_arabic';
-    final isPlayingTranslation = _isPlaying && _currentPlayingId == '${dua.id}_translation';
+    final isPlayingArabic =
+        _isPlaying && _currentPlayingId == '${dua.id}_arabic';
+    final isPlayingTranslation =
+        _isPlaying && _currentPlayingId == '${dua.id}_translation';
     final isPlaying = isPlayingArabic || isPlayingTranslation;
 
     String languageLabel;
@@ -554,7 +610,7 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
     }
 
     return Container(
-      margin: responsive.paddingOnly(bottom: 12),
+      margin: responsive.paddingOnly(bottom: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
@@ -893,7 +949,9 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
         : 'en';
 
     final prohibitions = items.map((p) => p.get(langCode)).toList();
-    final sectionTitle = _firestoreIntro?['prohibitions_section_title']?.get(langCode) ?? 'Ihram Prohibitions';
+    final sectionTitle =
+        _firestoreIntro?['prohibitions_section_title']?.get(langCode) ??
+        'Ihram Prohibitions';
 
     const lightGreenBorder = Color(0xFF8AAF9A);
     const darkGreen = Color(0xFF0A5C36);
@@ -902,7 +960,10 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
-        border: Border.all(color: lightGreenBorder, width: responsive.spacing(1.5)),
+        border: Border.all(
+          color: lightGreenBorder,
+          width: responsive.spacing(1.5),
+        ),
         boxShadow: [
           BoxShadow(
             color: darkGreen.withValues(alpha: 0.08),
@@ -927,6 +988,7 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
                 Text(
                   sectionTitle,
                   style: TextStyle(
+                    color: AppColors.primary,
                     fontSize: responsive.textLarge,
                     fontWeight: FontWeight.bold,
                   ),
@@ -942,7 +1004,7 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
                     (p) => Chip(
                       label: Text(
                         p,
-                        style: TextStyle(fontSize: responsive.textSmall),
+                        style: TextStyle(color: AppColors.primary, fontSize: responsive.textSmall),
                       ),
                       backgroundColor: Colors.red.withValues(alpha: 0.1),
                       side: BorderSide.none,
@@ -990,4 +1052,3 @@ class HajjStep {
     required this.stepsArabic,
   });
 }
-

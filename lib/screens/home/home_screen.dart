@@ -62,7 +62,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   WeatherData? _weatherData;
@@ -195,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
         emptyStateKey: params['empty_state_key'] as String? ?? '',
         showPeriodInMeaning: params['show_period_in_meaning'] as bool? ?? false,
         showKunya: params['show_kunya'] as bool? ?? false,
-        detailCategory: context.tr(params['detail_category_key'] as String),
+        detailCategory: context.trRead(params['detail_category_key'] as String),
         detailIcon: _mapIcon(params['detail_icon'] as String? ?? ''),
         detailColor: _parseColor(
           params['detail_color'] as String? ?? '#000000',
@@ -298,48 +298,62 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadHomeContent();
     _loadLanguageNames();
     _loadNotificationStrings();
     _loadIslamicEvents();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Request all required permissions for Azan on Android
+      // Request permissions first and WAIT for them before scheduling
       if (Platform.isAndroid) {
         await _requestAzanPermissions();
       }
 
       if (!mounted) return;
 
-      // Initialize prayer times
-      final prayerProvider = context.read<PrayerProvider>();
-      await prayerProvider.initialize();
+      // Schedule Islamic reminders independently (don't depend on prayer times/location)
+      _scheduleIslamicRemindersIndependently();
 
-      // Schedule Azan notifications after prayer times are loaded
-      if (mounted && prayerProvider.todayPrayerTimes != null) {
-        final adhanProvider = context.read<AdhanProvider>();
-
-        // Update AdhanProvider with current location for location-aware notifications
-        final locationService = LocationService();
-        final position = prayerProvider.currentPosition;
-        if (position != null) {
-          final city = locationService.currentCity ?? '';
-          adhanProvider.updateLocation(
-            city: city,
-            latitude: position.latitude,
-            longitude: position.longitude,
-          );
-        }
-
-        await adhanProvider.schedulePrayerNotifications(
-          prayerProvider.todayPrayerTimes!,
-        );
-
-        // Schedule daily Islamic reminders and festival notifications
-        await adhanProvider.scheduleAllIslamicNotifications();
-      }
+      // Initialize prayer times - PrayerProvider auto-schedules prayer notifications
+      await _initPrayerTimesWithRetry();
     });
     _fetchWeather();
     _startAutoScroll();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // ALWAYS re-fetch prayer times and re-schedule alarms when app comes to foreground
+    // This ensures alarms are always up-to-date with correct times (like Muslim Pro)
+    if (state == AppLifecycleState.resumed && mounted) {
+      final prayerProvider = context.read<PrayerProvider>();
+      if (prayerProvider.todayPrayerTimes == null) {
+        _initPrayerTimesWithRetry();
+      } else {
+        // Always re-fetch to get latest times and reschedule alarms
+        prayerProvider.fetchTodayPrayerTimes();
+      }
+
+      // Also reschedule Islamic reminders on resume
+      _scheduleIslamicRemindersIndependently();
+    }
+  }
+
+  /// Initialize prayer times with retry on failure
+  Future<void> _initPrayerTimesWithRetry() async {
+    if (!mounted) return;
+
+    final prayerProvider = context.read<PrayerProvider>();
+    await prayerProvider.initialize();
+
+    // If prayer times failed, retry after a delay
+    if (prayerProvider.todayPrayerTimes == null && mounted) {
+      debugPrint('🔔 HomeScreen: Prayer times not available, retrying in 10 seconds...');
+      await Future.delayed(const Duration(seconds: 10));
+      if (!mounted) return;
+      await prayerProvider.initialize();
+    }
   }
 
   Future<void> _loadHomeContent() async {
@@ -410,9 +424,33 @@ class _HomeScreenState extends State<HomeScreen> {
       await AzanPermissionService.requestExactAlarmPermission();
     }
 
-    if (!status.batteryOptimization) {
-      await Future.delayed(const Duration(milliseconds: 500));
-      await AzanPermissionService.requestDisableBatteryOptimization();
+    // Battery optimization is handled in Azan Settings screen
+    // to avoid showing system popup on every app launch
+  }
+
+  /// Schedule Islamic reminders (Quran, Dua, Dhikr, Jumma) independently of prayer times
+  /// These don't need location/prayer times - they should always be scheduled
+  void _scheduleIslamicRemindersIndependently() {
+    final adhanProvider = context.read<AdhanProvider>();
+
+    // Wait for AdhanProvider to be initialized, then schedule
+    if (!adhanProvider.isInitialized) {
+      adhanProvider.initialize().then((_) {
+        if (!mounted) return;
+        adhanProvider.scheduleAllIslamicNotifications().then((_) {
+          debugPrint('🔔 HomeScreen: Islamic reminders scheduled independently');
+        }).catchError((e) {
+          debugPrint('🔔 HomeScreen: Failed to schedule Islamic reminders: $e');
+        });
+      }).catchError((e) {
+        debugPrint('🔔 HomeScreen: AdhanProvider init failed for reminders: $e');
+      });
+    } else {
+      adhanProvider.scheduleAllIslamicNotifications().then((_) {
+        debugPrint('🔔 HomeScreen: Islamic reminders scheduled independently');
+      }).catchError((e) {
+        debugPrint('🔔 HomeScreen: Failed to schedule Islamic reminders: $e');
+      });
     }
   }
 
@@ -466,6 +504,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _searchController.dispose();
     _pageController.dispose();
     _autoScrollTimer?.cancel();
@@ -747,11 +786,11 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             // Search Bar
             _buildSearchBar(),
-            context.responsive.vSpaceMedium,
+            context.responsive.vSpaceSmall,
 
             // Header carousel with greeting cards
             _buildHeaderCarousel(hijriDate),
-            context.responsive.vSpaceLarge,
+            context.responsive.vSpaceSmall,
 
             // Search Results Section (only shown when searching)
             if (_searchQuery.isNotEmpty) ...[
@@ -759,9 +798,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 context,
                 title: context.tr('search_results'),
               ),
-              context.responsive.vSpaceMedium,
+              context.responsive.vSpaceXSmall,
               _buildSearchResultsGrid(context),
-              context.responsive.vSpaceLarge,
+              context.responsive.vSpaceSmall,
             ],
 
             // Sections from Firebase
@@ -772,15 +811,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     context,
                     title: context.tr(section.titleKey),
                   ),
-                  context.responsive.vSpaceMedium,
+                  context.responsive.vSpaceXSmall,
                   _buildSectionGrid(section.key),
-                  context.responsive.vSpaceLarge,
+                  context.responsive.vSpaceSmall,
                 ],
               ),
 
             // Banner Ad at the end of content
             const BannerAdWidget(),
-            context.responsive.vSpaceMedium,
+            context.responsive.vSpaceSmall,
           ],
         ),
       ),
@@ -838,7 +877,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHeaderCarousel(HijriCalendar hijriDate) {
     final responsive = context.responsive;
-    final double cardHeight = _weatherData != null ? 255.0 : 150.0;
+    final double cardHeight = _weatherData != null ? 185.0 : 130.0;
 
     return Column(
       children: [
@@ -892,7 +931,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildGreetingCard(HijriCalendar hijriDate) {
     final responsive = context.responsive;
     return Container(
-      padding: responsive.paddingAll(16),
+      padding: responsive.paddingAll(12),
       decoration: AppDecorations.card(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -900,7 +939,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             children: [
               Container(
-                padding: responsive.paddingAll(10),
+                padding: responsive.paddingAll(8),
                 decoration: BoxDecoration(
                   gradient: AppColors.primaryGradient,
                   borderRadius: BorderRadius.circular(responsive.radiusMedium),
@@ -908,10 +947,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Icon(
                   Icons.wb_sunny_rounded,
                   color: Colors.white,
-                  size: responsive.iconSize(24),
+                  size: responsive.iconSize(20),
                 ),
               ),
-              responsive.hSpaceMedium,
+              responsive.hSpaceSmall,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -931,15 +970,15 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          responsive.vSpaceMedium,
+          SizedBox(height: responsive.spacing(4)),
           Row(
             children: [
               // Regular Date (Left)
               Expanded(
                 child: Container(
                   padding: responsive.paddingSymmetric(
-                    horizontal: 8,
-                    vertical: 6,
+                    horizontal: 6,
+                    vertical: 4,
                   ),
                   decoration: AppDecorations.primaryContainer(context),
                   child: Row(
@@ -971,8 +1010,8 @@ class _HomeScreenState extends State<HomeScreen> {
               Expanded(
                 child: Container(
                   padding: responsive.paddingSymmetric(
-                    horizontal: 8,
-                    vertical: 6,
+                    horizontal: 6,
+                    vertical: 4,
                   ),
                   decoration: AppDecorations.primaryContainer(context),
                   child: Row(
@@ -1006,9 +1045,9 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
               child: Column(
                 children: [
-                  responsive.vSpaceSmall,
+                  SizedBox(height: responsive.spacing(4)),
                   const Divider(height: 1),
-                  responsive.vSpaceSmall,
+                  SizedBox(height: responsive.spacing(4)),
                   Expanded(
                     child: Row(
                       children: [
@@ -1062,7 +1101,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ],
                                 ),
-                                responsive.vSpaceXSmall,
+                                SizedBox(height: responsive.spacing(2)),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -1071,29 +1110,36 @@ class _HomeScreenState extends State<HomeScreen> {
                                       children: [
                                         Icon(
                                           Icons.water_drop,
-                                          size: responsive.fontSize(12),
+                                          size: responsive.fontSize(11),
                                           color: AppColors.textSecondary,
                                         ),
-                                        responsive.hSpaceXSmall,
+                                        SizedBox(width: responsive.spacing(2)),
                                         Text(
                                           '${_weatherData!.humidity}%',
                                           style: AppTextStyles.caption(context),
                                         ),
                                       ],
                                     ),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.air,
-                                          size: responsive.fontSize(12),
-                                          color: AppColors.textSecondary,
-                                        ),
-                                        responsive.hSpaceXSmall,
-                                        Text(
-                                          '${_weatherData!.windSpeed.toStringAsFixed(1)} ${context.tr('wind_speed_unit')}',
-                                          style: AppTextStyles.caption(context),
-                                        ),
-                                      ],
+                                    Flexible(
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.air,
+                                            size: responsive.fontSize(11),
+                                            color: AppColors.textSecondary,
+                                          ),
+                                          SizedBox(width: responsive.spacing(2)),
+                                          Flexible(
+                                            child: Text(
+                                              '${_weatherData!.windSpeed.toStringAsFixed(1)} ${context.tr('wind_speed_unit')}',
+                                              style: AppTextStyles.caption(context),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -1139,7 +1185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ],
                                 ),
-                                responsive.vSpaceXSmall,
+                                SizedBox(height: responsive.spacing(2)),
                                 Text(
                                   _getTranslatedAQILevel(
                                     context,
@@ -1158,6 +1204,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Text(
                                   '${context.tr('aqi_label')}: ${_weatherData!.aqi}',
                                   style: AppTextStyles.caption(context),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
@@ -1229,7 +1277,7 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         return Container(
-          padding: responsive.paddingAll(12),
+          padding: responsive.paddingAll(10),
           decoration: AppDecorations.card(context),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1238,7 +1286,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 children: [
                   Container(
-                    padding: responsive.paddingAll(8),
+                    padding: responsive.paddingAll(6),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [Colors.orange, Colors.orange.shade700],
@@ -1252,7 +1300,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Icon(
                       Icons.mosque_rounded,
                       color: Colors.white,
-                      size: responsive.iconSize(20),
+                      size: responsive.iconSize(18),
                     ),
                   ),
                   responsive.hSpaceSmall,
@@ -1262,7 +1310,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              responsive.vSpaceSmall,
+              responsive.vSpaceXSmall,
               // Prayer times list
               Expanded(
                 child: Row(
@@ -1420,7 +1468,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Container(
-      padding: responsive.paddingAll(12),
+      padding: responsive.paddingAll(10),
       decoration: AppDecorations.card(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1429,7 +1477,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             children: [
               Container(
-                padding: responsive.paddingAll(8),
+                padding: responsive.paddingAll(6),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF6A1B9A), Color(0xFF8E24AA)],
@@ -1441,7 +1489,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Icon(
                   Icons.event,
                   color: Colors.white,
-                  size: responsive.iconSize(20),
+                  size: responsive.iconSize(18),
                 ),
               ),
               responsive.hSpaceSmall,
@@ -1491,12 +1539,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
             ],
           ),
-          responsive.vSpaceSmall,
+          responsive.vSpaceXSmall,
           // Event details
           Expanded(
             child: Container(
               width: double.infinity,
-              padding: responsive.paddingAll(12),
+              padding: responsive.paddingAll(10),
               decoration: BoxDecoration(
                 color: const Color(0xFF6A1B9A).withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(responsive.radiusMedium),

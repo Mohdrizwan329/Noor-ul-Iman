@@ -335,7 +335,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
                 Expanded(
                   child: Text(
                     _t('compass_not_available'),
-                    style: TextStyle(fontSize: responsive.textSmall),
+                    style: TextStyle(color: AppColors.primary, fontSize: responsive.textSmall),
                   ),
                 ),
               ],
@@ -366,6 +366,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
               _error!,
               textAlign: TextAlign.center,
               style: TextStyle(
+                color: AppColors.primary,
                 fontSize: responsive.textRegular,
                 fontWeight: FontWeight.w500,
               ),
@@ -808,6 +809,7 @@ class _QiblaScreenState extends State<QiblaScreen> {
         Text(
           value,
           style: TextStyle(
+            color: AppColors.primary,
             fontSize: responsive.textXLarge,
             fontWeight: FontWeight.bold,
           ),

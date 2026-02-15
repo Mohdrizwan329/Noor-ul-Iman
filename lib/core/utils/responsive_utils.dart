@@ -108,7 +108,7 @@ class ResponsiveUtils {
   EdgeInsets get paddingSmall => paddingAll(8);
   EdgeInsets get paddingMedium => paddingAll(12);
   EdgeInsets get paddingRegular => paddingAll(16);
-  EdgeInsets get paddingLarge => paddingAll(20);
+  EdgeInsets get paddingLarge => paddingAll(14);
   EdgeInsets get paddingXLarge => paddingAll(24);
 
   // Responsive icon sizes
@@ -136,10 +136,10 @@ class ResponsiveUtils {
 
   // Responsive grid spacing
   double get gridSpacing {
-    if (isSmallPhone) return spacing(8);
-    if (isPhone) return spacing(12);
-    if (isTablet) return spacing(16);
-    return spacing(20);
+    if (isSmallPhone) return spacing(6);
+    if (isPhone) return spacing(8);
+    if (isTablet) return spacing(12);
+    return spacing(16);
   }
 
   // Responsive border radius

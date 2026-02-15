@@ -1098,7 +1098,7 @@ $currentDescription
   ) {
     final responsive = context.responsive;
     return Container(
-      margin: responsive.paddingOnly(bottom: 12),
+      margin: responsive.paddingOnly(bottom: 6),
       padding: responsive.paddingMedium,
       decoration: BoxDecoration(
         color: Colors.white,

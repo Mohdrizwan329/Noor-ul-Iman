@@ -51,7 +51,7 @@ class HeaderGradientCard extends StatelessWidget {
             child: Center(
               child: Text(
                 icon,
-                style: const TextStyle(fontSize: 32),
+                style: const TextStyle(color: Colors.white, fontSize: 32),
               ),
             ),
           ),

@@ -70,7 +70,6 @@ class _JannatFazilatScreenState extends State<JannatFazilatScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -101,12 +100,16 @@ class _JannatFazilatScreenState extends State<JannatFazilatScreen> {
                       return SingleChildScrollView(
                         padding: context.responsive.paddingRegular,
                         child: Column(
-                          crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                          crossAxisAlignment: isRtl
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
                           children: [
                             ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
-                              itemCount: AdListHelper.totalCount(_allItems.length),
+                              itemCount: AdListHelper.totalCount(
+                                _allItems.length,
+                              ),
                               itemBuilder: (context, index) {
                                 if (AdListHelper.isAdPosition(index)) {
                                   return const Padding(
@@ -151,14 +154,11 @@ class _JannatFazilatScreenState extends State<JannatFazilatScreen> {
     final isRTL = (langCode == 'ur' || langCode == 'ar');
 
     return Container(
-      margin: responsive.paddingOnly(bottom: 10),
+      margin: responsive.paddingOnly(bottom: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
-        border: Border.all(
-          color: AppColors.lightGreenBorder,
-          width: 1.5,
-        ),
+        border: Border.all(color: AppColors.lightGreenBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.08),
@@ -299,19 +299,22 @@ class _JannatFazilatScreenState extends State<JannatFazilatScreen> {
 
   void _showTopicDetails(Map<String, dynamic> topic) {
     final details = topic['details'] as Map<String, String>;
-    AdNavigator.push(context, BasicAmalDetailScreen(
-      title: topic['title'] ?? '',
-      titleUrdu: topic['titleUrdu'] ?? '',
-      titleHindi: topic['titleHindi'] ?? '',
-      titleArabic: topic['titleArabic'] ?? '',
-      contentEnglish: details['english'] ?? '',
-      contentUrdu: details['urdu'] ?? '',
-      contentHindi: details['hindi'] ?? '',
-      contentArabic: details['arabic'] ?? '',
-      color: topic['color'] as Color,
-      icon: topic['icon'] as IconData,
-      categoryKey: 'category_jannat_fazilat',
-      number: topic['number'] as int?,
-    ));
+    AdNavigator.push(
+      context,
+      BasicAmalDetailScreen(
+        title: topic['title'] ?? '',
+        titleUrdu: topic['titleUrdu'] ?? '',
+        titleHindi: topic['titleHindi'] ?? '',
+        titleArabic: topic['titleArabic'] ?? '',
+        contentEnglish: details['english'] ?? '',
+        contentUrdu: details['urdu'] ?? '',
+        contentHindi: details['hindi'] ?? '',
+        contentArabic: details['arabic'] ?? '',
+        color: topic['color'] as Color,
+        icon: topic['icon'] as IconData,
+        categoryKey: 'category_jannat_fazilat',
+        number: topic['number'] as int?,
+      ),
+    );
   }
 }

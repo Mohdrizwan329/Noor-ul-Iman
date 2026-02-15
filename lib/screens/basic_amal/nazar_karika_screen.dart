@@ -161,7 +161,7 @@ class _NazarKarikaScreenState extends State<NazarKarikaScreen> {
     }
     final responsive = context.responsive;
     return Container(
-      margin: responsive.paddingOnly(bottom: 10),
+      margin: responsive.paddingOnly(bottom: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),

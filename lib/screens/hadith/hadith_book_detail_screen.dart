@@ -55,7 +55,10 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
     _initAudioPlayer();
     _loadHadithTranslations();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HadithProvider>().fetchChapterHadiths(
+      final hadithProvider = context.read<HadithProvider>();
+      final langCode = context.read<LanguageProvider>().languageCode;
+      hadithProvider.syncWithAppLanguage(langCode);
+      hadithProvider.fetchChapterHadiths(
         widget.collection,
         widget.bookNumber,
       );
@@ -161,13 +164,14 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
           }
           break;
         case HadithLanguage.hindi:
-          textToSpeak = hadith.hindi.isNotEmpty ? hadith.hindi : hadith.english;
           if (hadith.hindi.isNotEmpty) {
+            textToSpeak = hadith.hindi;
             ttsLangCode = await _isLanguageAvailable('hi-IN')
                 ? 'hi-IN'
                 : 'en-US';
-            speechRate = 0.45; // Moderate speed for Hindi
+            speechRate = 0.45;
           } else {
+            textToSpeak = hadith.english;
             ttsLangCode = 'en-US';
             speechRate = 0.5;
           }
@@ -292,7 +296,7 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
         backgroundColor: AppColors.primary,
         title: Text(
           _getBookNameForLanguage(context),
-          style: TextStyle(fontSize: responsive.textRegular),
+          style: TextStyle(color: Colors.white, fontSize: responsive.textRegular),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -371,7 +375,7 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
             SizedBox(height: responsive.spaceRegular),
             Text(
               provider.error ?? context.tr('error'),
-              style: TextStyle(fontSize: responsive.textMedium),
+              style: TextStyle(color: AppColors.primary, fontSize: responsive.textMedium),
             ),
             SizedBox(height: responsive.spaceSmall),
             ElevatedButton(
@@ -402,7 +406,7 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
             SizedBox(height: responsive.spaceRegular),
             Text(
               context.tr('no_hadiths_found'),
-              style: TextStyle(fontSize: responsive.textMedium),
+              style: TextStyle(color: AppColors.primary, fontSize: responsive.textMedium),
             ),
           ],
         ),
@@ -451,7 +455,7 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
     final isPlaying = _playingCardIndex == cardIndex && _isPlaying;
 
     return Container(
-      margin: responsive.paddingOnly(bottom: 12),
+      margin: responsive.paddingOnly(bottom: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
@@ -550,6 +554,7 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                         showTranslation,
                       ),
                       isActive: isPlaying,
+                      responsive: responsive,
                       additionalWidget: !isPlaying && showTranslation
                           ? Container(
                               width: responsive.spacing(8),
@@ -566,6 +571,7 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                       label: context.tr('translate'),
                       onTap: () => toggleCardTranslation(cardIndex),
                       isActive: showTranslation,
+                      responsive: responsive,
                     ),
                     _headerActionButton(
                       icon: Icons.copy,
@@ -573,6 +579,7 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                       onTap: () =>
                           _copyHadith(hadith, provider.selectedLanguage),
                       isActive: false,
+                      responsive: responsive,
                     ),
                     _headerActionButton(
                       icon: Icons.share,
@@ -580,6 +587,7 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                       onTap: () =>
                           _shareHadith(hadith, provider.selectedLanguage),
                       isActive: false,
+                      responsive: responsive,
                     ),
                   ],
                 ),
@@ -669,148 +677,11 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
                         ),
                       ),
                     Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            if (provider.selectedLanguage ==
-                                HadithLanguage.hindi) ...[
-                              if (hadith.hindi.isNotEmpty)
-                                Text(
-                                  hadith.hindi,
-                                  style: TextStyle(
-                                    fontSize: translationFontSize,
-                                    height: 1.5,
-                                    color: (isPlaying && showTranslation)
-                                        ? AppColors.primary
-                                        : Colors.black87,
-                                  ),
-                                  softWrap: true,
-                                  overflow: TextOverflow.visible,
-                                )
-                              else if (hadith.english.isNotEmpty) ...[
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  margin: const EdgeInsets.only(bottom: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.orange.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      SizedBox(
-                                        width: 12,
-                                        height: 12,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.orange.shade800,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        context.tr('translating_to_hindi'),
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Text(
-                                  hadith.english,
-                                  style: TextStyle(
-                                    fontSize: translationFontSize,
-                                    height: 1.5,
-                                    color: (isPlaying && showTranslation)
-                                        ? AppColors.primary
-                                        : Colors.black54,
-                                  ),
-                                  softWrap: true,
-                                  overflow: TextOverflow.visible,
-                                ),
-                              ] else
-                                Text(
-                                  context.tr('no_translation_available'),
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                ),
-                            ] else if (provider.selectedLanguage ==
-                                    HadithLanguage.arabic &&
-                                hadith.arabic.isNotEmpty)
-                              Text(
-                                hadith.arabic,
-                                style: TextStyle(
-                                  fontSize: translationFontSize,
-                                  height: 1.5,
-                                  fontFamily: 'Poppins',
-                                  color: (isPlaying && showTranslation)
-                                      ? AppColors.primary
-                                      : Colors.black87,
-                                ),
-                                textDirection: TextDirection.rtl,
-                                softWrap: true,
-                                overflow: TextOverflow.visible,
-                              )
-                            else if (provider.selectedLanguage ==
-                                    HadithLanguage.english &&
-                                hadith.english.isNotEmpty)
-                              Text(
-                                hadith.english,
-                                style: TextStyle(
-                                  fontSize: translationFontSize,
-                                  height: 1.5,
-                                  color: (isPlaying && showTranslation)
-                                      ? AppColors.primary
-                                      : Colors.black87,
-                                ),
-                                softWrap: true,
-                                overflow: TextOverflow.visible,
-                              )
-                            else if (provider.selectedLanguage ==
-                                    HadithLanguage.urdu &&
-                                hadith.urdu.isNotEmpty)
-                              Text(
-                                hadith.urdu,
-                                style: TextStyle(
-                                  fontSize: translationFontSize,
-                                  height: 1.5,
-                                  fontFamily: 'Poppins',
-                                  color: (isPlaying && showTranslation)
-                                      ? AppColors.primary
-                                      : Colors.black87,
-                                ),
-                                textDirection: TextDirection.rtl,
-                                softWrap: true,
-                                overflow: TextOverflow.visible,
-                              )
-                            else if (hadith.english.isNotEmpty)
-                              Text(
-                                hadith.english,
-                                style: TextStyle(
-                                  fontSize: translationFontSize,
-                                  height: 1.5,
-                                  color: (isPlaying && showTranslation)
-                                      ? AppColors.primary
-                                      : Colors.black87,
-                                ),
-                                softWrap: true,
-                                overflow: TextOverflow.visible,
-                              )
-                            else
-                              Text(
-                                context.tr('no_translation_available'),
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                          ],
+                        child: _buildTranslationText(
+                          hadith,
+                          languageCode,
+                          translationFontSize,
+                          isPlaying && showTranslation,
                         ),
                       ),
                     ],
@@ -846,17 +717,74 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
     );
   }
 
+  /// Get the best translation text for the current language
+  String _getTranslationForDisplay(HadithModel hadith, String langCode) {
+    switch (langCode) {
+      case 'ur':
+        return hadith.urdu.isNotEmpty ? hadith.urdu : hadith.english;
+      case 'ar':
+        return hadith.arabic;
+      case 'hi':
+        return hadith.hindi.isNotEmpty ? hadith.hindi : hadith.english;
+      default:
+        return hadith.english;
+    }
+  }
+
+  /// Check if language code is RTL
+  bool _isRtlLanguage(String langCode, HadithModel hadith) {
+    switch (langCode) {
+      case 'ur':
+        return hadith.urdu.isNotEmpty;
+      case 'ar':
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  Widget _buildTranslationText(
+    HadithModel hadith,
+    String langCode,
+    double fontSize,
+    bool isHighlighted,
+  ) {
+    final textColor = isHighlighted ? AppColors.primary : Colors.black87;
+    final text = _getTranslationForDisplay(hadith, langCode);
+    final isRtl = _isRtlLanguage(langCode, hadith);
+
+    if (text.isEmpty) {
+      return Text(
+        context.tr('no_translation_available'),
+        style: const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+      );
+    }
+
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: fontSize,
+        height: isRtl ? 1.8 : 1.5,
+        fontFamily: isRtl ? 'Poppins' : null,
+        color: textColor,
+      ),
+      textDirection: isRtl ? TextDirection.rtl : null,
+      softWrap: true,
+      overflow: TextOverflow.visible,
+    );
+  }
+
   Widget _headerActionButton({
     required IconData icon,
     required String label,
     required VoidCallback onTap,
     required bool isActive,
+    required ResponsiveUtils responsive,
     Widget? additionalWidget,
   }) {
     const emeraldGreen = Color(0xFF1E8F5A);
     const lightGreenChip = Color(0xFFE8F3ED);
     const darkGreen = Color(0xFF0A5C36);
-    final responsive = context.responsive;
 
     return Material(
       color: Colors.transparent,
@@ -900,63 +828,31 @@ class _HadithBookDetailScreenState extends State<HadithBookDetailScreen> {
   }
 
   void _copyHadith(HadithModel hadith, HadithLanguage language) {
-    String translation = '';
-    String languageCode = 'en';
-
-    if (language == HadithLanguage.arabic) {
-      translation = hadith.arabic;
-      languageCode = 'ar';
-    } else if (language == HadithLanguage.hindi && hadith.hindi.isNotEmpty) {
-      translation = hadith.hindi;
-      languageCode = 'hi';
-    } else if (language == HadithLanguage.urdu && hadith.urdu.isNotEmpty) {
-      translation = hadith.urdu;
-      languageCode = 'ur';
-    } else if (hadith.english.isNotEmpty) {
-      translation = hadith.english;
-      languageCode = 'en';
-    }
-
-    final translatedReference = HadithTranslator.translateReference(
-      hadith.reference,
-      languageCode,
-    );
+    final langCode = context.read<LanguageProvider>().languageCode;
+    final translation = _getTranslationForDisplay(hadith, langCode);
 
     ActionHelpers.copyFormattedContent(
       context,
       arabicText: hadith.arabic,
       translation: translation,
-      reference: translatedReference,
+      reference: HadithTranslator.translateReference(
+        hadith.reference,
+        langCode,
+      ),
     );
   }
 
   void _shareHadith(HadithModel hadith, HadithLanguage language) {
-    String translation = '';
-    String languageCode = 'en';
-
-    if (language == HadithLanguage.arabic) {
-      translation = hadith.arabic;
-      languageCode = 'ar';
-    } else if (language == HadithLanguage.hindi && hadith.hindi.isNotEmpty) {
-      translation = hadith.hindi;
-      languageCode = 'hi';
-    } else if (language == HadithLanguage.urdu && hadith.urdu.isNotEmpty) {
-      translation = hadith.urdu;
-      languageCode = 'ur';
-    } else if (hadith.english.isNotEmpty) {
-      translation = hadith.english;
-      languageCode = 'en';
-    }
-
-    final translatedReference = HadithTranslator.translateReference(
-      hadith.reference,
-      languageCode,
-    );
+    final langCode = context.read<LanguageProvider>().languageCode;
+    final translation = _getTranslationForDisplay(hadith, langCode);
 
     ActionHelpers.shareFormattedContent(
       arabicText: hadith.arabic,
       translation: translation,
-      reference: translatedReference,
+      reference: HadithTranslator.translateReference(
+        hadith.reference,
+        langCode,
+      ),
     );
   }
 

@@ -85,7 +85,10 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
   /// Get string from content strings map
   String _s(String key) {
     if (_content == null) return key;
-    return _content!.getString(key, context.read<LanguageProvider>().languageCode);
+    return _content!.getString(
+      key,
+      context.read<LanguageProvider>().languageCode,
+    );
   }
 
   @override
@@ -252,6 +255,10 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
           hour24 = 0;
         }
 
+        if (hour24 < 0 || hour24 > 23 || minute < 0 || minute > 59) {
+          return null;
+        }
+
         return DateTime(now.year, now.month, now.day, hour24, minute);
       }
     } catch (e) {
@@ -262,6 +269,14 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
 
   @override
   Widget build(BuildContext context) {
+    context.watch<LanguageProvider>(); // Rebuild on language change
+    // Sync dua translation language with app language
+    _selectedLanguage = switch (context.read<LanguageProvider>().languageCode) {
+      'hi' => DuaLanguage.hindi,
+      'ur' => DuaLanguage.urdu,
+      'ar' => DuaLanguage.arabic,
+      _ => DuaLanguage.english,
+    };
     final responsive = ResponsiveUtils(context);
     final prayerProvider = context.watch<PrayerProvider>();
     final prayerTimes = prayerProvider.todayPrayerTimes;
@@ -273,7 +288,7 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
         backgroundColor: AppColors.primary,
         title: Text(
           _s('fasting_times'),
-          style: TextStyle(fontSize: responsive.textLarge),
+          style: TextStyle(color: Colors.white, fontSize: responsive.textLarge),
         ),
         centerTitle: true,
       ),
@@ -749,30 +764,32 @@ ${_getCurrentTranslation(dua)}
                   children: [
                     _buildHeaderActionButton(
                       icon: isPlayingArabic ? Icons.stop : Icons.volume_up,
-                      label: isPlayingArabic
-                          ? _s('stop')
-                          : _s('audio'),
+                      label: isPlayingArabic ? _s('stop') : _s('audio'),
                       onTap: () =>
                           _playDua(duaIndex * 2, dua['arabic'], isArabic: true),
                       isActive: isPlayingArabic,
+                      responsive: responsive,
                     ),
                     _buildHeaderActionButton(
                       icon: Icons.translate,
                       label: _s('translate'),
                       onTap: () => _toggleDuaExpanded(duaIndex),
                       isActive: isExpanded,
+                      responsive: responsive,
                     ),
                     _buildHeaderActionButton(
                       icon: Icons.copy,
                       label: _s('copy'),
                       onTap: () => _copyDua(context, dua),
                       isActive: false,
+                      responsive: responsive,
                     ),
                     _buildHeaderActionButton(
                       icon: Icons.share,
                       label: _s('share'),
                       onTap: () => _shareDua(context, dua),
                       isActive: false,
+                      responsive: responsive,
                     ),
                   ],
                 ),
@@ -920,8 +937,8 @@ ${_getCurrentTranslation(dua)}
                     ),
                   ],
                 ),
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -932,8 +949,8 @@ ${_getCurrentTranslation(dua)}
     required String label,
     required VoidCallback onTap,
     required bool isActive,
+    required ResponsiveUtils responsive,
   }) {
-    final responsive = context.responsive;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -981,9 +998,12 @@ ${_getCurrentTranslation(dua)}
 
   Map<String, dynamic>? _getCurrentMonthFastingData(int hijriMonth) {
     final months = _content?.islamicMonths['months'] as List<dynamic>?;
-    if (months == null || hijriMonth < 1 || hijriMonth > months.length)
+    if (months == null || hijriMonth < 1 || hijriMonth > months.length) {
       return null;
-    return months[hijriMonth - 1] as Map<String, dynamic>;
+    }
+    final monthItem = months[hijriMonth - 1];
+    if (monthItem is! Map<String, dynamic>) return null;
+    return monthItem;
   }
 
   IconData _getIconData(String? iconName) {
@@ -1166,12 +1186,16 @@ ${_getCurrentTranslation(dua)}
                     color: AppColors.textSecondary,
                   ),
                 ),
-                Text(
-                  '${hijriDate.hDay} ${_getTranslatedHijriMonth(hijriDate.longMonthName)} ${hijriDate.hYear} ${_s('ah')}',
-                  style: TextStyle(
-                    fontSize: responsive.fontSize(16),
-                    fontWeight: FontWeight.bold,
-                    color: monthColor,
+                Flexible(
+                  child: Text(
+                    '${hijriDate.hDay} ${_getTranslatedHijriMonth(hijriDate.longMonthName)} ${hijriDate.hYear} ${_s('ah')}',
+                    style: TextStyle(
+                      fontSize: responsive.fontSize(16),
+                      fontWeight: FontWeight.bold,
+                      color: monthColor,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -1245,7 +1269,7 @@ ${_getCurrentTranslation(dua)}
       child: Row(
         children: [
           Container(
-            padding: context.responsive.paddingXSmall,
+            padding: responsive.paddingXSmall,
             decoration: BoxDecoration(
               color: typeColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
@@ -1354,66 +1378,64 @@ ${_getCurrentTranslation(dua)}
             ],
           ),
           SizedBox(height: responsive.spacing(16)),
-          ...virtueItems.map(
-            (virtue) {
-              final v = virtue as Map<String, dynamic>;
-              return Padding(
-                padding: EdgeInsets.only(bottom: responsive.spacing(12)),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: responsive.paddingAll(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(
-                          responsive.borderRadius(8),
+          ...virtueItems.map((virtue) {
+            final v = virtue as Map<String, dynamic>;
+            return Padding(
+              padding: EdgeInsets.only(bottom: responsive.spacing(12)),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: responsive.paddingAll(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(
+                        responsive.borderRadius(8),
+                      ),
+                    ),
+                    child: Icon(
+                      _getIconData(v['icon'] as String?),
+                      color: AppColors.primary,
+                      size: responsive.iconSize(20),
+                    ),
+                  ),
+                  SizedBox(width: responsive.spacing(12)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _tr(v['title']),
+                          style: TextStyle(
+                            fontSize: responsive.fontSize(14),
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
-                      ),
-                      child: Icon(
-                        _getIconData(v['icon'] as String?),
-                        color: AppColors.primary,
-                        size: responsive.iconSize(20),
-                      ),
+                        SizedBox(height: responsive.spacing(4)),
+                        Text(
+                          _tr(v['description']),
+                          style: TextStyle(
+                            fontSize: responsive.fontSize(12),
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        SizedBox(height: responsive.spacing(2)),
+                        Text(
+                          '- ${_tr(v['reference'])}',
+                          style: TextStyle(
+                            fontSize: responsive.fontSize(10),
+                            fontStyle: FontStyle.italic,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(width: responsive.spacing(12)),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _tr(v['title']),
-                            style: TextStyle(
-                              fontSize: responsive.fontSize(14),
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          SizedBox(height: responsive.spacing(4)),
-                          Text(
-                            _tr(v['description']),
-                            style: TextStyle(
-                              fontSize: responsive.fontSize(12),
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          SizedBox(height: responsive.spacing(2)),
-                          Text(
-                            '- ${_tr(v['reference'])}',
-                            style: TextStyle(
-                              fontSize: responsive.fontSize(10),
-                              fontStyle: FontStyle.italic,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+                  ),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -1434,7 +1456,8 @@ ${_getCurrentTranslation(dua)}
     }
 
     final breaksFast = (rulesData['breaks_fast'] as List<dynamic>? ?? []);
-    final doesNotBreak = (rulesData['does_not_break_fast'] as List<dynamic>? ?? []);
+    final doesNotBreak =
+        (rulesData['does_not_break_fast'] as List<dynamic>? ?? []);
 
     return Container(
       padding: responsive.paddingRegular,
@@ -1491,23 +1514,54 @@ ${_getCurrentTranslation(dua)}
               children: [
                 Row(
                   children: [
-                    Icon(Icons.cancel, color: Colors.red.shade700, size: responsive.iconSize(18)),
+                    Icon(
+                      Icons.cancel,
+                      color: Colors.red.shade700,
+                      size: responsive.iconSize(18),
+                    ),
                     SizedBox(width: responsive.spacing(8)),
-                    Text(
-                      _tr(rulesData['breaks_fast_title'], fallback: 'What Breaks the Fast'),
-                      style: TextStyle(fontSize: responsive.fontSize(14), fontWeight: FontWeight.bold, color: Colors.red.shade700),
+                    Expanded(
+                      child: Text(
+                        _tr(
+                          rulesData['breaks_fast_title'],
+                          fallback: 'What Breaks the Fast',
+                        ),
+                        style: TextStyle(
+                          fontSize: responsive.fontSize(14),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red.shade700,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
                 SizedBox(height: responsive.spacing(8)),
                 ...breaksFast.map(
                   (item) => Padding(
-                    padding: EdgeInsets.symmetric(vertical: responsive.spacing(2)),
+                    padding: EdgeInsets.symmetric(
+                      vertical: responsive.spacing(2),
+                    ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('\u2022 ', style: TextStyle(color: Colors.red.shade700, fontSize: responsive.fontSize(12))),
-                        Expanded(child: Text(_tr(item), style: TextStyle(fontSize: responsive.fontSize(12), color: Colors.red.shade700))),
+                        Text(
+                          '\u2022 ',
+                          style: TextStyle(
+                            color: Colors.red.shade700,
+                            fontSize: responsive.fontSize(12),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            _tr(item),
+                            style: TextStyle(
+                              fontSize: responsive.fontSize(12),
+                              color: Colors.red.shade700,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -1529,23 +1583,54 @@ ${_getCurrentTranslation(dua)}
               children: [
                 Row(
                   children: [
-                    Icon(Icons.check_circle, color: Colors.green.shade700, size: responsive.iconSize(18)),
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.green.shade700,
+                      size: responsive.iconSize(18),
+                    ),
                     SizedBox(width: responsive.spacing(8)),
-                    Text(
-                      _tr(rulesData['does_not_break_fast_title'], fallback: 'Does Not Break Fast'),
-                      style: TextStyle(fontSize: responsive.fontSize(14), fontWeight: FontWeight.bold, color: Colors.green.shade700),
+                    Expanded(
+                      child: Text(
+                        _tr(
+                          rulesData['does_not_break_fast_title'],
+                          fallback: 'Does Not Break Fast',
+                        ),
+                        style: TextStyle(
+                          fontSize: responsive.fontSize(14),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green.shade700,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
                 SizedBox(height: responsive.spacing(8)),
                 ...doesNotBreak.map(
                   (item) => Padding(
-                    padding: EdgeInsets.symmetric(vertical: responsive.spacing(2)),
+                    padding: EdgeInsets.symmetric(
+                      vertical: responsive.spacing(2),
+                    ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('\u2022 ', style: TextStyle(color: Colors.green.shade700, fontSize: responsive.fontSize(12))),
-                        Expanded(child: Text(_tr(item), style: TextStyle(fontSize: responsive.fontSize(12), color: Colors.green.shade700))),
+                        Text(
+                          '\u2022 ',
+                          style: TextStyle(
+                            color: Colors.green.shade700,
+                            fontSize: responsive.fontSize(12),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            _tr(item),
+                            style: TextStyle(
+                              fontSize: responsive.fontSize(12),
+                              color: Colors.green.shade700,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -1579,7 +1664,10 @@ ${_getCurrentTranslation(dua)}
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _tr(monthsData['title'], fallback: 'Islamic 12 Months - Fasting Chart'),
+          _tr(
+            monthsData['title'],
+            fallback: 'Islamic 12 Months - Fasting Chart',
+          ),
           style: TextStyle(
             fontSize: responsive.textLarge,
             fontWeight: FontWeight.bold,
@@ -1624,12 +1712,16 @@ ${_getCurrentTranslation(dua)}
           color: Colors.white,
           borderRadius: BorderRadius.circular(responsive.radiusLarge),
           border: Border.all(
-            color: (isExpanded ? AppColors.primaryLight : AppColors.lightGreenBorder),
+            color: (isExpanded
+                ? AppColors.primaryLight
+                : AppColors.lightGreenBorder),
             width: isExpanded ? 2 : 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withValues(alpha: isExpanded ? 0.12 : 0.08),
+              color: AppColors.primary.withValues(
+                alpha: isExpanded ? 0.12 : 0.08,
+              ),
               blurRadius: isExpanded ? 12 : 10,
               offset: const Offset(0, 2),
             ),
@@ -1640,7 +1732,9 @@ ${_getCurrentTranslation(dua)}
             Container(
               padding: responsive.paddingRegular,
               decoration: BoxDecoration(
-                color: isExpanded ? monthColor.withValues(alpha: 0.1) : Colors.transparent,
+                color: isExpanded
+                    ? monthColor.withValues(alpha: 0.1)
+                    : Colors.transparent,
                 borderRadius: BorderRadius.vertical(
                   top: const Radius.circular(15),
                   bottom: isExpanded ? Radius.zero : const Radius.circular(15),
@@ -1649,7 +1743,7 @@ ${_getCurrentTranslation(dua)}
               child: Row(
                 children: [
                   Container(
-                    padding: context.responsive.paddingSmall,
+                    padding: responsive.paddingSmall,
                     decoration: BoxDecoration(
                       color: monthColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
@@ -1688,7 +1782,9 @@ ${_getCurrentTranslation(dua)}
                     ),
                   ),
                   Icon(
-                    isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                    isExpanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
                     color: monthColor,
                   ),
                 ],
@@ -1696,7 +1792,11 @@ ${_getCurrentTranslation(dua)}
             ),
             if (isExpanded)
               Container(
-                padding: responsive.paddingOnly(left: 16, right: 16, bottom: 16),
+                padding: responsive.paddingOnly(
+                  left: 16,
+                  right: 16,
+                  bottom: 16,
+                ),
                 child: Column(
                   children: [
                     const Divider(),
@@ -1750,12 +1850,16 @@ ${_getCurrentTranslation(dua)}
       child: Row(
         children: [
           Container(
-            padding: context.responsive.paddingXSmall,
+            padding: responsive.paddingXSmall,
             decoration: BoxDecoration(
               color: typeColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(responsive.borderRadius(8)),
             ),
-            child: Icon(typeIcon, color: typeColor, size: responsive.iconSize(18)),
+            child: Icon(
+              typeIcon,
+              color: typeColor,
+              size: responsive.iconSize(18),
+            ),
           ),
           SizedBox(width: responsive.spacing(12)),
           Expanded(
@@ -1768,25 +1872,37 @@ ${_getCurrentTranslation(dua)}
                     fontSize: responsive.fontSize(14),
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
-                    decoration: typeStr == 'prohibited' ? TextDecoration.lineThrough : null,
+                    decoration: typeStr == 'prohibited'
+                        ? TextDecoration.lineThrough
+                        : null,
                   ),
                 ),
                 Text(
                   _tr(day['desc']),
-                  style: TextStyle(fontSize: responsive.fontSize(12), color: AppColors.textSecondary),
+                  style: TextStyle(
+                    fontSize: responsive.fontSize(12),
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
           ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: responsive.spacing(8), vertical: responsive.spacing(4)),
+            padding: EdgeInsets.symmetric(
+              horizontal: responsive.spacing(8),
+              vertical: responsive.spacing(4),
+            ),
             decoration: BoxDecoration(
               color: typeColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(responsive.borderRadius(12)),
             ),
             child: Text(
               typeLabel,
-              style: TextStyle(fontSize: responsive.fontSize(10), fontWeight: FontWeight.bold, color: typeColor),
+              style: TextStyle(
+                fontSize: responsive.fontSize(10),
+                fontWeight: FontWeight.bold,
+                color: typeColor,
+              ),
             ),
           ),
         ],
@@ -1798,7 +1914,8 @@ ${_getCurrentTranslation(dua)}
     Map<String, dynamic> labels,
     ResponsiveUtils responsive,
   ) {
-    final prohibitedDays = _content?.islamicMonths['prohibited_days'] as List<dynamic>? ?? [];
+    final prohibitedDays =
+        _content?.islamicMonths['prohibited_days'] as List<dynamic>? ?? [];
     if (prohibitedDays.isEmpty) return const SizedBox.shrink();
 
     return Container(
@@ -1813,11 +1930,26 @@ ${_getCurrentTranslation(dua)}
         children: [
           Row(
             children: [
-              Icon(Icons.cancel, color: Colors.red.shade700, size: responsive.iconSize(24)),
+              Icon(
+                Icons.cancel,
+                color: Colors.red.shade700,
+                size: responsive.iconSize(24),
+              ),
               SizedBox(width: responsive.spacing(8)),
-              Text(
-                _tr(labels['fasting_prohibited'], fallback: 'Fasting PROHIBITED'),
-                style: TextStyle(fontSize: responsive.fontSize(16), fontWeight: FontWeight.bold, color: Colors.red.shade700),
+              Expanded(
+                child: Text(
+                  _tr(
+                    labels['fasting_prohibited'],
+                    fallback: 'Fasting PROHIBITED',
+                  ),
+                  style: TextStyle(
+                    fontSize: responsive.fontSize(16),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red.shade700,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -1827,9 +1959,21 @@ ${_getCurrentTranslation(dua)}
               padding: EdgeInsets.symmetric(vertical: responsive.spacing(4)),
               child: Row(
                 children: [
-                  Icon(Icons.block, color: Colors.red.shade400, size: responsive.iconSize(16)),
+                  Icon(
+                    Icons.block,
+                    color: Colors.red.shade400,
+                    size: responsive.iconSize(16),
+                  ),
                   SizedBox(width: responsive.spacing(8)),
-                  Expanded(child: Text(_tr(day), style: TextStyle(fontSize: responsive.fontSize(14), color: Colors.red.shade700))),
+                  Expanded(
+                    child: Text(
+                      _tr(day),
+                      style: TextStyle(
+                        fontSize: responsive.fontSize(14),
+                        color: Colors.red.shade700,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -1843,7 +1987,8 @@ ${_getCurrentTranslation(dua)}
     Map<String, dynamic> labels,
     ResponsiveUtils responsive,
   ) {
-    final quickRules = _content?.islamicMonths['quick_rules'] as List<dynamic>? ?? [];
+    final quickRules =
+        _content?.islamicMonths['quick_rules'] as List<dynamic>? ?? [];
     if (quickRules.isEmpty) return const SizedBox.shrink();
 
     return Container(
@@ -1865,11 +2010,23 @@ ${_getCurrentTranslation(dua)}
         children: [
           Row(
             children: [
-              Icon(Icons.lightbulb, color: AppColors.secondary, size: responsive.iconSize(24)),
+              Icon(
+                Icons.lightbulb,
+                color: AppColors.secondary,
+                size: responsive.iconSize(24),
+              ),
               SizedBox(width: responsive.spacing(8)),
-              Text(
-                _tr(labels['quick_rules_remember'], fallback: 'Quick Rules'),
-                style: TextStyle(fontSize: responsive.fontSize(16), fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+              Expanded(
+                child: Text(
+                  _tr(labels['quick_rules_remember'], fallback: 'Quick Rules'),
+                  style: TextStyle(
+                    fontSize: responsive.fontSize(16),
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -1882,15 +2039,32 @@ ${_getCurrentTranslation(dua)}
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(_getIconData(r['icon'] as String?), color: ruleColor, size: responsive.iconSize(20)),
+                  Icon(
+                    _getIconData(r['icon'] as String?),
+                    color: ruleColor,
+                    size: responsive.iconSize(20),
+                  ),
                   SizedBox(width: responsive.spacing(12)),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(_tr(r['label']), style: TextStyle(fontSize: responsive.fontSize(14), fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                        Text(
+                          _tr(r['label']),
+                          style: TextStyle(
+                            fontSize: responsive.fontSize(14),
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
                         SizedBox(height: responsive.spacing(2)),
-                        Text(_tr(r['value']), style: TextStyle(fontSize: responsive.fontSize(13), color: AppColors.textSecondary)),
+                        Text(
+                          _tr(r['value']),
+                          style: TextStyle(
+                            fontSize: responsive.fontSize(13),
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
                       ],
                     ),
                   ),

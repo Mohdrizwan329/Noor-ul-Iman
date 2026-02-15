@@ -216,6 +216,41 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
 
+    match /app_data/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /fasting_times_content/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /home_screen_content/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /prayer_times_screen_content/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /notifications_screen_content/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /settings_screen_content/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /quran_surahs/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
     // Default deny all other collections
     match /{document=**} {
       allow read, write: if false;

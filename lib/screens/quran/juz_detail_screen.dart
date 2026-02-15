@@ -49,6 +49,8 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final langCode = context.read<LanguageProvider>().languageCode;
+      _quranProvider.syncWithAppLanguage(langCode);
       _quranProvider.fetchJuz(widget.juzNumber);
       _loadContent();
     });
@@ -148,7 +150,7 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
       }
       shareText.writeln();
     }
-    shareText.writeln('- ${context.tr('para_label')} ${widget.juzNumber}');
+    shareText.writeln('- ${context.trRead('para_label')} ${widget.juzNumber}');
     Share.share(shareText.toString());
   }
 
@@ -162,7 +164,7 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
       }
       copyText.writeln();
     }
-    copyText.writeln('- ${context.tr('para_label')} ${widget.juzNumber}');
+    copyText.writeln('- ${context.trRead('para_label')} ${widget.juzNumber}');
     Clipboard.setData(ClipboardData(text: copyText.toString()));
   }
 
@@ -255,11 +257,15 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              '${context.tr('para_label')} ${widget.juzNumber}',
-              style: TextStyle(
-                fontSize: responsive.textMedium,
-                fontWeight: FontWeight.bold,
+            Flexible(
+              flex: 0,
+              child: Text(
+                '${context.tr('para_label')} ${widget.juzNumber}',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: responsive.textMedium,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             Text(
@@ -417,7 +423,7 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
     final cardNumber = cardIndex + 1;
 
     return Container(
-      margin: responsive.paddingOnly(bottom: 12),
+      margin: responsive.paddingOnly(bottom: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(responsive.radiusLarge),
@@ -596,7 +602,7 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
                 final isPlaying = _playingAyah == ayah.number;
                 return Container(
                     margin: entry.key < ayahs.length - 1
-                        ? responsive.paddingOnly(bottom: 12)
+                        ? responsive.paddingOnly(bottom: 6)
                         : EdgeInsets.zero,
                     padding: isPlaying
                         ? responsive.paddingAll(8)
@@ -727,7 +733,7 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
 
                   return Container(
                     margin: index < translations.length - 1
-                        ? responsive.paddingOnly(bottom: 12)
+                        ? responsive.paddingOnly(bottom: 6)
                         : EdgeInsets.zero,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -757,6 +763,7 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
                         Text(
                           translation,
                           style: TextStyle(
+                            color: AppColors.primary,
                             fontSize: translationFontSize,
                             height: 1.5,
                           ),

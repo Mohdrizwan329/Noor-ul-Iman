@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../../core/constants/app_colors.dart';
@@ -15,14 +16,17 @@ class BannerAdWidget extends StatefulWidget {
 class _BannerAdWidgetState extends State<BannerAdWidget> {
   BannerAd? _bannerAd;
   bool _isLoaded = false;
+  String? _lastError;
   int _retryCount = 0;
   static const int _maxRetries = 3;
+  bool _loadingStarted = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_bannerAd == null) {
-      _loadAd();
+    if (!_loadingStarted) {
+      _loadingStarted = true;
+      _initAndLoad();
     }
   }
 
@@ -33,39 +37,77 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
     _bannerAd = null;
     _isLoaded = false;
     _retryCount = 0;
+    _loadingStarted = true;
+    _initAndLoad();
+  }
+
+  Future<void> _initAndLoad() async {
+    // Wait for AdMob SDK to be ready before loading any ads
+    if (!AdService.isInitialized) {
+      debugPrint('BannerAd: Waiting for AdMob initialization...');
+      await AdService.waitForInit();
+    }
+
+    if (!AdService.isInitialized) {
+      debugPrint('BannerAd: AdMob not initialized, cannot load ad');
+      if (mounted) {
+        setState(() {
+          _lastError = 'AdMob SDK not initialized';
+        });
+      }
+      return;
+    }
+
+    if (!mounted) return;
     _loadAd();
   }
 
   void _loadAd() {
-    final width = MediaQuery.of(context).size.width.truncate();
-    debugPrint('BannerAd: Loading ad, screen width: $width');
+    if (!mounted) return;
 
-    // Use full-width adaptive for all ads
-    AdSize.getAnchoredAdaptiveBannerAdSize(Orientation.portrait, width).then((
-      adSize,
-    ) {
-      final effectiveSize = adSize ?? AdSize.banner;
-      debugPrint(
-        'BannerAd: Ad size: ${effectiveSize.width}x${effectiveSize.height} (adaptive: ${adSize != null})',
-      );
-      _createAndLoadAd(effectiveSize);
-    });
+    final width = MediaQuery.of(context).size.width.truncate();
+    debugPrint('BannerAd: Loading ad, width: $width, unitId: ${AdService.bannerAdUnitId}');
+
+    // If screen width is 0 (not yet laid out), use standard banner size
+    if (width <= 0) {
+      debugPrint('BannerAd: Width is 0, using standard AdSize.banner');
+      _createAndLoadAd(AdSize.banner);
+      return;
+    }
+
+    // Try adaptive size, fallback to standard banner
+    AdSize.getAnchoredAdaptiveBannerAdSize(Orientation.portrait, width).then(
+      (adSize) {
+        if (!mounted) return;
+        final effectiveSize = adSize ?? AdSize.banner;
+        debugPrint('BannerAd: Using size ${effectiveSize.width}x${effectiveSize.height}');
+        _createAndLoadAd(effectiveSize);
+      },
+      onError: (e) {
+        debugPrint('BannerAd: Adaptive size failed ($e), using standard banner');
+        if (mounted) _createAndLoadAd(AdSize.banner);
+      },
+    );
   }
 
   void _createAndLoadAd(AdSize size) {
     if (!mounted) return;
 
+    final adUnitId = AdService.bannerAdUnitId;
+    debugPrint('BannerAd: Creating ad with unitId=$adUnitId, size=${size.width}x${size.height}');
+
     final bannerAd = BannerAd(
-      adUnitId: AdService.bannerAdUnitId,
+      adUnitId: adUnitId,
       size: size,
       request: const AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
-          debugPrint('BannerAd: Ad loaded successfully!');
+          debugPrint('BannerAd: Loaded successfully!');
           if (mounted) {
             setState(() {
               _bannerAd = ad as BannerAd;
               _isLoaded = true;
+              _lastError = null;
               _retryCount = 0;
             });
           } else {
@@ -73,22 +115,23 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
           }
         },
         onAdFailedToLoad: (ad, error) {
-          debugPrint(
-            'BannerAd: Failed to load - code: ${error.code}, message: ${error.message}, domain: ${error.domain}',
-          );
+          debugPrint('BannerAd: FAILED - code:${error.code} msg:${error.message} domain:${error.domain}');
           ad.dispose();
-          // Retry with exponential backoff
+
+          if (mounted) {
+            setState(() {
+              _lastError = 'code:${error.code} ${error.message}';
+            });
+          }
+
+          // Retry with backoff
           if (_retryCount < _maxRetries && mounted) {
             _retryCount++;
             final delay = Duration(seconds: _retryCount * 5);
-            debugPrint(
-              'BannerAd: Retrying in ${delay.inSeconds}s (attempt $_retryCount/$_maxRetries)',
-            );
+            debugPrint('BannerAd: Retrying in ${delay.inSeconds}s (attempt $_retryCount/$_maxRetries)');
             Future.delayed(delay, () {
               if (mounted) _loadAd();
             });
-          } else {
-            debugPrint('BannerAd: All retries exhausted, ad will not show');
           }
         },
       ),
@@ -106,6 +149,18 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   @override
   Widget build(BuildContext context) {
     if (!_isLoaded || _bannerAd == null) {
+      // Debug mode me error dikhao
+      if (kDebugMode && _lastError != null && _retryCount >= _maxRetries) {
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(8),
+          color: Colors.red.withValues(alpha: 0.1),
+          child: Text(
+            'Ad Error: $_lastError',
+            style: const TextStyle(color: Colors.red, fontSize: 10),
+          ),
+        );
+      }
       return const SizedBox.shrink();
     }
 

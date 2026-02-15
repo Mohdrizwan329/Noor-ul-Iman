@@ -49,7 +49,7 @@ class AppCard extends StatelessWidget {
             borderRadius ?? responsive.radiusLarge,
           ),
           child: Container(
-            padding: padding ?? responsive.paddingAll(16),
+            padding: padding ?? responsive.paddingAll(12),
             decoration: BoxDecoration(
               color: gradient == null
                   ? (backgroundColor ??
