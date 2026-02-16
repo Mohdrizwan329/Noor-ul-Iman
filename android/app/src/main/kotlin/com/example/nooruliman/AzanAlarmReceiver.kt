@@ -14,6 +14,11 @@ import android.os.Build
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import org.json.JSONArray
+import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class AzanAlarmReceiver : BroadcastReceiver() {
     companion object {
@@ -22,7 +27,7 @@ class AzanAlarmReceiver : BroadcastReceiver() {
         const val EXTRA_ALARM_ID = "alarm_id"
         const val EXTRA_CACHED_PATH = "cached_path"
         private const val TAG = "AzanAlarmReceiver"
-        private const val PRAYER_NOTIFICATION_CHANNEL = "prayer_notification_channel"
+        private const val NOTIFICATION_CHANNEL_ID = "azan_channel"
         private const val PREFS_NAME = "FlutterSharedPreferences"
 
         // Prayer time keys matching Flutter side (prefixed with "flutter.")
@@ -32,6 +37,35 @@ class AzanAlarmReceiver : BroadcastReceiver() {
             102 to "flutter.last_asr_time",     // Asr
             103 to "flutter.last_maghrib_time",  // Maghrib
             104 to "flutter.last_isha_time"     // Isha
+        )
+
+        // Multilingual prayer names
+        private val PRAYER_NAMES = mapOf(
+            "en" to mapOf("Fajr" to "Fajr", "Dhuhr" to "Dhuhr", "Asr" to "Asr", "Maghrib" to "Maghrib", "Isha" to "Isha"),
+            "ur" to mapOf("Fajr" to "فجر", "Dhuhr" to "ظہر", "Asr" to "عصر", "Maghrib" to "مغرب", "Isha" to "عشاء"),
+            "ar" to mapOf("Fajr" to "الفجر", "Dhuhr" to "الظهر", "Asr" to "العصر", "Maghrib" to "المغرب", "Isha" to "العشاء"),
+            "hi" to mapOf("Fajr" to "फज्र", "Dhuhr" to "ज़ुहर", "Asr" to "अस्र", "Maghrib" to "मग़रिब", "Isha" to "ईशा")
+        )
+
+        private val PRAYER_TIME_TITLE = mapOf(
+            "en" to "Prayer Time",
+            "ur" to "نماز کا وقت",
+            "ar" to "وقت الصلاة",
+            "hi" to "नमाज़ का वक़्त"
+        )
+
+        private val ITS_TIME_FOR = mapOf(
+            "en" to "It's time for",
+            "ur" to "کا وقت ہو گیا",
+            "ar" to "حان وقت",
+            "hi" to "का वक़्त हो गया"
+        )
+
+        private val PRAYER_WORD = mapOf(
+            "en" to "prayer",
+            "ur" to "نماز",
+            "ar" to "صلاة",
+            "hi" to "नमाज़"
         )
     }
 
@@ -43,11 +77,21 @@ class AzanAlarmReceiver : BroadcastReceiver() {
 
         Log.d(TAG, "Azan alarm fired for $prayerName (ID: $alarmId)")
 
-        // Show a persistent prayer time notification (like Muslim Pro)
-        showPrayerNotification(context, prayerName, alarmId)
+        // Get user's selected language
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val langCode = prefs.getString("flutter.selected_language", "en") ?: "en"
+
+        // Get translated notification text
+        val title = getTranslatedTitle(prayerName, langCode)
+        val body = getTranslatedBody(prayerName, langCode)
+
+        // Show a persistent prayer time notification
+        showPrayerNotification(context, title, body, alarmId)
+
+        // Save notification to SharedPreferences for Flutter notification screen
+        saveNotificationToHistory(context, title, body, alarmId)
 
         // Check if azan sound is enabled
-        val prefs = context.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
         val azanSoundEnabled = prefs.getBoolean("flutter.azan_sound", true)
 
         if (azanSoundEnabled) {
@@ -82,22 +126,48 @@ class AzanAlarmReceiver : BroadcastReceiver() {
     }
 
     /**
-     * Show a persistent notification for the prayer time (stays in notification shade).
-     * This is separate from AzanService's foreground notification.
-     * Even if azan audio fails, user still sees the prayer notification.
+     * Get translated notification title based on user's language
      */
-    private fun showPrayerNotification(context: Context, prayerName: String, alarmId: Int) {
+    private fun getTranslatedTitle(prayerName: String, langCode: String): String {
+        val lang = if (listOf("en", "ur", "ar", "hi").contains(langCode)) langCode else "en"
+        val translatedPrayer = PRAYER_NAMES[lang]?.get(prayerName) ?: prayerName
+        val timeText = PRAYER_TIME_TITLE[lang] ?: "Prayer Time"
+        return "$translatedPrayer - $timeText"
+    }
+
+    /**
+     * Get translated notification body based on user's language
+     */
+    private fun getTranslatedBody(prayerName: String, langCode: String): String {
+        val lang = if (listOf("en", "ur", "ar", "hi").contains(langCode)) langCode else "en"
+        val translatedPrayer = PRAYER_NAMES[lang]?.get(prayerName) ?: prayerName
+        val itsTime = ITS_TIME_FOR[lang] ?: "It's time for"
+        val prayerWord = PRAYER_WORD[lang] ?: "prayer"
+
+        return when (lang) {
+            "ur" -> "$translatedPrayer $prayerWord $itsTime"
+            "ar" -> "$itsTime $translatedPrayer"
+            "hi" -> "$translatedPrayer $prayerWord $itsTime"
+            else -> "$itsTime $translatedPrayer $prayerWord"
+        }
+    }
+
+    /**
+     * Show a persistent notification for the prayer time.
+     * Uses the same channel as flutter_local_notifications for consistency.
+     */
+    private fun showPrayerNotification(context: Context, title: String, body: String, alarmId: Int) {
         try {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            // Create notification channel for prayer notifications (Android 8+)
+            // Create notification channel (same ID as flutter_local_notifications uses)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val channel = NotificationChannel(
-                    PRAYER_NOTIFICATION_CHANNEL,
-                    "Prayer Time Notifications",
+                    NOTIFICATION_CHANNEL_ID,
+                    "Azan Notifications",
                     NotificationManager.IMPORTANCE_HIGH
                 ).apply {
-                    description = "Notifications for Islamic prayer times"
+                    description = "Notifications for Islamic prayer times with Azan sound"
                     enableVibration(true)
                     enableLights(true)
                 }
@@ -113,10 +183,10 @@ class AzanAlarmReceiver : BroadcastReceiver() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
-            val notification = NotificationCompat.Builder(context, PRAYER_NOTIFICATION_CHANNEL)
-                .setContentTitle("$prayerName - Prayer Time")
-                .setContentText("It's time for $prayerName prayer")
-                .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+                .setContentTitle(title)
+                .setContentText(body)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setAutoCancel(true)
@@ -127,9 +197,45 @@ class AzanAlarmReceiver : BroadcastReceiver() {
             // Use unique notification ID per prayer (2000 + alarmId)
             notificationManager.notify(2000 + alarmId, notification)
 
-            Log.d(TAG, "Prayer notification shown for $prayerName")
+            Log.d(TAG, "Prayer notification shown: $title")
         } catch (e: Exception) {
             Log.e(TAG, "Error showing prayer notification: ${e.message}")
+        }
+    }
+
+    /**
+     * Save the fired notification to SharedPreferences so the Flutter notification screen
+     * can display it. This is critical because flutter_local_notifications may not fire
+     * on real devices due to battery optimization, but native AlarmManager (setAlarmClock) does.
+     */
+    private fun saveNotificationToHistory(context: Context, title: String, body: String, alarmId: Int) {
+        try {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val existingJson = prefs.getString("flutter.received_notifications", "[]") ?: "[]"
+            val notifications = JSONArray(existingJson)
+
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US)
+            val nowStr = dateFormat.format(Date())
+
+            val notification = JSONObject().apply {
+                put("id", System.currentTimeMillis().toInt()) // Unique ID based on timestamp
+                put("title", title)
+                put("body", body)
+                put("type", "prayer")
+                put("receivedAt", nowStr)
+            }
+
+            // Insert at beginning (newest first)
+            val newNotifications = JSONArray()
+            newNotifications.put(notification)
+            for (i in 0 until minOf(notifications.length(), 99)) {
+                newNotifications.put(notifications.get(i))
+            }
+
+            prefs.edit().putString("flutter.received_notifications", newNotifications.toString()).apply()
+            Log.d(TAG, "Notification saved to history: $title")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error saving notification to history: ${e.message}")
         }
     }
 

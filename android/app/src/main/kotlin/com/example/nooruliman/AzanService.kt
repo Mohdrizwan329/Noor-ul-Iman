@@ -1,8 +1,10 @@
 package com.example.nooruliman
 
 import android.app.*
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
@@ -18,6 +20,8 @@ class AzanService : Service() {
     private var wakeLock: PowerManager.WakeLock? = null
     private var audioManager: AudioManager? = null
     private var audioFocusRequest: AudioFocusRequest? = null
+    private var stopReceiver: BroadcastReceiver? = null
+    private var isAzanPlaying = false
 
     companion object {
         const val CHANNEL_ID = "azan_service_channel"
@@ -36,6 +40,7 @@ class AzanService : Service() {
         createNotificationChannel()
         acquireWakeLock()
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        registerStopReceiver()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -71,6 +76,51 @@ class AzanService : Service() {
             }
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(channel)
+        }
+    }
+
+    /**
+     * Register receiver to stop azan when user presses volume or lock/power button.
+     * Volume button = android.media.VOLUME_CHANGED_ACTION
+     * Lock/Power button = Intent.ACTION_SCREEN_OFF
+     */
+    private fun registerStopReceiver() {
+        stopReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (!isAzanPlaying) return
+                when (intent?.action) {
+                    "android.media.VOLUME_CHANGED_ACTION" -> {
+                        Log.d(TAG, "Volume button pressed - stopping azan")
+                        stopAzan()
+                        stopSelf()
+                    }
+                    Intent.ACTION_SCREEN_OFF -> {
+                        Log.d(TAG, "Lock/Power button pressed - stopping azan")
+                        stopAzan()
+                        stopSelf()
+                    }
+                }
+            }
+        }
+        val filter = IntentFilter().apply {
+            addAction("android.media.VOLUME_CHANGED_ACTION")
+            addAction(Intent.ACTION_SCREEN_OFF)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(stopReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(stopReceiver, filter)
+        }
+        Log.d(TAG, "Stop receiver registered for volume & lock button")
+    }
+
+    private fun unregisterStopReceiver() {
+        try {
+            stopReceiver?.let { unregisterReceiver(it) }
+            stopReceiver = null
+            Log.d(TAG, "Stop receiver unregistered")
+        } catch (e: Exception) {
+            Log.d(TAG, "Stop receiver already unregistered: ${e.message}")
         }
     }
 
@@ -196,6 +246,7 @@ class AzanService : Service() {
                     Log.d(TAG, "MediaPlayer prepared, starting playback. Duration: ${mp.duration}ms")
                     try {
                         mp.start()
+                        isAzanPlaying = true
                         Log.d(TAG, "MediaPlayer started playing")
                     } catch (e: Exception) {
                         Log.e(TAG, "Error starting MediaPlayer after prepare: ${e.message}", e)
@@ -205,6 +256,7 @@ class AzanService : Service() {
 
                 setOnCompletionListener {
                     Log.d(TAG, "Azan playback completed")
+                    isAzanPlaying = false
                     stopSelf()
                 }
 
@@ -272,13 +324,17 @@ class AzanService : Service() {
                 setOnPreparedListener { mp ->
                     try {
                         mp.start()
+                        isAzanPlaying = true
                         Log.d(TAG, "Retry: MediaPlayer started with URL")
                     } catch (e: Exception) {
                         Log.e(TAG, "Retry: Error starting: ${e.message}")
                         stopSelf()
                     }
                 }
-                setOnCompletionListener { stopSelf() }
+                setOnCompletionListener {
+                    isAzanPlaying = false
+                    stopSelf()
+                }
                 setOnErrorListener { _, what, extra ->
                     Log.e(TAG, "Retry: MediaPlayer error: what=$what, extra=$extra")
                     stopSelf()
@@ -322,6 +378,7 @@ class AzanService : Service() {
     }
 
     private fun stopAzan() {
+        isAzanPlaying = false
         try {
             mediaPlayer?.apply {
                 if (isPlaying) {
@@ -341,6 +398,7 @@ class AzanService : Service() {
     override fun onDestroy() {
         Log.d(TAG, "AzanService onDestroy")
         stopAzan()
+        unregisterStopReceiver()
         wakeLock?.release()
         super.onDestroy()
     }

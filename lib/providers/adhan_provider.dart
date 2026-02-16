@@ -370,7 +370,7 @@ class AdhanProvider with ChangeNotifier {
 
   bool _notificationsEnabled = true;
   bool _adhanSoundEnabled = true;
-  String _selectedAdhan = 'makkah';
+  String _selectedAdhan = 'madinah';
   String _languageCode = 'en';
   bool _isInitialized = false;
   bool _permissionsGranted = false;
@@ -647,7 +647,7 @@ class AdhanProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     _notificationsEnabled = prefs.getBool('adhan_notifications') ?? true;
     _adhanSoundEnabled = prefs.getBool('azan_sound') ?? true;
-    _selectedAdhan = prefs.getString('selected_adhan') ?? 'makkah';
+    _selectedAdhan = prefs.getString('selected_adhan') ?? 'madinah';
     _languageCode = prefs.getString('selected_language') ?? 'en';
 
     for (final prayer in _prayerNotifications.keys) {
@@ -976,6 +976,16 @@ class AdhanProvider with ChangeNotifier {
         city: _currentCity,
       );
 
+      // Save to scheduled notifications FIRST (before flutter_local_notifications)
+      // This ensures notification screen always has data even if scheduling fails
+      await _saveScheduledNotification(
+        id: id,
+        title: title,
+        body: body,
+        type: 'prayer',
+        scheduledTime: scheduledDate,
+      );
+
       try {
         await _notifications.zonedSchedule(
           id,
@@ -1004,19 +1014,10 @@ class AdhanProvider with ChangeNotifier {
         );
       }
 
-      // Save to scheduled notifications for display
-      await _saveScheduledNotification(
-        id: id,
-        title: title,
-        body: body,
-        type: 'prayer',
-        scheduledTime: scheduledDate,
-      );
-
       debugPrint('🔔 AdhanProvider: ✅ $prayerName notification scheduled for $scheduledDate');
       return true;
     } catch (e) {
-      debugPrint('🔔 AdhanProvider: ❌ Error scheduling $prayerName: $e');
+      debugPrint('🔔 AdhanProvider: ❌ Error scheduling $prayerName (saved to history): $e');
       return false;
     }
   }
@@ -1119,7 +1120,7 @@ class AdhanProvider with ChangeNotifier {
     if (!_adhanSoundEnabled) return;
 
     try {
-      final url = adhanUrls[_selectedAdhan] ?? adhanUrls['makkah']!;
+      final url = adhanUrls[_selectedAdhan] ?? adhanUrls['madinah']!;
       await _audioPlayer.setUrl(url);
       await _audioPlayer.play();
     } catch (e) {
@@ -1133,7 +1134,7 @@ class AdhanProvider with ChangeNotifier {
 
   Future<void> previewAdhan(String adhanKey) async {
     try {
-      final url = adhanUrls[adhanKey] ?? adhanUrls['makkah']!;
+      final url = adhanUrls[adhanKey] ?? adhanUrls['madinah']!;
       await _audioPlayer.setUrl(url);
       await _audioPlayer.play();
 
@@ -1147,6 +1148,47 @@ class AdhanProvider with ChangeNotifier {
 
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     return await _notifications.pendingNotificationRequests();
+  }
+
+  /// Get upcoming scheduled notifications from SharedPreferences.
+  /// This is more reliable than getPendingNotifications() because it doesn't
+  /// depend on flutter_local_notifications successfully scheduling the alarms.
+  Future<List<ReceivedNotification>> getUpcomingScheduledNotifications() async {
+    final prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
+    final List<ReceivedNotification> upcoming = [];
+
+    final scheduledJson = prefs.getString('scheduled_notifications');
+    if (scheduledJson != null) {
+      try {
+        final List<dynamic> scheduledList = json.decode(scheduledJson);
+        for (final item in scheduledList) {
+          if (item == null ||
+              item['scheduledTime'] == null ||
+              item['id'] == null ||
+              item['title'] == null) {
+            continue;
+          }
+          try {
+            final scheduledTime = DateTime.parse(item['scheduledTime'].toString());
+            // Only return future notifications
+            if (scheduledTime.isAfter(now)) {
+              upcoming.add(ReceivedNotification(
+                id: item['id'] is int ? item['id'] : int.tryParse(item['id'].toString()) ?? 0,
+                title: item['title'].toString(),
+                body: (item['body'] ?? '').toString(),
+                type: (item['type'] ?? 'reminder').toString(),
+                receivedAt: scheduledTime,
+              ));
+            }
+          } catch (_) {}
+        }
+      } catch (e) {
+        debugPrint('🔔 AdhanProvider: Error loading upcoming notifications: $e');
+      }
+    }
+
+    return upcoming;
   }
 
   /// Cancel a specific notification by ID
@@ -1299,6 +1341,15 @@ class AdhanProvider with ChangeNotifier {
       iOS: iosDetails,
     );
 
+    // Save to scheduled notifications FIRST
+    await _saveScheduledNotification(
+      id: 307,
+      title: title,
+      body: body,
+      type: 'jumma',
+      scheduledTime: scheduledDate,
+    );
+
     try {
       try {
         await _notifications.zonedSchedule(
@@ -1327,18 +1378,9 @@ class AdhanProvider with ChangeNotifier {
         );
       }
 
-      // Save to scheduled notifications
-      await _saveScheduledNotification(
-        id: 307,
-        title: title,
-        body: body,
-        type: 'jumma',
-        scheduledTime: scheduledDate,
-      );
-
       debugPrint('🔔 AdhanProvider: Jumma reminder scheduled for $scheduledDate');
     } catch (e) {
-      debugPrint('🔔 AdhanProvider: Error scheduling Jumma reminder: $e');
+      debugPrint('🔔 AdhanProvider: Error scheduling Jumma (saved to history): $e');
     }
   }
 
@@ -1400,6 +1442,32 @@ class AdhanProvider with ChangeNotifier {
     final title = IslamicReminderStrings.getTitle(titleKey, _languageCode);
     final body = IslamicReminderStrings.getBody(bodyKey, _languageCode);
 
+    // Determine notification type based on titleKey
+    String notificationType = 'reminder';
+    if (titleKey == 'quran_reminder') {
+      notificationType = 'quran';
+    } else if (titleKey == 'dhikr_reminder') {
+      notificationType = 'dhikr';
+    } else if (titleKey == 'dua_reminder') {
+      notificationType = 'dua';
+    } else if (titleKey == 'charity_reminder') {
+      notificationType = 'charity';
+    } else if (titleKey == 'sadqa_daily') {
+      notificationType = 'sadqa';
+    } else if (titleKey == 'morning_summary') {
+      notificationType = 'morning_summary';
+    }
+
+    // Save to scheduled notifications FIRST (before flutter_local_notifications)
+    // This ensures the notification screen always has data even if scheduling fails
+    await _saveScheduledNotification(
+      id: id,
+      title: title,
+      body: body,
+      type: notificationType,
+      scheduledTime: scheduledDate,
+    );
+
     const androidDetails = AndroidNotificationDetails(
       'islamic_reminders_channel',
       'Islamic Reminders',
@@ -1449,34 +1517,9 @@ class AdhanProvider with ChangeNotifier {
         );
       }
 
-      // Determine notification type based on titleKey
-      String notificationType = 'reminder';
-      if (titleKey == 'quran_reminder') {
-        notificationType = 'quran';
-      } else if (titleKey == 'dhikr_reminder') {
-        notificationType = 'dhikr';
-      } else if (titleKey == 'dua_reminder') {
-        notificationType = 'dua';
-      } else if (titleKey == 'charity_reminder') {
-        notificationType = 'charity';
-      } else if (titleKey == 'sadqa_daily') {
-        notificationType = 'sadqa';
-      } else if (titleKey == 'morning_summary') {
-        notificationType = 'morning_summary';
-      }
-
-      // Save to scheduled notifications
-      await _saveScheduledNotification(
-        id: id,
-        title: title,
-        body: body,
-        type: notificationType,
-        scheduledTime: scheduledDate,
-      );
-
       debugPrint('🔔 AdhanProvider: Islamic reminder $titleKey scheduled for $scheduledDate');
     } catch (e) {
-      debugPrint('🔔 AdhanProvider: Error scheduling Islamic reminder: $e');
+      debugPrint('🔔 AdhanProvider: Error scheduling Islamic reminder (saved to history): $e');
     }
   }
 
@@ -1497,6 +1540,15 @@ class AdhanProvider with ChangeNotifier {
     final tzScheduledDate = tz.TZDateTime.from(scheduledDate, tz.local);
     final title = IslamicReminderStrings.getTitle(festivalKey, _languageCode);
     final body = IslamicReminderStrings.getBody('${festivalKey}_message', _languageCode);
+
+    // Save to scheduled notifications FIRST (before flutter_local_notifications)
+    await _saveScheduledNotification(
+      id: id,
+      title: title,
+      body: body,
+      type: 'festival',
+      scheduledTime: tzScheduledDate,
+    );
 
     const androidDetails = AndroidNotificationDetails(
       'islamic_festivals_channel',
@@ -1545,18 +1597,9 @@ class AdhanProvider with ChangeNotifier {
         );
       }
 
-      // Save to scheduled notifications
-      await _saveScheduledNotification(
-        id: id,
-        title: title,
-        body: body,
-        type: 'festival',
-        scheduledTime: tzScheduledDate,
-      );
-
       debugPrint('🔔 AdhanProvider: Festival $festivalKey scheduled for $tzScheduledDate');
     } catch (e) {
-      debugPrint('🔔 AdhanProvider: Error scheduling festival notification: $e');
+      debugPrint('🔔 AdhanProvider: Error scheduling festival (saved to history): $e');
     }
   }
 

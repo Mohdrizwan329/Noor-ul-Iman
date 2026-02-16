@@ -44,8 +44,8 @@ class AzanBackgroundService {
   static Future<String?> cacheSelectedAzan() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final selectedAzan = prefs.getString('selected_adhan') ?? 'makkah';
-      final azanUrl = adhanUrls[selectedAzan] ?? adhanUrls['makkah']!;
+      final selectedAzan = prefs.getString('selected_adhan') ?? 'madinah';
+      final azanUrl = adhanUrls[selectedAzan] ?? adhanUrls['madinah']!;
 
       // Check if already cached
       final cachedPath = await _getCachedAzanPath(selectedAzan);
@@ -257,8 +257,8 @@ class AzanBackgroundService {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final selectedAzan = prefs.getString('selected_adhan') ?? 'makkah';
-      final azanUrl = adhanUrls[selectedAzan] ?? adhanUrls['makkah']!;
+      final selectedAzan = prefs.getString('selected_adhan') ?? 'madinah';
+      final azanUrl = adhanUrls[selectedAzan] ?? adhanUrls['madinah']!;
       final cachedPath = prefs.getString('cached_azan_path') ?? '';
 
       await _channel.invokeMethod('playAzan', {

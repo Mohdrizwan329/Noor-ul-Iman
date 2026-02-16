@@ -64,8 +64,8 @@ class AzanBootReceiver : BroadcastReceiver() {
         }
 
         // Get selected Adhan URL and cached file path
-        val selectedAdhan = prefs.getString(KEY_SELECTED_ADHAN, "makkah") ?: "makkah"
-        val azanUrl = ADHAN_URLS[selectedAdhan] ?: ADHAN_URLS["makkah"]!!
+        val selectedAdhan = prefs.getString(KEY_SELECTED_ADHAN, "madinah") ?: "madinah"
+        val azanUrl = ADHAN_URLS[selectedAdhan] ?: ADHAN_URLS["madinah"]!!
         val cachedPath = prefs.getString("flutter.cached_azan_path", "") ?: ""
 
         // Get saved prayer times and reschedule

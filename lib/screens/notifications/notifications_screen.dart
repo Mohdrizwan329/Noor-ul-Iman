@@ -96,46 +96,27 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         );
       }
 
-      // Also load upcoming/pending notifications to show scheduled ones
-      final pendingNotifications = await adhanProvider.getPendingNotifications();
-      debugPrint('Pending notifications: ${pendingNotifications.length}');
+      // Load upcoming scheduled notifications from SharedPreferences
+      // This is more reliable than getPendingNotifications() which depends on
+      // flutter_local_notifications successfully scheduling the alarms
+      final upcomingNotifications = await adhanProvider.getUpcomingScheduledNotifications();
+      debugPrint('Upcoming scheduled notifications: ${upcomingNotifications.length}');
 
-      for (final pending in pendingNotifications) {
-        final pendingId = pending.id;
-
+      for (final upcoming in upcomingNotifications) {
         // Skip if already in received list
-        if (items.any((n) => n.id == pendingId)) continue;
+        if (items.any((n) => n.id == upcoming.id)) continue;
 
-        // Determine type based on notification ID ranges
-        NotificationType type = NotificationType.prayer;
-        if (pendingId == 300) {
-          type = NotificationType.quran;
-        } else if (pendingId == 301) {
-          type = NotificationType.dhikr;
-        } else if (pendingId == 302) {
-          type = NotificationType.dua;
-        } else if (pendingId == 303) {
-          type = NotificationType.reminder;
-        } else if (pendingId == 304) {
-          type = NotificationType.charity;
-        } else if (pendingId == 305) {
-          type = NotificationType.morningSummary;
-        } else if (pendingId == 306) {
-          type = NotificationType.sadqa;
-        } else if (pendingId == 307) {
-          type = NotificationType.jumma;
-        } else if (pendingId >= 400) {
-          type = NotificationType.festival;
-        }
+        NotificationType type = _getTypeFromString(upcoming.type);
+        NotificationCategory category = _getCategoryFromType(type);
 
         items.add(
           NotificationItem(
-            id: pendingId,
-            title: pending.title ?? _t('scheduled_notification'),
-            body: pending.body ?? '',
+            id: upcoming.id,
+            title: upcoming.title,
+            body: upcoming.body,
             type: type,
-            category: _getCategoryFromType(type),
-            receivedAt: DateTime.now(),
+            category: category,
+            receivedAt: upcoming.receivedAt,
             isUpcoming: true,
           ),
         );
