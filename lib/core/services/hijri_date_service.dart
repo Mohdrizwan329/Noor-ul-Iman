@@ -26,9 +26,9 @@ class HijriDateService {
   /// The API-computed adjustment (difference between API and local package)
   int _apiAdjustment = 0;
 
-  /// User's manual adjustment (-2 to +2)
-  /// Default -1 for Indian subcontinent (moon sighting is typically 1 day behind Saudi Umm al-Qura)
-  int _userAdjustment = -1;
+  /// User/regional adjustment (-2 to +2)
+  /// Auto-detected from user's country, can be manually overridden
+  int _userAdjustment = 0;
 
   /// Whether the service has been initialized
   bool _isInitialized = false;
@@ -90,14 +90,35 @@ class HijriDateService {
     debugPrint('User adjustment set to $_userAdjustment, total=$totalAdjustment');
   }
 
-  /// Load user adjustment from SharedPreferences
+  /// Load user adjustment from SharedPreferences.
+  /// If user hasn't manually set an adjustment, auto-detect from country code.
   Future<void> _loadUserAdjustment() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      _userAdjustment = prefs.getInt(_adjustmentKey) ?? -1;
+      final stored = prefs.getInt(_adjustmentKey);
+      if (stored != null) {
+        _userAdjustment = stored;
+      } else {
+        // Auto-detect from user's country (saved by SettingsProvider)
+        final countryCode = prefs.getString('country_code') ?? '';
+        _userAdjustment = getRegionalAdjustment(countryCode);
+        debugPrint('Hijri adjustment auto-detected: $_userAdjustment (country: $countryCode)');
+      }
     } catch (e) {
       debugPrint('Error loading user adjustment: $e');
     }
+  }
+
+  /// Get the recommended Hijri day adjustment for a country.
+  /// Indian subcontinent moon sighting is typically 1 day behind Saudi Umm al-Qura.
+  static int getRegionalAdjustment(String countryCode) {
+    const subcontinentCountries = {
+      'IN', 'PK', 'BD', 'LK', 'NP', 'AF', 'MM',
+    };
+    if (subcontinentCountries.contains(countryCode.toUpperCase())) {
+      return -1;
+    }
+    return 0; // Saudi, Gulf, SE Asia, Europe, Americas, etc.
   }
 
   /// Fetch the correct Hijri date from Aladhan API
