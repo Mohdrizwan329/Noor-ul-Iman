@@ -13,6 +13,7 @@ import '../../data/models/dua_model.dart';
 import '../../data/models/firestore_models.dart';
 import '../../providers/prayer_provider.dart';
 import '../../providers/language_provider.dart';
+import '../../core/services/location_service.dart';
 import '../../widgets/common/banner_ad_widget.dart';
 
 class FastingTimesScreen extends StatefulWidget {
@@ -113,9 +114,8 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
 
   void _initializePrayerTimes() {
     final prayerProvider = context.read<PrayerProvider>();
-    if (prayerProvider.todayPrayerTimes == null) {
-      prayerProvider.initialize();
-    }
+    // Always refresh to get times for current location
+    prayerProvider.initialize();
   }
 
   void _startMidnightTimer() {
@@ -307,6 +307,8 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
                         SizedBox(height: responsive.spaceLarge),
                         _buildStatusCard(responsive),
                         SizedBox(height: responsive.spaceLarge),
+                        _buildLocationHeader(responsive),
+                        SizedBox(height: responsive.spaceSmall),
                         _buildTimesRow(
                           prayerTimes.fajr,
                           prayerTimes.maghrib,
@@ -403,6 +405,37 @@ class _FastingTimesScreenState extends State<FastingTimesScreen>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLocationHeader(ResponsiveUtils responsive) {
+    final city = LocationService().currentCity ?? '';
+    final country = LocationService().currentCountry ?? '';
+    final locationText = city.isNotEmpty
+        ? (country.isNotEmpty ? '$city, $country' : city)
+        : '';
+
+    if (locationText.isEmpty) return const SizedBox.shrink();
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.location_on, size: responsive.iconSmall, color: AppColors.primary),
+        SizedBox(width: responsive.spaceXSmall),
+        Text(
+          locationText,
+          style: TextStyle(
+            fontSize: responsive.textSmall,
+            color: AppColors.textSecondary,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        SizedBox(width: responsive.spaceSmall),
+        GestureDetector(
+          onTap: () => _refreshPrayerTimes(),
+          child: Icon(Icons.refresh, size: responsive.iconSmall, color: AppColors.primary),
+        ),
+      ],
     );
   }
 
