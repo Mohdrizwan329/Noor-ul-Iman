@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/utils/app_utils.dart';
 import '../../core/services/location_service.dart';
 import '../../core/services/content_service.dart';
+import '../../core/services/hijri_date_service.dart';
 import '../../data/models/firestore_models.dart';
 import '../../providers/prayer_provider.dart';
 import '../../providers/adhan_provider.dart';
@@ -46,6 +47,10 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
   void initState() {
     super.initState();
     _loadContent();
+    // Refresh prayer times with current location
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<PrayerProvider>().initialize();
+    });
   }
 
   @override
@@ -235,6 +240,17 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
     return '$day $translatedMonth $year ${_t('ah')}';
   }
 
+  /// Build corrected Hijri date string using HijriDateService (location-adjusted)
+  String _getCorrectedHijriDate() {
+    final hijri = HijriDateService.instance.getHijriNow();
+    final day = hijri.hDay.toString();
+    final year = hijri.hYear.toString();
+    // Use longMonthName from hijri package as source for translation
+    final monthEn = hijri.longMonthName;
+    final hijriStr = '$day $monthEn $year';
+    return _translateHijriDate(hijriStr);
+  }
+
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
@@ -406,7 +422,7 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
               ),
               Flexible(
                 child: Text(
-                  _translateHijriDate(prayerTimes.hijriDate),
+                  _getCorrectedHijriDate(),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: responsive.fontSize(14),
