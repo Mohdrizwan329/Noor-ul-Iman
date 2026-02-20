@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'location_service.dart';
 import 'prayer_time_service.dart';
+import 'hijri_date_service.dart';
 import 'geo_restriction_service.dart';
 import 'azan_background_service.dart';
 import '../../providers/adhan_provider.dart';
+import '../../providers/settings_provider.dart';
 
 class BackgroundLocationService {
   static final BackgroundLocationService _instance =
@@ -97,12 +100,61 @@ class BackgroundLocationService {
       );
     }
 
+    // Reverse-geocode to update city/country for the new location
+    await _updateLocationDetails(newPosition);
+
     // Update prayer times for new location
     await _updatePrayerTimes(newPosition);
 
     // Save new position
     _lastKnownPosition = newPosition;
     await _saveLastPosition(newPosition);
+  }
+
+  /// Reverse-geocode position to update city, country, and calculation method
+  Future<void> _updateLocationDetails(Position position) async {
+    try {
+      final placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        final placemark = placemarks.first;
+        final city = placemark.locality ??
+                     placemark.subAdministrativeArea ??
+                     placemark.administrativeArea ??
+                     'Unknown';
+        final country = placemark.country ?? '';
+        final isoCountryCode = placemark.isoCountryCode ?? '';
+
+        _locationService.updateCity(city, country);
+
+        if (isoCountryCode.isNotEmpty) {
+          final prefs = await SharedPreferences.getInstance();
+          final oldCountryCode = prefs.getString('country_code') ?? '';
+          await prefs.setString('country_code', isoCountryCode);
+
+          // Auto-update calculation method if not manually set
+          final wasManuallySet = prefs.getBool('calculation_method_manually_set') ?? false;
+          if (!wasManuallySet) {
+            final method = SettingsProvider.getRecommendedMethod(isoCountryCode);
+            await prefs.setInt('calculation_method', method);
+            debugPrint('📍 Background: Auto-detected method $method for $isoCountryCode');
+          }
+
+          // Refresh HijriDateService if country changed
+          if (oldCountryCode != isoCountryCode && oldCountryCode.isNotEmpty) {
+            debugPrint('📍 Background: Country changed $oldCountryCode → $isoCountryCode, refreshing Hijri');
+            await HijriDateService.instance.initialize();
+          }
+        }
+
+        debugPrint('📍 Background location: $city, $country ($isoCountryCode)');
+      }
+    } catch (e) {
+      debugPrint('Background geocoding error: $e');
+    }
   }
 
   /// Update prayer times for current location
@@ -160,8 +212,13 @@ class BackgroundLocationService {
       // Get current position
       final position = await _locationService.getCurrentLocation();
       if (position != null) {
+        // Update city/country in case user traveled
+        await _updateLocationDetails(position);
         await _updatePrayerTimes(position);
       }
+
+      // Refresh HijriDateService for the new day
+      await HijriDateService.instance.initialize();
 
       // Schedule next midnight refresh
       _scheduleMidnightRefresh();

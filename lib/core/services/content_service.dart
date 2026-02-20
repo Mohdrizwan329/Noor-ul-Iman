@@ -6,6 +6,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../../data/models/firestore_models.dart';
 import '../../data/models/dua_model.dart';
 import '../../data/models/allah_name_model.dart';
+import '../../data/models/multilingual_text.dart';
 
 /// Central service for fetching and caching all Firestore content
 class ContentService {
@@ -27,6 +28,9 @@ class ContentService {
   static const String _greetingCardsCacheKey = 'greeting_cards_cache';
   static const String _sampleHadithCacheKey = 'sample_hadith_cache';
   static const String _hajjGuideCacheKey = 'hajj_guide_cache';
+  static const String _hajjDuasCacheKey = 'hajj_duas_cache';
+  static const String _hajjProhibitionsCacheKey = 'hajj_prohibitions_cache';
+  static const String _hajjIntroCacheKey = 'hajj_intro_cache';
   static const String _ramadanDuasCacheKey = 'ramadan_duas_cache';
   static const String _zakatGuideCacheKey = 'zakat_guide_cache';
   static const String _quranMetadataCacheKey = 'quran_metadata_cache';
@@ -82,6 +86,9 @@ class ContentService {
   List<IslamicMonthFirestore>? _cachedGreetingCards;
   Map<String, List<SampleHadithFirestore>>? _cachedSampleHadith;
   Map<String, List<HajjStepFirestore>>? _cachedHajjGuide;
+  List<HajjDuaFirestore>? _cachedHajjDuas;
+  List<MultilingualText>? _cachedHajjProhibitions;
+  Map<String, MultilingualText>? _cachedHajjIntro;
   List<RamadanDuaFirestore>? _cachedRamadanDuas;
   List<ZakatSectionFirestore>? _cachedZakatGuide;
   Map<String, List<QuranNameEntryFirestore>>? _cachedQuranMetadata;
@@ -841,6 +848,111 @@ class ContentService {
     return result;
   }
 
+  /// Fetch hajj/umrah duas
+  Future<List<HajjDuaFirestore>> getHajjDuas() async {
+    if (_cachedHajjDuas != null) return _cachedHajjDuas!;
+
+    final result = await _fetchWithCache<List<HajjDuaFirestore>>(
+      cacheKey: _hajjDuasCacheKey,
+      contentType: 'hajj_guide',
+      fetchFromFirestore: () async {
+        final doc =
+            await _firestore.collection('hajj_guide').doc('duas').get();
+        if (!doc.exists) return [];
+        return (doc.data()!['duas'] as List<dynamic>? ?? [])
+            .map((d) => HajjDuaFirestore.fromJson(d as Map<String, dynamic>))
+            .toList();
+      },
+      fromCache: (cached) {
+        final List<dynamic> decoded = jsonDecode(cached);
+        return decoded
+            .map((d) => HajjDuaFirestore.fromJson(d as Map<String, dynamic>))
+            .toList();
+      },
+      toCache: (data) => jsonEncode(data.map((d) => d.toJson()).toList()),
+      fallback: [],
+    );
+
+    _cachedHajjDuas = result;
+    return result;
+  }
+
+  /// Fetch hajj prohibitions
+  Future<List<MultilingualText>> getHajjProhibitions() async {
+    if (_cachedHajjProhibitions != null) return _cachedHajjProhibitions!;
+
+    final result = await _fetchWithCache<List<MultilingualText>>(
+      cacheKey: _hajjProhibitionsCacheKey,
+      contentType: 'hajj_guide',
+      fetchFromFirestore: () async {
+        final doc = await _firestore
+            .collection('hajj_guide')
+            .doc('prohibitions')
+            .get();
+        if (!doc.exists) return [];
+        return (doc.data()!['items'] as List<dynamic>? ?? [])
+            .map((p) => MultilingualText.fromJson(p as Map<String, dynamic>?))
+            .toList();
+      },
+      fromCache: (cached) {
+        final List<dynamic> decoded = jsonDecode(cached);
+        return decoded
+            .map((p) => MultilingualText.fromJson(p as Map<String, dynamic>?))
+            .toList();
+      },
+      toCache: (data) => jsonEncode(data.map((p) => p.toJson()).toList()),
+      fallback: [],
+    );
+
+    _cachedHajjProhibitions = result;
+    return result;
+  }
+
+  /// Fetch hajj intro texts
+  Future<Map<String, MultilingualText>> getHajjIntro() async {
+    if (_cachedHajjIntro != null) return _cachedHajjIntro!;
+
+    final result = await _fetchWithCache<Map<String, MultilingualText>>(
+      cacheKey: _hajjIntroCacheKey,
+      contentType: 'hajj_guide',
+      fetchFromFirestore: () async {
+        final doc =
+            await _firestore.collection('hajj_guide').doc('intro').get();
+        if (!doc.exists) return {};
+        final data = doc.data()!;
+        return {
+          'hajj_subtitle': MultilingualText.fromJson(
+            data['hajj_subtitle'] as Map<String, dynamic>?,
+          ),
+          'umrah_subtitle': MultilingualText.fromJson(
+            data['umrah_subtitle'] as Map<String, dynamic>?,
+          ),
+          'duas_section_title': MultilingualText.fromJson(
+            data['duas_section_title'] as Map<String, dynamic>?,
+          ),
+          'prohibitions_section_title': MultilingualText.fromJson(
+            data['prohibitions_section_title'] as Map<String, dynamic>?,
+          ),
+        };
+      },
+      fromCache: (cached) {
+        final Map<String, dynamic> decoded = jsonDecode(cached);
+        return decoded.map(
+          (key, value) => MapEntry(
+            key,
+            MultilingualText.fromJson(value as Map<String, dynamic>?),
+          ),
+        );
+      },
+      toCache: (data) =>
+          jsonEncode(data.map((key, value) => MapEntry(key, value.toJson()))),
+      fallback: {},
+    );
+
+    _cachedHajjIntro = result;
+    return result;
+  }
+
   // ==================== RAMADAN DUAS ====================
 
   /// Fetch Ramadan duas
@@ -1300,6 +1412,9 @@ class ContentService {
     _cachedGreetingCards = null;
     _cachedSampleHadith = null;
     _cachedHajjGuide = null;
+    _cachedHajjDuas = null;
+    _cachedHajjProhibitions = null;
+    _cachedHajjIntro = null;
     _cachedRamadanDuas = null;
     _cachedZakatGuide = null;
     _cachedQuranMetadata = null;
@@ -1392,6 +1507,9 @@ class ContentService {
         for (final key in hajjKeys ?? []) {
           await _contentBox?.delete(key);
         }
+        await _contentBox?.delete(_hajjDuasCacheKey);
+        await _contentBox?.delete(_hajjProhibitionsCacheKey);
+        await _contentBox?.delete(_hajjIntroCacheKey);
         break;
       case 'ramadan_duas':
         _cachedRamadanDuas = null;
@@ -2133,6 +2251,9 @@ class ContentService {
     _cachedGreetingCards = null;
     _cachedSampleHadith = null;
     _cachedHajjGuide = null;
+    _cachedHajjDuas = null;
+    _cachedHajjProhibitions = null;
+    _cachedHajjIntro = null;
     _cachedRamadanDuas = null;
     _cachedZakatGuide = null;
     _cachedQuranMetadata = null;

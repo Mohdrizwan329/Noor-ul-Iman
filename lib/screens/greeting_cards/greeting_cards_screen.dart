@@ -13,9 +13,7 @@ import '../../providers/language_provider.dart';
 import '../../core/utils/ad_navigation.dart';
 import '../../widgets/common/banner_ad_widget.dart';
 import '../../core/utils/ad_list_helper.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../core/services/data_migration_service.dart';
-import '../../data/models/firestore_models.dart';
+import '../../core/services/content_service.dart';
 
 enum GreetingLanguage { english, urdu, hindi, arabic }
 
@@ -57,25 +55,9 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
   Future<void> _loadFromFirestore() async {
     if (mounted) setState(() => _isLoading = true);
     try {
-      var snapshot = await FirebaseFirestore.instance
-          .collection('greeting_cards')
-          .orderBy('number')
-          .get();
+      final firestoreMonths = await ContentService().getIslamicMonths();
 
-      // Auto-push if Firebase is empty
-      if (snapshot.docs.isEmpty) {
-        debugPrint('Firebase greeting_cards empty - auto-pushing data...');
-        await DataMigrationService().migrateAllGreetingCards();
-        snapshot = await FirebaseFirestore.instance
-            .collection('greeting_cards')
-            .orderBy('number')
-            .get();
-      }
-
-      if (snapshot.docs.isNotEmpty && mounted) {
-        final firestoreMonths = snapshot.docs
-            .map((doc) => IslamicMonthFirestore.fromFirestore(doc))
-            .toList();
+      if (firestoreMonths.isNotEmpty && mounted) {
 
         debugPrint('Loaded ${firestoreMonths.length} Islamic months from Firebase');
 
@@ -163,13 +145,7 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
 
       appBar: AppBar(
         title: Text(
-          language == GreetingLanguage.urdu
-              ? 'تہوار کے کارڈز'
-              : language == GreetingLanguage.hindi
-              ? 'ग्रीटिंग कार्ड्स'
-              : language == GreetingLanguage.arabic
-              ? 'بطاقات التهنئة'
-              : 'Greeting Cards',
+          context.tr('greeting_cards_title'),
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Color(0xFFFFFFFF), // White
@@ -227,13 +203,7 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
         ? _allMonths[_currentHijriDate.hMonth - 1].arabicName
         : _allMonths[_currentHijriDate.hMonth - 1].name;
 
-    final dateLabel = language == GreetingLanguage.urdu
-        ? 'آج کی اسلامی تاریخ'
-        : language == GreetingLanguage.hindi
-        ? 'आज की इस्लामी तारीख'
-        : language == GreetingLanguage.arabic
-        ? 'التاريخ الإسلامي اليوم'
-        : 'Today\'s Islamic Date';
+    final dateLabel = context.tr('greeting_cards_todays_islamic_date');
 
     return Container(
       margin: responsive.paddingAll(16.0),
@@ -314,13 +284,7 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
       return const SizedBox.shrink();
     }
 
-    final sectionTitle = language == GreetingLanguage.urdu
-        ? 'آنے والے اسلامی واقعات'
-        : language == GreetingLanguage.hindi
-        ? 'आने वाले इस्लामी कार्यक्रम'
-        : language == GreetingLanguage.arabic
-        ? 'الأحداث الإسلامية القادمة'
-        : 'Upcoming Islamic Events';
+    final sectionTitle = context.tr('greeting_cards_upcoming_islamic_events');
 
     return Container(
       margin: responsive.paddingSymmetric(horizontal: 16.0, vertical: 8.0),
@@ -364,13 +328,7 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
   }
 
   Widget _buildMonthsSection(GreetingLanguage language, ResponsiveUtils responsive) {
-    final sectionTitle = language == GreetingLanguage.urdu
-        ? 'اسلامی مہینے'
-        : language == GreetingLanguage.hindi
-        ? 'इस्लामी महीने'
-        : language == GreetingLanguage.arabic
-        ? 'الأشهر الإسلامية'
-        : 'Islamic Months';
+    final sectionTitle = context.tr('greeting_cards_islamic_months');
 
     return Container(
       margin: responsive.paddingSymmetric(horizontal: 16.0, vertical: 8.0),
@@ -605,13 +563,7 @@ class _GreetingCardsScreenState extends State<GreetingCardsScreen> {
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                              language == GreetingLanguage.urdu
-                                  ? 'آج'
-                                  : language == GreetingLanguage.hindi
-                                  ? 'आज'
-                                  : language == GreetingLanguage.arabic
-                                  ? 'اليوم'
-                                  : 'TODAY',
+                              context.tr('greeting_cards_today_badge'),
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: responsive.fontSize(10.0),
@@ -976,13 +928,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            widget.language == GreetingLanguage.urdu
-                                ? 'اصل'
-                                : widget.language == GreetingLanguage.hindi
-                                ? 'मूल'
-                                : widget.language == GreetingLanguage.arabic
-                                ? 'أصلي'
-                                : 'None',
+                            context.tr('greeting_cards_filter_none'),
                             style: TextStyle(
                               color: Color(0xFFD4AF37),
                               fontSize: responsive.fontSize(12),
@@ -1077,13 +1023,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
                         onPressed: _showEditDialog,
                         icon: Icon(Icons.edit, size: responsive.iconSize(18)),
                         label: Text(
-                          widget.language == GreetingLanguage.urdu
-                              ? 'ترمیم'
-                              : widget.language == GreetingLanguage.hindi
-                              ? 'संपादित'
-                              : widget.language == GreetingLanguage.arabic
-                              ? 'تعديل'
-                              : 'Edit',
+                          context.tr('greeting_cards_btn_edit'),
                           style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(13)),
                         ),
                         style: ElevatedButton.styleFrom(
@@ -1109,13 +1049,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
                         onPressed: () => _shareEventCard(context),
                         icon: Icon(Icons.share, size: responsive.iconSize(18)),
                         label: Text(
-                          widget.language == GreetingLanguage.urdu
-                              ? 'شیئر'
-                              : widget.language == GreetingLanguage.hindi
-                              ? 'शेयर'
-                              : widget.language == GreetingLanguage.arabic
-                              ? 'مشاركة'
-                              : 'Share',
+                          context.tr('greeting_cards_btn_share'),
                           style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(13)),
                         ),
                         style: ElevatedButton.styleFrom(
@@ -1144,13 +1078,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
                           size: responsive.iconSize(18),
                         ),
                         label: Text(
-                          widget.language == GreetingLanguage.urdu
-                              ? 'ڈاؤن لوڈ'
-                              : widget.language == GreetingLanguage.hindi
-                              ? 'डाउनलोड'
-                              : widget.language == GreetingLanguage.arabic
-                              ? 'تحميل'
-                              : 'Download',
+                          context.tr('greeting_cards_btn_download'),
                           style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(13)),
                         ),
                         style: ElevatedButton.styleFrom(
@@ -2360,13 +2288,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
             SizedBox(width: responsive.spacing(12)),
             Expanded(
               child: Text(
-                widget.language == GreetingLanguage.urdu
-                    ? 'ایونٹ میں ترمیم کریں'
-                    : widget.language == GreetingLanguage.hindi
-                    ? 'इवेंट संपादित करें'
-                    : widget.language == GreetingLanguage.arabic
-                    ? 'تعديل الحدث'
-                    : 'Edit Event',
+                context.tr('greeting_cards_edit_event_title'),
                 style: const TextStyle(
                   color: Color(0xFF0A5C36),
                   fontWeight: FontWeight.bold,
@@ -2382,13 +2304,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
               TextField(
                 controller: titleController,
                 decoration: InputDecoration(
-                  labelText: widget.language == GreetingLanguage.urdu
-                      ? 'عنوان'
-                      : widget.language == GreetingLanguage.hindi
-                      ? 'शीर्षक'
-                      : widget.language == GreetingLanguage.arabic
-                      ? 'العنوان'
-                      : 'Title',
+                  labelText: context.tr('greeting_cards_field_title'),
                   labelStyle: const TextStyle(color: Color(0xFF0A5C36)),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(
@@ -2424,13 +2340,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
               TextField(
                 controller: descriptionController,
                 decoration: InputDecoration(
-                  labelText: widget.language == GreetingLanguage.urdu
-                      ? 'تفصیل'
-                      : widget.language == GreetingLanguage.hindi
-                      ? 'विवरण'
-                      : widget.language == GreetingLanguage.arabic
-                      ? 'الوصف'
-                      : 'Description',
+                  labelText: context.tr('greeting_cards_field_description'),
                   labelStyle: const TextStyle(color: Color(0xFF0A5C36)),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(
@@ -2470,13 +2380,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              widget.language == GreetingLanguage.urdu
-                  ? 'منسوخ کریں'
-                  : widget.language == GreetingLanguage.hindi
-                  ? 'रद्द करें'
-                  : widget.language == GreetingLanguage.arabic
-                  ? 'إلغاء'
-                  : 'Cancel',
+              context.tr('greeting_cards_btn_cancel'),
               style: const TextStyle(color: Colors.grey),
             ),
           ),
@@ -2498,13 +2402,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
               ),
             ),
             child: Text(
-              widget.language == GreetingLanguage.urdu
-                  ? 'محفوظ کریں'
-                  : widget.language == GreetingLanguage.hindi
-                  ? 'सहेजें'
-                  : widget.language == GreetingLanguage.arabic
-                  ? 'حفظ'
-                  : 'Save',
+              context.tr('greeting_cards_btn_save'),
             ),
           ),
         ],
@@ -2727,13 +2625,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
               const SizedBox(width: 16.0),
               Expanded(
                 child: Text(
-                  widget.language == GreetingLanguage.urdu
-                      ? 'ڈاؤن لوڈ ہو رہا ہے...'
-                      : widget.language == GreetingLanguage.hindi
-                      ? 'डाउनलोड हो रहा है...'
-                      : widget.language == GreetingLanguage.arabic
-                      ? 'جاري التحميل...'
-                      : 'Downloading...',
+                  context.tr('greeting_cards_status_downloading'),
                 ),
               ),
             ],
@@ -2762,13 +2654,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
                 const SizedBox(width: 16.0),
                 Expanded(
                   child: Text(
-                    widget.language == GreetingLanguage.urdu
-                        ? 'ڈاؤن لوڈ ناکام ہو گیا'
-                        : widget.language == GreetingLanguage.hindi
-                        ? 'डाउनलोड विफल हो गया'
-                        : widget.language == GreetingLanguage.arabic
-                        ? 'فشل التحميل'
-                        : 'Download failed',
+                    context.tr('greeting_cards_status_download_failed'),
                   ),
                 ),
               ],
@@ -2798,13 +2684,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
               const SizedBox(width: 16.0),
               Expanded(
                 child: Text(
-                  widget.language == GreetingLanguage.urdu
-                      ? 'ڈاؤن لوڈ کامیاب! گیلری میں محفوظ ہو گیا'
-                      : widget.language == GreetingLanguage.hindi
-                      ? 'डाउनलोड सफल! गैलरी में सहेजा गया'
-                      : widget.language == GreetingLanguage.arabic
-                      ? 'تم التحميل بنجاح! تم الحفظ في المعرض'
-                      : 'Download successful! Saved to gallery',
+                  context.tr('greeting_cards_status_download_success'),
                 ),
               ),
             ],
@@ -2824,13 +2704,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
               const SizedBox(width: 16.0),
               Expanded(
                 child: Text(
-                  widget.language == GreetingLanguage.urdu
-                      ? 'ڈاؤن لوڈ میں خرابی: ${e.toString()}'
-                      : widget.language == GreetingLanguage.hindi
-                      ? 'डाउनलोड में त्रुटि: ${e.toString()}'
-                      : widget.language == GreetingLanguage.arabic
-                      ? 'خطأ في التحميل: ${e.toString()}'
-                      : 'Download error: ${e.toString()}',
+                  '${context.trRead('greeting_cards_status_download_error')}: ${e.toString()}',
                 ),
               ),
             ],
@@ -2844,6 +2718,10 @@ class _EventCardScreenState extends State<EventCardScreen> {
 
   Future<void> _shareEventCard(BuildContext context) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final preparingText = context.trRead('greeting_cards_status_preparing_share');
+    final failedText = context.trRead('greeting_cards_status_share_failed');
+    final shareText = context.trRead('greeting_cards_share_event_card_text');
+    final errorText = context.trRead('greeting_cards_status_share_error');
 
     try {
       if (!mounted) return;
@@ -2862,15 +2740,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
               ),
               const SizedBox(width: 16.0),
               Expanded(
-                child: Text(
-                  widget.language == GreetingLanguage.urdu
-                      ? 'شیئر کے لیے تیار ہو رہا ہے...'
-                      : widget.language == GreetingLanguage.hindi
-                      ? 'शेयर के लिए तैयार हो रहा है...'
-                      : widget.language == GreetingLanguage.arabic
-                      ? 'جاري التحضير للمشاركة...'
-                      : 'Preparing to share...',
-                ),
+                child: Text(preparingText),
               ),
             ],
           ),
@@ -2897,15 +2767,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
                 const Icon(Icons.error_outline, color: Colors.white),
                 const SizedBox(width: 16.0),
                 Expanded(
-                  child: Text(
-                    widget.language == GreetingLanguage.urdu
-                        ? 'شیئر ناکام ہو گیا'
-                        : widget.language == GreetingLanguage.hindi
-                        ? 'शेयर विफल हो गया'
-                        : widget.language == GreetingLanguage.arabic
-                        ? 'فشلت المشاركة'
-                        : 'Share failed',
-                  ),
+                  child: Text(failedText),
                 ),
               ],
             ),
@@ -2924,13 +2786,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
 
       await Share.shareXFiles(
         [XFile(imagePath)],
-        text: widget.language == GreetingLanguage.urdu
-            ? 'نور الایمان سے اسلامی تقریب کا کارڈ'
-            : widget.language == GreetingLanguage.hindi
-            ? 'नूर-उल-ईमान से इस्लामी कार्यक्रम कार्ड'
-            : widget.language == GreetingLanguage.arabic
-            ? 'بطاقة حدث إسلامي من نور الإيمان'
-            : 'Islamic Event Card from Noor-ul-Iman',
+        text: shareText,
       );
 
       Future.delayed(const Duration(seconds: 5), () {
@@ -2947,15 +2803,7 @@ class _EventCardScreenState extends State<EventCardScreen> {
               const Icon(Icons.error_outline, color: Colors.white),
               const SizedBox(width: 16.0),
               Expanded(
-                child: Text(
-                  widget.language == GreetingLanguage.urdu
-                      ? 'شیئر میں خرابی: ${e.toString()}'
-                      : widget.language == GreetingLanguage.hindi
-                      ? 'शेयर में त्रुटि: ${e.toString()}'
-                      : widget.language == GreetingLanguage.arabic
-                      ? 'خطأ في المشاركة: ${e.toString()}'
-                      : 'Share error: ${e.toString()}',
-                ),
+                child: Text('$errorText: ${e.toString()}'),
               ),
             ],
           ),
@@ -3017,13 +2865,7 @@ class MonthCardsScreen extends StatelessWidget {
                     ),
                     SizedBox(height: responsive.spacing(16)),
                     Text(
-                      language == GreetingLanguage.urdu
-                          ? 'اس مہینے کے لیے کوئی خاص کارڈ نہیں'
-                          : language == GreetingLanguage.hindi
-                          ? 'इस महीने के लिए कोई विशेष कार्ड नहीं'
-                          : language == GreetingLanguage.arabic
-                          ? 'لا توجد بطاقات خاصة لهذا الشهر'
-                          : 'No special cards for this month',
+                      context.tr('greeting_cards_no_cards_this_month'),
                       style: TextStyle(
                         color: darkGreen,
                         fontSize: responsive.fontSize(16),
@@ -3157,13 +2999,7 @@ class _GreetingCardTile extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          language == GreetingLanguage.urdu
-                              ? 'دیکھنے کے لیے ٹیپ کریں'
-                              : language == GreetingLanguage.hindi
-                              ? 'देखने के लिए टैप करें'
-                              : language == GreetingLanguage.arabic
-                              ? 'اضغط للعرض'
-                              : 'Tap to view',
+                          context.tr('greeting_cards_tap_to_view'),
                           style: TextStyle(
                             color: emeraldGreen,
                             fontSize: responsive.fontSize(11),
@@ -3415,13 +3251,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                             ),
                             SizedBox(width: responsive.spacing(6)),
                             Text(
-                              widget.language == GreetingLanguage.urdu
-                                  ? 'ٹیمپلیٹ'
-                                  : widget.language == GreetingLanguage.hindi
-                                  ? 'टेम्पलेट'
-                                  : widget.language == GreetingLanguage.arabic
-                                  ? 'قالب'
-                                  : 'Template',
+                              context.tr('greeting_cards_tab_template'),
                               style: TextStyle(
                                 color: _showTemplates
                                     ? Colors.white
@@ -3471,13 +3301,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                             ),
                             SizedBox(width: responsive.spacing(6)),
                             Text(
-                              widget.language == GreetingLanguage.urdu
-                                  ? 'رنگ'
-                                  : widget.language == GreetingLanguage.hindi
-                                  ? 'रंग'
-                                  : widget.language == GreetingLanguage.arabic
-                                  ? 'لون'
-                                  : 'Color',
+                              context.tr('greeting_cards_tab_color'),
                               style: TextStyle(
                                 color: !_showTemplates
                                     ? Colors.white
@@ -3597,13 +3421,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              widget.language == GreetingLanguage.urdu
-                                  ? 'اصل'
-                                  : widget.language == GreetingLanguage.hindi
-                                  ? 'मूल'
-                                  : widget.language == GreetingLanguage.arabic
-                                  ? 'أصلي'
-                                  : 'None',
+                              context.tr('greeting_cards_filter_none'),
                               style: TextStyle(
                                 color: Color(0xFFD4AF37),
                                 fontSize: responsive.fontSize(12),
@@ -3698,13 +3516,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                         onPressed: _showEditDialog,
                         icon: Icon(Icons.edit, size: responsive.iconSize(18)),
                         label: Text(
-                          widget.language == GreetingLanguage.urdu
-                              ? 'ترمیم'
-                              : widget.language == GreetingLanguage.hindi
-                              ? 'संपादित'
-                              : widget.language == GreetingLanguage.arabic
-                              ? 'تعديل'
-                              : 'Edit',
+                          context.tr('greeting_cards_btn_edit'),
                           style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(13)),
                         ),
                         style: ElevatedButton.styleFrom(
@@ -3730,13 +3542,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                         onPressed: () => _shareCard(context),
                         icon: Icon(Icons.share, size: responsive.iconSize(18)),
                         label: Text(
-                          widget.language == GreetingLanguage.urdu
-                              ? 'شیئر'
-                              : widget.language == GreetingLanguage.hindi
-                              ? 'शेयर'
-                              : widget.language == GreetingLanguage.arabic
-                              ? 'مشاركة'
-                              : 'Share',
+                          context.tr('greeting_cards_btn_share'),
                           style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(13)),
                         ),
                         style: ElevatedButton.styleFrom(
@@ -3765,13 +3571,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                           size: responsive.iconSize(18),
                         ),
                         label: Text(
-                          widget.language == GreetingLanguage.urdu
-                              ? 'ڈاؤن لوڈ'
-                              : widget.language == GreetingLanguage.hindi
-                              ? 'डाउनलोड'
-                              : widget.language == GreetingLanguage.arabic
-                              ? 'تحميل'
-                              : 'Download',
+                          context.tr('greeting_cards_btn_download'),
                           style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(13)),
                         ),
                         style: ElevatedButton.styleFrom(
@@ -5367,13 +5167,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
-                        widget.language == GreetingLanguage.urdu
-                            ? 'آپ سب کو مبارک ہو'
-                            : widget.language == GreetingLanguage.hindi
-                            ? 'आप सभी को मुबारक हो'
-                            : widget.language == GreetingLanguage.arabic
-                            ? 'نتمنى لكم جميعاً'
-                            : 'Wishing you all a very',
+                        context.tr('greeting_cards_wishing_you_all'),
                         style: TextStyle(
                           color: Color(0xFFFFFFFF),
                           fontSize: responsive.fontSize(13),
@@ -5578,13 +5372,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                           children: [
                             // HAPPY text
                             Text(
-                              widget.language == GreetingLanguage.urdu
-                                  ? 'مبارک ہو'
-                                  : widget.language == GreetingLanguage.hindi
-                                  ? 'मुबारक हो'
-                                  : widget.language == GreetingLanguage.arabic
-                                  ? 'مبارك'
-                                  : 'HAPPY',
+                              context.tr('greeting_cards_card_happy'),
                               style: TextStyle(
                                 color: softGoldText,
                                 fontSize: responsive.fontSize(16),
@@ -5927,13 +5715,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               const SizedBox(width: 16.0),
               Expanded(
                 child: Text(
-                  widget.language == GreetingLanguage.urdu
-                      ? 'ڈاؤن لوڈ ہو رہا ہے...'
-                      : widget.language == GreetingLanguage.hindi
-                      ? 'डाउनलोड हो रहा है...'
-                      : widget.language == GreetingLanguage.arabic
-                      ? 'جاري التحميل...'
-                      : 'Downloading...',
+                  context.tr('greeting_cards_status_downloading'),
                 ),
               ),
             ],
@@ -5962,13 +5744,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                 const SizedBox(width: 16.0),
                 Expanded(
                   child: Text(
-                    widget.language == GreetingLanguage.urdu
-                        ? 'ڈاؤن لوڈ ناکام ہو گیا'
-                        : widget.language == GreetingLanguage.hindi
-                        ? 'डाउनलोड विफल हो गया'
-                        : widget.language == GreetingLanguage.arabic
-                        ? 'فشل التحميل'
-                        : 'Download failed',
+                    context.tr('greeting_cards_status_download_failed'),
                   ),
                 ),
               ],
@@ -6004,13 +5780,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               const SizedBox(width: 16.0),
               Expanded(
                 child: Text(
-                  widget.language == GreetingLanguage.urdu
-                      ? 'ڈاؤن لوڈ کامیاب! گیلری میں محفوظ ہو گیا'
-                      : widget.language == GreetingLanguage.hindi
-                      ? 'डाउनलोड सफल! गैलरी में सहेजा गया'
-                      : widget.language == GreetingLanguage.arabic
-                      ? 'تم التحميل بنجاح! تم الحفظ في المعرض'
-                      : 'Download successful! Saved to gallery',
+                  context.tr('greeting_cards_status_download_success'),
                 ),
               ),
             ],
@@ -6030,13 +5800,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               const SizedBox(width: 16.0),
               Expanded(
                 child: Text(
-                  widget.language == GreetingLanguage.urdu
-                      ? 'ڈاؤن لوڈ میں خرابی: ${e.toString()}'
-                      : widget.language == GreetingLanguage.hindi
-                      ? 'डाउनलोड में त्रुटि: ${e.toString()}'
-                      : widget.language == GreetingLanguage.arabic
-                      ? 'خطأ في التحميل: ${e.toString()}'
-                      : 'Download error: ${e.toString()}',
+                  '${context.trRead('greeting_cards_status_download_error')}: ${e.toString()}',
                 ),
               ),
             ],
@@ -6073,13 +5837,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
             SizedBox(width: responsive.spacing(12)),
             Expanded(
               child: Text(
-                widget.language == GreetingLanguage.urdu
-                    ? 'کارڈ میں ترمیم کریں'
-                    : widget.language == GreetingLanguage.hindi
-                    ? 'कार्ड संपादित करें'
-                    : widget.language == GreetingLanguage.arabic
-                    ? 'تعديل البطاقة'
-                    : 'Edit Card',
+                context.tr('greeting_cards_edit_card_title'),
                 style: const TextStyle(
                   color: Color(0xFF0A5C36),
                   fontWeight: FontWeight.bold,
@@ -6095,13 +5853,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               TextField(
                 controller: titleController,
                 decoration: InputDecoration(
-                  labelText: widget.language == GreetingLanguage.urdu
-                      ? 'عنوان'
-                      : widget.language == GreetingLanguage.hindi
-                      ? 'शीर्षक'
-                      : widget.language == GreetingLanguage.arabic
-                      ? 'العنوان'
-                      : 'Title',
+                  labelText: context.tr('greeting_cards_field_title'),
                   labelStyle: const TextStyle(color: Color(0xFF0A5C36)),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(
@@ -6137,13 +5889,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               TextField(
                 controller: messageController,
                 decoration: InputDecoration(
-                  labelText: widget.language == GreetingLanguage.urdu
-                      ? 'پیغام'
-                      : widget.language == GreetingLanguage.hindi
-                      ? 'संदेश'
-                      : widget.language == GreetingLanguage.arabic
-                      ? 'الرسالة'
-                      : 'Message',
+                  labelText: context.tr('greeting_cards_field_message'),
                   labelStyle: const TextStyle(color: Color(0xFF0A5C36)),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(
@@ -6201,13 +5947,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                     },
                     icon: Icon(Icons.refresh, size: responsive.iconSize(16)),
                     label: Text(
-                      widget.language == GreetingLanguage.urdu
-                          ? 'ری سیٹ'
-                          : widget.language == GreetingLanguage.hindi
-                          ? 'रीसेट'
-                          : widget.language == GreetingLanguage.arabic
-                          ? 'إعادة'
-                          : 'Reset',
+                      context.tr('greeting_cards_btn_reset'),
                       style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(12)),
                     ),
                     style: ElevatedButton.styleFrom(
@@ -6231,13 +5971,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                     onPressed: () => Navigator.pop(context),
                     icon: Icon(Icons.close, size: responsive.iconSize(16)),
                     label: Text(
-                      widget.language == GreetingLanguage.urdu
-                          ? 'منسوخ'
-                          : widget.language == GreetingLanguage.hindi
-                          ? 'रद्द'
-                          : widget.language == GreetingLanguage.arabic
-                          ? 'إلغاء'
-                          : 'Cancel',
+                      context.tr('greeting_cards_btn_cancel'),
                       style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(12)),
                     ),
                     style: ElevatedButton.styleFrom(
@@ -6267,13 +6001,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                     },
                     icon: Icon(Icons.check, size: responsive.iconSize(16)),
                     label: Text(
-                      widget.language == GreetingLanguage.urdu
-                          ? 'محفوظ'
-                          : widget.language == GreetingLanguage.hindi
-                          ? 'सहेजें'
-                          : widget.language == GreetingLanguage.arabic
-                          ? 'حفظ'
-                          : 'Save',
+                      context.tr('greeting_cards_btn_save'),
                       style: TextStyle(color: Colors.white, fontSize: responsive.fontSize(12)),
                     ),
                     style: ElevatedButton.styleFrom(
@@ -6298,6 +6026,10 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
 
   Future<void> _shareCard(BuildContext context) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final preparingText = context.trRead('greeting_cards_status_preparing_share');
+    final failedText = context.trRead('greeting_cards_status_share_failed');
+    final shareText = context.trRead('greeting_cards_share_card_text');
+    final errorText = context.trRead('greeting_cards_status_share_error');
 
     try {
       // Show loading snackbar
@@ -6317,15 +6049,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               ),
               const SizedBox(width: 16.0),
               Expanded(
-                child: Text(
-                  widget.language == GreetingLanguage.urdu
-                      ? 'شیئر کے لیے تیار ہو رہا ہے...'
-                      : widget.language == GreetingLanguage.hindi
-                      ? 'शेयर के लिए तैयार हो रहा है...'
-                      : widget.language == GreetingLanguage.arabic
-                      ? 'جاري التحضير للمشاركة...'
-                      : 'Preparing to share...',
-                ),
+                child: Text(preparingText),
               ),
             ],
           ),
@@ -6352,15 +6076,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
                 const Icon(Icons.error_outline, color: Colors.white),
                 const SizedBox(width: 16.0),
                 Expanded(
-                  child: Text(
-                    widget.language == GreetingLanguage.urdu
-                        ? 'شیئر ناکام ہو گیا'
-                        : widget.language == GreetingLanguage.hindi
-                        ? 'शेयर विफल हो गया'
-                        : widget.language == GreetingLanguage.arabic
-                        ? 'فشلت المشاركة'
-                        : 'Share failed',
-                  ),
+                  child: Text(failedText),
                 ),
               ],
             ),
@@ -6381,13 +6097,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
       // Share the image
       await Share.shareXFiles(
         [XFile(imagePath)],
-        text: widget.language == GreetingLanguage.urdu
-            ? 'نور الایمان سے اسلامی کارڈ'
-            : widget.language == GreetingLanguage.hindi
-            ? 'नूर-उल-ईमान से इस्लामी कार्ड'
-            : widget.language == GreetingLanguage.arabic
-            ? 'بطاقة إسلامية من نور الإيمان'
-            : 'Islamic Card from Noor-ul-Iman',
+        text: shareText,
       );
 
       // Delete temporary file after a delay
@@ -6405,15 +6115,7 @@ class _StatusCardScreenState extends State<StatusCardScreen> {
               const Icon(Icons.error_outline, color: Colors.white),
               const SizedBox(width: 16.0),
               Expanded(
-                child: Text(
-                  widget.language == GreetingLanguage.urdu
-                      ? 'شیئر میں خرابی: ${e.toString()}'
-                      : widget.language == GreetingLanguage.hindi
-                      ? 'शेयर में त्रुटि: ${e.toString()}'
-                      : widget.language == GreetingLanguage.arabic
-                      ? 'خطأ في المشاركة: ${e.toString()}'
-                      : 'Share error: ${e.toString()}',
-                ),
+                child: Text('$errorText: ${e.toString()}'),
               ),
             ],
           ),

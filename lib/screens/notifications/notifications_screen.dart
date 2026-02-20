@@ -5,6 +5,7 @@ import '../../core/utils/app_utils.dart';
 import '../../core/services/content_service.dart';
 import '../../data/models/firestore_models.dart';
 import '../../providers/adhan_provider.dart';
+import '../../providers/prayer_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/common/banner_ad_widget.dart';
 import '../../core/utils/ad_list_helper.dart';
@@ -66,8 +67,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     try {
       final adhanProvider = context.read<AdhanProvider>();
+      final prayerProvider = context.read<PrayerProvider>();
 
-      // Ensure notifications are scheduled (triggers saving past ones to received)
+      // Ensure prayer times are fetched (location-based) so prayer notifications
+      // get scheduled with correct times and city name
+      if (prayerProvider.todayPrayerTimes == null) {
+        await prayerProvider.initialize();
+      }
+
+      // Ensure Islamic reminder notifications are also scheduled
       if (adhanProvider.isInitialized) {
         await adhanProvider.scheduleAllIslamicNotifications();
       }
@@ -91,33 +99,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             type: type,
             category: category,
             receivedAt: notification.receivedAt,
-            isUpcoming: false,
-          ),
-        );
-      }
 
-      // Load upcoming scheduled notifications from SharedPreferences
-      // This is more reliable than getPendingNotifications() which depends on
-      // flutter_local_notifications successfully scheduling the alarms
-      final upcomingNotifications = await adhanProvider.getUpcomingScheduledNotifications();
-      debugPrint('Upcoming scheduled notifications: ${upcomingNotifications.length}');
 
-      for (final upcoming in upcomingNotifications) {
-        // Skip if already in received list
-        if (items.any((n) => n.id == upcoming.id)) continue;
-
-        NotificationType type = _getTypeFromString(upcoming.type);
-        NotificationCategory category = _getCategoryFromType(type);
-
-        items.add(
-          NotificationItem(
-            id: upcoming.id,
-            title: upcoming.title,
-            body: upcoming.body,
-            type: type,
-            category: category,
-            receivedAt: upcoming.receivedAt,
-            isUpcoming: true,
           ),
         );
       }
@@ -273,6 +256,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
         ),
         body: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               Expanded(
@@ -602,39 +586,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: responsive.spacing(4)),
-                Row(
-                  children: [
-                    if (notification.isUpcoming) ...[
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          _t('upcoming'),
-                          style: TextStyle(
-                            fontSize: responsive.textXSmall,
-                            color: Colors.orange.shade700,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: responsive.spaceSmall),
-                    ],
-                    Text(
-                      notification.isUpcoming
-                          ? _t('scheduled')
-                          : _formatTimeOnly(notification.receivedAt),
-                      style: TextStyle(
-                        fontSize: responsive.textXSmall,
-                        color: AppColors.textSecondary.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ],
+                Text(
+                  _formatTimeOnly(notification.receivedAt),
+                  style: TextStyle(
+                    fontSize: responsive.textXSmall,
+                    color: AppColors.textSecondary.withValues(alpha: 0.7),
+                  ),
                 ),
               ],
             ),
@@ -797,7 +754,6 @@ class NotificationItem {
   final NotificationType type;
   final NotificationCategory category;
   final DateTime receivedAt;
-  final bool isUpcoming;
 
   NotificationItem({
     required this.id,
@@ -806,6 +762,5 @@ class NotificationItem {
     required this.type,
     required this.category,
     required this.receivedAt,
-    this.isUpcoming = false,
   });
 }

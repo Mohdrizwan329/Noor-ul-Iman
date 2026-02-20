@@ -121,6 +121,7 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _fetchAndSaveLocation() async {
     try {
       final locationService = LocationService();
+      final unknownFallback = context.trRead('unknown_location');
       final position = await locationService.getCurrentLocation();
 
       if (position != null) {
@@ -133,7 +134,7 @@ class _SplashScreenState extends State<SplashScreen>
 
           if (placemarks.isNotEmpty) {
             final placemark = placemarks.first;
-            final city = placemark.locality ?? placemark.subAdministrativeArea ?? 'Unknown';
+            final city = placemark.locality ?? placemark.subAdministrativeArea ?? unknownFallback;
             final country = placemark.country ?? '';
             final isoCountryCode = placemark.isoCountryCode ?? '';
 

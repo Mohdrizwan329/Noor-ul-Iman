@@ -51,7 +51,7 @@ class _OtpPasswordVerificationScreenState
     if (retryCount > 5) {
       // Max 5 retries
       setState(() {
-        _generatedOtp = 'Unable to load OTP. Please try resending.';
+        _generatedOtp = context.trRead('unable_to_load_otp');
         _loadingOtp = false;
       });
       return;
@@ -107,7 +107,7 @@ class _OtpPasswordVerificationScreenState
       if (!mounted) return;
 
       setState(() {
-        _generatedOtp = 'Error loading OTP: ${e.toString()}';
+        _generatedOtp = context.trRead('error_loading_otp');
         _loadingOtp = false;
       });
     }
@@ -127,7 +127,7 @@ class _OtpPasswordVerificationScreenState
 
     if (otp.length != 4) {
       setState(() {
-        _errorMessage = 'Please enter complete OTP';
+        _errorMessage = context.trRead('enter_complete_otp');
       });
       return;
     }

@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../core/services/location_service.dart';
 import '../core/services/prayer_time_service.dart';
+import '../core/services/hijri_date_service.dart';
 import '../data/models/prayer_time_model.dart';
 import 'settings_provider.dart';
 import 'adhan_provider.dart';
@@ -90,10 +92,28 @@ class PrayerProvider with ChangeNotifier {
 
         _locationService.updateCity(city, country);
 
-        // Auto-detect calculation method from user's country
+        // Persist country code so HijriDateService and BackgroundLocationService can use it
         if (isoCountryCode.isNotEmpty) {
-          _calculationMethod = SettingsProvider.getRecommendedMethod(isoCountryCode);
-          debugPrint('📍 Auto-detected calculation method: $_calculationMethod for $isoCountryCode');
+          final prefs = await SharedPreferences.getInstance();
+          final oldCountryCode = prefs.getString('country_code') ?? '';
+          await prefs.setString('country_code', isoCountryCode);
+
+          // Auto-detect calculation method from user's country
+          final wasManuallySet = prefs.getBool('calculation_method_manually_set') ?? false;
+          if (!wasManuallySet) {
+            _calculationMethod = SettingsProvider.getRecommendedMethod(isoCountryCode);
+            await prefs.setInt('calculation_method', _calculationMethod);
+            debugPrint('📍 Auto-detected calculation method: $_calculationMethod for $isoCountryCode');
+          } else {
+            // Use the manually set method from prefs
+            _calculationMethod = prefs.getInt('calculation_method') ?? _calculationMethod;
+          }
+
+          // Refresh HijriDateService if country changed (regional adjustment may differ)
+          if (oldCountryCode != isoCountryCode && oldCountryCode.isNotEmpty) {
+            debugPrint('📍 Country changed from $oldCountryCode to $isoCountryCode, refreshing Hijri date');
+            await HijriDateService.instance.initialize();
+          }
         }
 
         debugPrint('📍 Location updated: $city, $country ($isoCountryCode)');

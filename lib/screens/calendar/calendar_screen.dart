@@ -113,9 +113,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
+  // Normal short day names for calendar grid headers
+  static const _shortDayNames = {
+    'en': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    'hi': ['रवि', 'सोम', 'मंगल', 'बुध', 'गुरु', 'शुक्र', 'शनि'],
+    'ur': ['اتوار', 'پیر', 'منگل', 'بدھ', 'جمعرات', 'جمعہ', 'ہفتہ'],
+    'ar': ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'],
+  };
+
   List<String> _getWeekdayHeaders(String langCode) {
-    if (_calendarContent == null) return List.filled(7, '');
-    return _calendarContent!.getIslamicDaysOfWeek(langCode);
+    // Use normal short day names (not Arabic-origin Islamic names)
+    return _shortDayNames[langCode] ?? _shortDayNames['en']!;
   }
 
   @override

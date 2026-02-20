@@ -13,54 +13,27 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // Users collection
+    // ============================================
+    // USER DATA COLLECTIONS
+    // ============================================
+
+    // Users collection - profile data
     match /users/{userId} {
-      // Anyone can read user data (for profile display)
       allow read: if true;
-
-      // Only authenticated users can create their own document
       allow create: if isAuthenticated() && request.auth.uid == userId;
-
-      // Only the user can update their own data
-      allow update: if isOwner(userId);
-
-      // Only the user can delete their own data
-      allow delete: if isOwner(userId);
+      allow update, delete: if isOwner(userId);
     }
 
-    // OTPs collection (for password reset)
+    // OTPs collection (for password reset / email verification)
     match /otps/{email} {
-      // Allow read/write for OTP verification
-      allow read: if true;
-      allow write: if true;
+      allow read, write: if true;
     }
 
-    // Prayer requests collection
-    match /prayerRequests/{requestId} {
-      // Anyone can read prayer requests
-      allow read: if true;
+    // ============================================
+    // ISLAMIC CONTENT COLLECTIONS
+    // (Public read, authenticated write for migration)
+    // ============================================
 
-      // Only authenticated users can create requests
-      allow create: if isAuthenticated();
-
-      // Only owner can update/delete their requests
-      allow update, delete: if isAuthenticated() &&
-                                resource.data.userId == request.auth.uid;
-    }
-
-    // Bookmarks collection
-    match /bookmarks/{userId} {
-      // Only owner can read/write their bookmarks
-      allow read, write: if isOwner(userId);
-    }
-
-    // Tasbih counter collection
-    match /tasbih/{userId} {
-      // Only owner can read/write their tasbih data
-      allow read, write: if isOwner(userId);
-    }
-
-    // Content collections - public read, authenticated write (for migration)
     match /content_metadata/{document} {
       allow read: if true;
       allow write: if isAuthenticated();
@@ -136,7 +109,26 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
 
+    match /quran_surahs/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
     match /fasting_data/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /app_data/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // ============================================
+    // TRANSLATION & LOCALIZATION COLLECTIONS
+    // ============================================
+
+    match /ui_translations/{document} {
       allow read: if true;
       allow write: if isAuthenticated();
     }
@@ -167,6 +159,35 @@ service cloud.firestore {
     }
 
     match /language_names/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // ============================================
+    // SCREEN CONTENT COLLECTIONS
+    // ============================================
+
+    match /home_screen_content/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /prayer_times_screen_content/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /fasting_times_content/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /notifications_screen_content/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /settings_screen_content/{document} {
       allow read: if true;
       allow write: if isAuthenticated();
     }
@@ -211,47 +232,10 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
 
-    match /ui_translations/{document} {
-      allow read: if true;
-      allow write: if isAuthenticated();
-    }
+    // ============================================
+    // DEFAULT DENY
+    // ============================================
 
-    match /app_data/{document} {
-      allow read: if true;
-      allow write: if isAuthenticated();
-    }
-
-    match /fasting_times_content/{document} {
-      allow read: if true;
-      allow write: if isAuthenticated();
-    }
-
-    match /home_screen_content/{document} {
-      allow read: if true;
-      allow write: if isAuthenticated();
-    }
-
-    match /prayer_times_screen_content/{document} {
-      allow read: if true;
-      allow write: if isAuthenticated();
-    }
-
-    match /notifications_screen_content/{document} {
-      allow read: if true;
-      allow write: if isAuthenticated();
-    }
-
-    match /settings_screen_content/{document} {
-      allow read: if true;
-      allow write: if isAuthenticated();
-    }
-
-    match /quran_surahs/{document} {
-      allow read: if true;
-      allow write: if isAuthenticated();
-    }
-
-    // Default deny all other collections
     match /{document=**} {
       allow read, write: if false;
     }

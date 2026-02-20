@@ -963,8 +963,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       final alreadyMigrated = await migrationService.isDataMigrated();
                       if (alreadyMigrated) {
                         setDialogState(() {
-                          logs.add('Data already exists in Firestore.');
-                          logs.add('Re-uploading will overwrite existing data...');
+                          logs.add(context.trRead('data_exists_firestore'));
+                          logs.add(context.trRead('reupload_overwrite'));
                         });
                       }
 

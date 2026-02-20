@@ -1460,7 +1460,7 @@ ${_getCurrentTranslation(dua)}
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    _tr(virtuesTitle, fallback: 'Virtues of Fasting'),
+                    _tr(virtuesTitle, fallback: context.tr('virtues_of_fasting')),
                     style: TextStyle(
                       fontSize: responsive.fontSize(18),
                       fontWeight: FontWeight.bold,
@@ -1583,7 +1583,7 @@ ${_getCurrentTranslation(dua)}
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    _tr(rulesData['title'], fallback: 'Fasting Rules'),
+                    _tr(rulesData['title'], fallback: context.tr('fasting_rules')),
                     style: TextStyle(
                       fontSize: responsive.fontSize(18),
                       fontWeight: FontWeight.bold,
@@ -1618,7 +1618,7 @@ ${_getCurrentTranslation(dua)}
                       child: Text(
                         _tr(
                           rulesData['breaks_fast_title'],
-                          fallback: 'What Breaks the Fast',
+                          fallback: context.tr('what_breaks_the_fast'),
                         ),
                         style: TextStyle(
                           fontSize: responsive.fontSize(14),
@@ -1687,7 +1687,7 @@ ${_getCurrentTranslation(dua)}
                       child: Text(
                         _tr(
                           rulesData['does_not_break_fast_title'],
-                          fallback: 'Does Not Break Fast',
+                          fallback: context.tr('does_not_break_fast'),
                         ),
                         style: TextStyle(
                           fontSize: responsive.fontSize(14),
@@ -1760,7 +1760,7 @@ ${_getCurrentTranslation(dua)}
         Text(
           _tr(
             monthsData['title'],
-            fallback: 'Islamic 12 Months - Fasting Chart',
+            fallback: context.tr('islamic_months_fasting_chart'),
           ),
           style: TextStyle(
             fontSize: responsive.textLarge,
@@ -1864,7 +1864,7 @@ ${_getCurrentTranslation(dua)}
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          '${fastingDays.length} ${_tr(labels['fasting_options'], fallback: 'Fasting options')}',
+                          '${fastingDays.length} ${_tr(labels['fasting_options'], fallback: context.tr('fasting_options'))}',
                           style: TextStyle(
                             fontSize: responsive.fontSize(12),
                             color: AppColors.textSecondary,
@@ -1924,19 +1924,19 @@ ${_getCurrentTranslation(dua)}
       case 'farz':
         typeColor = Colors.red;
         typeIcon = Icons.star;
-        typeLabel = _tr(labels['farz'], fallback: 'Farz');
+        typeLabel = _tr(labels['farz'], fallback: context.tr('farz'));
       case 'sunnah':
         typeColor = Colors.green;
         typeIcon = Icons.check_circle;
-        typeLabel = _tr(labels['sunnah'], fallback: 'Sunnah');
+        typeLabel = _tr(labels['sunnah'], fallback: context.tr('sunnah_fasting'));
       case 'prohibited':
         typeColor = Colors.red.shade900;
         typeIcon = Icons.cancel;
-        typeLabel = _tr(labels['mana'], fallback: 'Prohibited');
+        typeLabel = _tr(labels['mana'], fallback: context.tr('prohibited_fasting'));
       default:
         typeColor = Colors.blue;
         typeIcon = Icons.favorite;
-        typeLabel = _tr(labels['nafil'], fallback: 'Nafil');
+        typeLabel = _tr(labels['nafil'], fallback: context.tr('nafil'));
     }
 
     return Padding(
@@ -2034,7 +2034,7 @@ ${_getCurrentTranslation(dua)}
                 child: Text(
                   _tr(
                     labels['fasting_prohibited'],
-                    fallback: 'Fasting PROHIBITED',
+                    fallback: context.tr('fasting_prohibited'),
                   ),
                   style: TextStyle(
                     fontSize: responsive.fontSize(16),
@@ -2112,7 +2112,7 @@ ${_getCurrentTranslation(dua)}
               SizedBox(width: responsive.spacing(8)),
               Expanded(
                 child: Text(
-                  _tr(labels['quick_rules_remember'], fallback: 'Quick Rules'),
+                  _tr(labels['quick_rules_remember'], fallback: context.tr('quick_rules')),
                   style: TextStyle(
                     fontSize: responsive.fontSize(16),
                     fontWeight: FontWeight.bold,

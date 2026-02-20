@@ -5,9 +5,12 @@ import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/theme/app_theme.dart';
 import 'core/services/background_location_service.dart';
+import 'core/services/location_service.dart';
 import 'core/services/azan_background_service.dart';
 import 'core/services/ad_service.dart';
 import 'core/services/content_service.dart';
@@ -56,7 +59,46 @@ void main() async {
   // Configure Google Fonts to handle network errors gracefully
   GoogleFonts.config.allowRuntimeFetching = false;
 
-  // Initialize Hijri date service (fetches correct Islamic date from API)
+  // Get current location and save country_code BEFORE HijriDateService
+  // so regional Hijri adjustment is correct from the start
+  try {
+    final locationService = LocationService();
+    final position = await locationService.getCurrentLocation();
+    if (position != null) {
+      final placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+      if (placemarks.isNotEmpty) {
+        final placemark = placemarks.first;
+        final city = placemark.locality ??
+                     placemark.subAdministrativeArea ??
+                     placemark.administrativeArea ??
+                     'Unknown';
+        final country = placemark.country ?? '';
+        final isoCountryCode = placemark.isoCountryCode ?? '';
+
+        locationService.updateCity(city, country);
+
+        if (isoCountryCode.isNotEmpty) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('country_code', isoCountryCode);
+
+          // Auto-detect calculation method if not manually set
+          final wasManuallySet = prefs.getBool('calculation_method_manually_set') ?? false;
+          if (!wasManuallySet) {
+            final method = SettingsProvider.getRecommendedMethod(isoCountryCode);
+            await prefs.setInt('calculation_method', method);
+          }
+          debugPrint('📍 Startup location: $city, $country ($isoCountryCode)');
+        }
+      }
+    }
+  } catch (e) {
+    debugPrint('📍 Startup location fetch failed: $e');
+  }
+
+  // Initialize Hijri date service (uses country_code saved above for regional adjustment)
   await HijriDateService.instance.initialize();
 
   // Initialize AdMob
@@ -94,7 +136,7 @@ class MyApp extends StatelessWidget {
         // AdhanProvider must be before PrayerProvider so its instance is available
         // when PrayerProvider auto-schedules notifications after fetching prayer times
         ChangeNotifierProvider(create: (_) => AdhanProvider()..initialize()),
-        ChangeNotifierProvider(create: (_) => PrayerProvider()),
+        ChangeNotifierProvider(create: (_) => PrayerProvider()..initialize()),
         ChangeNotifierProvider(create: (_) => QuranProvider()),
         ChangeNotifierProvider(create: (_) => TasbihProvider()..loadSettings()),
         ChangeNotifierProvider(create: (_) => HadithProvider()..initialize()),

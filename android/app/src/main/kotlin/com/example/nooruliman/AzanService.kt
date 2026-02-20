@@ -83,6 +83,10 @@ class AzanService : Service() {
      * Register receiver to stop azan when user presses volume or lock/power button.
      * Volume button = android.media.VOLUME_CHANGED_ACTION
      * Lock/Power button = Intent.ACTION_SCREEN_OFF
+     *
+     * Uses RECEIVER_EXPORTED on Android 13+ because these are system broadcasts
+     * that originate from a different UID (system_server). RECEIVER_NOT_EXPORTED
+     * blocks system broadcasts on some OEM devices.
      */
     private fun registerStopReceiver() {
         stopReceiver = object : BroadcastReceiver() {
@@ -107,7 +111,9 @@ class AzanService : Service() {
             addAction(Intent.ACTION_SCREEN_OFF)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(stopReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            // RECEIVER_EXPORTED is required for system broadcasts on Android 13+
+            // These are safe system-level broadcasts (volume change, screen off)
+            registerReceiver(stopReceiver, filter, Context.RECEIVER_EXPORTED)
         } else {
             registerReceiver(stopReceiver, filter)
         }
@@ -131,6 +137,23 @@ class AzanService : Service() {
             "NoorulIman::AzanWakeLock"
         ).apply {
             acquire(10 * 60 * 1000L) // 10 minutes max
+        }
+    }
+
+    /**
+     * Audio focus change listener - stops azan if another app takes focus
+     * (e.g. phone call, user plays music, etc.)
+     */
+    private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
+        when (focusChange) {
+            AudioManager.AUDIOFOCUS_LOSS,
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                if (isAzanPlaying) {
+                    Log.d(TAG, "Audio focus lost (focusChange=$focusChange) - stopping azan")
+                    stopAzan()
+                    stopSelf()
+                }
+            }
         }
     }
 
@@ -167,6 +190,7 @@ class AzanService : Service() {
                         .setUsage(AudioAttributes.USAGE_ALARM)
                         .build()
                 )
+                .setOnAudioFocusChangeListener(audioFocusChangeListener)
                 .setWillPauseWhenDucked(false)
                 .build()
             audioFocusRequest = focusRequest
@@ -176,7 +200,7 @@ class AzanService : Service() {
         } else {
             @Suppress("DEPRECATION")
             val result = am.requestAudioFocus(
-                null,
+                audioFocusChangeListener,
                 AudioManager.STREAM_ALARM,
                 AudioManager.AUDIOFOCUS_GAIN
             )

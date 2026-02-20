@@ -4,8 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../core/services/data_migration_service.dart';
+import '../../core/services/content_service.dart';
 import '../../data/models/firestore_models.dart';
 import '../../data/models/multilingual_text.dart';
 import '../../core/utils/app_utils.dart';
@@ -73,85 +72,15 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
     );
   }
 
-  Future<List<HajjStepFirestore>> _fetchGuide(String type) async {
-    final doc = await FirebaseFirestore.instance
-        .collection('hajj_guide')
-        .doc(type)
-        .get();
-    if (!doc.exists) return [];
-    final data = doc.data()!;
-    return (data['steps'] as List<dynamic>? ?? [])
-        .map((s) => HajjStepFirestore.fromJson(s as Map<String, dynamic>))
-        .toList();
-  }
-
   Future<void> _loadFromFirestore() async {
     if (mounted) setState(() => _isLoading = true);
     try {
-      var hajjData = await _fetchGuide('hajj');
-      var umrahData = await _fetchGuide('umrah');
-
-      // Check if duas doc exists (added later, may be missing even if steps exist)
-      var duasDoc = await FirebaseFirestore.instance
-          .collection('hajj_guide')
-          .doc('duas')
-          .get();
-
-      // Auto-push if Firebase is empty OR duas are missing
-      if (hajjData.isEmpty || umrahData.isEmpty || !duasDoc.exists) {
-        debugPrint('Firebase hajj_guide incomplete - auto-pushing data...');
-        await DataMigrationService().migrateHajjGuide();
-        if (hajjData.isEmpty) hajjData = await _fetchGuide('hajj');
-        if (umrahData.isEmpty) umrahData = await _fetchGuide('umrah');
-        duasDoc = await FirebaseFirestore.instance
-            .collection('hajj_guide')
-            .doc('duas')
-            .get();
-      }
-
-      // Parse duas
-      List<HajjDuaFirestore> duasList = [];
-      if (duasDoc.exists) {
-        duasList = (duasDoc.data()!['duas'] as List<dynamic>? ?? [])
-            .map((d) => HajjDuaFirestore.fromJson(d as Map<String, dynamic>))
-            .toList();
-      }
-
-      // Fetch prohibitions
-      final prohibDoc = await FirebaseFirestore.instance
-          .collection('hajj_guide')
-          .doc('prohibitions')
-          .get();
-      List<MultilingualText> prohibList = [];
-      if (prohibDoc.exists) {
-        prohibList = (prohibDoc.data()!['items'] as List<dynamic>? ?? [])
-            .map((p) => MultilingualText.fromJson(p as Map<String, dynamic>?))
-            .toList();
-      }
-
-      // Fetch intro texts
-      final introDoc = await FirebaseFirestore.instance
-          .collection('hajj_guide')
-          .doc('intro')
-          .get();
-      Map<String, MultilingualText>? introMap;
-      if (introDoc.exists) {
-        final data = introDoc.data()!;
-        introMap = {
-          'hajj_subtitle': MultilingualText.fromJson(
-            data['hajj_subtitle'] as Map<String, dynamic>?,
-          ),
-          'umrah_subtitle': MultilingualText.fromJson(
-            data['umrah_subtitle'] as Map<String, dynamic>?,
-          ),
-          'duas_section_title': MultilingualText.fromJson(
-            data['duas_section_title'] as Map<String, dynamic>?,
-          ),
-          'prohibitions_section_title': MultilingualText.fromJson(
-            data['prohibitions_section_title'] as Map<String, dynamic>?,
-          ),
-        };
-      }
+      final contentService = ContentService();
+      final hajjData = await contentService.getHajjGuide('hajj');
+      final umrahData = await contentService.getHajjGuide('umrah');
+      final duasList = await contentService.getHajjDuas();
+      final prohibList = await contentService.getHajjProhibitions();
+      final introMap = await contentService.getHajjIntro();
 
       if (mounted) {
         setState(() {
@@ -165,12 +94,12 @@ class _HajjGuideScreenState extends State<HajjGuideScreen>
           }
           if (duasList.isNotEmpty) _firestoreDuas = duasList;
           if (prohibList.isNotEmpty) _firestoreProhibitions = prohibList;
-          if (introMap != null) _firestoreIntro = introMap;
+          if (introMap.isNotEmpty) _firestoreIntro = introMap;
           _isLoading = false;
         });
       }
     } catch (e) {
-      debugPrint('Error loading hajj guide from Firestore: $e');
+      debugPrint('Error loading hajj guide from ContentService: $e');
       if (mounted) setState(() => _isLoading = false);
     }
   }

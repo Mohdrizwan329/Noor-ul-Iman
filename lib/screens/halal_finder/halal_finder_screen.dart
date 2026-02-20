@@ -317,25 +317,21 @@ class _HalalFinderScreenState extends State<HalalFinderScreen> {
       debugPrint('Halal Finder Error: $e');
       debugPrint('Stack trace: $stackTrace');
 
-      // Provide user-friendly error messages
+      // Provide user-friendly error messages (translated via Firebase)
       String userFriendlyError;
       if (e.toString().contains('Timeout')) {
-        userFriendlyError =
-            'Connection timeout. Please check your internet and try again.';
+        userFriendlyError = context.trRead('connection_timeout');
       } else if (e.toString().contains('SocketException') ||
           e.toString().contains('Network')) {
-        userFriendlyError =
-            'No internet connection. Please check your network.';
+        userFriendlyError = context.trRead('no_internet_connection');
       } else if (e.toString().contains('rate limited')) {
-        userFriendlyError =
-            'Service is busy. Please wait a moment and try again.';
+        userFriendlyError = context.trRead('service_busy');
       } else if (e.toString().contains('Server error')) {
-        userFriendlyError = 'Server temporarily unavailable. Please try again.';
+        userFriendlyError = context.trRead('server_unavailable');
       } else if (e.toString().contains('unavailable')) {
-        userFriendlyError =
-            'Service temporarily unavailable. Pull down to retry.';
+        userFriendlyError = context.trRead('service_unavailable');
       } else {
-        userFriendlyError = 'Unable to load halal places. Pull down to retry.';
+        userFriendlyError = context.trRead('unable_to_load_halal');
       }
 
       if (!mounted) return;

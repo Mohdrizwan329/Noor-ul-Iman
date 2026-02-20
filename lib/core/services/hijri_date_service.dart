@@ -56,7 +56,9 @@ class HijriDateService {
     await _fetchCorrectHijriDate();
 
     _isInitialized = true;
-    debugPrint('HijriDateService initialized: apiAdj=$_apiAdjustment, userAdj=$_userAdjustment, total=$totalAdjustment');
+    debugPrint(
+      'HijriDateService initialized: apiAdj=$_apiAdjustment, userAdj=$_userAdjustment, total=$totalAdjustment',
+    );
   }
 
   /// Get the corrected Hijri date for today.
@@ -87,7 +89,9 @@ class HijriDateService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_adjustmentKey, _userAdjustment);
 
-    debugPrint('User adjustment set to $_userAdjustment, total=$totalAdjustment');
+    debugPrint(
+      'User adjustment set to $_userAdjustment, total=$totalAdjustment',
+    );
   }
 
   /// Load user adjustment from SharedPreferences.
@@ -102,7 +106,9 @@ class HijriDateService {
         // Auto-detect from user's country (saved by SettingsProvider)
         final countryCode = prefs.getString('country_code') ?? '';
         _userAdjustment = getRegionalAdjustment(countryCode);
-        debugPrint('Hijri adjustment auto-detected: $_userAdjustment (country: $countryCode)');
+        debugPrint(
+          'Hijri adjustment auto-detected: $_userAdjustment (country: $countryCode)',
+        );
       }
     } catch (e) {
       debugPrint('Error loading user adjustment: $e');
@@ -112,9 +118,7 @@ class HijriDateService {
   /// Get the recommended Hijri day adjustment for a country.
   /// Indian subcontinent moon sighting is typically 1 day behind Saudi Umm al-Qura.
   static int getRegionalAdjustment(String countryCode) {
-    const subcontinentCountries = {
-      'IN', 'PK', 'BD', 'LK', 'NP', 'AF', 'MM',
-    };
+    const subcontinentCountries = {'IN', 'PK', 'BD', 'LK', 'NP', 'AF', 'MM'};
     if (subcontinentCountries.contains(countryCode.toUpperCase())) {
       return -1;
     }
@@ -125,15 +129,16 @@ class HijriDateService {
   Future<void> _fetchCorrectHijriDate() async {
     try {
       final now = DateTime.now();
-      final dateStr = '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year}';
+      final dateStr =
+          '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year}';
 
       // Always fetch the default (Umm al-Qura) date from API.
       // User adjustment is applied locally to avoid double-counting.
       final url = '$_baseUrl/gToH/$dateStr';
 
-      final response = await http.get(Uri.parse(url)).timeout(
-        const Duration(seconds: 10),
-      );
+      final response = await http
+          .get(Uri.parse(url))
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -146,8 +151,12 @@ class HijriDateService {
           // Calculate offset from local package
           final localHijri = HijriCalendar.now();
           _apiAdjustment = _calculateDayDifference(
-            localHijri.hYear, localHijri.hMonth, localHijri.hDay,
-            _apiHijriYear!, _apiHijriMonth!, _apiHijriDay!,
+            localHijri.hYear,
+            localHijri.hMonth,
+            localHijri.hDay,
+            _apiHijriYear!,
+            _apiHijriMonth!,
+            _apiHijriDay!,
           );
 
           debugPrint(
@@ -166,8 +175,12 @@ class HijriDateService {
   /// Calculate the day difference between two Hijri dates
   /// Returns positive if API date is ahead, negative if behind
   int _calculateDayDifference(
-    int localYear, int localMonth, int localDay,
-    int apiYear, int apiMonth, int apiDay,
+    int localYear,
+    int localMonth,
+    int localDay,
+    int apiYear,
+    int apiMonth,
+    int apiDay,
   ) {
     // Simple case: same year and month
     if (localYear == apiYear && localMonth == apiMonth) {
@@ -179,5 +192,4 @@ class HijriDateService {
     int apiDays = apiYear * 354 + apiMonth * 30 + apiDay;
     return apiDays - localDays;
   }
-
 }

@@ -6,12 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/app_utils.dart';
-import '../../core/services/data_migration_service.dart';
+import '../../core/services/content_service.dart';
 import '../../data/models/dua_model.dart';
-import '../../data/models/firestore_models.dart';
 import '../../providers/prayer_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/common/banner_ad_widget.dart';
@@ -49,32 +47,11 @@ class _RamadanTrackerScreenState extends State<RamadanTrackerScreen>
       setState(() => _isDuasLoading = true);
     }
     try {
-      // Fetch directly from Firebase (bypass ContentService cache)
-      var doc = await FirebaseFirestore.instance
-          .collection('ramadan_duas')
-          .doc('all_duas')
-          .get();
+      final firestoreDuas = await ContentService().getRamadanDuas();
 
-      // If Firebase is empty, auto-push hardcoded data first
-      if (!doc.exists || (doc.data()?['duas'] as List?)?.isEmpty != false) {
-        debugPrint('Firebase ramadan_duas empty - auto-pushing data...');
-        await DataMigrationService().migrateRamadanDuas();
-        // Re-fetch after push
-        doc = await FirebaseFirestore.instance
-            .collection('ramadan_duas')
-            .doc('all_duas')
-            .get();
-      }
+      debugPrint('Loaded ${firestoreDuas.length} ramadan duas from ContentService');
 
-      if (doc.exists && mounted) {
-        final data = doc.data()!;
-        final firestoreDuas = (data['duas'] as List<dynamic>? ?? [])
-            .map((d) => RamadanDuaFirestore.fromJson(d as Map<String, dynamic>))
-            .toList();
-
-        debugPrint('Loaded ${firestoreDuas.length} ramadan duas from Firebase');
-
-        if (firestoreDuas.isNotEmpty) {
+      if (firestoreDuas.isNotEmpty && mounted) {
           final converted = firestoreDuas.map((dua) {
             final colorHex = dua.color;
             Color color = const Color(0xFF1565C0);
@@ -106,7 +83,6 @@ class _RamadanTrackerScreenState extends State<RamadanTrackerScreen>
           });
           return;
         }
-      }
 
       if (mounted) {
         setState(() => _isDuasLoading = false);
