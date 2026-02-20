@@ -27,7 +27,8 @@ class HijriDateService {
   int _apiAdjustment = 0;
 
   /// User's manual adjustment (-2 to +2)
-  int _userAdjustment = 0;
+  /// Default -1 for Indian subcontinent (moon sighting is typically 1 day behind Saudi Umm al-Qura)
+  int _userAdjustment = -1;
 
   /// Whether the service has been initialized
   bool _isInitialized = false;
@@ -86,12 +87,6 @@ class HijriDateService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_adjustmentKey, _userAdjustment);
 
-    // Re-fetch with the new adjustment considered
-    if (_apiHijriDay != null) {
-      // Recalculate API date with user adjustment
-      await _fetchCorrectHijriDate();
-    }
-
     debugPrint('User adjustment set to $_userAdjustment, total=$totalAdjustment');
   }
 
@@ -99,7 +94,7 @@ class HijriDateService {
   Future<void> _loadUserAdjustment() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      _userAdjustment = prefs.getInt(_adjustmentKey) ?? 0;
+      _userAdjustment = prefs.getInt(_adjustmentKey) ?? -1;
     } catch (e) {
       debugPrint('Error loading user adjustment: $e');
     }
@@ -111,11 +106,9 @@ class HijriDateService {
       final now = DateTime.now();
       final dateStr = '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year}';
 
-      // Build URL with user adjustment parameter
-      var url = '$_baseUrl/gToH/$dateStr';
-      if (_userAdjustment != 0) {
-        url += '?adjustment=$_userAdjustment';
-      }
+      // Always fetch the default (Umm al-Qura) date from API.
+      // User adjustment is applied locally to avoid double-counting.
+      final url = '$_baseUrl/gToH/$dateStr';
 
       final response = await http.get(Uri.parse(url)).timeout(
         const Duration(seconds: 10),

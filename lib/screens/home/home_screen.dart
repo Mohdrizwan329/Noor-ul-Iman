@@ -593,17 +593,46 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     return aqiLevel;
   }
 
+  // Local fallback for Hijri month translations
+  static const _hijriMonthFallback = {
+    'Muharram': {'en': 'Muharram', 'hi': 'मुहर्रम', 'ur': 'محرم', 'ar': 'محرّم'},
+    'Safar': {'en': 'Safar', 'hi': 'सफ़र', 'ur': 'صفر', 'ar': 'صفر'},
+    'Rabi ul Awwal': {'en': 'Rabi ul Awwal', 'hi': 'रबीउल अव्वल', 'ur': 'ربیع الاول', 'ar': 'ربيع الأوّل'},
+    'Rabi ul Aakhir': {'en': 'Rabi ul Aakhir', 'hi': 'रबीउल आख़िर', 'ur': 'ربیع الثانی', 'ar': 'ربيع الثاني'},
+    'Jumada ul Ula': {'en': 'Jumada ul Ula', 'hi': 'जुमादा अल-ऊला', 'ur': 'جمادی الاول', 'ar': 'جمادى الأولى'},
+    'Jumada ul Aakhira': {'en': 'Jumada ul Aakhira', 'hi': 'जुमादा अल-आख़िरा', 'ur': 'جمادی الثانی', 'ar': 'جمادى الآخرة'},
+    'Rajab': {'en': 'Rajab', 'hi': 'रजब', 'ur': 'رجب', 'ar': 'رجب'},
+    'Shaban': {'en': 'Shaban', 'hi': 'शाबान', 'ur': 'شعبان', 'ar': 'شعبان'},
+    'Ramadan': {'en': 'Ramadan', 'hi': 'रमज़ान', 'ur': 'رمضان', 'ar': 'رمضان'},
+    'Shawwal': {'en': 'Shawwal', 'hi': 'शव्वाल', 'ur': 'شوال', 'ar': 'شوّال'},
+    'Dhul Qadah': {'en': 'Dhul Qadah', 'hi': 'ज़ुल क़ादा', 'ur': 'ذوالقعدہ', 'ar': 'ذو القعدة'},
+    'Dhul Hijjah': {'en': 'Dhul Hijjah', 'hi': 'ज़ुल हिज्जा', 'ur': 'ذوالحجہ', 'ar': 'ذو الحجّة'},
+  };
+
   String _getTranslatedHijriMonth(BuildContext context, String monthName) {
     final content = _homeContent;
+    final langCode = context.languageProvider.languageCode;
 
     if (content != null && content.hijriMonthMap.isNotEmpty) {
       final key = content.hijriMonthMap[monthName];
       if (key != null) {
-        return context.tr(key);
+        final translated = context.tr(key);
+        if (translated != key) return translated;
       }
     }
 
-    debugPrint('Hijri month not mapped: "$monthName"');
+    // Local fallback - try exact match first
+    final fallback = _hijriMonthFallback[monthName];
+    if (fallback != null) return fallback[langCode] ?? fallback['en'] ?? monthName;
+
+    // Try partial match for different name formats
+    final normalized = monthName.toLowerCase();
+    for (final entry in _hijriMonthFallback.entries) {
+      if (normalized.contains(entry.key.toLowerCase()) || entry.key.toLowerCase().contains(normalized)) {
+        return entry.value[langCode] ?? entry.value['en'] ?? monthName;
+      }
+    }
+
     return monthName;
   }
 

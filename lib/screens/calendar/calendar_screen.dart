@@ -61,9 +61,34 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return _calendarContent!.getString(key, langCode);
   }
 
+  // Local fallback for Hijri month names by index (0-11)
+  static const _hijriMonthsByIndex = [
+    {'en': 'Muharram', 'hi': 'मुहर्रम', 'ur': 'محرم', 'ar': 'محرّم'},
+    {'en': 'Safar', 'hi': 'सफ़र', 'ur': 'صفر', 'ar': 'صفر'},
+    {'en': 'Rabi ul Awwal', 'hi': 'रबीउल अव्वल', 'ur': 'ربیع الاول', 'ar': 'ربيع الأوّل'},
+    {'en': 'Rabi ul Aakhir', 'hi': 'रबीउल आख़िर', 'ur': 'ربیع الثانی', 'ar': 'ربيع الثاني'},
+    {'en': 'Jumada ul Ula', 'hi': 'जुमादा अल-ऊला', 'ur': 'جمادی الاول', 'ar': 'جمادى الأولى'},
+    {'en': 'Jumada ul Aakhira', 'hi': 'जुमादा अल-आख़िरा', 'ur': 'جمادی الثانی', 'ar': 'جمادى الآخرة'},
+    {'en': 'Rajab', 'hi': 'रजब', 'ur': 'رجب', 'ar': 'رجب'},
+    {'en': 'Shaban', 'hi': 'शाबान', 'ur': 'شعبان', 'ar': 'شعبان'},
+    {'en': 'Ramadan', 'hi': 'रमज़ान', 'ur': 'رمضان', 'ar': 'رمضان'},
+    {'en': 'Shawwal', 'hi': 'शव्वाल', 'ur': 'شوال', 'ar': 'شوّال'},
+    {'en': 'Dhul Qadah', 'hi': 'ज़ुल क़ादा', 'ur': 'ذوالقعدہ', 'ar': 'ذو القعدة'},
+    {'en': 'Dhul Hijjah', 'hi': 'ज़ुल हिज्जा', 'ur': 'ذوالحجہ', 'ar': 'ذو الحجّة'},
+  ];
+
   String _getMonthName(int monthIndex, String langCode) {
-    if (_calendarContent == null) return '';
-    return _calendarContent!.getIslamicMonths(langCode)[monthIndex];
+    if (monthIndex < 0 || monthIndex > 11) return '';
+    if (_calendarContent != null) {
+      try {
+        final months = _calendarContent!.getIslamicMonths(langCode);
+        if (months.length > monthIndex && months[monthIndex].isNotEmpty) {
+          return months[monthIndex];
+        }
+      } catch (_) {}
+    }
+    // Local fallback
+    return _hijriMonthsByIndex[monthIndex][langCode] ?? _hijriMonthsByIndex[monthIndex]['en'] ?? '';
   }
 
   String _getUrduArabicNumerals(dynamic number, String langCode) {

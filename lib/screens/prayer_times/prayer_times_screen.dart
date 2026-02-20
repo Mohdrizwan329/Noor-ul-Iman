@@ -26,6 +26,22 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
   bool _isContentLoading = true;
   bool _hasScheduledNotifications = false;
 
+  // Local fallback for Hijri month translations (used when Firestore data is missing)
+  static const _hijriMonthFallback = {
+    'month_muharram': {'en': 'Muharram', 'hi': 'मुहर्रम', 'ur': 'محرم', 'ar': 'محرّم'},
+    'month_safar': {'en': 'Safar', 'hi': 'सफ़र', 'ur': 'صفر', 'ar': 'صفر'},
+    'month_rabi_ul_awwal': {'en': 'Rabi ul Awwal', 'hi': 'रबीउल अव्वल', 'ur': 'ربیع الاول', 'ar': 'ربيع الأوّل'},
+    'month_rabi_ul_aakhir': {'en': 'Rabi ul Aakhir', 'hi': 'रबीउल आख़िर', 'ur': 'ربیع الثانی', 'ar': 'ربيع الثاني'},
+    'month_jumada_ul_ula': {'en': 'Jumada ul Ula', 'hi': 'जुमादा अल-ऊला', 'ur': 'جمادی الاول', 'ar': 'جمادى الأولى'},
+    'month_jumada_ul_aakhira': {'en': 'Jumada ul Aakhira', 'hi': 'जुमादा अल-आख़िरा', 'ur': 'جمادی الثانی', 'ar': 'جمادى الآخرة'},
+    'month_rajab': {'en': 'Rajab', 'hi': 'रजब', 'ur': 'رجب', 'ar': 'رجب'},
+    'month_shaban': {'en': 'Shaban', 'hi': 'शाबान', 'ur': 'شعبان', 'ar': 'شعبان'},
+    'month_ramadan': {'en': 'Ramadan', 'hi': 'रमज़ान', 'ur': 'رمضان', 'ar': 'رمضان'},
+    'month_shawwal': {'en': 'Shawwal', 'hi': 'शव्वाल', 'ur': 'شوال', 'ar': 'شوّال'},
+    'month_dhul_qadah': {'en': 'Dhul Qadah', 'hi': 'ज़ुल क़ादा', 'ur': 'ذوالقعدہ', 'ar': 'ذو القعدة'},
+    'month_dhul_hijjah': {'en': 'Dhul Hijjah', 'hi': 'ज़ुल हिज्जा', 'ur': 'ذوالحجہ', 'ar': 'ذو الحجّة'},
+  };
+
   @override
   void initState() {
     super.initState();
@@ -208,7 +224,14 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
       return '$day $monthName $year ${_t('ah')}';
     }
 
-    final translatedMonth = _content!.getHijriMonth(translationKey, _langCode);
+    var translatedMonth = _content!.getHijriMonth(translationKey, _langCode);
+    // If Firestore returned the key itself, use local fallback
+    if (translatedMonth == translationKey) {
+      final fallback = _hijriMonthFallback[translationKey];
+      if (fallback != null) {
+        translatedMonth = fallback[_langCode] ?? fallback['en'] ?? translatedMonth;
+      }
+    }
     return '$day $translatedMonth $year ${_t('ah')}';
   }
 
